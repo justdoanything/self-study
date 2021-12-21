@@ -1,4 +1,5 @@
 
+```
 1️⃣ Spring Framework
 App
 Spring Framework
@@ -7,13 +8,15 @@ Container x n
 WAS (.exe)
 JDK
 OS
-
+```
+```
 2️⃣ Spring Boot
 App
 Spring boot (.exe)
 OS
+```
 
-
+```
 3️⃣ Spring 주요 특징
     🎈 제어의 역전(IOC = Inversion of Control)
         Java Application 초기엔 객체의 생성,객체 간의 의존관계 연결 등 제어권을 개발자가 갖고 있었지만
@@ -39,8 +42,11 @@ OS
         EJB와 같은 방식에서 사용하던 Object 그대로를 Spring에 녹일 수 있는 방식이다.
         환경과 기술에 종속되지 않고 필요에 따라 활용하여 사용할 수 있는 Object를 말한다.
         간단한 예로는 DTO, VO와 같이 getter/setter로 되있는 단순 Object를 말하기도 한다.
+```
 
-
+```
+*️⃣ 참고자료  
 https://m.blog.naver.com/sillllver/220593543939
 https://hoon93.tistory.com/56
 https://engkimbs.tistory.com/746
+```
