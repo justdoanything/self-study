@@ -37,6 +37,39 @@
 ![image](https://user-images.githubusercontent.com/21374902/147322683-26ab298f-a6fd-4ca6-b2f9-994faf71c75a.png)
 ![image](https://user-images.githubusercontent.com/21374902/147327131-76c2efb7-e930-4f4d-b319-c796052766c7.png)
 
+
+```
+6️⃣ Windows 10에 개발환경 세팅
+  . Hyper-V 활성화
+    > 제어판 > 프로그램 및 기능 > Windows 기능 켜기/끄기 > 'Hyper-V 체크'
+  . WSL (Windows Services for Linux) 활성화
+    > PS C:\> dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart 
+  . WSL Kernel update package 설치 
+  . Ubuntu 설치
+  . Docker Desktop for Windows10 설치
+    > WSL2 & Ubuntu 설정
+  . WSL2 (Ubuntu) 환경에서 개발도구 설치
+    > Ubuntu Update
+      - sudo apt update
+      - sudo apt upgrade -y
+      - sudo apt autoremove -y
+    > Git
+      - sudo apt install git -y
+    > AWS CLI
+      - sudo apt install python -y
+      - sudo apt install python3 -y
+      - sudo apt install python3-pip -y
+    > SAM CLI
+      - pip3 install aws-sam-cli --user --trusted-host pypi.org --trusted-host files.pythonhosted.org
+    > Node.js
+      - wget https://nodejs.org/dist/latest-v12.x/node-<버전>-linux-x64.tar.gz - P ~/tools/
+      - tar xvf ~/tools/node-<버전>-linux-x64.tar.gz -C ~/tools/
+      - echo "export PATH=\"\$HOME/tools/node-<버전>-linux-x64/bin:\$PATH\"" >> ~/.profile
+      - source ~/.profile
+      - npm install -g yarn
+
+```
+
 ```
 *️⃣ 참고자료
   https://subicura.com/2017/01/19/docker-guide-for-beginners-1.html
