@@ -77,7 +77,52 @@
   . Docker를 실행하기 위해선 kernel은 3.10.x 이상, Ubuntu는 14.04 이상을 사용해야 합니다.
   . Docker for Windows를 설치해도 Docker는 Linux 기반 Container 이기 때문에 실제론 가상머신에 설치가 됩니다.
   . 특정 Port나 Directory를 연결하려면 Docker Container를 가상머신에 연결하고 다시 Windows에 연결해하는 작업이 필요한대 이런 부분을 자연스럽게 처리해줍니다.
-  . 
+  . docker version 명령어를 실행하면 Client와 Server 2개가 나오는데 이는 Docker가 하나의 실행파일 이지만 Client/Server 역할을 동시에 합니다.
+  . docker client가 docker server로 명령을 전송하고 결과를 받아 터미널에 출력합니다.
+```
+![image](https://user-images.githubusercontent.com/21374902/147620567-f0f179fd-d97f-4adc-8694-0f7a8ef1a753.png)
+```
+  . docker run [OPTIONS] IMAGE[:TAG|@DIGEST] [COMMAND] [ARG...]
+    -d      detached mode 흔히 말하는 백그라운드 모드
+    -p	    호스트와 컨테이너의 포트를 연결 (포워딩)
+    -v	    호스트와 컨테이너의 디렉토리를 연결 (마운트)
+    -e	    컨테이너 내에서 사용할 환경변수 설정
+    –name   컨테이너 이름 설정
+    –rm	    프로세스 종료시 컨테이너 자동 제거
+    -it	    -i와 -t를 동시에 사용한 것으로 터미널 입력을 위한 옵션
+    –link   컨테이너 연결 [컨테이너명:별칭]
+  - Ubuntu Container 예제
+    docker run ubuntu:16.04
+      → ubuntu 이미지가 없으면 자동으로 다운받고 실행하고 다른 명령어를 보내지 않았기 때문에 Container가 생성됐다가 바로 삭제됨
+    docker run --rm -it ubuntu:16.04 /bin/bash
+  - Redis Container 예제
+    ＊ redis는 메모리 기반의 다양한 기능을 가진 스토리지로 6379 포트로 통신
+    → docker run -d -p 1234:6379 redis
+      (-d 옵션이 없으면 foreground로 실행되서 아무키도 입력할 수 없는 상태가 됨)
+      (docker는 1개로 떠있기 때문에 Ubuntu 내에서 1234 포트로 붙는 것과 Windows10 Terminal에서 1234포트로 붙는거 모두 동일한 redis를 사용한다.)
+  - Mysql Container 예제
+    → docker run -d -p 3306:3306 \
+      -e MYSQL_ALLOW_EMPTY_PASSWORD=true \
+      --name mysql \
+      mysql:5.7
+    → mysql -h127.0.0.1 -uroot
+  - WordPress Container 예제
+    ＊ WordPress는 database가 필요하기 때문에 --link 옵션으로 mysql container에 연결해줍니다.
+    → docker run -d -p 8080:80 \
+      --link mysql:mysql \
+      -e WORDPRESS_DB_HOST=mysql \
+      -e WORDPRESS_DB_NAME=wp \
+      -e WORDPRESS_DB_USER=wp \
+      -e WORDPRESS_DB_PASSWORD=wp \
+      wordpress
+
+  
+
+  . Container 명령어
+    중단 : docker stop {name}
+    삭제 : docker rm {name}
+    이름 변경 : docker rename {old} {new}
+    전체 조회 : docker ps -a
 ```
 
 ```
