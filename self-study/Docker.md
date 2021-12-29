@@ -119,21 +119,20 @@
     → docker run -d -p 8888:8888 -p 6006:6006 teamlab/pydata-tensorflow:0.1
 
   . Container 명령어
-    중단 : docker stop {name}
-    삭제 : docker rm {name}
-    이름 변경 : docker rename {old} {new}
-    전체 조회 : docker ps -a
-    이미지 조회 : docker images
-    이미지 다운로드 : docker pull {image}
-    이미지 삭제 : docker rmi {image}
-    로그 : docker logs {container}
-           docker logs --tail 10 {container}
-           docker logs -f {container}
-    컨테이너 명령어 실행 : docker exec {container}
-                          docker exec -it mysql /bin/bash
-                          (docker run은 컨테이너를 실행하지만 exec는 실행중인 컨테이너에 명령어를 던진다.)
-                          docker exec -it mysql mysql -uroot  
-
+    1. docker stop {name}
+    2. docker rm {name}
+    3. docker rename {old} {new}
+    4. docker ps -a
+    5. docker images
+    6. docker pull {image}
+    7. docker rmi {image}
+    8. docker logs {container}
+       docker logs --tail 10 {container}
+       docker logs -f {container}
+    9. docker exec {container}
+       docker exec -it mysql /bin/bash
+       docker exec -it mysql mysql -uroot  
+       (docker run은 컨테이너를 실행하지만 exec는 실행중인 컨테이너에 명령어를 던진다.)
 ```
 ```
 8️⃣ Container Update
