@@ -43,11 +43,13 @@
   . Hyper-V 활성화
     > 제어판 > 프로그램 및 기능 > Windows 기능 켜기/끄기 > 'Hyper-V 체크'
   . WSL (Windows Services for Linux) 활성화
-    > PS C:\> dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart 
+    > dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart 
   . WSL Kernel update package 설치 
   . Ubuntu 설치
+    > https://docs.microsoft.com/ko-kr/windows/wsl/install-manual
   . Docker Desktop for Windows10 설치
-    > WSL2 & Ubuntu 설정
+    > General > Use the WSL2 based engine 체크
+    > Resources > WSL INTEGRATION > Enable integration with my default WSL distro 체크
   . WSL2 (Ubuntu) 환경에서 개발도구 설치
     > Ubuntu Update
       - sudo apt update
@@ -69,6 +71,14 @@
       - npm install -g yarn
 ```
 ![image](https://user-images.githubusercontent.com/21374902/147616035-5bb71b64-74e2-490c-bbc6-bb44fbc06ddd.png)
+```
+7️⃣ 무작정 Docker 따라하기 - ssh_tunneling 올려보기
+  . https://github.com/justdoanything/ssh_tunneling
+  . Docker를 실행하기 위해선 kernel은 3.10.x 이상, Ubuntu는 14.04 이상을 사용해야 합니다.
+  . Docker for Windows를 설치해도 Docker는 Linux 기반 Container 이기 때문에 실제론 가상머신에 설치가 됩니다.
+  . 특정 Port나 Directory를 연결하려면 Docker Container를 가상머신에 연결하고 다시 Windows에 연결해하는 작업이 필요한대 이런 부분을 자연스럽게 처리해줍니다.
+  . 
+```
 
 ```
 *️⃣ 참고자료
