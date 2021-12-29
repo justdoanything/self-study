@@ -72,7 +72,7 @@
 ```
 ![image](https://user-images.githubusercontent.com/21374902/147616035-5bb71b64-74e2-490c-bbc6-bb44fbc06ddd.png)
 ```
-7️⃣ 무작정 Docker 따라하기 - ssh_tunneling 올려보기
+7️⃣ 무작정 Docker 따라하기
   . https://github.com/justdoanything/ssh_tunneling
   . Docker를 실행하기 위해선 kernel은 3.10.x 이상, Ubuntu는 14.04 이상을 사용해야 합니다.
   . Docker for Windows를 설치해도 Docker는 Linux 기반 Container 이기 때문에 실제론 가상머신에 설치가 됩니다.
@@ -115,16 +115,30 @@
       -e WORDPRESS_DB_USER=wp \
       -e WORDPRESS_DB_PASSWORD=wp \
       wordpress
-
-  
+  - Tensorflow Container 예제
+    → docker run -d -p 8888:8888 -p 6006:6006 teamlab/pydata-tensorflow:0.1
 
   . Container 명령어
     중단 : docker stop {name}
     삭제 : docker rm {name}
     이름 변경 : docker rename {old} {new}
     전체 조회 : docker ps -a
-```
+    이미지 조회 : docker images
+    이미지 다운로드 : docker pull {image}
+    이미지 삭제 : docker rmi {image}
+    로그 : docker logs {container}
+           docker logs --tail 10 {container}
+           docker logs -f {container}
+    컨테이너 명령어 실행 : docker exec {container}
+                          docker exec -it mysql /bin/bash
+                          (docker run은 컨테이너를 실행하지만 exec는 실행중인 컨테이너에 명령어를 던진다.)
+                          docker exec -it mysql mysql -uroot  
 
+```
+```
+8️⃣ Container Update
+```
+![image](https://user-images.githubusercontent.com/21374902/147638958-a81d9bf3-8645-4b4c-b5f7-39575f9e0623.png)
 ```
 *️⃣ 참고자료
   https://subicura.com/2017/01/19/docker-guide-for-beginners-1.html
