@@ -1,4 +1,10 @@
 ```
+0️⃣ 목표
+Docker에 대한 기본 이해
+ssh_tunneling 프로그램을 docker를 활용해 구동/배포/관리가 되도록 개발
+Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
+```
+```
 1️⃣ 물리 머신 vs 가상 머신 vs 도커 컨테이너
 ```
 ![image](https://user-images.githubusercontent.com/21374902/147321427-6f4f1bf6-e1b0-450e-bf6b-43fef4cde521.png)
