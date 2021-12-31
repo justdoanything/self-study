@@ -14,6 +14,14 @@ OS
 App
 Spring boot (.exe)
 OS
+
+기존에 Spring을 설치하고 설정할 때 수많은 context를 설정해야하고 tomcat을 따로 설정하고 Hibernate, datasource 등
+환경설정에 소요되는 시간이 너무 많았었는데 Spring Boot는 이런 기본적인 부분들은 모두 package로 붙어서
+자동으로 설정 및 사용해주고 개발자는 변경하고 싶은 설정은 yml에 정의하거나
+@Configuration 어노테이션으로 Spring이 실행될 때 같이 실행되도록 할 수 있다.
+
+Spring Boot는 spring-boot-starter라는 dependency를 사용하여 개발자가 따로 설정하지 않아도 자동으로 구성해주기 때문에
+spring을 구동하는 방식이 아주 간단해 집니다.
 ```
 
 ```
