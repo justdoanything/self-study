@@ -125,25 +125,71 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
     → docker run -d -p 8888:8888 -p 6006:6006 teamlab/pydata-tensorflow:0.1
 
   . Container 명령어
-    1. docker stop {name}
-    2. docker rm {name}
-    3. docker rename {old} {new}
-    4. docker ps -a
-    5. docker images
-    6. docker pull {image}
-    7. docker rmi {image}
-    8. docker logs {container}
+    1. docker start {name}
+    2. docker stop {name}
+    3. docker rm {name}
+    4. docker rename {old} {new}
+    5. docker ps -a
+    6. docker images
+    7. docker pull {image}
+    8. docker rmi {image}
+    9. docker logs {container}
        docker logs --tail 10 {container}
        docker logs -f {container}
-    9. docker exec {container}
+    10. docker exec {container}
        docker exec -it mysql /bin/bash
        docker exec -it mysql mysql -uroot  
        (docker run은 컨테이너를 실행하지만 exec는 실행중인 컨테이너에 명령어를 던진다.)
 ```
 ```
 8️⃣ Container Update
+  . Docker Containter를 업데이트 하기 위해선 새버전의 Image를 다운 받고(pull) 기존 Container를 중지(stop) 후 삭제(rm)한 후 새로운 Image를 기반으로 다시 실행(run)해야 합니다.
+  → 이렇게 할경우 Container 내 데이터가 모두 삭제되는 문제가 발생
+    (mysql 이라면 database 내 데이터 전부 등)
+  . 이를 해결하기 위해선 삭제되어선 안되는 데이터들을 AWS S3와 같은 클라우드 서비스를 이용하거나 Data Volumes을 Container에 추가해서 사용하는 방법이 있습니다.
+  . run 명령어 중에 -v 옵션을 주면 Host의 Directory를 Mount해서 사용할 수 있습니다.
+    docker run -d -p 3306:3306 \
+      -e MYSQL_ALLOW_EMPTY_PASSWORD=true \
+      --name mysql \
+      -v /my/own/data/datadir:/var/lib/mysql \
+      mysql:5.7
 ```
 ![image](https://user-images.githubusercontent.com/21374902/147638958-a81d9bf3-8645-4b4c-b5f7-39575f9e0623.png)
+```
+9️⃣ DockerCompose
+  . Docker의 복잡한 설정을 간편하게 하기 위해서 yml방식의 설정파일을 이용한 Docker Compose를 사용합니다.
+  . docker-compose.yml 작성 후 docker-compose up 명령어 실행
+  . 예제코드    
+    version: '2'
+
+    services:
+      db:
+        image: mysql:5.7
+        volumes:
+          - db_data:/var/lib/mysql
+        restart: always
+        environment:
+          MYSQL_ROOT_PASSWORD: wordpress
+          MYSQL_DATABASE: wordpress
+          MYSQL_USER: wordpress
+          MYSQL_PASSWORD: wordpress
+
+      wordpress:
+        depends_on:
+          - db
+        image: wordpress:latest
+        volumes:
+          - wp_data:/var/www/html
+        ports:
+          - "8000:80"
+        restart: always
+        environment:
+          WORDPRESS_DB_HOST: db:3306
+          WORDPRESS_DB_PASSWORD: wordpress
+    volumes:
+        db_data:
+        wp_data:
+```
 ```
 *️⃣ 참고자료
   https://subicura.com/2017/01/19/docker-guide-for-beginners-1.html
