@@ -161,7 +161,6 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
   . docker-compose.yml 작성 후 docker-compose up 명령어 실행
   . 예제코드    
     version: '2'
-
     services:
       db:
         image: mysql:5.7
@@ -173,7 +172,6 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
           MYSQL_DATABASE: wordpress
           MYSQL_USER: wordpress
           MYSQL_PASSWORD: wordpress
-
       wordpress:
         depends_on:
           - db
@@ -189,6 +187,7 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
     volumes:
         db_data:
         wp_data:
+  . docker-compose 더 자세히 알아보기
 ```
 ```
 *️⃣ 참고자료
