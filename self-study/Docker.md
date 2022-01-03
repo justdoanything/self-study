@@ -190,7 +190,7 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
   . docker-compose 더 자세히 알아보기
 ```
 ```
-1️⃣0️⃣ gitlab.yml 예제
+1️⃣0️⃣ gitlab-ci.yml 예제
   . 
     # 
     image: docker:latest
@@ -204,18 +204,50 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
       paths:
         - .m2/   
     # 파이프라인 단계의 이름과 순서
+    # Job이 실행되는 단계를 의미하며 동일한 stage 안에 있는 JOB들은 병렬적으로 수행
+      예를들어 build 안에 있는 Job들은 병렬적으로 수행
     stages: 
-    # - test
+    #  - test
       - build
       - package
-      - deploy
+    #  - deploy
+    build:
+      image: maven:3-jdk-8
+      stage: build
+      only:
+        - triggers
+      script: "mvn install"
+      artifacts:
+        paths:
+          - target/*.jar
+    DEV-docker-build:
+      stage: package
+      only:
+        - triggers
+      except:
+        - /^stage.*$/
+        - /^master.*$/
+      before_script:
+        - NEW_IMAGE_NAME = ${environment}:$(echo ${CI_COMMIT_REF_NAME} | sed "s/[^[[:alnum]]//g")-${CI_COMMIT_SHA}])
+      script:
+        - apk add --no-cache curl jq python3 py3-pip
+        - pip3 install awscli
+        - $(aws ecr get-login --no-include-email --region {aws region})
+        - docker build -t $NEW_IMAGE_NAME .
+        - docker push $NEW_IMAGE_NAME
+        - docker rmi $NEW_IMAGE_NAME
+    STG-docker-build:
+      {DEV와 상동하고 except 부분만 stage 대신 dev로 작성}
 
 ```
 ```
 *️⃣ 참고자료
 ```
-Docker : [Logosubicura's blog](https://subicura.com/2017/01/19/docker-guide-for-beginners-1.html)
-Gitlab-ci : [otrodevym's tistory](https://otrodevym.tistory.com/entry/Gitlab-CICD-gitlab-ciyml-%EC%82%AC%EC%9A%A9-%EB%B0%A9%EB%B2%95)
+- Docker Docs : [Docker Docs](https://docs.docker.com/get-started/overview/)
+- Gitlab Docs : [Gitlab Docs](https://docs.gitlab.com/ee/ci/yaml/index.html#stages)
+- Docker Part : [Logosubicura's blog](https://subicura.com/2017/01/19/docker-guide-for-beginners-1.html)
+- gitlab-ci.yml Part : [otrodevym's tistory](https://otrodevym.tistory.com/entry/Gitlab-CICD-gitlab-ciyml-%EC%82%AC%EC%9A%A9-%EB%B0%A9%EB%B2%95)
+
 
 ```
 5️⃣ Docker와 Kubernetes
