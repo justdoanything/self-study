@@ -45,7 +45,7 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 
 
 ```
-6️⃣ Windows 10에 개발환경 세팅
+6️⃣ Windows 10에 개발환경 세팅 (With WSL)
   . Hyper-V 활성화
     > 제어판 > 프로그램 및 기능 > Windows 기능 켜기/끄기 > 'Hyper-V 체크'
   . WSL (Windows Services for Linux) 활성화
@@ -190,22 +190,35 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
   . docker-compose 더 자세히 알아보기
 ```
 ```
+1️⃣0️⃣ gitlab.yml 예제
+  . 
+    # 
+    image: docker:latest
+    
+    # 환경 변수 등 아래 명령어에서 공통으로 사용하는 값 세팅
+    variables:
+      {AWS ECS 주소 등 특정 values 세팅}
+    
+    # 
+    cache:
+      paths:
+        - .m2/   
+    # 파이프라인 단계의 이름과 순서
+    stages: 
+    # - test
+      - build
+      - package
+      - deploy
+
+```
+```
 *️⃣ 참고자료
-  https://subicura.com/2017/01/19/docker-guide-for-beginners-1.html
 ```
-```
-3️⃣ Windows 10 환경에서 개발환경 세팅하기
+Docker : [Logosubicura's blog](https://subicura.com/2017/01/19/docker-guide-for-beginners-1.html)
+Gitlab-ci : [otrodevym's tistory](https://otrodevym.tistory.com/entry/Gitlab-CICD-gitlab-ciyml-%EC%82%AC%EC%9A%A9-%EB%B0%A9%EB%B2%95)
 
-```
-```
-4️⃣ WSL2 와 Docker
-
-```
 ```
 5️⃣ Docker와 Kubernetes
 
 ```
-```
-*️⃣ 참고자료  
-https://subicura.com/2017/01/19/docker-guide-for-beginners-1.html
-```
+
