@@ -93,10 +93,11 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
     -p	    호스트와 컨테이너의 포트를 연결 (포워딩)
     -v	    호스트와 컨테이너의 디렉토리를 연결 (마운트)
     -e	    컨테이너 내에서 사용할 환경변수 설정
-    –name   컨테이너 이름 설정
+    –-name   컨테이너 이름 설정
     –rm	    프로세스 종료시 컨테이너 자동 제거
     -it	    -i와 -t를 동시에 사용한 것으로 터미널 입력을 위한 옵션
     –link   컨테이너 연결 [컨테이너명:별칭]
+    -w      Container에 작업 경로를 변경
   - Ubuntu Container 예제
     docker run ubuntu:16.04
       → ubuntu 이미지가 없으면 자동으로 다운받고 실행하고 다른 명령어를 보내지 않았기 때문에 Container가 생성됐다가 바로 삭제됨
@@ -263,7 +264,7 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
       before_script:
         - NEW_IMAGE_TAG=$(echo ${CI_COMMIT_REF_NAME} | sed "s/[^[[:alnum:]]//g")-${CI_COMMIT_SHA}
       script:
-        - "RESULT=\"$(curl -s -o /dev/null -w \"%{http_code}\" --request POST -H \"access_token: ${ACCESS_TOKEN}\" \"${CICD_SERVICE_URL}${serverGroup URL}/deploy?commit=$NEW_IMAGE_TAG\")\""
+        - "RESULT=\"$(curl -s -o /dev/null -w \"%{http_code}\" --request POST -H \"access_token: ${ACCESS_TOKEN}\" \"${CICD_SERVICE_URL}/${serverGroup URL}/deploy?commit=$NEW_IMAGE_TAG\")\""
         - echo ${RESULT}
 ### STG, PROD 환경별 작성    
 ###  환경별 값은 거의 동일하고 except 부분만 달라진다.
@@ -274,7 +275,45 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
     
 ```
 ```
-1️⃣2️⃣ 
+1️⃣2️⃣ Docker Image 생성
+  . Sinatra 웹 어플리케이션 예제
+    ruby 폴더를 생성하고 아래 파일을 작성
+```
+![image](https://user-images.githubusercontent.com/21374902/147998926-91891017-44e7-4dd8-a488-4afcc18b2587.png)
+```
+  . ruby 실행
+    docker run --rm \
+    -p 4567:4567 \
+    -v $PWD:/usr/src/app \
+    -w /usr/src/app \
+    ruby \
+    bash -c "bundle install && bundle exec ruby app.rb -o 0.0.0.0"
+  . 아래 명령어로 로컬에 있는 파일 기준으로 Container를 만들고 그 안에 bundle를 설치하고 실행할 수 있지만
+    내 환경에선 SSL 에러와 Server handler not found 에러가 발생하여 아래 코드로 대체
+    sudo apt install ruby-bundler
+    (기존에 Gemfile.lock 파일이 있으면 삭제 후 진행)
+    bundle install
+    bundle exec ruby app.rb
+```
+```
+💥 Trouble Shooting
+  1. Gemfile에 source 부분을 https 로 작성하면 SSL Exception 발생
+    → rubygems.org는 Fastly 라는 CDN provider를 사용하는데 Fastly에서 TLS 1.2 으로 업데이트 하면서 인증이 필요하게됨.
+    → 해당 에러도 Container 내에서 명령어가 실행될 때 발생하는 에러로 아래와 비슷한 http/https 관련 에러일거라고 파악.
+
+  2. source 부분을 http로 수정 후 Container로 ruby를 실행하면 Server handler not fund 에러 발생
+     (1) docker run을 할 때 바로 bash 명령어를 실행하지 않고 직접 들어가서 명령어를 하나씩 실행해봄.
+       docker run --rm -p 4567:4567 -v $PWD:/usr/src/app -w /usr/src/app --name ruby -it ruby /bin/bash
+         bundle install (성공)
+         bundle exec ruby app.rb -o 0.0.0.0
+       → Server handler (thin,puma,reel,HTTP,webrick) not found. (RuntimeError) 에러 발생
+         Gemfile에 rubygems.org로 접근할 때 에러 발생.
+     (2) Container 내에서 gem install thin, puma, reel, http, webrick 명령어 수행 후 ruby 다시 실행
+       → 같은 에러 발생
+     (3) Container 내에서 web protocol 자원을 사용하지 못하는 것으로 생각함
+  3. 마땅한 해결책은 찾지 못했고 나중에 시간이 되면 다시 찾아볼 예정.
+     이후엔 내가 만든 imaage, container로 web 통신을 할 예정이니까 그때 다시 시도해보기로 함.
+
 ```
 ```
 *️⃣ 참고자료
