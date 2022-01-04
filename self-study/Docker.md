@@ -155,11 +155,11 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
       mysql:5.7
 ```
 ![image](https://user-images.githubusercontent.com/21374902/147638958-a81d9bf3-8645-4b4c-b5f7-39575f9e0623.png)
-```
+```yml
 9️⃣ DockerCompose
-  . Docker의 복잡한 설정을 간편하게 하기 위해서 yml방식의 설정파일을 이용한 Docker Compose를 사용합니다.
-  . docker-compose.yml 작성 후 docker-compose up 명령어 실행
-  . 예제코드    
+### Docker의 복잡한 설정을 간편하게 하기 위해서 yml방식의 설정파일을 이용한 Docker Compose를 사용합니다.
+### docker-compose.yml 작성 후 docker-compose up 명령어 실행
+### 예제코드    
     version: '2'
     services:
       db:
@@ -187,30 +187,41 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
     volumes:
         db_data:
         wp_data:
-  . docker-compose 더 자세히 알아보기
+  
+### docker-compose 더 자세히 알아보기
+추후 작성 필요
 ```
-```
+```yml
 1️⃣0️⃣ gitlab-ci.yml 예제
-  . 
-    # 
+### gitlab-docker-aws 환경에 DEV, STG, PROD 라는 3개의 환경을 세팅하여 사용할 때 사용했던 gitlab-ci.yml
+    
+### docker image 기반으로 동작하도록 설정
     image: docker:latest
     
-    # 환경 변수 등 아래 명령어에서 공통으로 사용하는 값 세팅
+### 환경 변수 등 아래 명령어에서 공통으로 사용하는 값 세팅
     variables:
-      {AWS ECS 주소 등 특정 values 세팅}
-    
-    # 
+      DEV_ECR: {ECR Repository 주소}
+      STG_ECR: {ECR Repository 주소}
+      PROD_ECR: {ECR Repository 주소}
+      MAVEN_OPTS: -Dmaven.repo.local=${CI_PROJECT_DIR}/.mr
+### ECR : Amazon Elastic Container Registry
+###       ECR에 Repository, 정책, 토큰, 이미지 등을 미리 설정해두고 그 설정을 불러서 동작하도록 설정
+### ECR을 이용해서 EC2에 새로운 ECS를 만드는 순서
+### Ready Docker image → Create ECR repository → Connect EC2 → Pull Docker image → Create new ECS with docker image → Create service
+
+### 
     cache:
       paths:
         - .m2/   
-    # 파이프라인 단계의 이름과 순서
-    # Job이 실행되는 단계를 의미하며 동일한 stage 안에 있는 JOB들은 병렬적으로 수행
-      예를들어 build 안에 있는 Job들은 병렬적으로 수행
+### 파이프라인 단계의 이름과 순서
+### Job이 실행되는 단계를 의미하며 동일한 stage 안에 있는 JOB들은 병렬적으로 수행
     stages: 
-    #  - test
+#     - test
       - build
       - package
-    #  - deploy
+#     - deploy   # build 후 자동으로 deploy까지 할 때 사용
+    
+### stages에 있는 build가 수행될 때 참조하는 스크립트
     build:
       image: maven:3-jdk-8
       stage: build
@@ -220,6 +231,7 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
       artifacts:
         paths:
           - target/*.jar
+### DEV 환경에 docker build 될 때 참조하는 스크립트
     DEV-docker-build:
       stage: package
       only:
@@ -236,9 +248,32 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
         - docker build -t $NEW_IMAGE_NAME .
         - docker push $NEW_IMAGE_NAME
         - docker rmi $NEW_IMAGE_NAME
-    STG-docker-build:
-      {DEV와 상동하고 except 부분만 stage 대신 dev로 작성}
 
+### stages에 deploy를 수행할 때 참조하는 스크립트
+    DEV-deploy:
+      image: sppark/curl-jq:v1
+      stage: deploy
+      only:
+        - triggers
+      except:
+        # only dev
+        - /^stage.*$/
+        - /^master.*$/
+      before_script:
+        - NEW_IMAGE_TAG=$(echo ${CI_COMMIT_REF_NAME} | sed "s/[^[[:alnum:]]//g")-${CI_COMMIT_SHA}
+      script:
+        - "RESULT=\"$(curl -s -o /dev/null -w \"%{http_code}\" --request POST -H \"access_token: ${ACCESS_TOKEN}\" \"${CICD_SERVICE_URL}/app/19/serverGroup/43/deploy?commit=$NEW_IMAGE_TAG\")\""
+        - echo ${RESULT}
+# STG, PROD 환경별 작성    
+  환경별 값은 거의 동일하고 except 부분만 달라진다.
+    STG-docker-build:
+    STG-deploy: ...
+    PROD-docker-build: ...
+    PROD-deploy: ...
+    
+```
+```
+1️⃣2️⃣ 
 ```
 ```
 *️⃣ 참고자료
