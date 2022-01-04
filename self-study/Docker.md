@@ -313,7 +313,70 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
      (3) Container 내에서 web protocol 자원을 사용하지 못하는 것으로 생각함
   3. 마땅한 해결책은 찾지 못했고 나중에 시간이 되면 다시 찾아볼 예정.
      이후엔 내가 만든 imaage, container로 web 통신을 할 예정이니까 그때 다시 시도해보기로 함.
+```
+![image](https://user-images.githubusercontent.com/21374902/148023517-60aac2f4-491b-42d8-8c30-08b2ea858993.png)
+```
+  . Docker Image를 만들기 위해선 Dockerfile 이라는 이미지 빌드용 DSL(Domain Specific Language) 파일을 사용
+  . 예제 작업 순서 : ubuntu 설치 → ruby 설치 → 소스 복사 → Gem 패키지 설치 → Sinatra 서버 실행
+  (1) Shell Script - Ubuntu 실행 후 아래 명령어를 수행
+    # 1. ubuntu 설치 (패키지 업데이트)
+    apt-get update
 
+    # 2. ruby 설치
+    apt-get install ruby
+    gem install bundler
+
+    # 3. 소스 복사
+    mkdir -p /usr/src/app
+    scp Gemfile app.rb root@ubuntu:/usr/src/app
+
+    # 4. Gem 패키지 설치
+    bundle install
+
+    # 5. Sinatra 서버 실행
+    bundle exec ruby app.rb
+  (2) Dockerfile
+    # 1. ubuntu 설치 (패키지 업데이트 + 만든사람 표시)
+    FROM ubuntu:16.04
+    MAINTAINER yongwoo@lgcns.com
+    RUN apt-get update
+
+    # 2. ruby 설치
+    RUN apt-get -y install ruby
+    RUN gem install bundler
+
+    # 3. 소스 복사
+    COPY . /usr/src/app  # Gemfile, app.rb가 있는 경로에서 Container에 /usr/src/app 로 복사
+
+    # 4. Gem 패키지 설치 (실행 디렉토리 설정)
+    WORKDIR /usr/src/app  # 위에서 설정한 Container 경로와 같아야함
+    RUN bundle install
+
+    # 5. Sinatra 서버 실행 (Listen 포트 설정)
+    EXPOSE 4567
+    CMD bundle exec ruby app.rb -o 0.0.0.0
+  (3) 만들어둔 DockerFile로 Docker Image 생성
+    docker build -t app .  # --tag 옵션으로 생성할 이미지의 이름은 app로 지정
+  (4) Docker Image 실행
+    docker run -d -p 8080:4567 app
+```
+![image](https://user-images.githubusercontent.com/21374902/148030522-87816648-ab0a-4586-88c0-8cfd9f5d36f9.png)
+```
+1️⃣3️⃣ Dockerfile 명령어
+  . FROM
+  . MAINTAINER
+  . COPY
+  . ADD
+  . RUN
+  . CMD
+  . WORKDIR
+  . EXPOSE
+  . VOLUME
+  . ENV
+```
+```
+1️⃣4️⃣ Docker Build Log 분석
+  임시 컨테이너 생성 → 명령어 수행 → 이미지로 저장 → 임시 컨테이너 삭제 → 새로 만든 이미지 기반으로 임시 컨테이너 생성 → 명렁어 수행 → 이미지 저장 → 임시 컨테이너 삭제 → ... (반복)
 ```
 ```
 *️⃣ 참고자료
