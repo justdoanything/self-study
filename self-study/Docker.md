@@ -237,6 +237,7 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
       only:
         - triggers
       except:
+      # - /^dev.*$/
         - /^stage.*$/
         - /^master.*$/
       before_script:
@@ -262,10 +263,10 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
       before_script:
         - NEW_IMAGE_TAG=$(echo ${CI_COMMIT_REF_NAME} | sed "s/[^[[:alnum:]]//g")-${CI_COMMIT_SHA}
       script:
-        - "RESULT=\"$(curl -s -o /dev/null -w \"%{http_code}\" --request POST -H \"access_token: ${ACCESS_TOKEN}\" \"${CICD_SERVICE_URL}/app/19/serverGroup/43/deploy?commit=$NEW_IMAGE_TAG\")\""
+        - "RESULT=\"$(curl -s -o /dev/null -w \"%{http_code}\" --request POST -H \"access_token: ${ACCESS_TOKEN}\" \"${CICD_SERVICE_URL}${serverGroup URL}/deploy?commit=$NEW_IMAGE_TAG\")\""
         - echo ${RESULT}
-# STG, PROD 환경별 작성    
-  환경별 값은 거의 동일하고 except 부분만 달라진다.
+### STG, PROD 환경별 작성    
+###  환경별 값은 거의 동일하고 except 부분만 달라진다.
     STG-docker-build:
     STG-deploy: ...
     PROD-docker-build: ...
