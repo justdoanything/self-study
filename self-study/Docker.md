@@ -210,6 +210,12 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 ### ECR을 이용해서 EC2에 새로운 ECS를 만드는 순서
 ### Ready Docker image → Create ECR repository → Connect EC2 → Pull Docker image → Create new ECS with docker image → Create service
 
+### Maven 생명주기 : validation -> compile -> test -> package -> intergration-test -> verify -> install -> deploy
+### maven compile : complie 후 target 폴더에 .class 파일 생성
+### maven test : JUnit 테스트 코드 실행
+### maven package : .jar 생성 파일 생성
+### maven build : maven 기반 project build
+
 ### 
     cache:
       paths:
@@ -221,7 +227,7 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
       - build
       - package
 #     - deploy   # build 후 자동으로 deploy까지 할 때 사용
-    
+
 ### stages에 있는 build가 수행될 때 참조하는 스크립트
     build:
       image: maven:3-jdk-8
