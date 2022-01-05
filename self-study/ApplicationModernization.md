@@ -34,6 +34,7 @@ SOA : Service Oriented Architecture
 
 Service Mesh
   - Sidecar Pattern
+  circuit breaker
    Sidecar Proxy : 공통기능 갖고 있을 수 있음. LB 기능, 컨테이너가 응답을 안하면 대신 에러응답을 뱉어줄 수 있음.
 
 Backing Service
@@ -72,4 +73,3 @@ CI/CD
   Continuous Integration
   Continuous Delivery
   Continuous Deployment
-  

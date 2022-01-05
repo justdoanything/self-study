@@ -369,16 +369,16 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 ![image](https://user-images.githubusercontent.com/21374902/148030522-87816648-ab0a-4586-88c0-8cfd9f5d36f9.png)
 ```
 1️⃣3️⃣ Dockerfile 명령어
-  . FROMㅇㅇㅇㅇ
-  . MAINTAINER
-  . COPY
-  . ADD
-  . RUN
-  . CMD
-  . WORKDIR
-  . EXPOSE
-  . VOLUME
-  . ENV
+  . FROM : (필수) base image 지정. 다양한 base image는 Docker hub에서 확인 가능
+  . MAINTAINER : 관리하는 사람의 이름 또는 이메일 정보를 기입
+  . COPY : file, directory를 이미지로 복사. directory가 없으면 자동으로 생성.
+  . ADD : COPY 보다 능동적으로 파일 처리 가능. src에 file 대신 URL을 넣을 수 있고 압축파일을 넣으면 자동으로 압축을 해제해서 복사.
+  . RUN : 명령어를 그대로 실행. /bin/bash -c 뒤에 명령어를 실행하는 방식.
+  . CMD : Docker Container가 실행되었을 때 실행되는 명령어. Build 할때는 실행되지 않으며 여러개의 CMD가 존재하면 맨마지막 CMD만 실행
+  . WORKDIR : RUN, CMD, ADD, COPY 등이 실행된 기본 Directory를 지정. 각 명령어에 대해서 계속 실행되기 때문에 "RUN cd /path"를 실행해도 다음 명령어에선 기본 Directory에서 실행됨.
+  . EXPOSE : Docker Container가 실행되었을 때 요청을 기다리고 있는 포트(Listen Port)를 지정.
+  . VOLUME : Container 외부에 file system을 mount 할 때 사용. 필수는 아니지만 설정해주는 것이 좋음.
+  . ENV : Container에서 사용할 환경변수를 지정. -e 옵션을 사용하면 기존값을 Overriding하여 사용함.
 ```
 ```
 1️⃣4️⃣ Docker Build Log 분석
