@@ -369,7 +369,7 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 ![image](https://user-images.githubusercontent.com/21374902/148030522-87816648-ab0a-4586-88c0-8cfd9f5d36f9.png)
 ```
 1️⃣3️⃣ Dockerfile 명령어
-  . FROM
+  . FROMㅇㅇㅇㅇ
   . MAINTAINER
   . COPY
   . ADD

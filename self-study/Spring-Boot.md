@@ -1,19 +1,6 @@
 
 ```
-1️⃣ Spring Framework
-App
-Spring Framework
-cotext (/WEB-INF/web.xml, /lib, /classes)
-Container x n
-WAS (.exe)
-JDK
-OS
-```
-```
-2️⃣ Spring Boot
-App
-Spring boot (.exe)
-OS
+1️⃣ Spring Framework vs. Spring Boot Framework
 
 기존에 Spring을 설치하고 설정할 때 수많은 context를 설정해야하고 tomcat을 따로 설정하고 Hibernate, datasource 등
 환경설정에 소요되는 시간이 너무 많았었는데 Spring Boot는 이런 기본적인 부분들은 모두 package로 붙어서
@@ -23,9 +10,9 @@ OS
 Spring Boot는 spring-boot-starter라는 dependency를 사용하여 개발자가 따로 설정하지 않아도 자동으로 구성해주기 때문에
 spring을 구동하는 방식이 아주 간단해 집니다.
 ```
-
+![image](https://user-images.githubusercontent.com/21374902/148175368-23100def-25b9-47e7-9574-fb67f770a3b3.png)
 ```
-3️⃣ Spring 주요 특징
+2️⃣ Spring 주요 특징
     🎈 제어의 역전(IOC = Inversion of Control)
         Java Application 초기엔 객체의 생성,객체 간의 의존관계 연결 등 제어권을 개발자가 갖고 있었지만
         Servlet, EJB가 등장하면서 개발자가 독점적으로 갖고 있는 제어권을 넘기게 된다.
