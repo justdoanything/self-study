@@ -14,7 +14,9 @@
 11. [Docker Image 생성](#1️⃣1️⃣-Docker-Image-생성)
 12. [Dockerfile 명령어](#1️⃣2️⃣-Dockerfile-명령어)
 13. [Docker Build Log 분석](#1️⃣3️⃣-Docker-Build-Log-분석)
-14. [Docker와 Kubernetes](#1️⃣4️⃣-Docker와-Kubernetes)
+14. [Dockerfile Build](#1️⃣4️⃣-Dockerfile-Build)
+15. [Docker와 Kubernetes](#1️⃣4️⃣-Docker와-Kubernetes)
+16. [Docker Hub](#1️⃣6️⃣-Docker-Hub)
 ＊ [참고자료](#*️⃣-참고자료)
 ---
 
@@ -363,6 +365,7 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 
     # 5. Sinatra 서버 실행
     bundle exec ruby app.rb
+
   (2) Dockerfile
     # 1. ubuntu 설치 (패키지 업데이트 + 만든사람 표시)
     FROM ubuntu:16.04
@@ -383,10 +386,16 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
     # 5. Sinatra 서버 실행 (Listen 포트 설정)
     EXPOSE 4567
     CMD bundle exec ruby app.rb -o 0.0.0.0
+  
   (3) 만들어둔 DockerFile로 Docker Image 생성
     docker build -t app .  # --tag 옵션으로 생성할 이미지의 이름은 app로 지정
+  
   (4) Docker Image 실행
     docker run -d -p 8080:4567 app
+
+  (5) ruby의 base image를 사용하면 훨씬 간략하게 작성할 수 있습니다.
+    FROM ruby:2.3
+    MAINTAINER subicura@subicura.com
 ```
 ![image](https://user-images.githubusercontent.com/21374902/148030522-87816648-ab0a-4586-88c0-8cfd9f5d36f9.png)
 ```
@@ -404,11 +413,47 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 ```
 ```
 1️⃣3️⃣ Docker Build Log 분석
-  임시 컨테이너 생성 → 명령어 수행 → 이미지로 저장 → 임시 컨테이너 삭제 → 새로 만든 이미지 기반으로 임시 컨테이너 생성 → 명렁어 수행 → 이미지 저장 → 임시 컨테이너 삭제 → ... (반복)
-```
-```
-1️⃣4️⃣ Docker와 Kubernetes
+  . 임시 컨테이너 생성 → 명령어 수행 → 이미지로 저장 → 임시 컨테이너 삭제 → 새로 만든 이미지 기반으로 임시 컨테이너 생성 → 명렁어 수행 → 이미지 저장 → 임시 컨테이너 삭제 → ... (반복)
 
+  Sending build context to Docker daemon  5.12 kB
+    → Docker는 Client/Server로 구성되어 있기 때문에 Client에서 Server(Demon)으로 파일을 전송
+  Step 1/10 : FROM ubuntu:16.04
+    → Dockerfile에서 첫번째 명령어를 실행합니다.
+  ---> f49eec89601e
+    → 명령어 실행 결과를 image로 저장합니다. (ubuntu image의 ID가 표시)           
+  Step 2/10 : MAINTAINER subicura@subicura.com
+    → 두번째 명령어 실행
+  ---> Running in f4de0c750abb
+    → 이전에 생성된 image [f49eec89601e] 기반으로 생성한 Container [f4de0c750abb]에서 명령어를 실행
+  ---> 4a400609ff73
+    → 명령어 수행 결과를 또다른 새로운 image로 저장 [4a400609ff73]
+  Removing intermediate container f4de0c750abb
+    → 임시 Container [f4de0c750abb]  삭제
+  Step 3/10 : RUN apt-get -y update
+    → 세번째 명령어를 실행
+  ...
+  ...
+  Successfully built 20369cef9829
+    → 최종적으로 성공한 image ID를 출력
+```
+```
+1️⃣4️⃣ Dockerfile Build
+  . 명령어를 실행할 때마다 image layer를 저장하고 다시 빌드할 때 Dockerfile이 변경되지 않았으면 기존에 저장한 image를 캐시처럼 그대로 사용합니다.
+  . Dockerfile을 한줄씩 실행할 때 변경되는 부분이 있으면 캐시가 깨지게되고 변경된 부분 이후는 같은 명령어라도 캐시를 사용하지 않고 다 새로 동작합니다.
+    따라서 자주 변경될 것 같은 명령어는 아래로 빼고 install 등 시간이 오래 걸리는 명령어는 위로 올려서 캐시를 활용하는 것이 빌드 시간을 줄일 수 있는 방법입니다.
+  . -qq, --no-doc, --no-ri 옵션을 부여해서 불필요한 로그를 출력하지 않게 하거나 문서를 생성하지 않게 할 수 있습니다.
+  . Docker Layer의 개수가 제한되어 있을 수도 있기 때문에 너무 많은 명령어는 좋지 않습니다.
+  . 아래 사진을 보면 같은 동작을 하지만 훨씬 간략하게 짤 수 있습니다.
+```
+# before
+![image](https://user-images.githubusercontent.com/21374902/148367332-a66c3502-09ce-4909-878a-af5208135d4a.png)
+# after
+![image](https://user-images.githubusercontent.com/21374902/148367264-973aa642-75e0-4e6f-9e2d-db2cb7727812.png)
+```
+1️⃣5️⃣ Docker와 Kubernetes
+```
+```
+1️⃣6️⃣ Docker Hub
 ```
 ```
 *️⃣ 참고자료
