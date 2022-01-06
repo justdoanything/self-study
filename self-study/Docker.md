@@ -1,3 +1,25 @@
+목차
+---
+0. [목표](#0️⃣-목표)
+1. [물리 머신 vs 가상 머신 vs 도커 컨테이너](#물리-머신-vs-가상-머신-vs-도커-컨테이너)
+2. [Docker](#2️⃣-Docker)
+3. [Docker Image](#3️⃣-Docker-Image)
+4. [Docker Layer](#4️⃣-Docker-Layer)
+5. [Dockerfile](#5️⃣-Dockerfile)
+6. [Windows 10에 개발환경 세팅 (With WSL)](#6️⃣-Windows-10에-개발환경-세팅-(With-WSL))
+7. [무작정 Docker 따라하기](#7️⃣-무작정-Docker-따라하기)
+8. [Container Update](#8️⃣-Container-Update)
+9. [Docker Compose](#9️⃣-Docker-Compose)
+10. [gitlab-ci.yml 예제](#1️⃣0️⃣-gitlab-ci.yml-예제)
+11. [Docker Image 생성](#1️⃣1️⃣-Docker-Image-생성)
+12. [Dockerfile 명령어](#1️⃣2️⃣-Dockerfile-명령어)
+13. [Docker Build Log 분석](#1️⃣3️⃣-Docker-Build-Log-분석)
+14. [Docker와 Kubernetes](#1️⃣4️⃣-Docker와-Kubernetes)
+＊ [참고자료](#*️⃣-참고자료)
+---
+
+
+
 ```
 0️⃣ 목표
 Docker에 대한 기본 이해
@@ -157,7 +179,7 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 ```
 ![image](https://user-images.githubusercontent.com/21374902/147638958-a81d9bf3-8645-4b4c-b5f7-39575f9e0623.png)
 ```yml
-9️⃣ DockerCompose
+9️⃣ Docker Compose
 ### Docker의 복잡한 설정을 간편하게 하기 위해서 yml방식의 설정파일을 이용한 Docker Compose를 사용합니다.
 ### docker-compose.yml 작성 후 docker-compose up 명령어 실행
 ### 예제코드    
@@ -281,7 +303,7 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
     
 ```
 ```
-1️⃣2️⃣ Docker Image 생성
+1️⃣1️⃣ Docker Image 생성
   . Sinatra 웹 어플리케이션 예제
     ruby 폴더를 생성하고 아래 파일을 작성
 ```
@@ -368,7 +390,7 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 ```
 ![image](https://user-images.githubusercontent.com/21374902/148030522-87816648-ab0a-4586-88c0-8cfd9f5d36f9.png)
 ```
-1️⃣3️⃣ Dockerfile 명령어
+1️⃣2️⃣ Dockerfile 명령어
   . FROM : (필수) base image 지정. 다양한 base image는 Docker hub에서 확인 가능
   . MAINTAINER : 관리하는 사람의 이름 또는 이메일 정보를 기입
   . COPY : file, directory를 이미지로 복사. directory가 없으면 자동으로 생성.
@@ -381,8 +403,12 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
   . ENV : Container에서 사용할 환경변수를 지정. -e 옵션을 사용하면 기존값을 Overriding하여 사용함.
 ```
 ```
-1️⃣4️⃣ Docker Build Log 분석
+1️⃣3️⃣ Docker Build Log 분석
   임시 컨테이너 생성 → 명령어 수행 → 이미지로 저장 → 임시 컨테이너 삭제 → 새로 만든 이미지 기반으로 임시 컨테이너 생성 → 명렁어 수행 → 이미지 저장 → 임시 컨테이너 삭제 → ... (반복)
+```
+```
+1️⃣4️⃣ Docker와 Kubernetes
+
 ```
 ```
 *️⃣ 참고자료
@@ -393,8 +419,4 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 - gitlab-ci.yml Part : [otrodevym's tistory](https://otrodevym.tistory.com/entry/Gitlab-CICD-gitlab-ciyml-%EC%82%AC%EC%9A%A9-%EB%B0%A9%EB%B2%95)
 
 
-```
-5️⃣ Docker와 Kubernetes
-
-```
 
