@@ -1,6 +1,10 @@
 JPA (Java Persistence API)
 
+
 ORM (Object-relational mapping)
+  객체는 객체대로 설계하고 관계형 데이터베이스는 관계형 데이터베이스대로 설계
+  ORM 프레임워크가 중간에서 매핑
+  
 
 Orchestration 
 Kubernetes, AWS ECS, Docker Swarm, Apache Mesos, ...
@@ -73,3 +77,8 @@ CI/CD
   Continuous Integration
   Continuous Delivery
   Continuous Deployment
+
+
+
+
+JPA

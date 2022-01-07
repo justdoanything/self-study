@@ -445,9 +445,9 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
   . Docker Layer의 개수가 제한되어 있을 수도 있기 때문에 너무 많은 명령어는 좋지 않습니다.
   . 아래 사진을 보면 같은 동작을 하지만 훨씬 간략하게 짤 수 있습니다.
 ```
-# before
+## before
 ![image](https://user-images.githubusercontent.com/21374902/148367332-a66c3502-09ce-4909-878a-af5208135d4a.png)
-# after
+## after
 ![image](https://user-images.githubusercontent.com/21374902/148367264-973aa642-75e0-4e6f-9e2d-db2cb7727812.png)
 ```
 1️⃣5️⃣ Docker와 Kubernetes
