@@ -453,6 +453,21 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 ![image](https://user-images.githubusercontent.com/21374902/148367264-973aa642-75e0-4e6f-9e2d-db2cb7727812.png)
 ```
 1️⃣5️⃣ Docker와 Kubernetes
+  . Docker : 한 환경에서 Process 단위로 구분하여 실행
+    Kubernetes : Container Orchestration Tool
+    (Orchestration Tool : Kubernetes, Docker Swarm, ECS, Normad, ...)
+
+  . Docker는 기술적인 개념이자 도구이고
+    Kubernetes는 Docker를 관리하는 도구하고 볼 수 있다.
+  
+  . Image를 만들고 Container를 올리는 것은 Docker
+    만들어진 Container를 관리하는 것은 Kubernetes
+  
+  . Kubernetes는 다수의 Container를 실행 및 관리하며 Service 단위로 관리할 수 있게 해준다.
+    1. Self-Healing : Container가 죽으면 자동으로 재시작
+    2. Load balancing : 새로운 Container를 만들고 죽이며 부하에 대한 Control
+    3. Fault tolerance-FT Service : 무중단 서비스
+    4. Vendor Lock In Solution : 구동하는 Cloud 환경이나 여러 호환성에 대해서 독립적으로 동작
 ```
 ```
 1️⃣6️⃣ Docker Registry
