@@ -16,7 +16,9 @@
 13. [Docker Build Log 분석](#1️⃣3️⃣-Docker-Build-Log-분석)
 14. [Dockerfile Build](#1️⃣4️⃣-Dockerfile-Build)
 15. [Docker와 Kubernetes](#1️⃣4️⃣-Docker와-Kubernetes)
-16. [Docker Hub](#1️⃣6️⃣-Docker-Hub)
+16. [Docker Registry](#1️⃣6️⃣-Docker-Registry)
+17. [Docker Hub](#1️⃣7️⃣-Docker-Hub)
+18. [Docker Deploy](#1️⃣8️⃣-Docker-Deploy)
 ＊ [참고자료](#*️⃣-참고자료)
 ---
 
@@ -453,7 +455,49 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 1️⃣5️⃣ Docker와 Kubernetes
 ```
 ```
-1️⃣6️⃣ Docker Hub
+1️⃣6️⃣ Docker Registry
+  . Build한 Image를 서버에 배포하기 위해 직접 파일을 복사하는 대신 Docker Registry 라는 이미지 저장소를 사용합니다.
+  . 명령어를 통해 이미지를 Registry에 Push 하면 다른 서버에서 Pull 받아서 사용하는 구조.
+  . Docker Registry는 오픈소스 무료 설치형이고 설치형이 싫다면 Docker Hub를 이용하면 됩니다.  
+```
+![image](https://user-images.githubusercontent.com/21374902/148635190-8f470d88-f61b-484d-88a1-52a736cf2007.png)
+```
+1️⃣7️⃣ Docker Hub
+  . Docerk Hub에는 기본적으로 제공하는 ubuntu, centos 등의 base image와 ruby, java 등 공식 image, 그리고 일반 사용자들이 만든 image까지 모두 저장되어 있습니다.
+  . Docker Hub 사용방법
+    1. docker login
+       - 인증정보는 ~/.docker/config.json 에 저장
+    
+    2. docker tag app subicura/sinatra-app:1
+       - tag 명령어 : docker tag SOURCE_IMAGE[:TAG] TARGET_IMAGE[:TAG]
+       - 이미지 이름 구성 : [Registry URL]/[사용자 ID]/[이미지명]:[tag]
+       - Registry URL은 기본적으로 Docker Hub를 바라보고 있고 사용자 ID를 지정하지 않으면 기본값은 'library' 입니다.
+       
+    3. docker push subicura/sinatra-app:1
+
+  . Docker Image를 Private 하게 관리하려면 Docker Cloud를 사용하거나 Registry 서버를 따로 구축해야 합니다.
+  . Docker Registry를 만드는 방법
+    1. docker run -d \
+      -v $PWD/registry:/var/lib/registry \
+      -p 5000:5000 \
+      distribution/registry:2.6.0
+
+    2. docker tag app localhost:5000/subicura/sinatra-app:1
+
+    3. docker push localhost:5000/subicura/sinatra-app:1
+
+    4. tree registry
+  
+  . Docker Registry는 일반적으로 HTTP를 사용하기 때문에 보안 이슈가 있어서 내부 서버를 제외하곤 HTTP 사용을 금지하고 있으며 이를 무시하려면 Docker Engine을 실행할 때 특정 옵션을 줘야 합니다.
+```
+```
+1️⃣8️⃣ Docker Deploy
+  . Container 방식으로 배포
+    1. 언어, 프레임워크와 상관없이 동일한 방식으로 배포할 수 있다.
+    2. 서버에 접속해서 Container를 실행할 줄 알면 된다.
+    3. 서버에 최신 image를 올려둔 후 이전 Container를 중지 후 삭제하고 최신 image로 Container를 실행시켜주면 됩니다.
+  . 하지만 위 방법은 무중단 배포를 의미하는 것은 아니기 때문에 무중단 배포를 위해선 아래 자료를 참고 합니다.
+    https://subicura.com/2016/06/07/zero-downtime-docker-deployment.html
 ```
 ```
 *️⃣ 참고자료
