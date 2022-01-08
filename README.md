@@ -1,3 +1,8 @@
 # self-study
-Practice Algorithm by Python
-Thanks Reference : https://github.com/qkrrudtjr954/programmers
+---
+First purpose is
+　Study CS knowledge, New Tech, Tool and everything of IT by my self.
+
+Second is
+　Practice Algorithm by Python
+　(Thanks Reference : [Packer's Gitbub](https://github.com/qkrrudtjr954/programmers))
