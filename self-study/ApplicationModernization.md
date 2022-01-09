@@ -106,10 +106,7 @@ JPA (Java Persistence API)
         */
         Team team = member.getTeam();  // Proxy Entity를 조회한 상태
         String teamName = team.getName(); // Team에 있는 Field에 접근할 때 실제로 쿼리가 실행
-```      
-
-
-
+```
 - Caching
   - 1차 Cache와 동일성(identity) 보장
   - 같은 Transaction 안에서 같은 Entity를 반환해서 약간의 조회 성능 향상
@@ -121,21 +118,11 @@ JPA (Java Persistence API)
         Member m2 = jpa.find(Member.class, memberId); // Caching (SQL 실행 X, 위에서 가져온 m1을 사용)
         if(m1 == m2 ) // true
 ```
-
-
-
-
-
-
-Reference
-　[adam2's blog](https://velog.io/@adam2/JPA%EB%8A%94-%EB%8F%84%EB%8D%B0%EC%B2%B4-%EB%AD%98%EA%B9%8C-orm-%EC%98%81%EC%86%8D%EC%84%B1-hibernate-spring-data-jpa)
-　[InfoWorld's article](https://www.infoworld.com/article/3379043/what-is-jpa-introduction-to-the-java-persistence-api.html)
+- Reference
+[adam2's blog](https://velog.io/@adam2/JPA%EB%8A%94-%EB%8F%84%EB%8D%B0%EC%B2%B4-%EB%AD%98%EA%B9%8C-orm-%EC%98%81%EC%86%8D%EC%84%B1-hibernate-spring-data-jpa)
+[InfoWorld's article](https://www.infoworld.com/article/3379043/what-is-jpa-introduction-to-the-java-persistence-api.html)
 
 ---
-
-
-
-
 
 Orchestration 
 Kubernetes, AWS ECS, Docker Swarm, Apache Mesos, ...
