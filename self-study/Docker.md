@@ -10,19 +10,20 @@
 7. [무작정 Docker 따라하기](#7️⃣-무작정-Docker-따라하기)
 8. [Container Update](#8️⃣-Container-Update)
 9. [Docker Compose](#9️⃣-Docker-Compose)
-10. [gitlab-ci.yml 예제](#1️⃣0️⃣-gitlab-ci.yml-예제)
-11. [Docker Image 생성](#1️⃣1️⃣-Docker-Image-생성)
-12. [Dockerfile 명령어](#1️⃣2️⃣-Dockerfile-명령어)
-13. [Docker Build Log 분석](#1️⃣3️⃣-Docker-Build-Log-분석)
-14. [Dockerfile Build](#1️⃣4️⃣-Dockerfile-Build)
-15. [Docker와 Kubernetes](#1️⃣4️⃣-Docker와-Kubernetes)
-16. [Docker Registry](#1️⃣6️⃣-Docker-Registry)
-17. [Docker Hub](#1️⃣7️⃣-Docker-Hub)
-18. [Docker Deploy](#1️⃣8️⃣-Docker-Deploy)
+10. [Docker Image 생성](#1️⃣0️⃣-Docker-Image-생성)
+11. [Dockerfile 명령어](#1️⃣1️⃣-Dockerfile-명령어)
+12. [Docker Build Log 분석](#1️⃣2️⃣-Docker-Build-Log-분석)
+13. [Dockerfile Build](#1️⃣3️⃣-Dockerfile-Build)
+14. [Docker와 Kubernetes](#1️⃣4️⃣-Docker와-Kubernetes)
+15. [Docker Registry](#1️⃣5️⃣-Docker-Registry)
+16. [Docker Hub](#1️⃣6️⃣-Docker-Hub)
+17. [Docker Deploy](#1️⃣7️⃣-Docker-Deploy)
+18. [gitlab-ci.yml 예제](#1️⃣8️⃣-gitlab-ci.yml-예제)
+19. [Gitlab에 maven build 및 docker build 로그 분석](#1️⃣9️⃣-Gitlab에-maven-build-및-docker-build-로그-분석)
+
 ＊ [참고자료](#*️⃣-참고자료)
+
 ---
-
-
 0️⃣ 목표
 ===
 ```
@@ -34,6 +35,8 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 1️⃣ 물리 머신 vs 가상 머신 vs 도커 컨테이너
 ```
 ![image](https://user-images.githubusercontent.com/21374902/147321427-6f4f1bf6-e1b0-450e-bf6b-43fef4cde521.png)
+
+
 
 ---
 2️⃣ Docker  
@@ -47,6 +50,8 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 ```
 ![image](https://user-images.githubusercontent.com/21374902/147167642-1dad5620-3b02-4e83-854d-3595e7feee64.png)
 
+
+
 ---
 3️⃣ Docker Image
 ===
@@ -57,6 +62,8 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
   . Docker Image는 실항할 때 필요한 모든 요소들을 갖고있기 때문에 통채로 관리하면 Image의 용량이 너무 커지는 문제가 있었는데 이를 Docker Layer 개념으로 해결했습니다.
 ```
   ![image](https://user-images.githubusercontent.com/21374902/147167708-010adcfc-cda2-4399-a69a-807ba6d2a690.png)
+
+
 
 ---
 4️⃣ Docker Layer
@@ -70,6 +77,8 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 ```
   ![image](https://user-images.githubusercontent.com/21374902/147167762-342c1f71-014f-435a-bef5-360d4ab4ca89.png)
 
+
+
 ---
 5️⃣ Dockerfile
 ===
@@ -77,9 +86,10 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
   . Docker Image는 URL 방식으로 관리하며 Tag를 붙일 수 있습니다.
   . Tag 기능을 잘 이용하면 테스트나 롤백도 쉽게 가능합니다.
 ```
-
 ![image](https://user-images.githubusercontent.com/21374902/147322683-26ab298f-a6fd-4ca6-b2f9-994faf71c75a.png)
 ![image](https://user-images.githubusercontent.com/21374902/147327131-76c2efb7-e930-4f4d-b319-c796052766c7.png)
+
+
 
 ---
 6️⃣ Windows 10에 개발환경 세팅 (With WSL)
@@ -116,6 +126,8 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
       - npm install -g yarn
 ```
 ![image](https://user-images.githubusercontent.com/21374902/147616035-5bb71b64-74e2-490c-bbc6-bb44fbc06ddd.png)
+
+
 
 ---
 7️⃣ 무작정 Docker 따라하기
@@ -185,6 +197,8 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
        (docker run은 컨테이너를 실행하지만 exec는 실행중인 컨테이너에 명령어를 던진다.)
 ```
 
+
+
 ---
 8️⃣ Container Update
 ===
@@ -201,8 +215,13 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
       mysql:5.7
 ```
 ![image](https://user-images.githubusercontent.com/21374902/147638958-a81d9bf3-8645-4b4c-b5f7-39575f9e0623.png)
-```yml
+
+
+
+---
 9️⃣ Docker Compose
+===
+```yml
 ### Docker의 복잡한 설정을 간편하게 하기 위해서 yml방식의 설정파일을 이용한 Docker Compose를 사용합니다.
 ### docker-compose.yml 작성 후 docker-compose up 명령어 실행
 ### 예제코드    
@@ -238,99 +257,10 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 추후 작성 필요
 ```
 
+
+
 ---
-1️⃣0️⃣ gitlab-ci.yml 예제
-===
-
-```yml
-### gitlab-docker-aws 환경에 DEV, STG, PROD 라는 3개의 환경을 세팅하여 사용할 때 사용했던 gitlab-ci.yml
-    
-### docker image 기반으로 동작하도록 설정
-    image: docker:latest
-    
-### 환경 변수 등 아래 명령어에서 공통으로 사용하는 값 세팅
-    variables:
-      DEV_ECR: {ECR Repository 주소}
-      STG_ECR: {ECR Repository 주소}
-      PROD_ECR: {ECR Repository 주소}
-      MAVEN_OPTS: -Dmaven.repo.local=${CI_PROJECT_DIR}/.mr
-### ECR : Amazon Elastic Container Registry
-###       ECR에 Repository, 정책, 토큰, 이미지 등을 미리 설정해두고 그 설정을 불러서 동작하도록 설정
-### ECR을 이용해서 EC2에 새로운 ECS를 만드는 순서
-### Ready Docker image → Create ECR repository → Connect EC2 → Pull Docker image → Create new ECS with docker image → Create service
-
-### Maven 생명주기 : validation -> compile -> test -> package -> intergration-test -> verify -> install -> deploy
-### maven compile : complie 후 target 폴더에 .class 파일 생성
-### maven test : JUnit 테스트 코드 실행
-### maven package : .jar 생성 파일 생성
-### maven build : maven 기반 project build
-
-### 
-    cache:
-      paths:
-        - .m2/   
-### 파이프라인 단계의 이름과 순서
-### Job이 실행되는 단계를 의미하며 동일한 stage 안에 있는 JOB들은 병렬적으로 수행
-    stages: 
-#     - test
-      - build
-      - package
-#     - deploy   # build 후 자동으로 deploy까지 할 때 사용
-
-### stages에 있는 build가 수행될 때 참조하는 스크립트
-    build:
-      image: maven:3-jdk-8
-      stage: build
-      only:
-        - triggers
-      script: "mvn install"
-      artifacts:
-        paths:
-          - target/*.jar
-### DEV 환경에 docker build 될 때 참조하는 스크립트
-    DEV-docker-build:
-      stage: package
-      only:
-        - triggers
-      except:
-      # - /^dev.*$/
-        - /^stage.*$/
-        - /^master.*$/
-      before_script:
-        - NEW_IMAGE_NAME = ${environment}:$(echo ${CI_COMMIT_REF_NAME} | sed "s/[^[[:alnum]]//g")-${CI_COMMIT_SHA}])
-      script:
-        - apk add --no-cache curl jq python3 py3-pip
-        - pip3 install awscli
-        - $(aws ecr get-login --no-include-email --region {aws region})
-        - docker build -t $NEW_IMAGE_NAME .
-        - docker push $NEW_IMAGE_NAME
-        - docker rmi $NEW_IMAGE_NAME
-
-### stages에 deploy를 수행할 때 참조하는 스크립트
-    DEV-deploy:
-      image: sppark/curl-jq:v1
-      stage: deploy
-      only:
-        - triggers
-      except:
-        # only dev
-        - /^stage.*$/
-        - /^master.*$/
-      before_script:
-        - NEW_IMAGE_TAG=$(echo ${CI_COMMIT_REF_NAME} | sed "s/[^[[:alnum:]]//g")-${CI_COMMIT_SHA}
-      script:
-        - "RESULT=\"$(curl -s -o /dev/null -w \"%{http_code}\" --request POST -H \"access_token: ${ACCESS_TOKEN}\" \"${CICD_SERVICE_URL}/${serverGroup URL}/deploy?commit=$NEW_IMAGE_TAG\")\""
-        - echo ${RESULT}
-### STG, PROD 환경별 작성    
-###  환경별 값은 거의 동일하고 except 부분만 달라진다.
-    STG-docker-build:
-    STG-deploy: ...
-    PROD-docker-build: ...
-    PROD-deploy: ...
-    
-```
----
-1️⃣1️⃣ Docker Image 생성
+1️⃣0️⃣ Docker Image 생성
 ===
 ```
   . Sinatra 웹 어플리케이션 예제
@@ -426,9 +356,10 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 ```
 ![image](https://user-images.githubusercontent.com/21374902/148030522-87816648-ab0a-4586-88c0-8cfd9f5d36f9.png)
 
----
 
-1️⃣2️⃣ Dockerfile 명령어
+
+---
+1️⃣1️⃣ Dockerfile 명령어
 ===
 ```
   . FROM : (필수) base image 지정. 다양한 base image는 Docker hub에서 확인 가능
@@ -442,8 +373,11 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
   . VOLUME : Container 외부에 file system을 mount 할 때 사용. 필수는 아니지만 설정해주는 것이 좋음.
   . ENV : Container에서 사용할 환경변수를 지정. -e 옵션을 사용하면 기존값을 Overriding하여 사용함.
 ```
+
+
+
 ---
-1️⃣3️⃣ Docker Build Log 분석
+1️⃣2️⃣ Docker Build Log 분석
 ===
 ```
   . 임시 컨테이너 생성 → 명령어 수행 → 이미지로 저장 → 임시 컨테이너 삭제 → 새로 만든 이미지 기반으로 임시 컨테이너 생성 → 명렁어 수행 → 이미지 저장 → 임시 컨테이너 삭제 → ... (반복)
@@ -469,8 +403,11 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
   Successfully built 20369cef9829
     → 최종적으로 성공한 image ID를 출력
 ```
+
+
+
 ---
-1️⃣4️⃣ Dockerfile Build
+1️⃣3️⃣ Dockerfile Build
 ===
 ```
   . 명령어를 실행할 때마다 image layer를 저장하고 다시 빌드할 때 Dockerfile이 변경되지 않았으면 기존에 저장한 image를 캐시처럼 그대로 사용합니다.
@@ -485,8 +422,10 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 ## after
 ![image](https://user-images.githubusercontent.com/21374902/148367264-973aa642-75e0-4e6f-9e2d-db2cb7727812.png)
 
+
+
 ---
-1️⃣5️⃣ Docker와 Kubernetes
+1️⃣4️⃣ Docker와 Kubernetes
 ===
 ```
   . Docker : 한 환경에서 Process 단위로 구분하여 실행
@@ -505,8 +444,11 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
     3. Fault tolerance-FT Service : 무중단 서비스
     4. Vendor Lock In Solution : 구동하는 Cloud 환경이나 여러 호환성에 대해서 독립적으로 동작
 ```
+
+
+
 ---
-1️⃣6️⃣ Docker Registry
+1️⃣5️⃣ Docker Registry
 ===
 ```
   . Build한 Image를 서버에 배포하기 위해 직접 파일을 복사하는 대신 Docker Registry 라는 이미지 저장소를 사용합니다.
@@ -515,8 +457,10 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 ```
 ![image](https://user-images.githubusercontent.com/21374902/148635190-8f470d88-f61b-484d-88a1-52a736cf2007.png)
 
+
+
 ---
-1️⃣7️⃣ Docker Hub
+1️⃣6️⃣ Docker Hub
 ===
 ```
   . Docerk Hub에는 기본적으로 제공하는 ubuntu, centos 등의 base image와 ruby, java 등 공식 image, 그리고 일반 사용자들이 만든 image까지 모두 저장되어 있습니다.
@@ -547,8 +491,10 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
   . Docker Registry는 일반적으로 HTTP를 사용하기 때문에 보안 이슈가 있어서 내부 서버를 제외하곤 HTTP 사용을 금지하고 있으며 이를 무시하려면 Docker Engine을 실행할 때 특정 옵션을 줘야 합니다.
 ```
 
+
+
 ---
-1️⃣8️⃣ Docker Deploy
+1️⃣7️⃣ Docker Deploy
 ===
 ```
   . Container 방식으로 배포
@@ -558,6 +504,111 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
   . 하지만 위 방법은 무중단 배포를 의미하는 것은 아니기 때문에 무중단 배포를 위해선 아래 자료를 참고 합니다.
     https://subicura.com/2016/06/07/zero-downtime-docker-deployment.html
 ```
+
+
+
+---
+1️⃣8️⃣ gitlab-ci.yml 예제
+===
+
+```yml
+### gitlab-docker-aws 환경에 DEV, STG, PROD 라는 3개의 환경을 세팅하여 사용할 때 사용했던 gitlab-ci.yml
+    
+### docker image 기반으로 동작하도록 설정
+    image: docker:latest
+    
+### 환경 변수 등 아래 명령어에서 공통으로 사용하는 값 세팅
+    variables:
+      DEV_ECR: {ECR Repository 주소}
+      STG_ECR: {ECR Repository 주소}
+      PROD_ECR: {ECR Repository 주소}
+      MAVEN_OPTS: -Dmaven.repo.local=${CI_PROJECT_DIR}/.mr
+### ECR : Amazon Elastic Container Registry
+###       ECR에 Repository, 정책, 토큰, 이미지 등을 미리 설정해두고 그 설정을 불러서 동작하도록 설정
+### ECR을 이용해서 EC2에 새로운 ECS를 만드는 순서
+### Ready Docker image → Create ECR repository → Connect EC2 → Pull Docker image → Create new ECS with docker image → Create service
+
+### Maven 생명주기 : validation -> compile -> test -> package -> intergration-test -> verify -> install -> deploy
+### maven compile : complie 후 target 폴더에 .class 파일 생성
+### maven test : JUnit 테스트 코드 실행
+### maven package : .jar 생성 파일 생성
+### maven build : maven 기반 project build
+
+### 
+    cache:
+      paths:
+        - .m2/   
+### 파이프라인 단계의 이름과 순서
+### Job이 실행되는 단계를 의미하며 동일한 stage 안에 있는 JOB들은 병렬적으로 수행
+    stages: 
+#     - test
+      - build
+      - package
+#     - deploy   # build 후 자동으로 deploy까지 할 때 사용
+
+### stages에 있는 build가 수행될 때 참조하는 스크립트
+    build:
+      image: maven:3-jdk-8
+      stage: build
+      only:
+        - triggers
+      script: "mvn install"
+      artifacts:
+        paths:
+          - target/*.jar
+### DEV 환경에 docker build 될 때 참조하는 스크립트
+    DEV-docker-build:
+      stage: package
+      only:
+        - triggers
+      except:
+      # - /^dev.*$/
+        - /^stage.*$/
+        - /^master.*$/
+      before_script:
+        - NEW_IMAGE_NAME = ${environment}:$(echo ${CI_COMMIT_REF_NAME} | sed "s/[^[[:alnum]]//g")-${CI_COMMIT_SHA}])
+      script:
+        - apk add --no-cache curl jq python3 py3-pip
+        - pip3 install awscli
+        - $(aws ecr get-login --no-include-email --region {aws region})
+        - docker build -t $NEW_IMAGE_NAME .
+        - docker push $NEW_IMAGE_NAME
+        - docker rmi $NEW_IMAGE_NAME
+
+### stages에 deploy를 수행할 때 참조하는 스크립트
+    DEV-deploy:
+      image: sppark/curl-jq:v1
+      stage: deploy
+      only:
+        - triggers
+      except:
+        # only dev
+        - /^stage.*$/
+        - /^master.*$/
+      before_script:
+        - NEW_IMAGE_TAG=$(echo ${CI_COMMIT_REF_NAME} | sed "s/[^[[:alnum:]]//g")-${CI_COMMIT_SHA}
+      script:
+        - "RESULT=\"$(curl -s -o /dev/null -w \"%{http_code}\" --request POST -H \"access_token: ${ACCESS_TOKEN}\" \"${CICD_SERVICE_URL}/${serverGroup URL}/deploy?commit=$NEW_IMAGE_TAG\")\""
+        - echo ${RESULT}
+### STG, PROD 환경별 작성    
+###  환경별 값은 거의 동일하고 except 부분만 달라진다.
+    STG-docker-build:
+    STG-deploy: ...
+    PROD-docker-build: ...
+    PROD-deploy: ...
+```
+
+
+
+---
+1️⃣9️⃣ Gitlab에 maven build 및 docker build 로그 분석
+===
+```
+.ㅇㅇㅇ
+```
+
+
+
 ---
 *️⃣ 참고자료
 ===
