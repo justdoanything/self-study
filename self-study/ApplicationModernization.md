@@ -1,10 +1,21 @@
 JPA (Java Persistence API)
+===
+Java ORM 기술에 대한 표준 명세로 Java에서 제공하는 API
+JPA는 Interface 이지 특정 기능을 하는 Library는 아니다.
+
+
+
+Reference
+　[adam2's blog](https://velog.io/@adam2/JPA%EB%8A%94-%EB%8F%84%EB%8D%B0%EC%B2%B4-%EB%AD%98%EA%B9%8C-orm-%EC%98%81%EC%86%8D%EC%84%B1-hibernate-spring-data-jpa)
+　[InfoWorld's article](https://www.infoworld.com/article/3379043/what-is-jpa-introduction-to-the-java-persistence-api.html)
+
+---
 
 
 ORM (Object-relational mapping)
   객체는 객체대로 설계하고 관계형 데이터베이스는 관계형 데이터베이스대로 설계
   ORM 프레임워크가 중간에서 매핑
-  
+
 
 Orchestration 
 Kubernetes, AWS ECS, Docker Swarm, Apache Mesos, ...
@@ -79,6 +90,5 @@ CI/CD
   Continuous Deployment
 
 
-
-
-JPA
+[Reference]
+　- MSA 구현 강의

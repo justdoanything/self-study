@@ -23,9 +23,9 @@
 ---
 
 
-
-```
 0️⃣ 목표
+===
+```
 Docker에 대한 기본 이해
 ssh_tunneling 프로그램을 docker를 활용해 구동/배포/관리가 되도록 개발
 Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
@@ -34,8 +34,11 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 1️⃣ 물리 머신 vs 가상 머신 vs 도커 컨테이너
 ```
 ![image](https://user-images.githubusercontent.com/21374902/147321427-6f4f1bf6-e1b0-450e-bf6b-43fef4cde521.png)
-```
+
+---
 2️⃣ Docker  
+===
+```
   . 전가상화, 반가상화는 추가적인 OS 설치는 불가피하기 때문에 성능문제가 존재
   . 이를 개선하기 위해 '프로세스' 격리 방식이 등장
   . 리눅스 환경에선 리눅스 컨테이너가 프로세스 격리시키기 때문에 가볍게 빠르게 동작하고 자원손실도 거의 없습니다.
@@ -43,16 +46,22 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
   . CPU, 메모리 사용량을 제한할 수 있고 특정 포트나 디렉토리를 외부와 연결할 수 있습니다.
 ```
 ![image](https://user-images.githubusercontent.com/21374902/147167642-1dad5620-3b02-4e83-854d-3595e7feee64.png)
-```
+
+---
 3️⃣ Docker Image
+===
+```
   . [이미지]는 컨테이너 실행에 필요한 파일과 설정값을 갖고 있고 변하지 않습니다.
     [컨테이너]는 이미지를 실행한 상태라고 볼 수 있고 추가되거나 변하는 값은 [컨테이너]에 저장합니다.
   . 한 개의 [이미지]로 한 개의 [서버]에서 여러개의 [컨테이너]를 생성해서 실행할 수 있습니다.
   . Docker Image는 실항할 때 필요한 모든 요소들을 갖고있기 때문에 통채로 관리하면 Image의 용량이 너무 커지는 문제가 있었는데 이를 Docker Layer 개념으로 해결했습니다.
 ```
   ![image](https://user-images.githubusercontent.com/21374902/147167708-010adcfc-cda2-4399-a69a-807ba6d2a690.png)
-```
+
+---
 4️⃣ Docker Layer
+===
+```
   . Docker Image는 여러개의 읽기 전용 레이어로 구성이 되고 파일이 추가되거나 수정되면 새로운 레이어가 생성.
   . 예를들어 Ubuntu 이미지가 [A+B+C]의 집합이라면 Ubuntu 기반으로 만든 nginx 이미지는 [A+B+C+nginx]가 되고 이 이미지를 기반으로 webapp를 만들면 [A+B+C+nginx+source] 레이어로 구성이 됩니다.
   . 여기에서 [source]를 수정하면 새로운 [source2] 레이어만 다운받으면 되기 때문에 효율적입니다.
@@ -60,8 +69,11 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
   . 가상화 방식의 경우엔 큰 이미지를 여러개의 서버에 배포하는데 이를 간단하게 해결한게 Docker Layer 입니다.
 ```
   ![image](https://user-images.githubusercontent.com/21374902/147167762-342c1f71-014f-435a-bef5-360d4ab4ca89.png)
-```
+
+---
 5️⃣ Dockerfile
+===
+```
   . Docker Image는 URL 방식으로 관리하며 Tag를 붙일 수 있습니다.
   . Tag 기능을 잘 이용하면 테스트나 롤백도 쉽게 가능합니다.
 ```
@@ -69,9 +81,10 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 ![image](https://user-images.githubusercontent.com/21374902/147322683-26ab298f-a6fd-4ca6-b2f9-994faf71c75a.png)
 ![image](https://user-images.githubusercontent.com/21374902/147327131-76c2efb7-e930-4f4d-b319-c796052766c7.png)
 
-
-```
+---
 6️⃣ Windows 10에 개발환경 세팅 (With WSL)
+===
+```
   . Hyper-V 활성화
     > 제어판 > 프로그램 및 기능 > Windows 기능 켜기/끄기 > 'Hyper-V 체크'
   . WSL (Windows Services for Linux) 활성화
@@ -103,8 +116,11 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
       - npm install -g yarn
 ```
 ![image](https://user-images.githubusercontent.com/21374902/147616035-5bb71b64-74e2-490c-bbc6-bb44fbc06ddd.png)
-```
+
+---
 7️⃣ 무작정 Docker 따라하기
+===
+```
   . https://github.com/justdoanything/ssh_tunneling
   . Docker를 실행하기 위해선 kernel은 3.10.x 이상, Ubuntu는 14.04 이상을 사용해야 합니다.
   . Docker for Windows를 설치해도 Docker는 Linux 기반 Container 이기 때문에 실제론 가상머신에 설치가 됩니다.
@@ -168,8 +184,11 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
        docker exec -it mysql mysql -uroot  
        (docker run은 컨테이너를 실행하지만 exec는 실행중인 컨테이너에 명령어를 던진다.)
 ```
-```
+
+---
 8️⃣ Container Update
+===
+```
   . Docker Containter를 업데이트 하기 위해선 새버전의 Image를 다운 받고(pull) 기존 Container를 중지(stop) 후 삭제(rm)한 후 새로운 Image를 기반으로 다시 실행(run)해야 합니다.
   → 이렇게 할경우 Container 내 데이터가 모두 삭제되는 문제가 발생
     (mysql 이라면 database 내 데이터 전부 등)
@@ -218,8 +237,12 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 ### docker-compose 더 자세히 알아보기
 추후 작성 필요
 ```
-```yml
+
+---
 1️⃣0️⃣ gitlab-ci.yml 예제
+===
+
+```yml
 ### gitlab-docker-aws 환경에 DEV, STG, PROD 라는 3개의 환경을 세팅하여 사용할 때 사용했던 gitlab-ci.yml
     
 ### docker image 기반으로 동작하도록 설정
@@ -306,8 +329,10 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
     PROD-deploy: ...
     
 ```
-```
+---
 1️⃣1️⃣ Docker Image 생성
+===
+```
   . Sinatra 웹 어플리케이션 예제
     ruby 폴더를 생성하고 아래 파일을 작성
 ```
@@ -400,8 +425,12 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
     MAINTAINER subicura@subicura.com
 ```
 ![image](https://user-images.githubusercontent.com/21374902/148030522-87816648-ab0a-4586-88c0-8cfd9f5d36f9.png)
-```
+
+---
+
 1️⃣2️⃣ Dockerfile 명령어
+===
+```
   . FROM : (필수) base image 지정. 다양한 base image는 Docker hub에서 확인 가능
   . MAINTAINER : 관리하는 사람의 이름 또는 이메일 정보를 기입
   . COPY : file, directory를 이미지로 복사. directory가 없으면 자동으로 생성.
@@ -413,8 +442,10 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
   . VOLUME : Container 외부에 file system을 mount 할 때 사용. 필수는 아니지만 설정해주는 것이 좋음.
   . ENV : Container에서 사용할 환경변수를 지정. -e 옵션을 사용하면 기존값을 Overriding하여 사용함.
 ```
-```
+---
 1️⃣3️⃣ Docker Build Log 분석
+===
+```
   . 임시 컨테이너 생성 → 명령어 수행 → 이미지로 저장 → 임시 컨테이너 삭제 → 새로 만든 이미지 기반으로 임시 컨테이너 생성 → 명렁어 수행 → 이미지 저장 → 임시 컨테이너 삭제 → ... (반복)
 
   Sending build context to Docker daemon  5.12 kB
@@ -438,8 +469,10 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
   Successfully built 20369cef9829
     → 최종적으로 성공한 image ID를 출력
 ```
-```
+---
 1️⃣4️⃣ Dockerfile Build
+===
+```
   . 명령어를 실행할 때마다 image layer를 저장하고 다시 빌드할 때 Dockerfile이 변경되지 않았으면 기존에 저장한 image를 캐시처럼 그대로 사용합니다.
   . Dockerfile을 한줄씩 실행할 때 변경되는 부분이 있으면 캐시가 깨지게되고 변경된 부분 이후는 같은 명령어라도 캐시를 사용하지 않고 다 새로 동작합니다.
     따라서 자주 변경될 것 같은 명령어는 아래로 빼고 install 등 시간이 오래 걸리는 명령어는 위로 올려서 캐시를 활용하는 것이 빌드 시간을 줄일 수 있는 방법입니다.
@@ -451,8 +484,11 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 ![image](https://user-images.githubusercontent.com/21374902/148367332-a66c3502-09ce-4909-878a-af5208135d4a.png)
 ## after
 ![image](https://user-images.githubusercontent.com/21374902/148367264-973aa642-75e0-4e6f-9e2d-db2cb7727812.png)
-```
+
+---
 1️⃣5️⃣ Docker와 Kubernetes
+===
+```
   . Docker : 한 환경에서 Process 단위로 구분하여 실행
     Kubernetes : Container Orchestration Tool
     (Orchestration Tool : Kubernetes, Docker Swarm, ECS, Normad, ...)
@@ -469,15 +505,20 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
     3. Fault tolerance-FT Service : 무중단 서비스
     4. Vendor Lock In Solution : 구동하는 Cloud 환경이나 여러 호환성에 대해서 독립적으로 동작
 ```
-```
+---
 1️⃣6️⃣ Docker Registry
+===
+```
   . Build한 Image를 서버에 배포하기 위해 직접 파일을 복사하는 대신 Docker Registry 라는 이미지 저장소를 사용합니다.
   . 명령어를 통해 이미지를 Registry에 Push 하면 다른 서버에서 Pull 받아서 사용하는 구조.
   . Docker Registry는 오픈소스 무료 설치형이고 설치형이 싫다면 Docker Hub를 이용하면 됩니다.  
 ```
 ![image](https://user-images.githubusercontent.com/21374902/148635190-8f470d88-f61b-484d-88a1-52a736cf2007.png)
-```
+
+---
 1️⃣7️⃣ Docker Hub
+===
+```
   . Docerk Hub에는 기본적으로 제공하는 ubuntu, centos 등의 base image와 ruby, java 등 공식 image, 그리고 일반 사용자들이 만든 image까지 모두 저장되어 있습니다.
   . Docker Hub 사용방법
     1. docker login
@@ -505,8 +546,11 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
   
   . Docker Registry는 일반적으로 HTTP를 사용하기 때문에 보안 이슈가 있어서 내부 서버를 제외하곤 HTTP 사용을 금지하고 있으며 이를 무시하려면 Docker Engine을 실행할 때 특정 옵션을 줘야 합니다.
 ```
-```
+
+---
 1️⃣8️⃣ Docker Deploy
+===
+```
   . Container 방식으로 배포
     1. 언어, 프레임워크와 상관없이 동일한 방식으로 배포할 수 있다.
     2. 서버에 접속해서 Container를 실행할 줄 알면 된다.
@@ -514,9 +558,9 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
   . 하지만 위 방법은 무중단 배포를 의미하는 것은 아니기 때문에 무중단 배포를 위해선 아래 자료를 참고 합니다.
     https://subicura.com/2016/06/07/zero-downtime-docker-deployment.html
 ```
-```
+---
 *️⃣ 참고자료
-```
+===
 - Docker Docs : [Docker Docs](https://docs.docker.com/get-started/overview/)
 - Gitlab Docs : [Gitlab Docs](https://docs.gitlab.com/ee/ci/yaml/index.html#stages)
 - Docker Part : [Logosubicura's blog](https://subicura.com/2017/01/19/docker-guide-for-beginners-1.html)
