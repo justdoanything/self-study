@@ -1,3 +1,9 @@
+목차
+===
+1. [JPA](#JPA-(Java-Persistence-API))
+2. [Orchestration](#Orchestration)
+3. [DevOps](#DevOps)
+---
 JPA (Java Persistence API)
 ===
 ![image](https://user-images.githubusercontent.com/21374902/148677553-e1d6501f-6716-4c47-9565-cc474bf2dbd8.png)
@@ -36,10 +42,10 @@ JPA (Java Persistence API)
   - Pagination, Dynamic Profiling 기능 제공
   - 여러 테이블을 작업할 때 명시적인 join을 요구하지 않는다.
 > Pagination
-　ㅋㅋ
+　추후 업데이트
 
 > Dynamic Profiling
-　ㅋㅋ
+　추후 업데이트
 
 #### Persistence Framework
   - Architecture에서 데이터에 영속성을 부여해주는 계층
@@ -249,7 +255,15 @@ technical skill : 프로그래밍, 운영체제, 서버관리, 오픈소스, 클
     terraform plan # build랑 비슷한 느낌
     terraform apply # 실제 적용. deploy랑 비슷한 느낌
     terraform import # AWS 인프라에 배포된 리소스를 가져옴. pull이랑 비슷한 느낌
-
+- AWS VPC
+  → Amazon에서 제공하는 Private 네트워크망
+  - VPC (Virtual Private Cloud)
+  - Subnet
+  - Routing Table
+  - Internet Gateway
+  - NAT Gateway
+  - Security Group
+  - VPC End-point
 
 
   
