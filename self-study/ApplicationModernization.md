@@ -119,8 +119,8 @@ JPA (Java Persistence API)
         if(m1 == m2 ) // true
 ```
 - Reference
-[adam2's blog](https://velog.io/@adam2/JPA%EB%8A%94-%EB%8F%84%EB%8D%B0%EC%B2%B4-%EB%AD%98%EA%B9%8C-orm-%EC%98%81%EC%86%8D%EC%84%B1-hibernate-spring-data-jpa)
-[InfoWorld's article](https://www.infoworld.com/article/3379043/what-is-jpa-introduction-to-the-java-persistence-api.html)
+  - [adam2's blog](https://velog.io/@adam2/JPA%EB%8A%94-%EB%8F%84%EB%8D%B0%EC%B2%B4-%EB%AD%98%EA%B9%8C-orm-%EC%98%81%EC%86%8D%EC%84%B1-hibernate-spring-data-jpa)
+  - [InfoWorld's article](https://www.infoworld.com/article/3379043/what-is-jpa-introduction-to-the-java-persistence-api.html)
 
 ---
 
@@ -198,5 +198,64 @@ CI/CD
   Continuous Deployment
 
 
-[Reference]
-　- MSA 구현 강의
+- Reference
+  - MSA 구현 강의
+
+
+---
+
+DevOps
+===
+DevOps : Development + Operations
+5가지 철학 : 문화, 자동화, 측정, 공유, 축적
+soft skill : 문제인식, 선택과 집중, 결정, 업의 속성, 사용자
+technical skill : 프로그래밍, 운영체제, 서버관리, 오픈소스, 클라우드
+
+## IaC
+- IaC (Infrastructure as Code)
+→ Infra를 이루는 서버, 미들웨어, 서비스 등 Infra 구성요소들을 코드를 통해 구축하는 것
+- Terraform
+  - 구성요소 : provider, resource, state, output, module, remote
+  - 명령어 : init, plan, apply, import, state, destroy
+- AWS EC2 (Amazon Elastic Compute Cloud)
+  - 크기 조정이 가능한 컴퓨텅 용량을 클라우드에서 제공하는 웹 서비스
+  - EC2의 Public IP/22로 SSH 연결
+  - VPC 안에 EC2가 있다면 Security Group을 확인할 것.
+  - AMI : 주로 OS를 뜻함
+  - chmod 600 {pem key} : key 파일의 권한이 다 오픈되어 있으면 에러 뱉기 때문에
+  - ssh -i {pem key} {id}@{EC2 public IP}
+  - open port 확인 : netstat -lntp
+- Zsh 및 Oh-my-zsh 설치
+  - EC2 Instance에 접속해서 Zsh 설치
+    sudo yum install zsh
+   - chsh 명령어를 사용하기 위한 util 설치
+     - sudo yum install util-linux-user.x86_64
+   - 기본 Shell 프로그램을 zsh로 설정
+     - chsh
+     - /bin/zsh
+  - Oh-my-zsh 설치
+- AWS Credentials
+  - IAM 설정 : Terraform도 AWS API를 호출하는 형태이기 때문에 설정을 해줘야 한다.
+  - ECS2 내에서 aws configure 명령어 실행
+  - AWS Console에 있는 Access ID/KEY 설정
+- Terraform 작동원리
+  - Local 코드 : 현재 개발자가 작성/수정하는 코드
+  - AWS 실제 인프라 : AWS에 배포되있는 인프라
+  - Backend에 저장된 상태 : 가장 최근에 배포한 테라폼 코드
+  - `AWS 실제 인프라`와 `Backend에 저장된 상태`는 100% 일치해야 함
+  - `provider.tf` 작성
+    terraform init
+    `s3.tf` (Resource) 작성
+    terraform plan # build랑 비슷한 느낌
+    terraform apply # 실제 적용. deploy랑 비슷한 느낌
+    terraform import # AWS 인프라에 배포된 리소스를 가져옴. pull이랑 비슷한 느낌
+
+
+
+  
+
+
+---
+- Reference
+  - DevOps : Infrastructure as Code with 테라폼(Terraform) and AWS 초급, 입문편 by [Inflearn](https://www.inflearn.com/)
+  - [Terraform & AWS 101](https://terraform101.inflearn.devopsart.dev/)
