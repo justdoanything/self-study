@@ -108,49 +108,46 @@ technical skill : 프로그래밍, 운영체제, 서버관리, 오픈소스, 클
     　　Name = "101subnet_private-2"
     　}
     }
-  - terraform plan
-  - terraform apply
 - ### NAT G/W와 Internet G/W
 ![image](https://user-images.githubusercontent.com/21374902/148865682-993fd4d1-cb92-4216-8090-d08270804de6.png)
 >_퍼블릭 서브넷의 인스턴스는 인터넷에 바로 아웃바운드 트래픽을 전송할 수 있는 반면, 프라이빗 서브넷의 인스턴스는 그렇게 할 수 없습니다. 반면, 프라이빗 서브넷의 인스턴스는 퍼블릭 서브넷에 있는 NAT(Network Address Translation) 게이트웨이를 사용하여 인터넷에 액세스할 수 있습니다. 소프트웨어 업데이트 시 NAT 게이트웨이를 사용하여 데이터베이스 서버를 인터넷에 연결할 수 있지만, 인터넷에서 데이터베이스 서버 연결을 설정할 수 없습니다. written by AWS Docs (https://docs.aws.amazon.com/ko_kr/vpc/latest/userguide/VPC_Scenario2.html)_
-  - ###### - `resource.tf`에 추가 작성
-      >// (3) Private Subnet을 위한 eip 생성 //
-      resource "aws_eip" "eip_first" {  // eip : Elastic IP (고정 IP)
-      　vpc = true
-      　lifecycle {
-      　　create_before_destroy = true
-      　}
-      }
-      　
-      // (3) Private Subnet을 위한 eip 생성 //
-      resource "aws_eip" "eip_second" {  // eip : Elastic IP (고정 IP)
-      　vpc = true
-      　lifecycle {
-      　　create_before_destroy = true
-      　}
-      }
-      　
-      // (4) NAT Gateway 생성하고 eip와 Public subnet를 연결 //
-      resource "aws_nat_gateway" "nat_gateway_first_public" {
-      　allocation_id = aws_eip.eip_first.id
-      　subnet_id = aws_subnet.first_public_subnet.id
-      　tags = {
-      　　Name = "nat-gw-first"
-      　}
-      }
-      　
-      // (4) NAT Gateway 생성하고 eip와 Public subnet를 연결 //
-      resource "aws_nat_gateway" "nat_gateway_second_public" {
-      　allocation_id = aws_eip.eip_second.id
-      　subnet_id = aws_subnet.second_public_subnet.id
-      　tags = {
-      　　Name = "nat-gw-second"
-      　}
-      }
-    - terraform plan
-    - terraform apply
+  -  - ###### `resource.tf`에 추가 작성
+        >// (3) Private Subnet을 위한 eip 생성 //
+        resource "aws_eip" "eip_first" {  // eip : Elastic IP (고정 IP)
+        　vpc = true
+        　lifecycle {
+        　　create_before_destroy = true
+        　}
+        }
+        　
+        // (3) Private Subnet을 위한 eip 생성 //
+        resource "aws_eip" "eip_second" {  // eip : Elastic IP (고정 IP)
+        　vpc = true
+        　lifecycle {
+        　　create_before_destroy = true
+        　}
+        }
+        　
+        // (4) NAT Gateway 생성하고 eip와 Public subnet를 연결 //
+        resource "aws_nat_gateway" "nat_gateway_first_public" {
+        　allocation_id = aws_eip.eip_first.id
+        　subnet_id = aws_subnet.first_public_subnet.id
+        　tags = {
+        　　Name = "nat-gw-first"
+        　}
+        }
+        　
+        // (4) NAT Gateway 생성하고 eip와 Public subnet를 연결 //
+        resource "aws_nat_gateway" "nat_gateway_second_public" {
+        　allocation_id = aws_eip.eip_second.id
+        　subnet_id = aws_subnet.second_public_subnet.id
+        　tags = {
+        　　Name = "nat-gw-second"
+        　}
+        }
 - ### Route Table
   - `resource.tf`에 추가 작성
+  ```
     > // (5) Public 전용 Route Table 생성 //
     resource "aws_route_table" "route_table_public" {
     　vpc_id = aws_vpc.main.id
@@ -159,13 +156,13 @@ technical skill : 프로그래밍, 운영체제, 서버관리, 오픈소스, 클
     　}
     }
     　
-    // (6) Route Table과 Public Subnet 연결
+    // (6) Route Table과 Public Subnet 연결 //
     resource "aws_route_table_association" "route_ass_public_first" {
     　subnet_id = aws_subnet.first_public_subnet.id
     　route_table_id = aws_route_table.route_table_public.id
     }
     　
-    // (6) Route Table과 Public Subnet 연결
+    // (6) Route Table과 Public Subnet 연결 //
     resource "aws_route_table_association" "route_ass_second_first" {
     　subnet_id      = aws_subnet.first_second_subnet.id
     　route_table_id = aws_route_table.route_table_public.id
@@ -190,29 +187,29 @@ technical skill : 프로그래밍, 운영체제, 서버관리, 오픈소스, 클
     　}
     }
     　
-    // (8) Route Table에 Private Subnet 연결
+    // (8) Route Table에 Private Subnet 연결 //
     resource "aws_route_table_association" "route_ass_private_first" {
     　subnet_id = aws_subnet.first_private_subnet.id
     　route_table_id = aws_route_table.route_table_private_first.id
     }
     　
-    // (8) Route Table에 Private Subnet 연결
+    // (8) Route Table에 Private Subnet 연결 //
     resource "aws_route_table_association" "route_ass_private_second" {
     　subnet_id = aws_subnet.second_private_subnet.id
     　route_table_id = aws_route_table.route_table_private_second.id
     }
     　
-    // (9) Route Table과 NAT Gateway 연결
+    // (9) Route Table과 NAT Gateway 연결 //
     resource "aws_route" "private_nat_first" {
     　route_table_id = aws_route_table.route_table_private_first.id
-    　destination_cidr_block = "0.0.0.0/0"
+    　destination_cidr_block = "0.0.0.0/0"  // 외부로 나가는 룰
     　nat_gateway_id = aws_nat_gateway.nat_gateway_first_public.id
     }
     　
-    // (9) Route Table과 NAT Gateway 연결
+    // (9) Route Table과 NAT Gateway 연결 //
     resource "aws_route" "private_nat_second" {
     　route_table_id = aws_route_table.route_table_private_second.id
-    　destination_cidr_block = "0.0.0.0/0"
+    　destination_cidr_block = "0.0.0.0/0"  // 외부로 나가는 룰
     　nat_gateway_id = aws_nat_gateway.nat_gateway_second_public.id
     }
     　
@@ -223,6 +220,8 @@ technical skill : 프로그래밍, 운영체제, 서버관리, 오픈소스, 클
     　　Name = "internet-gw"
     　}
     }
+  - terraform plan
+  - terraform apply
 
 - ### 요약
 ![image](https://user-images.githubusercontent.com/21374902/148888522-8d90efb9-5f42-4683-8c9f-65c8f0a6f646.png)
@@ -239,7 +238,79 @@ technical skill : 프로그래밍, 운영체제, 서버관리, 오픈소스, 클
 10. Internet Gateway 생성
 ```
 
-- Reference
+
+## AWS S3
+- Amazon Simple Storage Service
+- AWS S3 생성
+  > provider "aws" {
+  　region = "ap-northeast-2"
+  }
+  　
+  resource "aws_s3_bucket" "main" {
+  　bucket = "yongwoo-terraform"
+  　tags = {
+  　　Name = "yongwoo-terraform"
+  　}
+  }
+- aws s3 관련 명령어
+  - aws s3 help
+  - aws s3 cp {파일명}} s3://{s3 이름}}/{경로}
+    → aws s3 cp sample.txt s3://yongwoo-terraform/file/sample/
+    aws s3 cp s3://{s3 이름}/{경로} {파일명} {저장할 local 경로}
+     → aws s3 cp s3://yongwoo-terraform/file/sample/ sample.txt .
+- 파일마다 Public URL이 지정되어 있으며 Access Policy 등을 지정할 수 있다.
+- 고유한 URL을 갖고 있기 때문에 WEB static 파일을 저장하는 용도로도 사용할 수 있다.
+
+## AWS IAM
+- Amazon Identity and Access Management
+- Security : Blocking, Encrypting, Hiding
+- IAM 구성요소 : IAM user, IAM group, IAM role, IAM policy
+- IAM Policy Structure
+  - ```yml
+    {
+      "Version": "2022-01-11",
+      "Statement" : [
+          {
+              "Effect":"Allow",
+              "Action": [
+                "ec2:AuthorizaSecurityGroupIngress",    // 인바운드 승인
+                "ec2:AuthorizeSecurityGroupEgress",     // 아웃바운드 승인
+                "ec2:RevokeSecurityGroupIngress",       // 인바운드 취소
+                "ec2:RevokeSecurityGroupEgress"         // 아웃바운드 취소
+              ],
+              "Resource": "arn:aws:ec2:region:account:security-group/*",
+              "Condition": {
+                  "StringEquals": {
+                      "ec2:vpc": "arn:aws:ec2:region:account:vpc/vpc-1234"
+                  }
+              }
+          }
+      ]
+    }
+- #### Create User
+  >provider "aws" {
+  　region = "ap-northeast-2"  // Region에 종속되지 않고 Global로 적용됨.
+  }
+  　
+  resource "aws_iam_user" "yongwoo" {
+    　name = "yongwoo.lee"
+    　// 비밀번호는 terraform으로 할 수 있지만 보안상에 이슈가 있을 수 있기 때문에 AWS console 화면이나 aws cli를 통해서 부여한다.
+  }
+- #### Create Group
+  > resource "aws_iam_group" "yongwoo_group" {
+  　name = "devops"
+  } 
+  　
+  resource "aws_iam_group_membership" "yongwoo_group_mship" {
+  　name = aws_iam_group.yongwoo_group.name
+  　users = [
+  　　aws_iam_user.yongwoo.name
+  　]
+  　group = aws_iam_group.yongwoo_group.name
+  }
+  
+---
+## Reference
   - DevOps : Infrastructure as Code with 테라폼(Terraform) and AWS 초급, 입문편 by [Inflearn](https://www.inflearn.com/)
   - [Terraform & AWS 101](https://terraform101.inflearn.devopsart.dev/)
 ---
