@@ -2,10 +2,12 @@
 ##First purpose is
 - Study CS knowledge, New Tech, Tool and everything of IT by my self.
   - AM (Application Modernization)
+  - AWS with Terraform
   - Docker
+  - JPA
+  - Computer Science Knowledge
   - React
   - Spring-Boot
-  - Computer Science Knowledge
 
 ##Second is
   - Practice Algorithm by Python
