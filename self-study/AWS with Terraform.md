@@ -1,11 +1,10 @@
-DevOps
-===
-DevOps : Development + Operations
-5가지 철학 : 문화, 자동화, 측정, 공유, 축적
-soft skill : 문제인식, 선택과 집중, 결정, 업의 속성, 사용자
-technical skill : 프로그래밍, 운영체제, 서버관리, 오픈소스, 클라우드
+#DevOps
+- DevOps : Development + Operations
+- 5가지 철학 : 문화, 자동화, 측정, 공유, 축적
+- soft skill : 문제인식, 선택과 집중, 결정, 업의 속성, 사용자
+- technical skill : 프로그래밍, 운영체제, 서버관리, 오픈소스, 클라우드
 
-## IaC
+# IaC
 - IaC (Infrastructure as Code)
 → Infra를 이루는 서버, 미들웨어, 서비스 등 Infra 구성요소들을 코드를 통해 구축하는 것
 - Terraform

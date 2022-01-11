@@ -2,23 +2,23 @@ JPA (Java Persistence API)
 ===
 ![image](https://user-images.githubusercontent.com/21374902/148677553-e1d6501f-6716-4c47-9565-cc474bf2dbd8.png)
 
-. JPA는 Java ORM 기술에 대한 표준 명세로 Java에서 제공하는 API
-. JPA는 Interface 이지 특정 기능을 하는 Library는 아니다.
+- JPA는 Java ORM 기술에 대한 표준 명세로 Java에서 제공하는 API
+- JPA는 Interface 이지 특정 기능을 하는 Library는 아니다.
 
->ORM (Object-relational mapping)
+>＊ORM (Object-relational mapping)
 　객체는 객체대로 설계하고 관계형 데이터베이스는 관계형 데이터베이스대로 설계
 　ORM 프레임워크가 중간에서 매핑
 
 
-. 기존 EJB에서 제공되던 EntityBean을 대체하는 기술로 ORM 이기 때문에 Java Class와 Database Table을 Mapping 한다. (SQL을 Mapping 하지 않음.)
+- 기존 EJB에서 제공되던 EntityBean을 대체하는 기술로 ORM 이기 때문에 Java Class와 Database Table을 Mapping 한다. (SQL을 Mapping 하지 않음.)
 
-. Mapper는 필드를 SQL에 매핑하는데 목적이라면 ORM은 DB Table ↔ Java Entity를 매핑하면서 RDB의 관계를 Object 관점에서 반영하는 것이다.
+- Mapper는 필드를 SQL에 매핑하는데 목적이라면 ORM은 DB Table ↔ Java Entity를 매핑하면서 RDB의 관계를 Object 관점에서 반영하는 것이다.
 
-. SQL Mapper : Mybatis, jdbcTemplate, ...
-. ORM : JPA, Hibernate, ...
+- SQL Mapper : Mybatis, jdbcTemplate, ...
+  ORM : JPA, Hibernate, ...
 
-. SpringFramework 에서 제공하는 spring-data-JPA는 JPA와 같지 않고 JPA → Hibernate → Spring-data-JPA 순으로 추상화되어 있다고 보면 된다.
-> Spring-data-JPA를 사용하면 좋은 이유
+- SpringFramework 에서 제공하는 spring-data-JPA는 JPA와 같지 않고 JPA → Hibernate → Spring-data-JPA 순으로 추상화되어 있다고 보면 된다.
+>＊Spring-data-JPA를 사용하면 좋은 이유
 　Spring-data-JPA, MongoDB, Redis 등 findALL(), save() 등을 동일한 인터페이스로 갖고 있기 때문에 저장소 교체에 용이하다.
 
 ![image](https://user-images.githubusercontent.com/21374902/148677964-351165d1-d6b6-4485-aefb-86bf63e0efa4.png)
@@ -36,10 +36,10 @@ JPA (Java Persistence API)
   - Pagination, Dynamic Profiling 기능 제공
   - 여러 테이블을 작업할 때 명시적인 join을 요구하지 않는다.
 > Pagination
-　추후 업데이트
+추후 업데이트
 
 > Dynamic Profiling
-　추후 업데이트
+추후 업데이트
 
 #### Persistence Framework
   - Architecture에서 데이터에 영속성을 부여해주는 계층
@@ -62,7 +62,7 @@ JPA (Java Persistence API)
   - 이 상태에서 데이터값을 변경하면 Transaction이 끝나는 시점에 해당 테이블에 변경 내용을 반영(Commit)한다. 
   - 따라서 Entity의 필드 값을 변경한 후에 update()를 명시하지 않아도 자동으로 DB 내 데이터가 변하게 된다. 이를 `Dirty Checking` 이라고 한다.
 
-###JPA 성능 최적화
+### JPA 성능 최적화
   - Buffering
     + 쓰기 지연(Transactional write-behind)
       - commit을 하기 전까지 Query는 메모리에 쌓아둔다.
