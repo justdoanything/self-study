@@ -271,7 +271,7 @@ technical skill : 프로그래밍, 운영체제, 서버관리, 오픈소스, 클
       　allocation_id = aws_eip.eip_first.id
       　subnet_id = aws_subnet.first_public_subnet.id
       　tags = {
-      　　Name = "NAT-GW-FIRST-PUBLIC"
+      　　Name = "nat-gw-first"
       　}
       }
       　
@@ -280,7 +280,7 @@ technical skill : 프로그래밍, 운영체제, 서버관리, 오픈소스, 클
       　allocation_id = aws_eip.eip_second.id
       　subnet_id = aws_subnet.second_public_subnet.id
       　tags = {
-      　　Name = "NAT-GW-SECOND-PUBLIC"
+      　　Name = "nat-gw-second"
       　}
       }
     - terraform plan
@@ -291,7 +291,7 @@ technical skill : 프로그래밍, 운영체제, 서버관리, 오픈소스, 클
     resource "aws_route_table" "route_table_public" {
     　vpc_id = aws_vpc.main.id
     　tags = {
-    　　Name = "main"
+    　　Name = "route_table_public"
     　}
     }
     　
@@ -314,7 +314,7 @@ technical skill : 프로그래밍, 운영체제, 서버관리, 오픈소스, 클
     resource "aws_route_table" "route_table_private_first" {
     　vpc_id = aws_vpc.main.id
     　tags = {
-    　　Name = "main"
+    　　Name = "route_table_private_first"
     　}
     }
     　
@@ -322,41 +322,41 @@ technical skill : 프로그래밍, 운영체제, 서버관리, 오픈소스, 클
     resource "aws_route_table" "route_table_private_second" {
     　vpc_id = aws_vpc.main.id
     　tags = {
-    　　Name = "main"
+    　　Name = "route_table_private_second"
     　}
     }
     　
     // (8) Route Table에 Private Subnet 연결
     resource "aws_route_table_association" "route_ass_private_first" {
-    　subnet_id      = aws_subnet.first_private_subnet.id
+    　subnet_id = aws_subnet.first_private_subnet.id
     　route_table_id = aws_route_table.route_table_private_first.id
     }
     　
     // (8) Route Table에 Private Subnet 연결
     resource "aws_route_table_association" "route_ass_private_second" {
-    　subnet_id      = aws_subnet.second_private_subnet.id
+    　subnet_id = aws_subnet.second_private_subnet.id
     　route_table_id = aws_route_table.route_table_private_second.id
     }
     　
     // (9) Route Table과 NAT Gateway 연결
     resource "aws_route" "private_nat_first" {
-    　route_table_id              = aws_route_table.route_table_private_first.id
-    　destination_cidr_block      = "0.0.0.0/0"
-    　nat_gateway_id              = aws_nat_gateway.nat_gateway_first_public.id
+    　route_table_id = aws_route_table.route_table_private_first.id
+    　destination_cidr_block = "0.0.0.0/0"
+    　nat_gateway_id = aws_nat_gateway.nat_gateway_first_public.id
     }
     　
     // (9) Route Table과 NAT Gateway 연결
     resource "aws_route" "private_nat_second" {
-    　route_table_id              = aws_route_table.route_table_private_second.id
-    　destination_cidr_block      = "0.0.0.0/0"
-    　nat_gateway_id              = aws_nat_gateway.nat_gateway_second_public.id
+    　route_table_id = aws_route_table.route_table_private_second.id
+    　destination_cidr_block = "0.0.0.0/0"
+    　nat_gateway_id = aws_nat_gateway.nat_gateway_second_public.id
     }
     　
     // (10) Gateway 생성 //
     resource "aws_internet_gateway" "igw" {
     　vpc_id = aws_vpc.main.id
     　tags = {
-    　　Name = "main"
+    　　Name = "internet-gw"
     　}
     }
 
