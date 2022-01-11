@@ -88,8 +88,9 @@ React
     render();
 </script>
 ```
-####Auto Re-render (useState)
+####Re-rendering (useState)
 ```html
+<!-- useState에 modify 함수를 사용하면 해당 Component는 자동으로 re-rendering 된다. -->
 <script>
     function Sample() {
         const [count, countUp] = React.useState(0);
