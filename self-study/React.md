@@ -109,7 +109,45 @@ React
     ReactDOM.render(<Sample />, root); 
 </script>
 ```
+####Prop
+``` html
+<script>
+    //function Btn({text, onClickEvent, fontSize = 12}) {
+    function Btn(props) {
+        return (
+            <button
+                style={{
+                    backgroudColor: "red",
+                    color: "white",
+                    padding: "10px 20px",
+                    border: 0,
+                    borderRadius: 10
+                }}
+                onClick = {props.onClickEvent}
+            >
+            {props.text}
+            </button>
+        );
+    }
+    // Checking PropType
+    Btn.propTypes = {
+        text : PropTypes.string,
+        fontSize: PropTypes.number.isRequired
+    }
 
+    function App(){
+        const [value, setValue] = React.useState("Save Changes");
+        const changeValue = () => setValue("Revert Changes");
+        return (
+            <div>
+                <Btn text = {value} onClickEvent = {changeValue} fontSize = {10}/>
+                <Btn text = {value} onClickEvent = {changeValue} fontSize = {12} />
+            </div>
+        );
+    }
+
+</script>
+```
 
 ---
 ### Practice Code
