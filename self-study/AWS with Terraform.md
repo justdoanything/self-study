@@ -74,167 +74,167 @@
 - ### AWS VPC 구성 예제
   - terraform init
   - `resource.tf` 작성
-    > provider "aws" {
-    　region = "ap-northeast-2"
-    }
-    　
-    // (1) VPC 생성
-    resource "aws_vpc" "main" {
-    　cidr_block = "10.0.0.0/16"  // cidr_block은 필수값
-    　tags = {
-    　　Name = "terraform-101"
-    　}
-    }
-    　
-    // (2) public subnet 생성 //
-    resource "aws_subnet" "first_public_subnet" {
-    　vpc_id = aws_vpc.main.id  // 위에서 aws_vpc는 main으로 alias
-    　cidr_block = "10.0.1.0/24"
-    　availability_zone = "ap-northeast-2a"
-    　tage = {
-    　　Name = "101subnet-public-1"
-    　}
-    }
-    　
-    // (2) public subnet 생성 //
-    resource "aws_subnet" "second_public_subnet" {
-    　vpc_id = aws_vpc.main.id
-    　cidr_block = "10.0.2.0/24"
-    　availability_zone = "ap-northeast-2b"
-    　tags = {
-    　　Name = "101subnet-public-2"
-    　}
-    }
-    　
-    // (2) private subnet 생성 //
-    resource "aws_subnet" "first_private_subnet" {
-    　vpc_id = aws_vpc.main.id
-    　cidr_block = "10.0.3.0/24"
-    　availability_zone = "ap-northeash-2a"
-    　tags = {
-    　　Name = "101subnet-private-1"
-    　}
-    }
-    　
-    // (2) private subnet 생성 //
-    resource "aws_subnet" "second_private_subnet" {
-    　vpc_id = aws_vpc.main.id
-    　cidr_block = "10.0.4.0/24"
-    　availability_zone = "ap.northeast-2b"
-    　tags = {
-    　　Name = "101subnet_private-2"
-    　}
-    }
+    > provider "aws" {\
+    　region = "ap-northeast-2"\
+    }\
+    　\
+    // (1) VPC 생성\
+    resource "aws_vpc" "main" {\
+    　cidr_block = "10.0.0.0/16"  // cidr_block은 필수값\
+    　tags = {\
+    　　Name = "terraform-101"\
+    　}\
+    }\
+    　\
+    // (2) public subnet 생성 //\
+    resource "aws_subnet" "first_public_subnet" {\
+    　vpc_id = aws_vpc.main.id  // 위에서 aws_vpc는 main으로 alias\
+    　cidr_block = "10.0.1.0/24"\
+    　availability_zone = "ap-northeast-2a"\
+    　tage = {\
+    　　Name = "101subnet-public-1"\
+    　}\
+    }\
+    　\
+    // (2) public subnet 생성 //\
+    resource "aws_subnet" "second_public_subnet" {\
+    　vpc_id = aws_vpc.main.id\
+    　cidr_block = "10.0.2.0/24"\
+    　availability_zone = "ap-northeast-2b"\
+    　tags = {\
+    　　Name = "101subnet-public-2"\
+    　}\
+    }\
+    　\
+    // (2) private subnet 생성 //\
+    resource "aws_subnet" "first_private_subnet" {\
+    　vpc_id = aws_vpc.main.id\
+    　cidr_block = "10.0.3.0/24"\
+    　availability_zone = "ap-northeash-2a"\
+    　tags = {\
+    　　Name = "101subnet-private-1"\
+    　}\
+    }\
+    　\
+    // (2) private subnet 생성 //\
+    resource "aws_subnet" "second_private_subnet" {\
+    　vpc_id = aws_vpc.main.id\
+    　cidr_block = "10.0.4.0/24"\
+    　availability_zone = "ap.northeast-2b"\
+    　tags = {\
+    　　Name = "101subnet_private-2"\
+    　}\
+    }\
 - ### NAT G/W와 Internet G/W
 ![image](https://user-images.githubusercontent.com/21374902/148865682-993fd4d1-cb92-4216-8090-d08270804de6.png)
 >_퍼블릭 서브넷의 인스턴스는 인터넷에 바로 아웃바운드 트래픽을 전송할 수 있는 반면, 프라이빗 서브넷의 인스턴스는 그렇게 할 수 없습니다. 반면, 프라이빗 서브넷의 인스턴스는 퍼블릭 서브넷에 있는 NAT(Network Address Translation) 게이트웨이를 사용하여 인터넷에 액세스할 수 있습니다. 소프트웨어 업데이트 시 NAT 게이트웨이를 사용하여 데이터베이스 서버를 인터넷에 연결할 수 있지만, 인터넷에서 데이터베이스 서버 연결을 설정할 수 없습니다. written by AWS Docs (https://docs.aws.amazon.com/ko_kr/vpc/latest/userguide/VPC_Scenario2.html)_
   -  - ###### `resource.tf`에 추가 작성
-        >// (3) Private Subnet을 위한 eip 생성 //
-        resource "aws_eip" "eip_first" {  // eip : Elastic IP (고정 IP)
-        　vpc = true
-        　lifecycle {
-        　　create_before_destroy = true
-        　}
-        }
-        　
-        // (3) Private Subnet을 위한 eip 생성 //
-        resource "aws_eip" "eip_second" {  // eip : Elastic IP (고정 IP)
-        　vpc = true
-        　lifecycle {
-        　　create_before_destroy = true
-        　}
-        }
-        　
-        // (4) NAT Gateway 생성하고 eip와 Public subnet를 연결 //
-        resource "aws_nat_gateway" "nat_gateway_first_public" {
-        　allocation_id = aws_eip.eip_first.id
-        　subnet_id = aws_subnet.first_public_subnet.id
-        　tags = {
-        　　Name = "nat-gw-first"
-        　}
-        }
-        　
-        // (4) NAT Gateway 생성하고 eip와 Public subnet를 연결 //
-        resource "aws_nat_gateway" "nat_gateway_second_public" {
-        　allocation_id = aws_eip.eip_second.id
-        　subnet_id = aws_subnet.second_public_subnet.id
-        　tags = {
-        　　Name = "nat-gw-second"
-        　}
+        >// (3) Private Subnet을 위한 eip 생성 //\
+        resource "aws_eip" "eip_first" {  // eip : Elastic IP (고정 IP)\
+        　vpc = true\
+        　lifecycle {\
+        　　create_before_destroy = true\
+        　}\
+        }\
+        　\
+        // (3) Private Subnet을 위한 eip 생성 //\
+        resource "aws_eip" "eip_second" {  // eip : Elastic IP (고정 IP)\
+        　vpc = true\
+        　lifecycle {\
+        　　create_before_destroy = true\
+        　}\
+        }\
+        　\
+        // (4) NAT Gateway 생성하고 eip와 Public subnet를 연결 //\
+        resource "aws_nat_gateway" "nat_gateway_first_public" {\
+        　allocation_id = aws_eip.eip_first.id\
+        　subnet_id = aws_subnet.first_public_subnet.id\
+        　tags = {\
+        　　Name = "nat-gw-first"\
+        　}\
+        }\
+        　\
+        // (4) NAT Gateway 생성하고 eip와 Public subnet를 연결 //\
+        resource "aws_nat_gateway" "nat_gateway_second_public" {\
+        　allocation_id = aws_eip.eip_second.id\
+        　subnet_id = aws_subnet.second_public_subnet.id\
+        　tags = {\
+        　　Name = "nat-gw-second"\
+        　}\
         }
 - ### Route Table
   - `resource.tf`에 추가 작성
-    > // (5) Public 전용 Route Table 생성 //
-    resource "aws_route_table" "route_table_public" {
-    　vpc_id = aws_vpc.main.id
-    　tags = {
-    　　Name = "route_table_public"
-    　}
-    }
-    　
-    // (6) Route Table과 Public Subnet 연결 //
-    resource "aws_route_table_association" "route_ass_public_first" {
-    　subnet_id = aws_subnet.first_public_subnet.id
-    　route_table_id = aws_route_table.route_table_public.id
-    }
-    　
-    // (6) Route Table과 Public Subnet 연결 //
-    resource "aws_route_table_association" "route_ass_second_first" {
-    　subnet_id      = aws_subnet.first_second_subnet.id
-    　route_table_id = aws_route_table.route_table_public.id
-    }
-    　
-    　
-    　
-    　
-    // (7) Private 전용 Route Table 생성 //
-    resource "aws_route_table" "route_table_private_first" {
-    　vpc_id = aws_vpc.main.id
-    　tags = {
-    　　Name = "route_table_private_first"
-    　}
-    }
-    　
-    // (7) Private 전용 Route Table 생성 //
-    resource "aws_route_table" "route_table_private_second" {
-    　vpc_id = aws_vpc.main.id
-    　tags = {
-    　　Name = "route_table_private_second"
-    　}
-    }
-    　
-    // (8) Route Table에 Private Subnet 연결 //
-    resource "aws_route_table_association" "route_ass_private_first" {
-    　subnet_id = aws_subnet.first_private_subnet.id
-    　route_table_id = aws_route_table.route_table_private_first.id
-    }
-    　
-    // (8) Route Table에 Private Subnet 연결 //
-    resource "aws_route_table_association" "route_ass_private_second" {
-    　subnet_id = aws_subnet.second_private_subnet.id
-    　route_table_id = aws_route_table.route_table_private_second.id
-    }
-    　
-    // (9) Route Table과 NAT Gateway 연결 //
-    resource "aws_route" "private_nat_first" {
-    　route_table_id = aws_route_table.route_table_private_first.id
-    　destination_cidr_block = "0.0.0.0/0"  // 외부로 나가는 룰
-    　nat_gateway_id = aws_nat_gateway.nat_gateway_first_public.id
-    }
-    　
-    // (9) Route Table과 NAT Gateway 연결 //
-    resource "aws_route" "private_nat_second" {
-    　route_table_id = aws_route_table.route_table_private_second.id
-    　destination_cidr_block = "0.0.0.0/0"  // 외부로 나가는 룰
-    　nat_gateway_id = aws_nat_gateway.nat_gateway_second_public.id
-    }
-    　
-    // (10) Gateway 생성 //
-    resource "aws_internet_gateway" "igw" {
-    　vpc_id = aws_vpc.main.id
-    　tags = {
-    　　Name = "internet-gw"
-    　}
+    > // (5) Public 전용 Route Table 생성 //\
+    resource "aws_route_table" "route_table_public" {\
+    　vpc_id = aws_vpc.main.id\
+    　tags = {\
+    　　Name = "route_table_public"\
+    　}\
+    }\
+    　\
+    // (6) Route Table과 Public Subnet 연결 //\
+    resource "aws_route_table_association" "route_ass_public_first" {\
+    　subnet_id = aws_subnet.first_public_subnet.id\
+    　route_table_id = aws_route_table.route_table_public.id\
+    }\
+    　\
+    // (6) Route Table과 Public Subnet 연결 //\
+    resource "aws_route_table_association" "route_ass_second_first" {\
+    　subnet_id      = aws_subnet.first_second_subnet.id\
+    　route_table_id = aws_route_table.route_table_public.id\
+    }\
+    　\
+    　\
+    　\
+    　\
+    // (7) Private 전용 Route Table 생성 //\
+    resource "aws_route_table" "route_table_private_first" {\
+    　vpc_id = aws_vpc.main.id\
+    　tags = {\
+    　　Name = "route_table_private_first"\
+    　}\
+    }\
+    　\
+    // (7) Private 전용 Route Table 생성 //\
+    resource "aws_route_table" "route_table_private_second" {\
+    　vpc_id = aws_vpc.main.id\
+    　tags = {\
+    　　Name = "route_table_private_second"\
+    　}\
+    }\
+    　\
+    // (8) Route Table에 Private Subnet 연결 //\
+    resource "aws_route_table_association" "route_ass_private_first" {\
+    　subnet_id = aws_subnet.first_private_subnet.id\
+    　route_table_id = aws_route_table.route_table_private_first.id\
+    }\
+    　\
+    // (8) Route Table에 Private Subnet 연결 //\
+    resource "aws_route_table_association" "route_ass_private_second" {\
+    　subnet_id = aws_subnet.second_private_subnet.id\
+    　route_table_id = aws_route_table.route_table_private_second.id\
+    }\
+    　\
+    // (9) Route Table과 NAT Gateway 연결 //\
+    resource "aws_route" "private_nat_first" {\
+    　route_table_id = aws_route_table.route_table_private_first.id\
+    　destination_cidr_block = "0.0.0.0/0"  // 외부로 나가는 룰\
+    　nat_gateway_id = aws_nat_gateway.nat_gateway_first_public.id\
+    }\
+    　\
+    // (9) Route Table과 NAT Gateway 연결 //\
+    resource "aws_route" "private_nat_second" {\
+    　route_table_id = aws_route_table.route_table_private_second.id\
+    　destination_cidr_block = "0.0.0.0/0"  // 외부로 나가는 룰\
+    　nat_gateway_id = aws_nat_gateway.nat_gateway_second_public.id\
+    }\
+    　\
+    // (10) Gateway 생성 //\
+    resource "aws_internet_gateway" "igw" {\
+    　vpc_id = aws_vpc.main.id\
+    　tags = {\
+    　　Name = "internet-gw"\
+    　}\
     }
   - terraform plan
   - terraform apply
@@ -340,25 +340,25 @@
   　region = "ap-northeast-2"\
   　version = "~> 2.49.0"\
   }\
-  　
-  // S3 bucket for backend
-  resource "aws_s3_bucket" "tfstate" {
-  　bucket = "bucket-yongwoo-tfstate" // should be uniq value
-  　versioning {
-  　　enabled = true  // Prevent from deleting tfstate file
-  　}
-  }
-  　
-  // DynamoDB for terraform state lock.
-  // Don't change it.
-  resource "aws_dynamodb_table" "terraform_state_lock" {
-  　name           = "terraform-lock"
-  　hash_key       = "LockID"
-  　billing_mode   = "PAY_PER_REQUEST"
-  　attribute {
-  　　name = "LockID"
-  　　type = "S"
-  　}
+  　\
+  // S3 bucket for backend\
+  resource "aws_s3_bucket" "tfstate" {\
+  　bucket = "bucket-yongwoo-tfstate" // should be uniq value\
+  　versioning {\
+  　　enabled = true  // Prevent from deleting tfstate file\
+  　}\
+  }\
+  　\
+  // DynamoDB for terraform state lock.\
+  // Don't change it.\
+  resource "aws_dynamodb_table" "terraform_state_lock" {\
+  　name           = "terraform-lock"\
+  　hash_key       = "LockID"\
+  　billing_mode   = "PAY_PER_REQUEST"\
+  　attribute {\
+  　　name = "LockID"\
+  　　type = "S"\
+  　}\
   }
   - terraform plan
   - terraform apply
