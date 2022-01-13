@@ -1,14 +1,20 @@
 # 목차
-1. [DevOps](#DevOps)
-2. [IaC](#IaC)
-3. [AWS VPC](#AWS-VPC-구성-예제)
-4. [NAT G/W와 Internet G/W](#NAT-G/W와-Internet-G/W)
-5. [Route Table](#Route-Table)
-6. [AWS 구성](#요약)
-
-
+- [DevOps](#DevOps)
+- [IaC](#IaC)
+- [AWS VPC](#AWS-VPC-구성-예제)
+- [NAT G/W와 Internet G/W](#NAT-G/W와-Internet-G/W)
+- [Route Table](#Route-Table)
+  - [Route Table 구성도](#요약)
+- [AWS S3](#AWS-S3)
+- [AWS IAM](#AWS-IAM)
+  - [Create User](#Create-User)
+  - [Create Group](#Create-Group)
+- [Terraform Backend](#Terraform-Backend)
+- [Terraform Variables](#Terraform-Variables)
+- [Reference](#Reference)
 
 ---
+
 
 # DevOps
 - DevOps : Development + Operations
@@ -330,7 +336,7 @@
 - DynamoDB : key/value 기반의 NoSQL Database
 - state파일이 s3에 저장되고 s3 파일 경로와 lock을 할 수 있는 파일이 db에 저장이 되어서 terraform은 2가지를 확인해서 사용하고 있는지 아닌지는 판단한다.
 - `init.tf` 작성
-  >provider "aws" {
+  >provider "aws" {  
   　region = "ap-northeast-2"
   　version = "~> 2.49.0"
   }
