@@ -271,9 +271,9 @@
   }
 - aws s3 관련 명령어
   - aws s3 help
-  - aws s3 cp {파일명}} s3://{s3 이름}}/{경로}
+  - aws s3 cp {파일명}} s3://{s3 이름}}/{경로}\
     → aws s3 cp sample.txt s3://yongwoo-terraform/file/sample/
-    aws s3 cp s3://{s3 이름}/{경로} {파일명} {저장할 local 경로}
+  - aws s3 cp s3://{s3 이름}/{경로} {파일명} {저장할 local 경로}\
      → aws s3 cp s3://yongwoo-terraform/file/sample/ sample.txt .
 - 파일마다 Public URL이 지정되어 있으며 Access Policy 등을 지정할 수 있다.
 - 고유한 URL을 갖고 있기 때문에 WEB static 파일을 저장하는 용도로도 사용할 수 있다.
@@ -311,7 +311,7 @@
   　\
   resource "aws_iam_user" "yongwoo" {\
     　name = "yongwoo.lee"\
-    　// 비밀번호는 terraform으로 할 수 있지만 보안상에 이슈가 있을 수 있기 때문에 AWS console 화면이나 aws cli를 통해서 부여한다.
+    　// 비밀번호는 terraform으로 할 수 있지만 보안상에 이슈가 있을 수 있기 때문에 AWS console 화면이나 aws cli를 통해서 부여한다.\
   }
 - #### Create Group
   > resource "aws_iam_group" "yongwoo_group" {\
@@ -331,7 +331,8 @@
   - 파일명 : terraform.tfstate 
   - terraform apply를 실행하고 resource가 생성 된 후에 state 파일이 생성된다.
   - 현재 Infra에 대한 상태를 의미하는 것은 아니고 apply의 경과를 저장해놓은 상태라고 이해하면 됩니다.
-  - 즉, local에 있는 state 파일은 내가 적용한 시점에 대한 상태이고 infra가 갖는 현재 상태는 아니다. (다른 사람이 apply를 했을수도 있기 때문에)
+  - 즉, local에 있는 state 파일은 내가 적용한 시점에 대한 상태이고 infra가 갖는 현재 상태는 아니다.\
+  (다른 사람이 apply를 했을수도 있기 때문에)
 - 기본적으로 state file을 local에 저장하고 관리하지만 설정에 따라 s3, consul, etcd 등 원격 저장소에 저장하고 관리하도록 할 수 있다.
 - Backend를 설정해두면 같은 파일을 동시에 작업하는 것을 막을 수 있고`(Locking)`, 파일이 유실되는 것을 방지할 수 있습니다.`(Backup)`
 - DynamoDB : key/value 기반의 NoSQL Database
@@ -388,31 +389,31 @@
 
 ## Terraform Variables
 - Document : https://www.terraform.io/language/values/variables
-- HCL 문법을 가진 언어
+- Terraform은 HCL 문법을 가진 언어
   > HCL (Hashicorp Configuration Language)\
-    　HashiCorp Configuration Language (HCL) is a unique configuration language. It was designed to be used with HashiCorp tools, notably Terraform, but HCL has expanded as a more general configuration language. It’s visually similar to JSON with additional data structures and capabilities built-in.\
-    \
-    ☑ HCL consists of three sub-languages:\
-    　- Structural\
-    　- Expression\
-    　- Templates\
-    ☑ Comments are available as single line or multi-line:\
-    　- Single Line: # or //.\
-    　- Multi-Line: /* */ (no nesting of block comments).\
-    ☑ Variable assignments use the key = value construction where whitespace does not matter and the value can be a primitive such as a string, number, boolean, object, or a list.\
-    ☑ Strings are quoted and can contain any UTF-8 characters.\
-    ☑ Numbers can be written and parsed in a number of different ways:\
-    　- Base 10 numbers are the default.\
-    　- Hexadecimal: Prefix a number with 0x.\
-    　- Octal: Prefix a number with a 0.\
-    　- Scientific numbers: Use the notation such as 1e10.\
-    ☑ Arrays and lists of objects are easy to create using [] for arrays and { key = value } for lists.\
-    (Reference by https://octopus.com/blog/introduction-to-hcl-and-hcl-tooling)
-- Variable type
+    　HashiCorp Configuration Language (HCL) is a unique configuration language. It was designed to be used with HashiCorp tools, notably Terraform, but HCL has expanded as a more general configuration language. It’s visually similar to JSON with additional data structures and capabilities built-in.
+
+- HCL consists of three sub-languages:
+  - Structural
+  - Expression
+  - Templates
+- Comments are available as single line or multi-line:
+  - Single Line: # or //.
+  - Multi-Line: /* */ (no nesting of block comments).
+- Variable assignments use the key = value construction where whitespace does not matter and the value can be a primitive such as a string, number, boolean, object, or a list.
+- Strings are quoted and can contain any UTF-8 characters.
+- Numbers can be written and parsed in a number of different ways:
+  - Base 10 numbers are the default.
+  - Hexadecimal: Prefix a number with 0x.
+  - Octal: Prefix a number with a 0.
+  - Scientific numbers: Use the notation such as 1e10.
+- Arrays and lists of objects are easy to create using [] for arrays and { key = value } for lists.
+    - Reference by https://octopus.com/blog/introduction-to-hcl-and-hcl-tooling
+- ### Variable type
   - string
   - number
   - bool
-- Complex variable types
+- ### Complex variable types
   - list()
   - set()
   - map()
