@@ -146,7 +146,6 @@
         }
 - ### Route Table
   - `resource.tf`에 추가 작성
-  ```
     > // (5) Public 전용 Route Table 생성 //
     resource "aws_route_table" "route_table_public" {
     　vpc_id = aws_vpc.main.id
@@ -307,6 +306,70 @@
   　]
   　group = aws_iam_group.yongwoo_group.name
   }
+
+## Terraform Backend
+- What is Terraform State
+  - 파일명 : terraform.tfstate 
+  - terraform apply를 실행하고 resource가 생성 된 후에 state 파일이 생성된다.
+  - 현재 Infra에 대한 상태를 의미하는 것은 아니고 apply의 경과를 저장해놓은 상태라고 이해하면 됩니다.
+  - 즉, local에 있는 state 파일은 내가 적용한 시점에 대한 상태이고 infra가 갖는 현재 상태는 아니다. (다른 사람이 apply를 했을수도 있기 때문에)
+- 기본적으로 state file을 local에 저장하고 관리하지만 설정에 따라 s3, consul, etcd 등 원격 저장소에 저장하고 관리하도록 할 수 있다.
+- Backend를 설정해두면 같은 파일을 동시에 작업하는 것을 막을 수 있고`(Locking)`, 파일이 유실되는 것을 방지할 수 있습니다.`(Backup)`
+- DynamoDB : key/value 기반의 NoSQL Database
+- state파일이 s3에 저장되고 s3 파일 경로와 lock을 할 수 있는 파일이 db에 저장이 되어서 terraform은 2가지를 확인해서 사용하고 있는지 아닌지는 판단한다.
+- `init.tf` 작성
+  >provider "aws" {
+  　region = "ap-northeast-2"
+  　version = "~> 2.49.0"
+  }
+  　
+  // S3 bucket for backend
+  resource "aws_s3_bucket" "tfstate" {
+  　bucket = "bucket-yongwoo-tfstate" // should be uniq value
+  　versioning {
+  　　enabled = true  // Prevent from deleting tfstate file
+  　}
+  }
+  　
+  // DynamoDB for terraform state lock.
+  // Don't change it.
+  resource "aws_dynamodb_table" "terraform_state_lock" {
+  　name           = "terraform-lock"
+  　hash_key       = "LockID"
+  　billing_mode   = "PAY_PER_REQUEST"
+  　attribute {
+  　　name = "LockID"
+  　　type = "S"
+  　}
+  }
+  - terraform plan
+  - terraform apply
+    - bucket-yongwoo-tfstate 이름으로 S3가 생성되었는지 확인
+    - DynamoDB에 terraform-lock 테이블이 생성되었는지 확인
+- terraform apply를 할때마다 생성되는 state 파일을 위에서 생성한(`init.tf`) backend에 저장하도록 설정
+  - 동시에 같은 파일을 수정하지 못하도록 하기 위해 DynamoDB에 Lock을 설정하고 이미 만들어진 .tfstate 파일을 backend로 옮기는 작업
+  - `backend.tf` 파일
+    > terraform {
+    　backend "s3" {
+    　　bucket = "bucket-yongwoo-tfstate"  // Name of S3
+    　　key = "terraform/backend/terraform.tfstate" // Path in S3
+    　　region = "ap-northeast-2"  
+    　　encrypt = true
+    　　dynamodb_table = "terraform-lock"
+  　}
+  }
+  - terraform plan
+  - terraform apply
+
+- local에 이미 생성된 state 파일이 있으면 `terraform init` 명령어를 입력했을 때 만들어져 있는 state 파일을 backend로 옮길건지 물어본다.
+- state 파일이 없는 경우 backend에 있는걸 자동으로 pull 받아온다.
+- tf 파일이 다른 폴더에 나눠져 있다면 각 폴더에 접근해서 `terraform init` 명령어 실행 후 `backend.tf`를 작성
+- `terraform state list` 명령어를 통해서 state 파일 목록을 볼 수 있고 `terraform state pull` 명령어를 실행해서 tfstate를 가져올 수 있다.
+
+
+
+  
+
   
 ---
 ## Reference
