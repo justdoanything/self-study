@@ -11,6 +11,7 @@
   - [Create Group](#Create-Group)
 - [Terraform Backend](#Terraform-Backend)
 - [Terraform Variables](#Terraform-Variables)
+- [Terraform Functions](#Terraform-Functions)
 - [Reference](#Reference)
 
 ---
@@ -124,7 +125,7 @@
     　tags = {\
     　　Name = "101subnet_private-2"\
     　}\
-    }\
+    }
 - ### NAT G/W와 Internet G/W
 ![image](https://user-images.githubusercontent.com/21374902/148865682-993fd4d1-cb92-4216-8090-d08270804de6.png)
 >_퍼블릭 서브넷의 인스턴스는 인터넷에 바로 아웃바운드 트래픽을 전송할 수 있는 반면, 프라이빗 서브넷의 인스턴스는 그렇게 할 수 없습니다. 반면, 프라이빗 서브넷의 인스턴스는 퍼블릭 서브넷에 있는 NAT(Network Address Translation) 게이트웨이를 사용하여 인터넷에 액세스할 수 있습니다. 소프트웨어 업데이트 시 NAT 게이트웨이를 사용하여 데이터베이스 서버를 인터넷에 연결할 수 있지만, 인터넷에서 데이터베이스 서버 연결을 설정할 수 없습니다. written by AWS Docs (https://docs.aws.amazon.com/ko_kr/vpc/latest/userguide/VPC_Scenario2.html)_
@@ -258,15 +259,15 @@
 ## AWS S3
 - Amazon Simple Storage Service
 - AWS S3 생성
-  > provider "aws" {
-  　region = "ap-northeast-2"
-  }
-  　
-  resource "aws_s3_bucket" "main" {
-  　bucket = "yongwoo-terraform"
-  　tags = {
-  　　Name = "yongwoo-terraform"
-  　}
+  > provider "aws" {\
+  　region = "ap-northeast-2"\
+  }\
+  　\
+  resource "aws_s3_bucket" "main" {\
+  　bucket = "yongwoo-terraform"\
+  　tags = {\
+  　　Name = "yongwoo-terraform"\
+  　}\
   }
 - aws s3 관련 명령어
   - aws s3 help
@@ -304,25 +305,25 @@
       ]
     }
 - #### Create User
-  >provider "aws" {
-  　region = "ap-northeast-2"  // Region에 종속되지 않고 Global로 적용됨.
-  }
-  　
-  resource "aws_iam_user" "yongwoo" {
-    　name = "yongwoo.lee"
+  >provider "aws" {\
+  　region = "ap-northeast-2"  // Region에 종속되지 않고 Global로 적용됨.\
+  }\
+  　\
+  resource "aws_iam_user" "yongwoo" {\
+    　name = "yongwoo.lee"\
     　// 비밀번호는 terraform으로 할 수 있지만 보안상에 이슈가 있을 수 있기 때문에 AWS console 화면이나 aws cli를 통해서 부여한다.
   }
 - #### Create Group
-  > resource "aws_iam_group" "yongwoo_group" {
-  　name = "devops"
-  } 
-  　
-  resource "aws_iam_group_membership" "yongwoo_group_mship" {
-  　name = aws_iam_group.yongwoo_group.name
-  　users = [
-  　　aws_iam_user.yongwoo.name
-  　]
-  　group = aws_iam_group.yongwoo_group.name
+  > resource "aws_iam_group" "yongwoo_group" {\
+  　name = "devops"\
+  } \
+  　\
+  resource "aws_iam_group_membership" "yongwoo_group_mship" {\
+  　name = aws_iam_group.yongwoo_group.name\
+  　users = [\
+  　　aws_iam_user.yongwoo.name\
+  　]\
+  　group = aws_iam_group.yongwoo_group.name\
   }
 
 ## Terraform Backend
@@ -367,14 +368,14 @@
 - terraform apply를 할때마다 생성되는 state 파일을 위에서 생성한(`init.tf`) backend에 저장하도록 설정
   - 동시에 같은 파일을 수정하지 못하도록 하기 위해 DynamoDB에 Lock을 설정하고 이미 만들어진 .tfstate 파일을 backend로 옮기는 작업
   - `backend.tf` 파일
-    > terraform {
-    　backend "s3" {
-    　　bucket = "bucket-yongwoo-tfstate"  // Name of S3
-    　　key = "terraform/backend/terraform.tfstate" // Path in S3
-    　　region = "ap-northeast-2"  
-    　　encrypt = true
-    　　dynamodb_table = "terraform-lock"
-  　}
+    > terraform {\
+    　backend "s3" {\
+    　　bucket = "bucket-yongwoo-tfstate"  // Name of S3\
+    　　key = "terraform/backend/terraform.tfstate" // Path in S3\
+    　　region = "ap-northeast-2"  \
+    　　encrypt = true\
+    　　dynamodb_table = "terraform-lock"\
+  　}\
   }
   - terraform plan
   - terraform apply
@@ -383,11 +384,89 @@
 - state 파일이 없는 경우 backend에 있는걸 자동으로 pull 받아온다.
 - tf 파일이 다른 폴더에 나눠져 있다면 각 폴더에 접근해서 `terraform init` 명령어 실행 후 `backend.tf`를 작성
 - `terraform state list` 명령어를 통해서 state 파일 목록을 볼 수 있고 `terraform state pull` 명령어를 실행해서 tfstate를 가져올 수 있다.
+---
 
 ## Terraform Variables
+- Document : https://www.terraform.io/language/values/variables
+- HCL 문법을 가진 언어
+  > HCL (Hashicorp Configuration Language)\
+    　HashiCorp Configuration Language (HCL) is a unique configuration language. It was designed to be used with HashiCorp tools, notably Terraform, but HCL has expanded as a more general configuration language. It’s visually similar to JSON with additional data structures and capabilities built-in.\
+    \
+    ☑ HCL consists of three sub-languages:\
+    　- Structural\
+    　- Expression\
+    　- Templates\
+    ☑ Comments are available as single line or multi-line:\
+    　- Single Line: # or //.\
+    　- Multi-Line: /* */ (no nesting of block comments).\
+    ☑ Variable assignments use the key = value construction where whitespace does not matter and the value can be a primitive such as a string, number, boolean, object, or a list.\
+    ☑ Strings are quoted and can contain any UTF-8 characters.\
+    ☑ Numbers can be written and parsed in a number of different ways:\
+    　- Base 10 numbers are the default.\
+    　- Hexadecimal: Prefix a number with 0x.\
+    　- Octal: Prefix a number with a 0.\
+    　- Scientific numbers: Use the notation such as 1e10.\
+    ☑ Arrays and lists of objects are easy to create using [] for arrays and { key = value } for lists.\
+    (Reference by https://octopus.com/blog/introduction-to-hcl-and-hcl-tooling)
+- Variable type
+  - string
+  - number
+  - bool
+- Complex variable types
+  - list()
+  - set()
+  - map()
+  - object({ = , … })
+  - tuple([, …])
+- 일반적으론 tf 파일을 따로 만들어서 변수를 정의합니다.
+  - `variable.tf`
+  > variable "image_id" (\
+  　type = string\
+  )\
+  \
+  variable "zone_names" (\
+    type = list(string)\
+    default = ["us-zone"]\
+  )\
+  \
+  variable "id_map" (\
+    type = map\
+    default = {}\
+  )
+- tfvars 파일에서 선언한 변수에 값을 주입합니다.
+  - `variable.tfvars`
+  >image_id = "ami-064c81ce3a290fde1"\
+  zone_names = ["us-west-1a","us-west-1b","us-west-1c"]\
+  id_map = {\
+  　ap-northeast-2 = {\
+  　　amazon_linux2 = "ami-010bf43fe22f847ed"\
+  　　ubuntu_18_04  = "ami-061b0ee20654981ab"\
+  　}\
+  \
+  　us-east-1 = {\
+  　　amazon_linux2 = "ami-0d29b48622869dfd9"\
+  　　ubuntu_18_04  = "ami-0d324124b7b7eec66"\
+  　}\
+  }
+-  - `init.tf`에 적용
+    > provider "aws" {\
+    　region = var.zone_names[0]\
+    　version = "~> 2.49.0"\
+    }
 
-  
-
+---
+## Terraform Functions
+- Document : https://www.terraform.io/language/functions
+- Functions
+  - Numeric functions
+  - String functions
+  - Collection functions
+  - Encoding functions
+  - Filesystem functions
+  - Date and Time functions
+  - Hash and Crypto functions
+  - IP Network functions
+  - Type Conversion Functions
   
 ---
 ## Reference
