@@ -336,7 +336,7 @@
 - DynamoDB : key/value 기반의 NoSQL Database
 - state파일이 s3에 저장되고 s3 파일 경로와 lock을 할 수 있는 파일이 db에 저장이 되어서 terraform은 2가지를 확인해서 사용하고 있는지 아닌지는 판단한다.
 - `init.tf` 작성
-  >provider "aws" {  
+  >provider "aws" {<br>
   　region = "ap-northeast-2"
   　version = "~> 2.49.0"
   }
