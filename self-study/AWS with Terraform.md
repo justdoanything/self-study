@@ -1,4 +1,16 @@
-#DevOps
+# 목차
+1. [DevOps](#DevOps)
+2. [IaC](#IaC)
+3. [AWS VPC](#AWS-VPC-구성-예제)
+4. [NAT G/W와 Internet G/W](#NAT-G/W와-Internet-G/W)
+5. [Route Table](#Route-Table)
+6. [AWS 구성](#요약)
+
+
+
+---
+
+# DevOps
 - DevOps : Development + Operations
 - 5가지 철학 : 문화, 자동화, 측정, 공유, 축적
 - soft skill : 문제인식, 선택과 집중, 결정, 업의 속성, 사용자
@@ -366,7 +378,7 @@
 - tf 파일이 다른 폴더에 나눠져 있다면 각 폴더에 접근해서 `terraform init` 명령어 실행 후 `backend.tf`를 작성
 - `terraform state list` 명령어를 통해서 state 파일 목록을 볼 수 있고 `terraform state pull` 명령어를 실행해서 tfstate를 가져올 수 있다.
 
-
+## Terraform Variables
 
   
 
