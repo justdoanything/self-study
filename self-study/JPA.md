@@ -5,9 +5,9 @@ JPA (Java Persistence API)
 - JPA는 Java ORM 기술에 대한 표준 명세로 Java에서 제공하는 API
 - JPA는 Interface 이지 특정 기능을 하는 Library는 아니다.
 
->＊ORM (Object-relational mapping)
-　객체는 객체대로 설계하고 관계형 데이터베이스는 관계형 데이터베이스대로 설계
-　ORM 프레임워크가 중간에서 매핑
+>＊ORM (Object-relational mapping)\
+　객체는 객체대로 설계하고 관계형 데이터베이스는 관계형 데이터베이스대로 설계\
+　ORM 프레임워크가 중간에서 매핑\
 
 
 - 기존 EJB에서 제공되던 EntityBean을 대체하는 기술로 ORM 이기 때문에 Java Class와 Database Table을 Mapping 한다. (SQL을 Mapping 하지 않음.)
@@ -18,7 +18,7 @@ JPA (Java Persistence API)
   ORM : JPA, Hibernate, ...
 
 - SpringFramework 에서 제공하는 spring-data-JPA는 JPA와 같지 않고 JPA → Hibernate → Spring-data-JPA 순으로 추상화되어 있다고 보면 된다.
->＊Spring-data-JPA를 사용하면 좋은 이유
+>＊Spring-data-JPA를 사용하면 좋은 이유\
 　Spring-data-JPA, MongoDB, Redis 등 findALL(), save() 등을 동일한 인터페이스로 갖고 있기 때문에 저장소 교체에 용이하다.
 
 ![image](https://user-images.githubusercontent.com/21374902/148677964-351165d1-d6b6-4485-aefb-86bf63e0efa4.png)
