@@ -372,6 +372,21 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
   . EXPOSE : Docker Container가 실행되었을 때 요청을 기다리고 있는 포트(Listen Port)를 지정.
   . VOLUME : Container 외부에 file system을 mount 할 때 사용. 필수는 아니지만 설정해주는 것이 좋음.
   . ENV : Container에서 사용할 환경변수를 지정. -e 옵션을 사용하면 기존값을 Overriding하여 사용함.
+
+  . RUN, CMD, ENTRYPOINT 의 차이점
+    (1) RUN
+      - 새롭게 생성된 Layer 위에서 실행
+      - Dockerfile로부터 Docker Image를 Build 할 때 수행
+      - 주로 환경에 Package 등을 설치할 때 사용
+    
+    (2) CMD
+      - Image로부터 Container를 생성했을 때 최초로 수행
+      - Build 할때는 실행되지 않으며 여러개의 CMD가 존재하면 맨마지막 CMD만 실행
+    
+    (3) ENTRYPOINT
+      - docker run이나 Container를 start할 때 Container가 수행되고 최초로 실행할 명령어를 지정
+    
+    💥 CMD는 docker run 일 때만 수행되고 ENTRYPOINT는 Container가 시작할때마다 수행된다.
 ```
 
 
