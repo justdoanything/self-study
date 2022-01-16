@@ -504,6 +504,14 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
     4. tree registry
   
   . Docker Registry는 일반적으로 HTTP를 사용하기 때문에 보안 이슈가 있어서 내부 서버를 제외하곤 HTTP 사용을 금지하고 있으며 이를 무시하려면 Docker Engine을 실행할 때 특정 옵션을 줘야 합니다.
+
+  . Docker Hub 사용방법
+    1. 이미지 검색하기 : docker search {image name}
+    2. 이미지 내려받기 : docker pull {image name}
+    3. 이미지 올리기
+      (1) docker login
+      (2) docker tag SOURCE_IMAGE[:TAG] USER_NAME/TARGET_IMAGE[:TAG]
+      (3) docker push USER_NAME/TARGET_IMAGE[:TAG]
 ```
 
 

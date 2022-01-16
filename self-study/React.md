@@ -152,7 +152,7 @@ React
 ---
 ### Practice Code
 [Repositroy : self-study/self-study/React_Practice.html](https://github.com/justdoanything/self-study/blob/main/self-study/React_Practice.html)
-
+[Repository : self-study/self-study/do-react](https://github.com/justdoanything/self-study/tree/main/self-study/do-react)
 
 ---
 ### Reference
