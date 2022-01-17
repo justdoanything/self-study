@@ -3,6 +3,7 @@
 
 ---
 ## React의 시작지점
+
 - 프로젝트를 처음 install 후 무작정 실행해보면
   1️⃣ public/index.html 
   　- There is `<div id="root"></div>`
