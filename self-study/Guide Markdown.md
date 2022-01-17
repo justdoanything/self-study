@@ -40,4 +40,17 @@ _single underscores_
 __double underscores__
 ~~cancelline~~
 
+
+표(Table)
+헤더 셀을 구분할 때 3개 이상의 -(hyphen/dash) 기호가 필요합니다.
+헤더 셀을 구분하면서 :(Colons) 기호로 셀(열/칸) 안에 내용을 정렬할 수 있습니다.
+가장 좌측과 가장 우측에 있는 |(vertical bar) 기호는 생략 가능합니다.
+
+값 | 의미 | 기본값
+---|:---:|---:
+`static` | 유형(기준) 없음 / 배치 불가능 | `static`
+`relative` | 요소 **자신**을 기준으로 배치 |
+`absolute` | 위치 상 **_부모_(조상)요소**를 기준으로 배치 |
+`fixed` | **브라우저 창**을 기준으로 배치 |
+
 출처 : [github ihoneymon](https://gist.github.com/ihoneymon/652be052a0727ad59601)
