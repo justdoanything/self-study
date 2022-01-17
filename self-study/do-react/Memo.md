@@ -4,15 +4,15 @@
 ---
 ## React의 시작지점
 
-- 프로젝트를 처음 install 후 무작정 실행해보면
-  1️⃣ public/index.html 
-  　- There is `<div id="root"></div>`
-  2️⃣ src/index.js
-  　- `import './index.css';`
-  　- Rendering `<App />`
-  3️⃣ src/App.js 
-  　- `import './App.css';`
-  　- return `<div>` code
+- 프로젝트를 처음 install 후 무작정 실행해보면\
+  1️⃣ public/index.html \
+  　- There is `<div id="root"></div>`\
+  2️⃣ src/index.js\
+  　- `import './index.css';`\
+  　- Rendering `<App />`\
+  3️⃣ src/App.js \
+  　- `import './App.css';`\
+  　- return `<div>` code\
   　- it should be shown
 
 - 시작 파일이 index.html 이라는건 어디에 명시되있을까? 이 파일 이름을 바꾸고 싶으면 어떻게 해야할까?
