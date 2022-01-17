@@ -249,7 +249,7 @@
     (기존에 Gemfile.lock 파일이 있으면 삭제 후 진행)\
     `sudo apt install ruby-bundler`\
     `bundle install`\
-    `bundle exec ruby app.rb`\
+    `bundle exec ruby app.rb`
   ```
   💥 Trouble Shooting
     1. Gemfile에 source 부분을 https 로 작성하면 SSL Exception 발생
@@ -406,8 +406,8 @@ ENV         | Container에서 사용할 환경변수를 지정. -e 옵션을 사
 ---
 1️⃣4️⃣ Docker와 Kubernetes
 ===
-- Docker : 한 환경에서 Process 단위로 구분하여 실행
-  Kubernetes : Container Orchestration Tool
+- Docker : 한 환경에서 Process 단위로 구분하여 실행\
+  Kubernetes : Container Orchestration Tool\
   (Orchestration Tool : Kubernetes, Docker Swarm, ECS, Normad, ...)
 - Docker는 기술적인 개념이자 도구이고
   Kubernetes는 Docker를 관리하는 도구하고 볼 수 있다.
