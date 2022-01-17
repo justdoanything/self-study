@@ -1,3 +1,7 @@
+.markdown-body{
+  font-family: 'ELAND_Choice_M !important;
+}
+
 목차
 ---
 0. [목표](#0️⃣-목표)
@@ -26,14 +30,12 @@
 ---
 0️⃣ 목표
 ===
-```
-Docker에 대한 기본 이해
-ssh_tunneling 프로그램을 docker를 활용해 구동/배포/관리가 되도록 개발
-Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
-```
-```
+- Docker에 대한 기본 이해
+- ssh_tunneling 프로그램을 docker를 활용해 구동/배포/관리가 되도록 개발
+- Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
+---
 1️⃣ 물리 머신 vs 가상 머신 vs 도커 컨테이너
-```
+===
 ![image](https://user-images.githubusercontent.com/21374902/147321427-6f4f1bf6-e1b0-450e-bf6b-43fef4cde521.png)
 
 
@@ -41,13 +43,11 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 ---
 2️⃣ Docker  
 ===
-```
-  . 전가상화, 반가상화는 추가적인 OS 설치는 불가피하기 때문에 성능문제가 존재
-  . 이를 개선하기 위해 '프로세스' 격리 방식이 등장
-  . 리눅스 환경에선 리눅스 컨테이너가 프로세스 격리시키기 때문에 가볍게 빠르게 동작하고 자원손실도 거의 없습니다.
-  . 실행중인 컨테이너에 접속해서 명령어를 실행하고 패키지 설치, 여러개의 프로세스를 백그라운드로 실행할 수 있습니다.
-  . CPU, 메모리 사용량을 제한할 수 있고 특정 포트나 디렉토리를 외부와 연결할 수 있습니다.
-```
+- 전가상화, 반가상화는 추가적인 OS 설치는 불가피하기 때문에 성능문제가 존재
+- 이를 개선하기 위해 '프로세스' 격리 방식이 등장
+- 리눅스 환경에선 리눅스 컨테이너가 프로세스 격리시키기 때문에 가볍게 빠르게 동작하고 자원손실도 거의 없습니다.
+- 실행중인 컨테이너에 접속해서 명령어를 실행하고 패키지 설치, 여러개의 프로세스를 백그라운드로 실행할 수 있습니다.
+- CPU, 메모리 사용량을 제한할 수 있고 특정 포트나 디렉토리를 외부와 연결할 수 있습니다.
 ![image](https://user-images.githubusercontent.com/21374902/147167642-1dad5620-3b02-4e83-854d-3595e7feee64.png)
 
 
@@ -55,37 +55,32 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 ---
 3️⃣ Docker Image
 ===
-```
-  . [이미지]는 컨테이너 실행에 필요한 파일과 설정값을 갖고 있고 변하지 않습니다.
-    [컨테이너]는 이미지를 실행한 상태라고 볼 수 있고 추가되거나 변하는 값은 [컨테이너]에 저장합니다.
-  . 한 개의 [이미지]로 한 개의 [서버]에서 여러개의 [컨테이너]를 생성해서 실행할 수 있습니다.
-  . Docker Image는 실항할 때 필요한 모든 요소들을 갖고있기 때문에 통채로 관리하면 Image의 용량이 너무 커지는 문제가 있었는데 이를 Docker Layer 개념으로 해결했습니다.
-```
-  ![image](https://user-images.githubusercontent.com/21374902/147167708-010adcfc-cda2-4399-a69a-807ba6d2a690.png)
+- `Docker Image`는 컨테이너 실행에 필요한 파일과 설정값을 갖고 있고 변하지 않습니다.
+- `Docker Container`는 이미지를 실행한 상태라고 볼 수 있고 추가되거나 변하는 값은 [컨테이너]에 저장합니다.
+- 한 개의 `Image`로 한 개의 `Server`에서 여러개의 `Container`를 생성해서 실행할 수 있습니다.
+- `Docker Image`는 실항할 때 필요한 모든 요소들을 갖고있기 때문에 통채로 관리하면 `Image`의 용량이 너무 커지는 문제가 있었는데 이를 `Docker Layer` 개념으로 해결했습니다.
+![image](https://user-images.githubusercontent.com/21374902/147167708-010adcfc-cda2-4399-a69a-807ba6d2a690.png)
 
 
 
 ---
 4️⃣ Docker Layer
 ===
-```
-  . Docker Image는 여러개의 읽기 전용 레이어로 구성이 되고 파일이 추가되거나 수정되면 새로운 레이어가 생성.
-  . 예를들어 Ubuntu 이미지가 [A+B+C]의 집합이라면 Ubuntu 기반으로 만든 nginx 이미지는 [A+B+C+nginx]가 되고 이 이미지를 기반으로 webapp를 만들면 [A+B+C+nginx+source] 레이어로 구성이 됩니다.
-  . 여기에서 [source]를 수정하면 새로운 [source2] 레이어만 다운받으면 되기 때문에 효율적입니다.
-  . Container를 생성할 때도 Layer 방식을 사용하는데 기존 Image Layer 위에 Write/Read Layer를 추가해서 Container가 실행중에 생성하는 파일은 Write/Read Layer에 저장되므로 여러개의 Container를 생성해도 최소한의 용량만 사용합니다.
-  . 가상화 방식의 경우엔 큰 이미지를 여러개의 서버에 배포하는데 이를 간단하게 해결한게 Docker Layer 입니다.
-```
-  ![image](https://user-images.githubusercontent.com/21374902/147167762-342c1f71-014f-435a-bef5-360d4ab4ca89.png)
+- Docker Image는 여러개의 읽기 전용 레이어로 구성이 되고 파일이 추가되거나 수정되면 새로운 레이어가 생성.
+- 예를들어 Ubuntu 이미지가 [A+B+C]의 집합이라면 Ubuntu 기반으로 만든 nginx 이미지는 [A+B+C+nginx]가 되고 이 이미지를 기반으로 webapp를 만들면 [A+B+C+nginx+source] 레이어로 구성이 됩니다.
+- 여기에서 [source]를 수정하면 새로운 [source2] 레이어만 다운받으면 되기 때문에 효율적입니다.
+- Container를 생성할 때도 Layer 방식을 사용하는데 기존 Image Layer 위에 Write/Read Layer를 추가해서 Container가 실행중에 생성하는 파일은 Write/Read Layer에 저장되므로 여러개의 Container를 생성해도 최소한의 용량만 사용합니다.
+- 가상화 방식의 경우엔 큰 이미지를 여러개의 서버에 배포하는데 이를 간단하게 해결한게 Docker Layer 입니다.
+![image](https://user-images.githubusercontent.com/21374902/147167762-342c1f71-014f-435a-bef5-360d4ab4ca89.png)
 
 
 
 ---
 5️⃣ Dockerfile
 ===
-```
-  . Docker Image는 URL 방식으로 관리하며 Tag를 붙일 수 있습니다.
-  . Tag 기능을 잘 이용하면 테스트나 롤백도 쉽게 가능합니다.
-```
+- Docker Image는 URL 방식으로 관리하며 Tag를 붙일 수 있습니다.
+- Tag 기능을 잘 이용하면 테스트나 롤백도 쉽게 가능합니다.
+- Docker Image를 만드는 규칙을 정해놓고 `docker build` 명령어를 통해서 image를 쉽게 생성할 수 있습니다. (참고 : [Docker Image 생성](#1️⃣0️⃣-Docker-Image-생성))
 ![image](https://user-images.githubusercontent.com/21374902/147322683-26ab298f-a6fd-4ca6-b2f9-994faf71c75a.png)
 ![image](https://user-images.githubusercontent.com/21374902/147327131-76c2efb7-e930-4f4d-b319-c796052766c7.png)
 
@@ -94,37 +89,35 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 ---
 6️⃣ Windows 10에 개발환경 세팅 (With WSL)
 ===
-```
-  . Hyper-V 활성화
-    > 제어판 > 프로그램 및 기능 > Windows 기능 켜기/끄기 > 'Hyper-V 체크'
-  . WSL (Windows Services for Linux) 활성화
-    > dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart 
-  . WSL Kernel update package 설치 
-  . Ubuntu 설치
-    > https://docs.microsoft.com/ko-kr/windows/wsl/install-manual
-  . Docker Desktop for Windows10 설치
-    > General > Use the WSL2 based engine 체크
-    > Resources > WSL INTEGRATION > Enable integration with my default WSL distro 체크
-  . WSL2 (Ubuntu) 환경에서 개발도구 설치
-    > Ubuntu Update
-      - sudo apt update
-      - sudo apt upgrade -y
-      - sudo apt autoremove -y
-    > Git
-      - sudo apt install git -y
-    > AWS CLI
-      - sudo apt install python -y
-      - sudo apt install python3 -y
-      - sudo apt install python3-pip -y
-    > SAM CLI
-      - pip3 install aws-sam-cli --user --trusted-host pypi.org --trusted-host files.pythonhosted.org
-    > Node.js
-      - wget https://nodejs.org/dist/latest-v12.x/node-<버전>-linux-x64.tar.gz - P ~/tools/
-      - tar xvf ~/tools/node-<버전>-linux-x64.tar.gz -C ~/tools/
-      - echo "export PATH=\"\$HOME/tools/node-<버전>-linux-x64/bin:\$PATH\"" >> ~/.profile
-      - source ~/.profile
-      - npm install -g yarn
-```
+- Hyper-V 활성화
+  - 제어판 > 프로그램 및 기능 > Windows 기능 켜기/끄기 > 'Hyper-V 체크'
+- WSL (Windows Services for Linux) 활성화
+  - `dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart` 명령어 실행
+- WSL Kernel update package 설치 
+- Ubuntu 설치
+  - https://docs.microsoft.com/ko-kr/windows/wsl/install-manual
+- Docker Desktop for Windows10 설치
+  - General > Use the WSL2 based engine 체크
+  - Resources > WSL INTEGRATION > Enable integration with my default WSL distro 체크
+- WSL2 (Ubuntu) 환경에서 개발도구 설치
+  - Ubuntu Update
+    - `sudo apt update`
+    - `sudo apt upgrade -y`
+    - `sudo apt autoremove -y`
+  - Git
+    - `sudo apt install git -y`
+  - AWS CLI
+    - `sudo apt install python -y`
+    - `sudo apt install python3 -y`
+    - `sudo apt install python3-pip -y`
+  - SAM CLI
+    - `pip3 install aws-sam-cli --user --trusted-host pypi.org --trusted-host files.pythonhosted.org`
+  - Node.js
+    - `wget https://nodejs.org/dist/latest-v12.x/node-<버전>-linux-x64.tar.gz - P ~/tools/`
+    - `tar xvf ~/tools/node-<버전>-linux-x64.tar.gz -C ~/tools/`
+    - `echo "export PATH=\"\$HOME/tools/node-<버전>-linux-x64/bin:\$PATH\"" >> ~/.profile`
+    - `source ~/.profile`
+    - `npm install -g yarn`
 ![image](https://user-images.githubusercontent.com/21374902/147616035-5bb71b64-74e2-490c-bbc6-bb44fbc06ddd.png)
 
 
@@ -132,88 +125,73 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 ---
 7️⃣ 무작정 Docker 따라하기
 ===
-```
-  . https://github.com/justdoanything/ssh_tunneling
-  . Docker를 실행하기 위해선 kernel은 3.10.x 이상, Ubuntu는 14.04 이상을 사용해야 합니다.
-  . Docker for Windows를 설치해도 Docker는 Linux 기반 Container 이기 때문에 실제론 가상머신에 설치가 됩니다.
-  . 특정 Port나 Directory를 연결하려면 Docker Container를 가상머신에 연결하고 다시 Windows에 연결해하는 작업이 필요한대 이런 부분을 자연스럽게 처리해줍니다.
-  . docker version 명령어를 실행하면 Client와 Server 2개가 나오는데 이는 Docker가 하나의 실행파일 이지만 Client/Server 역할을 동시에 합니다.
-  . docker client가 docker server로 명령을 전송하고 결과를 받아 터미널에 출력합니다.
-```
+- Docker에 올릴 대상 프로그램 : https://github.com/justdoanything/ssh_tunneling
+- Docker를 실행하기 위해선 kernel은 3.10.x 이상, Ubuntu는 14.04 이상을 사용해야 합니다.
+- Docker for Windows를 설치해도 Docker는 Linux 기반 Container 이기 때문에 실제론 가상머신에 설치가 됩니다.
+- 특정 Port나 Directory를 연결하려면 Docker Container를 가상머신에 연결하고 다시 Windows에 연결해하는 작업이 필요한대 이런 부분을 자연스럽게 처리해줍니다.
+- docker version 명령어를 실행하면 Client와 Server 2개가 나오는데 이는 Docker가 하나의 실행파일 이지만 Client/Server 역할을 동시에 합니다.
+- docker client가 docker server로 명령을 전송하고 결과를 받아 터미널에 출력합니다.
 ![image](https://user-images.githubusercontent.com/21374902/147620567-f0f179fd-d97f-4adc-8694-0f7a8ef1a753.png)
-```
-  . docker run [OPTIONS] IMAGE[:TAG|@DIGEST] [COMMAND] [ARG...]
-    -d      detached mode 흔히 말하는 백그라운드 모드
-    -p	    호스트와 컨테이너의 포트를 연결 (포워딩)
-    -v	    호스트와 컨테이너의 디렉토리를 연결 (마운트)
-    -e	    컨테이너 내에서 사용할 환경변수 설정
-    –-name   컨테이너 이름 설정
-    –rm	    프로세스 종료시 컨테이너 자동 제거
-    -it	    -i와 -t를 동시에 사용한 것으로 터미널 입력을 위한 옵션
-    –link   컨테이너 연결 [컨테이너명:별칭]
-    -w      Container에 작업 경로를 변경
-  - Ubuntu Container 예제
-    docker run ubuntu:16.04
-      → ubuntu 이미지가 없으면 자동으로 다운받고 실행하고 다른 명령어를 보내지 않았기 때문에 Container가 생성됐다가 바로 삭제됨
-    docker run --rm -it ubuntu:16.04 /bin/bash
-  - Redis Container 예제
-    ＊ redis는 메모리 기반의 다양한 기능을 가진 스토리지로 6379 포트로 통신
-    → docker run -d -p 1234:6379 redis
-      (-d 옵션이 없으면 foreground로 실행되서 아무키도 입력할 수 없는 상태가 됨)
-      (docker는 1개로 떠있기 때문에 Ubuntu 내에서 1234 포트로 붙는 것과 Windows10 Terminal에서 1234포트로 붙는거 모두 동일한 redis를 사용한다.)
-  - Mysql Container 예제
-    → docker run -d -p 3306:3306 \
-      -e MYSQL_ALLOW_EMPTY_PASSWORD=true \
-      --name mysql \
-      mysql:5.7
-    → mysql -h127.0.0.1 -uroot
-  - WordPress Container 예제
-    ＊ WordPress는 database가 필요하기 때문에 --link 옵션으로 mysql container에 연결해줍니다.
-    → docker run -d -p 8080:80 \
-      --link mysql:mysql \
-      -e WORDPRESS_DB_HOST=mysql \
-      -e WORDPRESS_DB_NAME=wp \
-      -e WORDPRESS_DB_USER=wp \
-      -e WORDPRESS_DB_PASSWORD=wp \
-      wordpress
-  - Tensorflow Container 예제
-    → docker run -d -p 8888:8888 -p 6006:6006 teamlab/pydata-tensorflow:0.1
 
-  . Container 명령어
-    1. docker start {name}
-    2. docker stop {name}
-    3. docker rm {name}
-    4. docker rename {old} {new}
-    5. docker ps -a
-    6. docker images
-    7. docker pull {image}
-    8. docker rmi {image}
-    9. docker logs {container}
-       docker logs --tail 10 {container}
-       docker logs -f {container}
-    10. docker exec {container}
-       docker exec -it mysql /bin/bash
-       docker exec -it mysql mysql -uroot  
-       (docker run은 컨테이너를 실행하지만 exec는 실행중인 컨테이너에 명령어를 던진다.)
-```
+- `docker run [OPTIONS] IMAGE[:TAG|@DIGEST] [COMMAND] [ARG...]`
+  값 | 의미
+  ---|:---
+  -d     | detached mode 흔히 말하는 백그라운드 모드
+  -p     | 호스트와 컨테이너의 포트를 연결 (포워딩)
+  -v     | 호스트와 컨테이너의 디렉토리를 연결 (마운트)
+  -e     | 컨테이너 내에서 사용할 환경변수 설정
+  --name | 컨테이너 이름 설정
+  -rm    | 프로세스 종료시 컨테이너 자동 제거
+  -it    | -i와 -t를 동시에 사용한 것으로 터미널 입력을 위한 옵션
+  -link  | 컨테이너 연결 [컨테이너명:별칭]
+  -w     | Container에 작업 경로를 변경
+- Ubuntu Container 실행 예제
+  - `docker run ubuntu:16.04`
+    - ubuntu 이미지가 없으면 자동으로 다운받고 실행하고 다른 명령어를 보내지 않았기 때문에 Container가 생성됐다가 바로 삭제됨
+  - `docker run --rm -it ubuntu:16.04 /bin/bash`
+- Redis Container 실행 예제
+  - `docker run -d -p 1234:6379 redis`
+    - _redis는 메모리 기반의 다양한 기능을 가진 스토리지로 6379 포트로 통신_
+    - _-d 옵션이 없으면 foreground로 실행되서 아무키도 입력할 수 없는 상태가 됨
+      (docker는 1개로 떠있기 때문에 Ubuntu 내에서 1234 포트로 붙는 것과 Windows10 Terminal에서 1234포트로 붙는거 모두 동일한 redis를 사용한다._
+- Mysql Container 실행 예제
+  - `docker run -d -p 3306:3306 -e MYSQL_ALLOW_EMPTY_PASSWORD=true --name mysql mysql:5.7`
+  - `mysql -h127.0.0.1 -uroot`
+- WordPress Container 예제
+  - `docker run -d -p 8080:80 --link mysql:mysql -e WORDPRESS_DB_HOST=mysql -e WORDPRESS_DB_NAME=wp -e WORDPRESS_DB_USER=wp -e WORDPRESS_DB_PASSWORD=wp wordpress`
+- Tensorflow Container 예제
+  - `docker run -d -p 8888:8888 -p 6006:6006 teamlab/pydata-tensorflow:0.1`
+- Container 관련 명령어
+  값 | 의미
+  ---|:---
+  docker start {container}  | Docker Container 실행
+  docker stop {container}   | Docker Container 중단
+  docker rm {container}     | Docker Container 제거
+  docker rename {old} {new} | Docker Container 이름변경
+  docker ps -a              | Docker Container 전체 목록
+  docker images             | Docker Image 목록
+  docker search {image}     | Docker Hub에서 Image 검색
+  docker pull {image}       | Docker Hub에서 Image 내려받기
+  docker rmi {image}        | Docker Image 제거
+  docker logs {container}   | Docker Container 로그보기
+  docker exec {container}   | Docker Container 명령어 실행
+  - `docker exec -it mysql /bin/bash` : 실행 중인 mysql container에 /bin/bash 명령어 수행
+  - `docker rm -v $(docker ps -a -q -f status=exited)` : exited 상태의 container 모두 삭제
+  - `docker logs --tail 10 {container}` : Container Log 10줄만보기
+  - `docker logs -f {container}` : Container Log 실시간 출력
+
 
 
 
 ---
 8️⃣ Container Update
 ===
-```
-  . Docker Containter를 업데이트 하기 위해선 새버전의 Image를 다운 받고(pull) 기존 Container를 중지(stop) 후 삭제(rm)한 후 새로운 Image를 기반으로 다시 실행(run)해야 합니다.
-  → 이렇게 할경우 Container 내 데이터가 모두 삭제되는 문제가 발생
+- Docker Containter를 업데이트 하기 위해선 새버전의 Image를 다운 받고(pull) 기존 Container를 중지(stop) 후 삭제(rm)한 후 새로운 Image를 기반으로 다시 실행(run)해야 합니다.
+  - 이렇게 할경우 Container 내 데이터가 모두 삭제되는 문제가 발생
     (mysql 이라면 database 내 데이터 전부 등)
-  . 이를 해결하기 위해선 삭제되어선 안되는 데이터들을 AWS S3와 같은 클라우드 서비스를 이용하거나 Data Volumes을 Container에 추가해서 사용하는 방법이 있습니다.
-  . run 명령어 중에 -v 옵션을 주면 Host의 Directory를 Mount해서 사용할 수 있습니다.
-    docker run -d -p 3306:3306 \
-      -e MYSQL_ALLOW_EMPTY_PASSWORD=true \
-      --name mysql \
-      -v /my/own/data/datadir:/var/lib/mysql \
-      mysql:5.7
-```
+- 이를 해결하기 위해선 삭제되어선 안되는 데이터들을 AWS S3와 같은 클라우드 서비스를 이용하거나 Data Volumes을 Container에 추가해서 사용하는 방법이 있습니다.
+- run 명령어 중에 -v 옵션을 주면 Host의 Directory를 Mount해서 사용할 수 있습니다.
+  - `docker run -d -p 3306:3306 -e MYSQL_ALLOW_EMPTY_PASSWORD=true --name mysql -v /my/own/data/datadir:/var/lib/mysql mysql:5.7`
 ![image](https://user-images.githubusercontent.com/21374902/147638958-a81d9bf3-8645-4b4c-b5f7-39575f9e0623.png)
 
 
@@ -221,9 +199,9 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 ---
 9️⃣ Docker Compose
 ===
+- Docker의 복잡한 설정을 간편하게 하기 위해서 yml방식의 설정파일을 이용한 Docker Compose를 사용합니다.
+- docker-compose.yml 작성 후 docker-compose up 명령어 실행
 ```yml
-### Docker의 복잡한 설정을 간편하게 하기 위해서 yml방식의 설정파일을 이용한 Docker Compose를 사용합니다.
-### docker-compose.yml 작성 후 docker-compose up 명령어 실행
 ### 예제코드    
     version: '2'
     services:
@@ -252,108 +230,101 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
     volumes:
         db_data:
         wp_data:
-  
-### docker-compose 더 자세히 알아보기
-추후 작성 필요
 ```
+- docker-compose 더 자세히 알아보기
+  `추후 작성 필요`
 
 
 
 ---
 1️⃣0️⃣ Docker Image 생성
 ===
-```
-  . Sinatra 웹 어플리케이션 예제
-    ruby 폴더를 생성하고 아래 파일을 작성
-```
-![image](https://user-images.githubusercontent.com/21374902/147998926-91891017-44e7-4dd8-a488-4afcc18b2587.png)
-```
-  . ruby 실행
-    docker run --rm \
-    -p 4567:4567 \
-    -v $PWD:/usr/src/app \
-    -w /usr/src/app \
-    ruby \
-    bash -c "bundle install && bundle exec ruby app.rb -o 0.0.0.0"
-  . 아래 명령어로 로컬에 있는 파일 기준으로 Container를 만들고 그 안에 bundle를 설치하고 실행할 수 있지만
-    내 환경에선 SSL 에러와 Server handler not found 에러가 발생하여 아래 코드로 대체
-    sudo apt install ruby-bundler
+- Sinatra 웹 어플리케이션 예제
+  - ruby 폴더를 생성하고 아래 파일을 작성
+  ![image](https://user-images.githubusercontent.com/21374902/147998926-91891017-44e7-4dd8-a488-4afcc18b2587.png)
+  - ruby 실행
+    `docker run --rm -p 4567:4567 -v $PWD:/usr/src/app -w /usr/src/app ruby bash -c "bundle install && bundle exec ruby app.rb -o 0.0.0.0"`
+  - 위 명령어처럼 한번에 실행하면 SSL 에러와 Server handler not found 에러가 발생
+    아래와 같이 명령어를 순차적으로 실행
     (기존에 Gemfile.lock 파일이 있으면 삭제 후 진행)
-    bundle install
-    bundle exec ruby app.rb
-```
-```
-💥 Trouble Shooting
-  1. Gemfile에 source 부분을 https 로 작성하면 SSL Exception 발생
-    → rubygems.org는 Fastly 라는 CDN provider를 사용하는데 Fastly에서 TLS 1.2 으로 업데이트 하면서 인증이 필요하게됨.
-    → 해당 에러도 Container 내에서 명령어가 실행될 때 발생하는 에러로 아래와 비슷한 http/https 관련 에러일거라고 파악.
+    `sudo apt install ruby-bundler`
+    `bundle install`
+    `bundle exec ruby app.rb`
+  ```
+  💥 Trouble Shooting
+    1. Gemfile에 source 부분을 https 로 작성하면 SSL Exception 발생
+      → rubygems.org는 Fastly 라는 CDN provider를 사용하는데 Fastly에서 TLS 1.2 으로 업데이트 하면서 인증이 필요하게됨.
+      → 해당 에러도 Container 내에서 명령어가 실행될 때 발생하는 에러로 아래와 비슷한 http/https 관련 에러일거라고 파악.
 
-  2. source 부분을 http로 수정 후 Container로 ruby를 실행하면 Server handler not fund 에러 발생
-     (1) docker run을 할 때 바로 bash 명령어를 실행하지 않고 직접 들어가서 명령어를 하나씩 실행해봄.
-       docker run --rm -p 4567:4567 -v $PWD:/usr/src/app -w /usr/src/app --name ruby -it ruby /bin/bash
-         bundle install (성공)
-         bundle exec ruby app.rb -o 0.0.0.0
-       → Server handler (thin,puma,reel,HTTP,webrick) not found. (RuntimeError) 에러 발생
-         Gemfile에 rubygems.org로 접근할 때 에러 발생.
-     (2) Container 내에서 gem install thin, puma, reel, http, webrick 명령어 수행 후 ruby 다시 실행
-       → 같은 에러 발생
-     (3) Container 내에서 web protocol 자원을 사용하지 못하는 것으로 생각함
-  3. 마땅한 해결책은 찾지 못했고 나중에 시간이 되면 다시 찾아볼 예정.
-     이후엔 내가 만든 imaage, container로 web 통신을 할 예정이니까 그때 다시 시도해보기로 함.
-```
+    2. source 부분을 http로 수정 후 Container로 ruby를 실행하면 Server handler not fund 에러 발생
+      (1) docker run을 할 때 바로 bash 명령어를 실행하지 않고 직접 들어가서 명령어를 하나씩 실행해봄.
+        docker run --rm -p 4567:4567 -v $PWD:/usr/src/app -w /usr/src/app --name ruby -it ruby /bin/bash
+          bundle install (성공)
+          bundle exec ruby app.rb -o 0.0.0.0
+        → Server handler (thin,puma,reel,HTTP,webrick) not found. (RuntimeError) 에러 발생
+          Gemfile에 rubygems.org로 접근할 때 에러 발생.
+      (2) Container 내에서 gem install thin, puma, reel, http, webrick 명령어 수행 후 ruby 다시 실행
+        → 같은 에러 발생
+      (3) Container 내에서 web protocol 자원을 사용하지 못하는 것으로 생각함
+    3. 마땅한 해결책은 찾지 못했고 나중에 시간이 되면 다시 찾아볼 예정.
+      이후엔 내가 만든 imaage, container로 web 통신을 할 예정이니까 그때 다시 시도해보기로 함.
+  ```
 ![image](https://user-images.githubusercontent.com/21374902/148023517-60aac2f4-491b-42d8-8c30-08b2ea858993.png)
-```
-  . Docker Image를 만들기 위해선 Dockerfile 이라는 이미지 빌드용 DSL(Domain Specific Language) 파일을 사용
-  . 예제 작업 순서 : ubuntu 설치 → ruby 설치 → 소스 복사 → Gem 패키지 설치 → Sinatra 서버 실행
-  (1) Shell Script - Ubuntu 실행 후 아래 명령어를 수행
-    # 1. ubuntu 설치 (패키지 업데이트)
-    apt-get update
 
-    # 2. ruby 설치
-    apt-get install ruby
-    gem install bundler
+- Docker Image를 만들기 위해선 Dockerfile 이라는 이미지 빌드용 DSL(Domain Specific Language) 파일을 사용
+  - 예제 작업 순서 : ubuntu 설치 → ruby 설치 → 소스 복사 → Gem 패키지 설치 → Sinatra 서버 실행
+  - Shell Script 방식
+    - Ubuntu 실행 후 아래 명령어를 수행
+      ```shell
+      # 1. ubuntu 설치 (패키지 업데이트)
+      apt-get update
 
-    # 3. 소스 복사
-    mkdir -p /usr/src/app
-    scp Gemfile app.rb root@ubuntu:/usr/src/app
+      # 2. ruby 설치
+      apt-get install ruby
+      gem install bundler
 
-    # 4. Gem 패키지 설치
-    bundle install
+      # 3. 소스 복사
+      mkdir -p /usr/src/app
+      scp Gemfile app.rb root@ubuntu:/usr/src/app
 
-    # 5. Sinatra 서버 실행
-    bundle exec ruby app.rb
+      # 4. Gem 패키지 설치
+      bundle install
 
-  (2) Dockerfile
-    # 1. ubuntu 설치 (패키지 업데이트 + 만든사람 표시)
-    FROM ubuntu:16.04
-    MAINTAINER yongwoo@lgcns.com
-    RUN apt-get update
+      # 5. Sinatra 서버 실행
+      bundle exec ruby app.rb
+      ```
+  - Dockerfile
+    - Dockerfile 작성
+      ```dockerfile
+      # 1. ubuntu 설치 (패키지 업데이트 + 만든사람 표시)
+      FROM ubuntu:16.04
+      MAINTAINER yongwoo@lgcns.com
+      RUN apt-get update
 
-    # 2. ruby 설치
-    RUN apt-get -y install ruby
-    RUN gem install bundler
+      # 2. ruby 설치
+      RUN apt-get -y install ruby
+      RUN gem install bundler
 
-    # 3. 소스 복사
-    COPY . /usr/src/app  # Gemfile, app.rb가 있는 경로에서 Container에 /usr/src/app 로 복사
+      # 3. 소스 복사
+      COPY . /usr/src/app  # Gemfile, app.rb가 있는 경로에서 Container에 /usr/src/app 로 복사
 
-    # 4. Gem 패키지 설치 (실행 디렉토리 설정)
-    WORKDIR /usr/src/app  # 위에서 설정한 Container 경로와 같아야함
-    RUN bundle install
+      # 4. Gem 패키지 설치 (실행 디렉토리 설정)
+      WORKDIR /usr/src/app  # 위에서 설정한 Container 경로와 같아야함
+      RUN bundle install
 
-    # 5. Sinatra 서버 실행 (Listen 포트 설정)
-    EXPOSE 4567
-    CMD bundle exec ruby app.rb -o 0.0.0.0
-  
-  (3) 만들어둔 DockerFile로 Docker Image 생성
-    docker build -t app .  # --tag 옵션으로 생성할 이미지의 이름은 app로 지정
-  
-  (4) Docker Image 실행
-    docker run -d -p 8080:4567 app
-
-  (5) ruby의 base image를 사용하면 훨씬 간략하게 작성할 수 있습니다.
-    FROM ruby:2.3
-    MAINTAINER subicura@subicura.com
-```
+      # 5. Sinatra 서버 실행 (Listen 포트 설정)
+      EXPOSE 4567
+      CMD bundle exec ruby app.rb -o 0.0.0.0
+      ```  
+    - Dockerfile 기반으로 image 생성
+    `docker build -t app .`
+    - Docker Image 실행
+      `docker run -d -p 8080:4567 app`
+    - ruby의 base image를 사용하면 훨씬 간략하게 작성할 수 있습니다.
+      ```dockerfile
+      FROM ruby:2.3
+      MAINTAINER subicura@subicura.com
+      ```
 ![image](https://user-images.githubusercontent.com/21374902/148030522-87816648-ab0a-4586-88c0-8cfd9f5d36f9.png)
 
 
@@ -361,77 +332,70 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 ---
 1️⃣1️⃣ Dockerfile 명령어
 ===
-```
-  . FROM : (필수) base image 지정. 다양한 base image는 Docker hub에서 확인 가능
-  . MAINTAINER : 관리하는 사람의 이름 또는 이메일 정보를 기입
-  . COPY : file, directory를 이미지로 복사. directory가 없으면 자동으로 생성.
-  . ADD : COPY 보다 능동적으로 파일 처리 가능. src에 file 대신 URL을 넣을 수 있고 압축파일을 넣으면 자동으로 압축을 해제해서 복사.
-  . RUN : 명령어를 그대로 실행. /bin/bash -c 뒤에 명령어를 실행하는 방식.
-  . CMD : Docker Container가 실행되었을 때 실행되는 명령어. Build 할때는 실행되지 않으며 여러개의 CMD가 존재하면 맨마지막 CMD만 실행
-  . WORKDIR : RUN, CMD, ADD, COPY 등이 실행된 기본 Directory를 지정. 각 명령어에 대해서 계속 실행되기 때문에 "RUN cd /path"를 실행해도 다음 명령어에선 기본 Directory에서 실행됨.
-  . EXPOSE : Docker Container가 실행되었을 때 요청을 기다리고 있는 포트(Listen Port)를 지정.
-  . VOLUME : Container 외부에 file system을 mount 할 때 사용. 필수는 아니지만 설정해주는 것이 좋음.
-  . ENV : Container에서 사용할 환경변수를 지정. -e 옵션을 사용하면 기존값을 Overriding하여 사용함.
+명령어 | 의미
+:---|:---|
+FROM        | (필수) base image 지정. 다양한 base image는 Docker hub에서 확인 가능
+MAINTAINER  | 관리하는 사람의 이름 또는 이메일 정보를 기입
+COPY        | file, directory를 이미지로 복사. directory가 없으면 자동으로 생성.
+ADD         | OPY 보다 능동적으로 파일 처리 가능. src에 file 대신 URL을 넣을 수 있고 압축파일을 넣으면 자동으로 압축을 해제해서 복사.
+RUN         | 명령어를 그대로 실행. /bin/bash -c 뒤에 명령어를 실행하는 방식.
+CMD         | Docker Container가 실행되었을 때 실행되는 명령어. Build 할때는 실행되지 않으며 여러개의 CMD가 존재하면 맨마지막 CMD만 실행
+WORKDIR     | RUN, CMD, ADD, COPY 등이 실행된 기본 Directory를 지정. 각 명령어에 대해서 계속 실행되기 때문에 "RUN cd /path"를 실행해도 다음 명령어에선 기본 Directory에서 실행됨.
+EXPOSE      | Docker Container가 실행되었을 때 요청을 기다리고 있는 포트(Listen Port)를 지정.
+VOLUME      | Container 외부에 file system을 mount 할 때 사용. 필수는 아니지만 설정해주는 것이 좋음.
+ENV         | Container에서 사용할 환경변수를 지정. -e 옵션을 사용하면 기존값을 Overriding하여 사용함.
+- RUN, CMD, ENTRYPOINT 의 차이점
+  - RUN
+    - 새롭게 생성된 Layer 위에서 실행
+    - Dockerfile로부터 Docker Image를 Build 할 때 수행
+    - 주로 환경에 Package 등을 설치할 때 사용
+  - CMD
+    - Image로부터 Container를 생성했을 때 최초로 수행
+    - Build 할때는 실행되지 않으며 여러개의 CMD가 존재하면 맨마지막 CMD만 실행
+  - ENTRYPOINT
+    - docker run이나 Container를 start할 때 Container가 수행되고 최초로 실행할 명령어를 지정
 
-  . RUN, CMD, ENTRYPOINT 의 차이점
-    (1) RUN
-      - 새롭게 생성된 Layer 위에서 실행
-      - Dockerfile로부터 Docker Image를 Build 할 때 수행
-      - 주로 환경에 Package 등을 설치할 때 사용
-    
-    (2) CMD
-      - Image로부터 Container를 생성했을 때 최초로 수행
-      - Build 할때는 실행되지 않으며 여러개의 CMD가 존재하면 맨마지막 CMD만 실행
-    
-    (3) ENTRYPOINT
-      - docker run이나 Container를 start할 때 Container가 수행되고 최초로 실행할 명령어를 지정
-    
-    💥 CMD는 docker run 일 때만 수행되고 ENTRYPOINT는 Container가 시작할때마다 수행된다.
-```
+  💥 CMD는 docker run 일 때만 수행되고 ENTRYPOINT는 Container가 시작할때마다 수행된다.
+💥 Container 실행 후 반복적으로 수행해야하는 명령어가 있다면 별도의 shell 파일을 만든 후 `ENTRYPOINT ["sh", "entrypoint.sh"]` 로 하도록 Dockfile 작성
+
 
 
 
 ---
 1️⃣2️⃣ Docker Build Log 분석
 ===
-```
-  . 임시 컨테이너 생성 → 명령어 수행 → 이미지로 저장 → 임시 컨테이너 삭제 → 새로 만든 이미지 기반으로 임시 컨테이너 생성 → 명렁어 수행 → 이미지 저장 → 임시 컨테이너 삭제 → ... (반복)
-
-  Sending build context to Docker daemon  5.12 kB
-    → Docker는 Client/Server로 구성되어 있기 때문에 Client에서 Server(Demon)으로 파일을 전송
+- 임시 컨테이너 생성 → 명령어 수행 → 이미지로 저장 → 임시 컨테이너 삭제 → 새로 만든 이미지 기반으로 임시 컨테이너 생성 → 명렁어 수행 → 이미지 저장 → 임시 컨테이너 삭제 → ... (반복)
+- Sending build context to Docker daemon  5.12 kB
+  `→ Docker는 Client/Server로 구성되어 있기 때문에 Client에서 Server(Demon)으로 파일을 전송`
   Step 1/10 : FROM ubuntu:16.04
-    → Dockerfile에서 첫번째 명령어를 실행합니다.
+  `→ Dockerfile에서 첫번째 명령어를 실행합니다.`
   ---> f49eec89601e
-    → 명령어 실행 결과를 image로 저장합니다. (ubuntu image의 ID가 표시)           
+  `→ 명령어 실행 결과를 image로 저장합니다. (ubuntu image의 ID가 표시)`
   Step 2/10 : MAINTAINER subicura@subicura.com
-    → 두번째 명령어 실행
+  `→ 두번째 명령어 실행`
   ---> Running in f4de0c750abb
-    → 이전에 생성된 image [f49eec89601e] 기반으로 생성한 Container [f4de0c750abb]에서 명령어를 실행
+  `→ 이전에 생성된 image [f49eec89601e] 기반으로 생성한 Container [f4de0c750abb]에서 명령어를 실행`
   ---> 4a400609ff73
-    → 명령어 수행 결과를 또다른 새로운 image로 저장 [4a400609ff73]
+  `→ 명령어 수행 결과를 또다른 새로운 image로 저장 [4a400609ff73]`
   Removing intermediate container f4de0c750abb
-    → 임시 Container [f4de0c750abb]  삭제
+  `→ 임시 Container [f4de0c750abb] 삭제`
   Step 3/10 : RUN apt-get -y update
-    → 세번째 명령어를 실행
-  ...
+  `→ 세번째 명령어를 실행`
   ...
   Successfully built 20369cef9829
-    → 최종적으로 성공한 image ID를 출력
-```
+  `→ 최종적으로 성공한 image ID를 출력`
 
 
 
 ---
 1️⃣3️⃣ Dockerfile Build
 ===
-```
-  . 명령어를 실행할 때마다 image layer를 저장하고 다시 빌드할 때 Dockerfile이 변경되지 않았으면 기존에 저장한 image를 캐시처럼 그대로 사용합니다.
-  . Dockerfile을 한줄씩 실행할 때 변경되는 부분이 있으면 캐시가 깨지게되고 변경된 부분 이후는 같은 명령어라도 캐시를 사용하지 않고 다 새로 동작합니다.
-    따라서 자주 변경될 것 같은 명령어는 아래로 빼고 install 등 시간이 오래 걸리는 명령어는 위로 올려서 캐시를 활용하는 것이 빌드 시간을 줄일 수 있는 방법입니다.
-  . -qq, --no-doc, --no-ri 옵션을 부여해서 불필요한 로그를 출력하지 않게 하거나 문서를 생성하지 않게 할 수 있습니다.
-  . Docker Layer의 개수가 제한되어 있을 수도 있기 때문에 너무 많은 명령어는 좋지 않습니다.
-  . 아래 사진을 보면 같은 동작을 하지만 훨씬 간략하게 짤 수 있습니다.
-```
+- 명령어를 실행할 때마다 image layer를 저장하고 다시 빌드할 때 Dockerfile이 변경되지 않았으면 기존에 저장한 image를 캐시처럼 그대로 사용합니다.
+- Dockerfile을 한줄씩 실행할 때 변경되는 부분이 있으면 캐시가 깨지게되고 변경된 부분 이후는 같은 명령어라도 캐시를 사용하지 않고 다 새로 동작합니다.
+- 따라서 자주 변경될 것 같은 명령어는 아래로 빼고 install 등 시간이 오래 걸리는 명령어는 위로 올려서 캐시를 활용하는 것이 빌드 시간을 줄일 수 있는 방법입니다.
+- `-qq`, `--no-doc`, `--no-ri` 옵션을 부여해서 불필요한 로그를 출력하지 않게 하거나 문서를 생성하지 않게 할 수 있습니다.
+- Docker Layer의 개수가 제한되어 있을 수도 있기 때문에 너무 많은 명령어는 좋지 않습니다.
+- 아래 사진을 보면 같은 동작을 하지만 훨씬 간략하게 짤 수 있습니다.
 ## before
 ![image](https://user-images.githubusercontent.com/21374902/148367332-a66c3502-09ce-4909-878a-af5208135d4a.png)
 ## after
@@ -442,34 +406,27 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 ---
 1️⃣4️⃣ Docker와 Kubernetes
 ===
-```
-  . Docker : 한 환경에서 Process 단위로 구분하여 실행
+- Docker : 한 환경에서 Process 단위로 구분하여 실행
     Kubernetes : Container Orchestration Tool
     (Orchestration Tool : Kubernetes, Docker Swarm, ECS, Normad, ...)
-
-  . Docker는 기술적인 개념이자 도구이고
-    Kubernetes는 Docker를 관리하는 도구하고 볼 수 있다.
-  
-  . Image를 만들고 Container를 올리는 것은 Docker
-    만들어진 Container를 관리하는 것은 Kubernetes
-  
-  . Kubernetes는 다수의 Container를 실행 및 관리하며 Service 단위로 관리할 수 있게 해준다.
-    1. Self-Healing : Container가 죽으면 자동으로 재시작
-    2. Load balancing : 새로운 Container를 만들고 죽이며 부하에 대한 Control
-    3. Fault tolerance-FT Service : 무중단 서비스
-    4. Vendor Lock In Solution : 구동하는 Cloud 환경이나 여러 호환성에 대해서 독립적으로 동작
-```
+- Docker는 기술적인 개념이자 도구이고
+  Kubernetes는 Docker를 관리하는 도구하고 볼 수 있다.
+- Image를 만들고 Container를 올리는 것은 Docker
+  만들어진 Container를 관리하는 것은 Kubernetes
+- Kubernetes는 다수의 Container를 실행 및 관리하며 Service 단위로 관리할 수 있게 해준다.
+  1. Self-Healing : Container가 죽으면 자동으로 재시작
+  2. Load balancing : 새로운 Container를 만들고 죽이며 부하에 대한 Control
+  3. Fault tolerance-FT Service : 무중단 서비스
+  4. Vendor Lock In Solution : 구동하는 Cloud 환경이나 여러 호환성에 대해서 독립적으로 동작
 
 
 
 ---
 1️⃣5️⃣ Docker Registry
 ===
-```
-  . Build한 Image를 서버에 배포하기 위해 직접 파일을 복사하는 대신 Docker Registry 라는 이미지 저장소를 사용합니다.
-  . 명령어를 통해 이미지를 Registry에 Push 하면 다른 서버에서 Pull 받아서 사용하는 구조.
-  . Docker Registry는 오픈소스 무료 설치형이고 설치형이 싫다면 Docker Hub를 이용하면 됩니다.  
-```
+- Build한 Image를 서버에 배포하기 위해 직접 파일을 복사하는 대신 Docker Registry 라는 이미지 저장소를 사용합니다.
+- 명령어를 통해 이미지를 Registry에 Push 하면 다른 서버에서 Pull 받아서 사용하는 구조.
+- Docker Registry는 오픈소스 무료 설치형이고 설치형이 싫다면 Docker Hub를 이용하면 됩니다.  
 ![image](https://user-images.githubusercontent.com/21374902/148635190-8f470d88-f61b-484d-88a1-52a736cf2007.png)
 
 
@@ -477,158 +434,138 @@ Gitlab - AWS - docker로 구동하는 배포 시스템을 이해 및 구현
 ---
 1️⃣6️⃣ Docker Hub
 ===
-```
-  . Docerk Hub에는 기본적으로 제공하는 ubuntu, centos 등의 base image와 ruby, java 등 공식 image, 그리고 일반 사용자들이 만든 image까지 모두 저장되어 있습니다.
-  . Docker Hub 사용방법
-    1. docker login
-       - 인증정보는 ~/.docker/config.json 에 저장
-    
-    2. docker tag app subicura/sinatra-app:1
-       - tag 명령어 : docker tag SOURCE_IMAGE[:TAG] TARGET_IMAGE[:TAG]
-       - 이미지 이름 구성 : [Registry URL]/[사용자 ID]/[이미지명]:[tag]
-       - Registry URL은 기본적으로 Docker Hub를 바라보고 있고 사용자 ID를 지정하지 않으면 기본값은 'library' 입니다.
-       
-    3. docker push subicura/sinatra-app:1
-
-  . Docker Image를 Private 하게 관리하려면 Docker Cloud를 사용하거나 Registry 서버를 따로 구축해야 합니다.
-  . Docker Registry를 만드는 방법
-    1. docker run -d \
-      -v $PWD/registry:/var/lib/registry \
-      -p 5000:5000 \
-      distribution/registry:2.6.0
-
-    2. docker tag app localhost:5000/subicura/sinatra-app:1
-
-    3. docker push localhost:5000/subicura/sinatra-app:1
-
-    4. tree registry
-  
-  . Docker Registry는 일반적으로 HTTP를 사용하기 때문에 보안 이슈가 있어서 내부 서버를 제외하곤 HTTP 사용을 금지하고 있으며 이를 무시하려면 Docker Engine을 실행할 때 특정 옵션을 줘야 합니다.
-
-  . Docker Hub 사용방법
-    1. 이미지 검색하기 : docker search {image name}
-    2. 이미지 내려받기 : docker pull {image name}
-    3. 이미지 올리기
-      (1) docker login
-      (2) docker tag SOURCE_IMAGE[:TAG] USER_NAME/TARGET_IMAGE[:TAG]
-      (3) docker push USER_NAME/TARGET_IMAGE[:TAG]
-```
+- Docerk Hub에는 기본적으로 제공하는 ubuntu, centos 등의 base image와 ruby, java 등 공식 image, 그리고 일반 사용자들이 만든 image까지 모두 저장되어 있습니다.
+- Docker Hub 사용방법
+  - `docker login`
+    - 인증정보는 ~/.docker/config.json 에 저장
+  - `docker tag app subicura/sinatra-app:1`
+    - tag 명령어 : docker tag SOURCE_IMAGE[:TAG] TARGET_IMAGE[:TAG]
+    - 이미지 이름 구성 : [Registry URL]/[사용자 ID]/[이미지명]:[tag]
+    - Registry URL은 기본적으로 Docker Hub를 바라보고 있고 사용자 ID를 지정하지 않으면 기본값은 'library' 입니다.   
+  - `docker push subicura/sinatra-app:1`
+- Docker Image를 Private 하게 관리하려면 Docker Cloud를 사용하거나 Registry 서버를 따로 구축해야 합니다.
+- Docker Registry를 만드는 방법
+  - `docker run -d -v $PWD/registry:/var/lib/registry -p 5000:5000 distribution/registry:2.6.0`
+  - `docker tag app localhost:5000/subicura/sinatra-app:1`
+  - `docker push localhost:5000/subicura/sinatra-app:1`
+  - `tree registry`
+- Docker Registry는 일반적으로 HTTP를 사용하기 때문에 보안 이슈가 있어서 내부 서버를 제외하곤 HTTP 사용을 금지하고 있으며 이를 무시하려면 Docker Engine을 실행할 때 특정 옵션을 줘야 합니다.
+- Docker Hub 사용방법
+  - 이미지 검색하기 : `docker search {image name}`
+  - 이미지 내려받기 : `docker pull {image name}`
+  - 이미지 올리기
+    - `docker login`
+    - `docker tag SOURCE_IMAGE[:TAG] USER_NAME/TARGET_IMAGE[:TAG]`
+    - `docker push USER_NAME/TARGET_IMAGE[:TAG]`
 
 
 
 ---
 1️⃣7️⃣ Docker Deploy
 ===
-```
-  . Container 방식으로 배포
-    1. 언어, 프레임워크와 상관없이 동일한 방식으로 배포할 수 있다.
-    2. 서버에 접속해서 Container를 실행할 줄 알면 된다.
-    3. 서버에 최신 image를 올려둔 후 이전 Container를 중지 후 삭제하고 최신 image로 Container를 실행시켜주면 됩니다.
-  . 하지만 위 방법은 무중단 배포를 의미하는 것은 아니기 때문에 무중단 배포를 위해선 아래 자료를 참고 합니다.
-    https://subicura.com/2016/06/07/zero-downtime-docker-deployment.html
-```
+- Container 방식으로 배포
+  - 언어, 프레임워크와 상관없이 동일한 방식으로 배포할 수 있다.
+  - 서버에 접속해서 Container를 실행할 줄 알면 된다.
+  - 서버에 최신 image를 올려둔 후 이전 Container를 중지 후 삭제하고 최신 image로 Container를 실행시켜주면 됩니다.
+- 하지만 위 방법은 무중단 배포를 의미하는 것은 아니기 때문에 무중단 배포를 위해선 아래 자료를 참고 합니다.
+https://subicura.com/2016/06/07/zero-downtime-docker-deployment.html
 
 
 
 ---
 1️⃣8️⃣ gitlab-ci.yml 예제
 ===
+- gitlab-docker-aws 환경에 DEV, STG, PROD 라는 3개의 환경을 세팅하여 사용할 때 사용했던 gitlab-ci.yml 파일 예제
+- ECR : Amazon Elastic Container Registry
+  - ECR에 Repository, 정책, 토큰, 이미지 등을 미리 설정해두고 그 설정을 불러서 동작하도록 설정
+- ECR을 이용해서 EC2에 새로운 ECS를 만드는 순서
+  - `Ready Docker image` → `Create ECR repository` → `Connect EC2` → `Pull Docker image` → `Create new ECS with docker image` → `Create service`
+- Maven 생명주기 : `validation` → `compile` → `test` → `package` → `intergration-test` → `verify` → `install` → `deploy`
+  - maven compile : complie 후 target 폴더에 .class 파일 생성
+  - maven test : JUnit 테스트 코드 실행
+  - maven package : .jar 생성 파일 생성
+  - maven build : maven 기반 project build
+    ```yml
+    ### docker image 기반으로 동작하도록 설정
+        image: docker:latest
+        
+    ### 환경 변수 등 아래 명령어에서 공통으로 사용하는 값 세팅
+        variables:
+          DEV_ECR: {ECR Repository 주소}
+          STG_ECR: {ECR Repository 주소}
+          PROD_ECR: {ECR Repository 주소}
+          MAVEN_OPTS: -Dmaven.repo.local=${CI_PROJECT_DIR}/.mr
 
-```yml
-### gitlab-docker-aws 환경에 DEV, STG, PROD 라는 3개의 환경을 세팅하여 사용할 때 사용했던 gitlab-ci.yml
-    
-### docker image 기반으로 동작하도록 설정
-    image: docker:latest
-    
-### 환경 변수 등 아래 명령어에서 공통으로 사용하는 값 세팅
-    variables:
-      DEV_ECR: {ECR Repository 주소}
-      STG_ECR: {ECR Repository 주소}
-      PROD_ECR: {ECR Repository 주소}
-      MAVEN_OPTS: -Dmaven.repo.local=${CI_PROJECT_DIR}/.mr
-### ECR : Amazon Elastic Container Registry
-###       ECR에 Repository, 정책, 토큰, 이미지 등을 미리 설정해두고 그 설정을 불러서 동작하도록 설정
-### ECR을 이용해서 EC2에 새로운 ECS를 만드는 순서
-### Ready Docker image → Create ECR repository → Connect EC2 → Pull Docker image → Create new ECS with docker image → Create service
+    ### 
+        cache:
+          paths:
+            - .m2/   
+    ### 파이프라인 단계의 이름과 순서
+    ### Job이 실행되는 단계를 의미하며 동일한 stage 안에 있는 JOB들은 병렬적으로 수행
+        stages: 
+    #     - test
+          - build
+          - package
+    #     - deploy   # build 후 자동으로 deploy까지 할 때 사용
 
-### Maven 생명주기 : validation -> compile -> test -> package -> intergration-test -> verify -> install -> deploy
-### maven compile : complie 후 target 폴더에 .class 파일 생성
-### maven test : JUnit 테스트 코드 실행
-### maven package : .jar 생성 파일 생성
-### maven build : maven 기반 project build
+    ### stages에 있는 build가 수행될 때 참조하는 스크립트
+        build:
+          image: maven:3-jdk-8
+          stage: build
+          only:
+            - triggers
+          script: "mvn install"
+          artifacts:
+            paths:
+              - target/*.jar
+    ### DEV 환경에 docker build 될 때 참조하는 스크립트
+        DEV-docker-build:
+          stage: package
+          only:
+            - triggers
+          except:
+          # - /^dev.*$/
+            - /^stage.*$/
+            - /^master.*$/
+          before_script:
+            - NEW_IMAGE_NAME = ${environment}:$(echo ${CI_COMMIT_REF_NAME} | sed "s/[^[[:alnum]]//g")-${CI_COMMIT_SHA}])
+          script:
+            - apk add --no-cache curl jq python3 py3-pip
+            - pip3 install awscli
+            - $(aws ecr get-login --no-include-email --region {aws region})
+            - docker build -t $NEW_IMAGE_NAME .
+            - docker push $NEW_IMAGE_NAME
+            - docker rmi $NEW_IMAGE_NAME
 
-### 
-    cache:
-      paths:
-        - .m2/   
-### 파이프라인 단계의 이름과 순서
-### Job이 실행되는 단계를 의미하며 동일한 stage 안에 있는 JOB들은 병렬적으로 수행
-    stages: 
-#     - test
-      - build
-      - package
-#     - deploy   # build 후 자동으로 deploy까지 할 때 사용
-
-### stages에 있는 build가 수행될 때 참조하는 스크립트
-    build:
-      image: maven:3-jdk-8
-      stage: build
-      only:
-        - triggers
-      script: "mvn install"
-      artifacts:
-        paths:
-          - target/*.jar
-### DEV 환경에 docker build 될 때 참조하는 스크립트
-    DEV-docker-build:
-      stage: package
-      only:
-        - triggers
-      except:
-      # - /^dev.*$/
-        - /^stage.*$/
-        - /^master.*$/
-      before_script:
-        - NEW_IMAGE_NAME = ${environment}:$(echo ${CI_COMMIT_REF_NAME} | sed "s/[^[[:alnum]]//g")-${CI_COMMIT_SHA}])
-      script:
-        - apk add --no-cache curl jq python3 py3-pip
-        - pip3 install awscli
-        - $(aws ecr get-login --no-include-email --region {aws region})
-        - docker build -t $NEW_IMAGE_NAME .
-        - docker push $NEW_IMAGE_NAME
-        - docker rmi $NEW_IMAGE_NAME
-
-### stages에 deploy를 수행할 때 참조하는 스크립트
-    DEV-deploy:
-      image: sppark/curl-jq:v1
-      stage: deploy
-      only:
-        - triggers
-      except:
-        # only dev
-        - /^stage.*$/
-        - /^master.*$/
-      before_script:
-        - NEW_IMAGE_TAG=$(echo ${CI_COMMIT_REF_NAME} | sed "s/[^[[:alnum:]]//g")-${CI_COMMIT_SHA}
-      script:
-        - "RESULT=\"$(curl -s -o /dev/null -w \"%{http_code}\" --request POST -H \"access_token: ${ACCESS_TOKEN}\" \"${CICD_SERVICE_URL}/${serverGroup URL}/deploy?commit=$NEW_IMAGE_TAG\")\""
-        - echo ${RESULT}
-### STG, PROD 환경별 작성    
-###  환경별 값은 거의 동일하고 except 부분만 달라진다.
-    STG-docker-build:
-    STG-deploy: ...
-    PROD-docker-build: ...
-    PROD-deploy: ...
-```
+    ### stages에 deploy를 수행할 때 참조하는 스크립트
+        DEV-deploy:
+          image: sppark/curl-jq:v1
+          stage: deploy
+          only:
+            - triggers
+          except:
+            # only dev
+            - /^stage.*$/
+            - /^master.*$/
+          before_script:
+            - NEW_IMAGE_TAG=$(echo ${CI_COMMIT_REF_NAME} | sed "s/[^[[:alnum:]]//g")-${CI_COMMIT_SHA}
+          script:
+            - "RESULT=\"$(curl -s -o /dev/null -w \"%{http_code}\" --request POST -H \"access_token: ${ACCESS_TOKEN}\" \"${CICD_SERVICE_URL}/${serverGroup URL}/deploy?commit=$NEW_IMAGE_TAG\")\""
+            - echo ${RESULT}
+    ### STG, PROD 환경별 작성    
+    ###  환경별 값은 거의 동일하고 except 부분만 달라진다.
+        STG-docker-build:
+        STG-deploy: ...
+        PROD-docker-build: ...
+        PROD-deploy: ...
+    ```
 
 
 
 ---
 1️⃣9️⃣ Gitlab에 maven build 및 docker build 로그 분석
 ===
-```
-.ㅇㅇㅇ
-```
+추후작성
 
 
 
