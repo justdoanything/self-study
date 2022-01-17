@@ -246,10 +246,10 @@
     `docker run --rm -p 4567:4567 -v $PWD:/usr/src/app -w /usr/src/app ruby bash -c "bundle install && bundle exec ruby app.rb -o 0.0.0.0"`
   - 위 명령어처럼 한번에 실행하면 SSL 에러와 Server handler not found 에러가 발생
     아래와 같이 명령어를 순차적으로 실행
-    (기존에 Gemfile.lock 파일이 있으면 삭제 후 진행)
-    `sudo apt install ruby-bundler`
-    `bundle install`
-    `bundle exec ruby app.rb`
+    (기존에 Gemfile.lock 파일이 있으면 삭제 후 진행)\
+    `sudo apt install ruby-bundler`\
+    `bundle install`\
+    `bundle exec ruby app.rb`\
   ```
   💥 Trouble Shooting
     1. Gemfile에 source 부분을 https 로 작성하면 SSL Exception 발생
@@ -316,9 +316,9 @@
       EXPOSE 4567
       CMD bundle exec ruby app.rb -o 0.0.0.0
       ```  
-    - Dockerfile 기반으로 image 생성
+    - Dockerfile 기반으로 image 생성\
     `docker build -t app .`
-    - Docker Image 실행
+    - Docker Image 실행\
       `docker run -d -p 8080:4567 app`
     - ruby의 base image를 사용하면 훨씬 간략하게 작성할 수 있습니다.
       ```dockerfile
@@ -355,8 +355,8 @@ ENV         | Container에서 사용할 환경변수를 지정. -e 옵션을 사
   - ENTRYPOINT
     - docker run이나 Container를 start할 때 Container가 수행되고 최초로 실행할 명령어를 지정
 
-  💥 CMD는 docker run 일 때만 수행되고 ENTRYPOINT는 Container가 시작할때마다 수행된다.
-💥 Container 실행 후 반복적으로 수행해야하는 명령어가 있다면 별도의 shell 파일을 만든 후 `ENTRYPOINT ["sh", "entrypoint.sh"]` 로 하도록 Dockfile 작성
+  💥 CMD는 docker run 일 때만 수행되고 ENTRYPOINT는 Container가 시작할때마다 수행된다.\
+  💥 Container 실행 후 반복적으로 수행해야하는 명령어가 있다면 별도의 shell 파일을 만든 후 `ENTRYPOINT ["sh", "entrypoint.sh"]` 로 하도록 Dockfile 작성
 
 
 
@@ -365,24 +365,24 @@ ENV         | Container에서 사용할 환경변수를 지정. -e 옵션을 사
 1️⃣2️⃣ Docker Build Log 분석
 ===
 - 임시 컨테이너 생성 → 명령어 수행 → 이미지로 저장 → 임시 컨테이너 삭제 → 새로 만든 이미지 기반으로 임시 컨테이너 생성 → 명렁어 수행 → 이미지 저장 → 임시 컨테이너 삭제 → ... (반복)
-- Sending build context to Docker daemon  5.12 kB
-  `→ Docker는 Client/Server로 구성되어 있기 때문에 Client에서 Server(Demon)으로 파일을 전송`
-  Step 1/10 : FROM ubuntu:16.04
-  `→ Dockerfile에서 첫번째 명령어를 실행합니다.`
-  ---> f49eec89601e
-  `→ 명령어 실행 결과를 image로 저장합니다. (ubuntu image의 ID가 표시)`
-  Step 2/10 : MAINTAINER subicura@subicura.com
-  `→ 두번째 명령어 실행`
-  ---> Running in f4de0c750abb
-  `→ 이전에 생성된 image [f49eec89601e] 기반으로 생성한 Container [f4de0c750abb]에서 명령어를 실행`
-  ---> 4a400609ff73
-  `→ 명령어 수행 결과를 또다른 새로운 image로 저장 [4a400609ff73]`
-  Removing intermediate container f4de0c750abb
-  `→ 임시 Container [f4de0c750abb] 삭제`
-  Step 3/10 : RUN apt-get -y update
-  `→ 세번째 명령어를 실행`
-  ...
-  Successfully built 20369cef9829
+- Sending build context to Docker daemon  5.12 kB\
+  `→ Docker는 Client/Server로 구성되어 있기 때문에 Client에서 Server(Demon)으로 파일을 전송`\
+  Step 1/10 : FROM ubuntu:16.04\
+  `→ Dockerfile에서 첫번째 명령어를 실행합니다.`\
+  ---> f49eec89601e\
+  `→ 명령어 실행 결과를 image로 저장합니다. (ubuntu image의 ID가 표시)`\
+  Step 2/10 : MAINTAINER subicura@subicura.com\
+  `→ 두번째 명령어 실행`\
+  ---> Running in f4de0c750abb\
+  `→ 이전에 생성된 image [f49eec89601e] 기반으로 생성한 Container [f4de0c750abb]에서 명령어를 실행`\
+  ---> 4a400609ff73\
+  `→ 명령어 수행 결과를 또다른 새로운 image로 저장 [4a400609ff73]`\
+  Removing intermediate container f4de0c750abb\
+  `→ 임시 Container [f4de0c750abb] 삭제`\
+  Step 3/10 : RUN apt-get -y update\
+  `→ 세번째 명령어를 실행`\
+  ...\
+  Successfully built 20369cef9829\
   `→ 최종적으로 성공한 image ID를 출력`
 
 
@@ -407,8 +407,8 @@ ENV         | Container에서 사용할 환경변수를 지정. -e 옵션을 사
 1️⃣4️⃣ Docker와 Kubernetes
 ===
 - Docker : 한 환경에서 Process 단위로 구분하여 실행
-    Kubernetes : Container Orchestration Tool
-    (Orchestration Tool : Kubernetes, Docker Swarm, ECS, Normad, ...)
+  Kubernetes : Container Orchestration Tool
+  (Orchestration Tool : Kubernetes, Docker Swarm, ECS, Normad, ...)
 - Docker는 기술적인 개념이자 도구이고
   Kubernetes는 Docker를 관리하는 도구하고 볼 수 있다.
 - Image를 만들고 Container를 올리는 것은 Docker
