@@ -4,11 +4,15 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import Practice from './Practice';
+import CoinTracker from './CoinTracker';
+import Movie from './Movie';
 
 ReactDOM.render(
   <React.StrictMode>
     {/* <App /> */}
-    <Practice />
+    {/* <Practice /> */}
+    {/* <CoinTracker /> */}
+    <Movie />
   </React.StrictMode>,
   document.getElementById('root')
 );

@@ -26,7 +26,15 @@ function Practice() {
                 />
                 <button>Add To Do</button>
             </form>
-            {toDos}
+            <hr />
+            {toDos}<br />
+            {toDos.map(() => ":)")}<br />
+            {toDos.map((item) => item.toUpperCase())}<br />
+            {toDos.map((item, index) => (
+                <li key={index}>{item}</li>
+            ))}
+            <br />
+
         </div>
     );
 }
