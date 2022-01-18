@@ -148,6 +148,59 @@ React
 
 </script>
 ```
+---
+# useState & useEffect
+- useState[state, setState]
+  - document : https://ko.reactjs.org/docs/hooks-reference.html#usestate
+  - `function useState<S>(initialState: S | (() => S)): [S, Dispatch<SetStateAction<S>>] import useState`
+  - `state`를 변경하기 위해선 `setState`를 호출해야하며 `setState`가 호출될 때마다 해당하는 component는 re-rendering 된다.
+  - component가 전체 re-rendering 되기 때문에 필요에 따라 `useEffect`를 사용해준다.
+- useEffect
+  - document : https://ko.reactjs.org/docs/hooks-reference.html#useeffect
+  - `function useEffect(effect: EffectCallback, deps?: DependencyList): void import useEffect`
+  - object가 변경됐을 때만 function을 수행한다.
+  - 예시
+    ```js
+    useEffect( () => {
+        if(keyword.length > 5)
+            console.log("keyword is changes");
+    }, [keyword]);
+    ```
+---
+# Cleanup
+- Component가 삭제됐을 때 실행되는 함수
+    ```js
+    function Hello() {
+        
+        // Way 1 : better way
+        useEffect(()=>{
+            console.log("created :)");
+            return () => console.log("destroyed :(");   // Cleanup function
+        }, []);
+
+        // Way 2
+        function effectCreated() {
+            console.log("created :)");
+            return effectDestroyed;     // Cleanup function
+        }
+        function effectDestroyed() {
+            console.log("destroyed :(");
+        }
+        useEffect(effectCreated, []);
+
+        return <h1>Hello</h1>;
+    }
+    ```
+---
+# Array of useState
+- Array에 Array를 더하는 방법
+  ```js
+  const arraySample = [1,2,3];
+  const useState[value, setValue] = useState([]);
+  setValue((currentArray) => [value, ...currentArray]);
+  ```
+
+
 
 ---
 ### Practice Code
