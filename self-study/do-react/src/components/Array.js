@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
-function Practice() {
+function Array() {
     const [toDo, setToDo] = useState("");
     const [toDos, setToDos] = useState([]);
     const onChange = (event) => setToDo(event.target.value);
@@ -16,6 +16,7 @@ function Practice() {
 
     return (
         <div>
+            <h1>Hello! Array!</h1>
             <h1>My To Dos ({toDos.length})</h1>
             <form onSubmit={onSubmit}>
                 <input
@@ -39,4 +40,4 @@ function Practice() {
     );
 }
 
-export default Practice;
+export default Array;

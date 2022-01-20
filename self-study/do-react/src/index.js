@@ -1,18 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
 import reportWebVitals from './reportWebVitals';
-import Practice from './Practice';
-import CoinTracker from './CoinTracker';
-import Movie from './Movie';
+import App from './App';
 
 ReactDOM.render(
   <React.StrictMode>
-    {/* <App /> */}
-    {/* <Practice /> */}
-    {/* <CoinTracker /> */}
-    <Movie />
+    <App />
   </React.StrictMode>,
   document.getElementById('root')
 );
