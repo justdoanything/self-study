@@ -12,6 +12,20 @@
 ---
 Web Server And WAS
 ===
+- WAS : Web Application Server
+
+- 정적(Static) 페이지
+  - Web Server는 경로를 받아서 contents를 응답한다.
+  - Image, html, css, javascript 와 같은 서버에 저장되있는 파일 등을 응답한다.
+- 동적(Dynamic) 페이지
+  - Parameter에 맞는 contents를 선택적으로 응답한다.
+  - Server에서 실행되는 프로그램이 만들어진 결과를 응답한다.
+
+- Web Server
+  - Hardware : Web Server가 설치되어 있는 Hardware
+  - Software : Client(Web Browser)로부터 HTTP 요청을 받아 정적 컨텐츠(Static Contents)를 제공하는 Program
+  - 
+
 
 
 
