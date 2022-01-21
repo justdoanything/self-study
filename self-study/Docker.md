@@ -115,9 +115,9 @@
   - SAM CLI
     - `pip3 install aws-sam-cli --user --trusted-host pypi.org --trusted-host files.pythonhosted.org`
   - Node.js
-    - `wget https://nodejs.org/dist/latest-v12.x/node-<버전>-linux-x64.tar.gz - P ~/tools/`
-    - `tar xvf ~/tools/node-<버전>-linux-x64.tar.gz -C ~/tools/`
-    - `echo "export PATH=\"\$HOME/tools/node-<버전>-linux-x64/bin:\$PATH\"" >> ~/.profile`
+    - `wget https://nodejs.org/dist/latest-v12.x/node-v12.22.9-linux-x64.tar.gz -P ~/tools/`
+    - `tar xvf ~/tools/node-v12.22.9-linux-x64.tar.gz -C ~/tools/`
+    - `echo "export PATH=\"\$HOME/tools/node-v12.22.9-linux-x64/bin:\$PATH\"" >> ~/.profile`
     - `source ~/.profile`
     - `npm install -g yarn`\
     ![image](https://user-images.githubusercontent.com/21374902/147616035-5bb71b64-74e2-490c-bbc6-bb44fbc06ddd.png)
