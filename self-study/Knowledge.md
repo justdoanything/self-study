@@ -7,28 +7,77 @@
 5. [ECS와 EC2](#AWS-ECS-and-EC2)
 6. [Middle Ware](#Middle-Ware)
 7. [Yarn](#Yarn)
+8. [Redis](#Redis)
 
 
 ---
 Web Server And WAS
 ===
-- WAS : Web Application Server
+- #### Web Page의 구분
+  - 정적 페이지(Static Page)
+    - Web Server는 경로를 받아서 contents를 응답한다.
+    - Image, html, css, javascript 와 같은 서버에 저장되있는 파일 등을 응답한다.
+  - 동적 페이지(Dynamic Page)
+    - Parameter에 맞는 contents를 선택적으로 응답한다.
+    - Server에서 실행되는 프로그램이 만들어진 결과를 응답한다.   
+- ![image](https://user-images.githubusercontent.com/21374902/150668577-2a92a4d7-f028-40c2-aac9-90cd2bf8bc1b.png)  
+- #### Web Server
+  - ###### Web Server의 정의
+    - Hardware : Web Server가 설치되어 있는 Hardware
+    - Software : Client(Web Browser)로부터 HTTP 요청을 받아 정적 컨텐츠`(Static Contents)`를 제공하는 Program
+  - ###### Web Server의 기능
+    - HTTP Protocol 기반으로 Client의 요청을 처리하는 기능
+    - 기능1 : WAS를 거치지 않고 바로 `Static Contents` 등을 제공한다
+    - 기능2 : `Dynamic Contents` 제공을 위한 `요청을 전달`한다.
+    Client의 요청을 WAS에 보내고 WAS가 처리한 결과를 Client에게 반환한다.
+  - ###### 대표적인 예 : Apache Server, Nginx, IIS
+- #### WAS (Web Application Server)
+  - ###### WAS의 정의
+    - 여러 로직을 포함한 `Dynamic Contents를 제공`하기 위해 만들어진 Application Server
+    - HTTP를 통해 컴퓨터나 장치에 애플리케이션을 수행해주는 미들웨어(Software Engine)
+    - Web Container, Servlet Container라고도 불린다.
+      _`Container는 Servlet를 실행할 수 있는 S/W로 JSP, Servlet 구동 환경을 제공한다.`_
+  - ###### WAS의 기능
+    - WAS = Web Server + Web Container
+    - 분산 트랜잭션, 보안, 메시징, 쓰레드 처리 등 분산 처리 환경에서 Web Server의 기능들을 구조적으로 분리하여 처리하고자하는 목적
+    - 기능1 : 프로그램 실행 환경과 DB 접속 기능 제공
+    - 기능2 : 여러 개의 트랜잭션(논리적인 작업 단위) 관리 기능
+    - 기능3 : 업무를 처리하는 비즈니스 로직 수행
+  - ###### 대표적인 예 : Tomcat, JBoss, Jeus, Web Sphere 
+![image](https://user-images.githubusercontent.com/21374902/150668615-2fcefac4-fd16-462c-842a-4bd74aa97831.png)
+![image](https://user-images.githubusercontent.com/21374902/150669867-07ca2a0f-73ae-4388-91ad-4a46803cc660.png)
+- #### Web Server와 WAS를 구분하는 이유
+  - Browser(Client)에 Image(Static Content)가 보여지는 과정을 예로 들면,
+    - 최초에 HTML 파일이 Client에게 전달될 때 Image 파일들이 동시에 전달되지는 않는다.
+    - Client가 HTML 파일을 Load하면서 필요한 파일들을 Server로 요청하면 그때 Image가 전달된다.
+    - Web Server는 이러한 Static Contents를 갖고 있으면서 Client의 요청이 왔을 때 그 요청을 Application 단으로 전달하지 않고 바로 보내준다.
+  - 따라서 Web Server는 Static Content를 빠르게 처리하면서 기능을 분배하여 Server의 부담을 줄일 수 있다.
+  - Web 페이지는 Client의 요청에 따라 동적인 컨텐츠를 반환해주기도 해야하는데 DB를 읽어오거나 특정 로직을 적용해서 데이터를 반환해야하는데 이를 모두 Web Server에 다 만들어놓고 반환하려면 자원이 부족하기 때문에 동적인 컨텐츠는 WAS에서 처리한다.
+- #### Web Server와 WAS를 나누면서 얻는 이점
+  - ###### 기능을 분리하면서 서버 부하 방지
+    - WAS는 DB 처리, 다양한 로직을 처리한 후 동적 처리
+    - Web Server는 정적인 컨텐츠를 빠르게 응답
+  - ###### 물리적으로 분리하여 보안 강화
+    - Web Server가 앞단에서 SSL에 대한 암복화 처리나 White/Black List 관리
+  - ###### 여러개의 WAS를 사용할 때 유용
+    - Web Server가 Load Balancing 기능을 함
+    - 장애 극복(Fail Over), Fail Back 처리에 유리
+    - WAS만 재부팅 하는 등 무중단 배포가 가능
+    - PHP Applaction과 JAVA Application을 함께 사용할 수 있음
+- #### Web Server와 WAS를 같이 사용했을 때의 처리과정
+  - WEB은 `Client - Web Server - DB` 만 쓸수도 있고 `Client - WAS - DB` 형태로 쓰거나 `Client - Web Server - WAS - DB` 형태로 사용할 수 있다.
+  - `Client - Web Server - WAS - DB` 형태로 처리하는 과정은 아래와 같다.
+    - Client가 보낸 HTTP 요청을 Web Server가 받고 WAS로 전달한다.
+    - WAS는 Servlet을 Memory에 올려둔다.
+    - WAS는 web.xml을 참조하여 해당 Servlet에 대한 Thread를 생성한다.
+    - `HttpServletRequest`와 `HttpServletResponse` 객체를 생성하여 Servlet에 전달한다.
+    - Thread는 Servlet의 service() method를 호출하고 호출되는 method에 맞게 생성된 Reponse를 객체에 담아 WAS에 전달한다.
+    - WAS는 Response 객체를 HttpResponse 형태로 바꾸어 Web Server에 전달한다.
+    - 생성된 Thread를 종료하고, HttpServletRequest와 HttpServletResponse 객체를 제거한다.
 
-- 정적(Static) 페이지
-  - Web Server는 경로를 받아서 contents를 응답한다.
-  - Image, html, css, javascript 와 같은 서버에 저장되있는 파일 등을 응답한다.
-- 동적(Dynamic) 페이지
-  - Parameter에 맞는 contents를 선택적으로 응답한다.
-  - Server에서 실행되는 프로그램이 만들어진 결과를 응답한다.
-
-- Web Server
-  - Hardware : Web Server가 설치되어 있는 Hardware
-  - Software : Client(Web Browser)로부터 HTTP 요청을 받아 정적 컨텐츠(Static Contents)를 제공하는 Program
-  - 
 
 
-
-
+![image](https://user-images.githubusercontent.com/21374902/150670026-239d1d74-aeaa-4579-93de-a8723c7b4886.png)
 
 
 - Reference
@@ -82,12 +131,12 @@ NGINX
 
 Apache and NGINX
 ===
-- Apache
+- Apache (WAS)
   - 쓰레드 / 프로세스 기반 구조로 요청 하나당 쓰레드 하나가 처리하는 구조
   - 사용자가 많으면 많은 쓰레드 생성, 메모리 및 CPU 낭비가 심함
   - 하나의 쓰레드 : 하나의 클라이언트 라는 구조
 
-- NGINX
+- NGINX (Web Server)
   - 비동기 Event-Driven 기반 구조. 
   - 다수의 연결을 효과적으로 처리가능. 
   - 대부분의 코어 모듈이 Apache보다 적은 리소스로 더 빠르게 동작가능
@@ -131,6 +180,14 @@ Middle-Ware
 ---
 
 Yarn
+===
+
+
+---
+
+
+
+Redis
 ===
 
 
