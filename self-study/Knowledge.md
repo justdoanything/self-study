@@ -20,7 +20,7 @@ Web Server And WAS
   - 동적 페이지(Dynamic Page)
     - Parameter에 맞는 contents를 선택적으로 응답한다.
     - Server에서 실행되는 프로그램이 만들어진 결과를 응답한다.   
-- ![image](https://user-images.githubusercontent.com/21374902/150668577-2a92a4d7-f028-40c2-aac9-90cd2bf8bc1b.png)  
+![image](https://user-images.githubusercontent.com/21374902/150668577-2a92a4d7-f028-40c2-aac9-90cd2bf8bc1b.png)  
 - #### Web Server
   - ###### Web Server의 정의
     - Hardware : Web Server가 설치되어 있는 Hardware
@@ -74,9 +74,12 @@ Web Server And WAS
     - Thread는 Servlet의 service() method를 호출하고 호출되는 method에 맞게 생성된 Reponse를 객체에 담아 WAS에 전달한다.
     - WAS는 Response 객체를 HttpResponse 형태로 바꾸어 Web Server에 전달한다.
     - 생성된 Thread를 종료하고, HttpServletRequest와 HttpServletResponse 객체를 제거한다.
-
-
-
+- #### 별첨. Spring 수행 과정
+  - Servlet과 Servlet Class, URL를 연결
+  - DispatcherServlet : Spring Container를 생성 및 관리
+  - Client의 요청이 들어오면 DispatcherServlet이 해당하는 Servlet에 대한 Thread를 생성 및 실행하면 HttpsServletRequest, HttpsServletResponse가 생성되고 Servlet에 전달된다.
+  - 실행된 Thread는 Servlet에 해당하는 service method 를 호출하고 정해진 로직을 수행된 후에 HttpsServletResponse를 만들어서 전달
+  - Lifecyle에 따라 생성했던 객체와 Thread 종료 및 제거
 ![image](https://user-images.githubusercontent.com/21374902/150670026-239d1d74-aeaa-4579-93de-a8723c7b4886.png)
 
 
@@ -170,7 +173,9 @@ WAF (Web Application Firewall)
 ---
 AWS ECS and EC2
 ===
+- #### ECS (Elastic Container Service)
 
+- #### EC2 (Elastic Compute Cloud)
 
 ---
 Middle-Ware
