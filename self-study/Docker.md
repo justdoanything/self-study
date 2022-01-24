@@ -1,7 +1,3 @@
-.markdown-body{
-  font-family: 'ELAND_Choice_M !important;
-}
-
 목차
 ---
 0. [목표](#0️⃣-목표)
@@ -202,41 +198,87 @@
 9️⃣ Docker Compose
 ===
 - Docker의 복잡한 설정을 간편하게 하기 위해서 yml방식의 설정파일을 이용한 Docker Compose를 사용합니다.
-- docker-compose.yml 작성 후 docker-compose up 명령어 실행
-```yml
-### 예제코드    
-    version: '2'
-    services:
-      db:
-        image: mysql:5.7
-        volumes:
-          - db_data:/var/lib/mysql
-        restart: always
-        environment:
-          MYSQL_ROOT_PASSWORD: wordpress
-          MYSQL_DATABASE: wordpress
-          MYSQL_USER: wordpress
-          MYSQL_PASSWORD: wordpress
-      wordpress:
-        depends_on:
-          - db
-        image: wordpress:latest
-        volumes:
-          - wp_data:/var/www/html
-        ports:
-          - "8000:80"
-        restart: always
-        environment:
-          WORDPRESS_DB_HOST: db:3306
-          WORDPRESS_DB_PASSWORD: wordpress
-    volumes:
-        db_data:
-        wp_data:
+- 여러 개의 Docker Container를 정의하고 한번에 실행/중지 시킬 때 사용한다.
+- YAML 파일에 Service에 대한 환경설정을 모두 정의해놓고 Single 명령어를 통해 실행한다.
+- Docker Compose을 사용하는 일반적인 순서
+  - Application 환경은 `Dockerfile`에 작성해서 어디서든지 실행할 수 있도록 합니다.
+  - Application을 구성하는 Service는 `docker-compose.yml`에 작성해서 각각 독립된 환경(Container)에서 실행할 수 있도록 합니다.
+  - `docker-compose up` 명령어를 통해 `docker-compose.yml`에 정의한대로 Container를 생성 및 실행합니다.
+- `docker-compose up` 명령어로 서비스들을 한번에 실행하고 `docker-compose down`으로 한번에 내릴 수 있습니다.
+
+```shell
+### 기준 docker 명령어
+docker run -dp 3000:3000 \
+  -w /app -v ${PWD}:/app \
+  --network todo-app \
+  -e MYSQL_HOST=mysql \
+  -e MYSQL_USER=root \
+  -e MYSQL_PASSWORD=secret \
+  -e MYSQL_DB=todos \
+  node:12-alpine \
+  sh -c "yarn install && yarn run dev"
+
+docker run -d \
+  --network todo-app --network-alias mysql \
+  -v todo-mysql-data:/var/lib/mysql \
+  -e MYSQL_ROOT_PASSWORD=secret \
+  -e MYSQL_DATABASE=todos \
+  mysql:5.7
+
 ```
-- docker-compose 더 자세히 알아보기
-  `추후 작성 필요`
 
+```yml
+### 변환 한 docker-compose.yml 파일
+version: "3.8"
 
+services:
+  app:
+    image: node:12-alpine
+    command: sh -c "yarn install && yarn run dev"
+    ports:
+      - 3000:3000
+    working_dir: /app
+    volumes:
+      - ./:/app
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: secret
+      MYSQL_DB: todos
+
+  mysql:
+    image: mysql:5.7
+    volumes:
+      - todo-mysql-data:/var/lib/mysql
+    environment: 
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: todos
+
+volumes:
+  todo-mysql-data:
+```
+  - `docker-compose up` 명령어를 수행하면 아래와 같이 단계별로 진행
+    - Set Network To Upload Services
+    - Link Volumns
+    - Pull Images
+    - Build Images
+    - Run Services
+  - `-p` : 프로젝트명을 부여해서 하나의 Application을 격리된 여러개의 환경에서 서비스를 할 수 있습니다.
+    - `docker-compose -p first_app up`
+    - `docker-compose -p second_app up`
+  - docker-compose.yml 파일에서 공통된 환경변수를 사용하기 위해선 `.env` 파일에 설정합니다.
+    ```sh
+    $ cat .env     # 환경변수 파일
+    TAG=v1.5
+
+    $ cat docker-compose.yml   # compose 파일
+    version: '3'
+    services:
+      web:
+        image: "webapp:${TAG}"$
+    ```
+  - `--env-file` 옵션으로 환경별로 변수를 만들고 세팅할 수 있습니다.
+  `docker-compose --env-file ./config/.env.dev up`
 
 ---
 1️⃣0️⃣ Docker Image 생성
@@ -578,6 +620,7 @@ https://subicura.com/2016/06/07/zero-downtime-docker-deployment.html
 - Gitlab Docs : [Gitlab Docs](https://docs.gitlab.com/ee/ci/yaml/index.html#stages)
 - Docker Part : [Logosubicura's blog](https://subicura.com/2017/01/19/docker-guide-for-beginners-1.html)
 - gitlab-ci.yml Part : [otrodevym's tistory](https://otrodevym.tistory.com/entry/Gitlab-CICD-gitlab-ciyml-%EC%82%AC%EC%9A%A9-%EB%B0%A9%EB%B2%95)
+- docker-compose Part : https://meetup.toast.com/posts/277
 
 
 
