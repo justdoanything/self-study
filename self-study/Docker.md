@@ -609,10 +609,148 @@ https://subicura.com/2016/06/07/zero-downtime-docker-deployment.html
 ---
 1️⃣9️⃣ Gitlab에 maven build 및 docker build 로그 분석
 ===
-추후작성
+- ###### 주어진 환경 : 프로젝트 내에서 정의한 파이프라인과 CI/CD 환경은 별도로 정의되어 있었고 구동 환경은 AWS + Docker + Gitlab + SpringBoot 입니다.
+- ###### Gitlab 내에서 maven build + docker build를 수행하고 별도의 CI/CD 환경에서 Deploy를 수행함.
+- ###### gitlab.ci.yml 파일은 [1️⃣8️⃣ gitlab-ci.yml 예제](#1️⃣8️⃣-gitlab-ci.yml-예제)
+- ###### Dockerfile은 아래 참고
+  ```docker
+  ### 기존에 사용하던 App은 Spring 이라서 tomcat을 사용
+  FROM tomcat:8.5.35-jre8
+  VOLUME /tmp
 
+  ENV TZ Asia/Seoul
+  RUN apt-get update -y && apt-get install unzip net-tools watch vim -y
+  ADD entrypoint.sh /user/test/app
+  RUN chmod +x /user/test/app/entrypoint.sh
 
+  ADD target/*.jar /user/test/app/web/test.jar
+  RUN chmod +x /user/test/app/web/test.jar
 
+  EXPOSE 8080
+  CMD ["sh", "entrypoint.sh"]  
+  ### java -jar /user/test/app/web/test.jar
+  ```
+- ###### Maven Build
+  - 이미 설정되어 있는 gitlab-runner를 통한 docker 배포
+  - script는 .gitlab.ci.yml에 이미 정의해 놓은 명령어를 실행
+  - docker를 준비하고 maven image를 먼저 실행 
+  → docker 환경 준비 
+  → git 자원 가져오기 
+  → 특정 경로(/builds/..)에 git repo init 
+  → 해당 branch에서 마지막 commit id로 checkout 
+  → s3에서 cache(zip 형태) 가져오기 
+  → 이미 설정해 놓은 step_script 실행
+  _(.gitlab.ci.yml 파일을 보면 build.script: "mvn install"으로 되있음)_
+  → docker에서 maven install 실행 
+  → 성공한 내용 cache(zip 형태)에 저장 
+  → cache 생성 
+  → 다시 s3에 cache 업로드 
+  → 성공한 artifact(jar파일)을 업로드 
+  _(.gitlab.ci.yml 파일에 artifacts.paths.target/*.jar로 선언)_
+  → pom.xml에 정의한 것처럼 target/*.jar 파일을 업로드 
+  → 사용했던 자원들 Clean
+  - 로그 요약
+    ```log
+    Running with gitlab-runner 14.6.0 ({mixedValue1}) on Gitlab Runner {gitlab id(mixed value)}
+    Preparing the "docker+machine" executor
+    Using Docker executor with image maven:xxx
+    Using docker image sha256:xxx for maven:xxx with digest maven@sha256: xxx
+    Preparing environment
+    Running on runner-{gitlab id(mixed value)}-...
+    Getting source from git repository
+    Fetching changes with git depth set to 50...
+    Initialized empty Git repository in /builds/{git project name}/.git/
+    Created fresh repository.
+    Checking out {commit id} as master...
+    Skipping Git submodules setup
+    Restoring cache
+    Checking cache for default...
+    Downloading cache.zip from {s3 address}
+    Successfully extracted cache
+    ############## .gitlab.ci.yml 파일에 build.script 실행 ##############
+    Executing "step_script" stage of the job script
+    Using docker image sha256:xxx for maven:xxx with digest maven@sha256: xxx
+    $ mvn install
+    [INFO] Scanning for projects...
+    ...
+    [INFO] ------------------------------------------------------------------------
+    [INFO] BUILD SUCCESS
+    [INFO] ------------------------------------------------------------------------
+    Saving cache for successful job
+    Creating cache default...
+    .m2/: found xxx matching files and directories    
+    Uploading cache.zip to {s3 address}}
+    Created cache
+    ############## .gitlab.ci.yml 파일에 artifacts.paths.target/*.jar ##############
+    Uploading artifacts for successful job
+    Uploading artifacts...
+    target/*.jar: found 1 matching files and directories 
+    Uploading artifacts as "archive" to coordinator... ok id={numberous id value} responseStatus=201 Created token={mixed token value}
+    Cleaning up project directory and file based variables
+    Job succeeded
+    ```
+- ###### Docker Build
+  - 수행하는 동작은 위에 있는 `Maven Build`와 비슷함
+  docker 환경 준비 - git repo init - commit id로 checkout - download cache from s3 - script 실행
+  - 차이점은 "step_script"를 실행할 때, 
+    - Maven build : .gitlab-ci.yml 파일에 `build.script` 명령어인 `maven install`을 수행
+    - Docker build는 `{branch}-docker-build` 하위에 있는 `before_script`, `script` 하위 명령어를 순차적으로 실행
+  - 로그 요약
+    ```log
+    Running with gitlab-runner 14.6.0 ({mixedValue1}) on Gitlab Runner {gitlab id(mixed value)}
+    Preparing the "docker+machine" executor
+    Using Docker executor with image docker:latest ...
+    Pulling docker image docker:latest ...
+    Using docker image sha256:xxx for docker:latest with digest docker@sha256:xxx ...
+    Preparing environment
+    Running on runner-{gitlab id(mixed value)}-... via runner-{gitlab id(mixed value)}-runner-... ...
+    Getting source from Git repository
+    Fetching changes with git depth set to 50...
+    Reinitialized existing Git repository in /builds/{git project name}/.git/
+    Checking out {commit id} as master...
+    Removing .m2/
+    Removing target/
+    Skipping Git submodules setup
+    Restoring cache
+    Checking cache for default...
+    Downloading cache.zip from {s3 address}
+    Successfully extracted cache
+    Downloading artifacts
+    Downloading artifacts for build (xxx)...
+    Downloading artifacts from coordinator... ok id=xxx responseStatus=200 OK token={token value}
+    Executing "step_script" stage of the job script
+    Using docker image sha256:xxx for docker:latest with digest docker@sha256:xxx ...
+    ############## .gitlab.ci.yml 파일에 before_script 실행 ##############
+    $ NEW_PROD_IMAGE_NAME=${PROD_ECR}:$(echo ${CI_COMMIT_REF_NAME} | sed "s/[^[[:alnum:]]//g")-${CI_COMMIT_SHA}
+    ############## 여기 이하는 .gitlab.ci.yml 파일에 script 부분 순차적으로 실행 ##############
+    $ apk add --no-cache curl jq python3 py3-pip
+    {processing ...}
+    OK: 83 MiB in 65 packages
+    $ pip3 install awscli
+    {processing ...}
+    Successfully installed PyYAML-5.4.1 awscli-1.22.40 botocore-1.23.40 colorama-0.4.3 docutils-0.15.2 jmespath-0.10.0 pyasn1-0.4.8 python-dateutil-2.8.2 rsa-4.7.2 s3transfer-0.5.0
+    $ $(aws ecr get-login --no-include-email --region {aws region})
+    {processing ...}
+    Login Succeeded
+    $ docker build -t $NEW_PROD_IMAGE_NAME .
+    Step 1/10 : FROM tomcat:8.5.35-jre8
+    {build Dockerfile ...}
+    Successfully built xxx
+    Successfully tagged {aws ecr}.{aws region}.{aws domain + project name + branch name}-{commit id}
+    $ docker push $NEW_PROD_IMAGE_NAME
+    {push docker image}
+    The push refers to repository [{aws ecr}.{aws region}.{aws domain + project name + branch name}]
+    {branch name}-{commit id}: digest: sha256:xxx size: 4097
+    $ docker rmi $NEW_PROD_IMAGE_NAME
+    {remove docker image}
+    Saving cache for successful job
+    Creating cache default...
+    .m2/: found 5189 matching files and directories    
+    Archive is up to date!                             
+    Created cache
+    Cleaning up project directory and file based variables
+    Job succeeded
+    ```
 ---
 *️⃣ 참고자료
 ===
