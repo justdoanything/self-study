@@ -338,5 +338,213 @@ CI/CD
   - MSA 구현 강의
 
 
+
+- Spring 구동할 때마다 DDL, DML 자동실행
+  - sql 파일 경로
+    ```
+    src/main/resource/sql/CUSTOMER_DDL.sql
+    src/main/resource/sql/CUSTOMER_DML.sql
+    ```
+  - application.properties
+    ```properties
+    spring.datasource.schema = classpath:sql/CUSTOMER_DDL.sql
+    spring.datasource.data = classpath:sql/CUSTOMER_DML.sql
+    spring.datasource.initialization-mode = always
+    ```
+- MSA 구조에선 각 서비스가 별도의 DB를 갖기 때문에 DAO 보단 repository라고 쓴다.
+  Mybatis + SqlMapper OR ORM + Hibernate + JPA
+
+- @Mapper를 사용해서 별도의 쿼리 작성 없이 Entity로 바로 CURD 실행
+  ```java
+  @Mapper
+  public interface CustomerRepository {
+    // 함수 이름을 SqlMapper에 id로 사용하면 된다.
+    int insertCustomer(Customer customer) throws Exception;
+    int deleteCustomer(Customer customer) throws Exception;
+    Customer selectCustomer(Customer customer) throws Exception;
+    int existsCustomer(Customer customer) throws Exception;
+  }
+  ```
+
+- MSA Architecture
+  - Outer Architecture (= NS구조, North to South)
+    - API Gateway
+      Published APIs
+    - Service Mesh
+      - Configuration, Routing, Monitoring, AuthN / AuthZ, Discovery, Load Balancing, Availability, Dependency
+    - Container
+    - Backing Service
+      - Messaging Channelds(Message Quete)
+    - CI/CD
+      - Deployment Automation, Build and Test Automation
+    - Telemetry
+      - Diagnostics and Instrumentation, Monitoring and Alerting
+  - Inner Architecture(= WE 구조, West to East)
+    - Microservice A,B,C, ...
+- Circuit Breaker
+  - `Circuit Breaker`란 전기 기기에서 과부하나 과전류가 들어왔을 때 메인 기기를 보호하기 위해 흔히 쓰는 회로 차단기를 의미
+  - MSA에서는 특정 Micro Service의 장애로 인해 다른 서비스에도 장애를 일으키면서 시스템 전체가 down 될 수 있는 것을 방지하기 위함.
+  - MSA 구조에서 가장 중요한 부분으로 Discovery, Routing, Load Balancing, +ɑ 로 구성
+    - Discovery : 특정 서비스를 찾고
+    - Routing : 최적의 경로를 찾고
+    - Load Balancing : 가장 부하가 적은 서비스로
+  - `Hystrix`
+    - MSA로 가장 유명한 Netflix가 Amazon AWS에 MSA System을 구축할 때 개발한 Software기반 Circuit breaker로 Java로 구성되어 동작
+    - `Spring Cloud Hystrix`는 Netflix OSS 기반의 Hystrix Library를 Spring Cloud에 적용할 수 있는 Libarary로 변형한 Library
+    - 대표적인 기능들
+      - Thread timeout
+      - 장애 대응 등을 설정해 장애시 정해진 루트를 따르도록 처리
+      - 미리 정해진 임계치를 넘으면 장애가 있는 로직을 실행하지 않고 우회 하도록 처리
+    - Hystrix 적용하는 방법
+      - `spring-cloud-starter-netflix-hystrix` 라이브러리 추가
+      - Main Application에 `@EnableCircuitBreaker` 추가
+      - Circuit Breaker를 추가하고자 하는 메소드에 `@HystrixCommand` 추가
+      ```java
+      @HystrixCommand(fallbackMethod = "doFallbackProcess")
+      public String getOtherServiceMessage(String param) {
+        return this.restTemplate.getForObject(url, String.class);
+      }
+
+      public String doFallbackProces() {
+        return "Process you want";
+      }
+      ```
+    - Hystrix 설정 변경
+      - `@HystrixCommand`에 `@HystrixProperty`를 추가해서 상세한 제어 가능
+      ```java
+      @HystrixCommand(commandKey = "commandKeyExample", fallbackMethod = "doFallbackProcess", commandProperties = {
+        @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "2000")
+        }
+      )
+      ```
+      - `@HystrixCommand` 대신 application.yml을 통해 설정 가능
+      ```yml
+      hystrix:
+        command:
+          commandKeyExample:
+            execution:
+              isolation:
+                thread:
+                  timeoutInMilliseconds: 3000
+      ```
+- 일반적으로 Spring에서 Micro Service끼리 호출할 때 REST(RestTemplate)/JSON 방식을 사용
+- `Spring Cloud`
+  - Spring Cloud는 분산 시스템 상에서 공통된 개발 패턴을 통해 개발 효율을 제공해주기 위해 개발
+  - Spring Cloud를 통해 분산 시스템 상에서 필요한 여러 패턴들을 Boiler Plate(표준 문안 혹은 패턴)화 시켜 손쉽게 개발할 수 있도록 지원
+  - Spring Cloud 구성
+    - Distributed/versioned configuration
+    - Service Registration and discovery
+    - Routing
+    - Service-to-service calls
+    - Load balancing
+    - Circuit Breakers
+    - Global locks
+    - Leadership election and cluster state
+    - distrubuted messaging
+  - 대부분이 Netflix OSS 기반으로 Spring에 맞게 만든 것.
+- `Load Balancing`
+  - Ribbon Client
+    - Round Robbin 방식으로 Load Balancing을 해줌 
+    - Netflix OSS Library 중 Hardware 적인 Load Balancer를 대신해 L7 Layer에서 Client Side Load Balancer 역할을 담당
+    - FeignClient는 기본적으로 Ribbon 기능을 포함하고 있음
+    - Ribbon의 장점
+      - REST API를 호출하는 서비스에 탑제되는 SW 모듈
+      - 주어진 서버 목록에 대해 Load Balancing 수행
+      - 매우 다양한 설정이 가능 (서버 선택, 실패 시 skip시간, Ping체크 등)
+      - Ribbon에는 Retry 기능이 내장되어 있고 Eureka와 함께 사용하면 매우 강력한 기능이 됨
+    - Ribbon 적용 방법
+      - dependency 추가 \
+        `org.spring.framework.cloud:spring-cloud-starter-Netflix-ribbon`
+      - properties 추가 (application.properties)
+        ```yml
+        serviceB:
+          ribbon:
+            listOfServers: localhost:8081, localhost:8082
+        ```
+      - `@LoadBalanced` 추가
+        ```java
+        @LoadBalanced
+        public RestTemplate restTemplate(0 {
+          return new RestTemplate();
+        })
+        ```
+      - 호출 URL 변경
+        ```java
+        private final String url = "https://serviceB/serviceBApi";
+        ```
+      - 기타 속성 추가
+        ```yml
+        serviceB:
+          ribbon:
+            listOfServers: localhost:8082, localhost:8083
+              MaxAutoRetries: 0
+            MaxAutoRetriesNextServer: 1 #실패 시 다른 서버로 재시도 하는 횟수
+        ```
+      구분|Eureka|SpringCloud Kubernetes
+      ---|---|---
+      Ribbon|O|O
+      FeignClient+Ribbon|X|O
+- `Eureka`
+  - Micro Service를 구성하는 서버들의 목록과 위치(IP,PORT)가 동적으로 변하는 환경 하에서 서비스들을 효율적으로 관리하기 위해 Netflix OSS 기반으로 개발한 Service Discovery Server와 Client
+  - Java로 개발된 Netflix OSS 기반 Library는 Spring Cloud의 Libaray와 통합되어 `Spring Cloud-Eureka`로 적용됨
+  - `Eureka Server` : Eureka Service가 자기 자신을 등록(Service Registration)하는 서버이자 Eureka Client가 가용한 서비스 목록(Service Registry)을 요청하는 서버
+  - `Eureka Client` : Service의 위치 정보를 Eureka Server로부터 Fetch 하는 서비스
+  - Serivce가 Scale out/in 될 때 변경되는 주소를 호출하는 입장에서 다 알수가 없기 때문에 Eureka를 사용
+  - SpringBoot 위에다가 Eureka를 Add-on 해주면 자동으로 Eureka Zone을 만들고 Server Library를 만들고 나머지 서비스엔 Eureka Client를 추가하고 Eureka Zone을 명시해줌.
+  - `Eureka Server`
+    - Dependency 추가\
+      `org.springframework.cloud:spring-cloud-starter-netflix-eureka-server`
+    - Application Main에 `@EnableEurekaServer` 추가
+    - application.yml에 설정 추가
+      ```yml
+      server:
+        port: 8761 # default : 8761
+      spring:
+        application:
+          name: eureka-server
+      eureke:
+        server:
+          response-cache-update-interval-ms: 1000 # default : 30s
+          enableSelfPreservation: false # develop mode
+        client:
+          register-with-eureka: false # develop mode
+          fetch-registry: false # develop mode
+          service-url:
+            defaultZone: http://localhost:8761/eureka # default
+        instance:
+          prefer-ip-address: true # 각 서버별 접글을 IP로 하겠다는 의미
+      ```
+  - `Eureka Client`
+    - Dependency 추가\
+      `org.springframework.cloud:spring-cloud-starter-netflix-eureka-client`
+    - Application Main에 @EnableEurekaServer 추가
+    - application.yml에 설정 추가
+      ```yml
+      spring:
+        application:
+          name: service-B # 이 이름으로 eureka에 등록됨
+      eureka:
+        instance:
+          prefer-ip-address: true #Eureka Server에 IP로 서비스 등록
+        client:
+          service-url:
+            defaultZone: http://127.0.0.1:8761/eureka #Eureka Server 주소 입력
+      ```
+    - Eureka를 사용하면 Ribbon 의존성과 설정 항목을 삭제해야함.
+    
+- West to East 사이에 각 서비스들이 호출하는 룰을 정하는 것이 Serice Mesh 이다.
+- Backing Service : DBMS - Persistence, Cache, Queue
+- `API Gateway`
+  - 다수의 Service로 구성된 Micro Service에서 각 Service들의 IP/PORT에 대한 단일화된 Endpoint 제공
+  - 각 Service들에서 필요한 인증/인가, 사용량 제어, 요청/응답 변조 등의 기능을 대신 담당
+  - 기능
+    - Service Request 라우팅 기능
+    - Service Load balancing
+    - Service Request에 대한 endpoint 딘알화
+    - Service Mesh와 연계를 통한 장애 대응 기능
+    - service Filtering 기능
+    - Authentication / Authorizing 기능
+    - Logging / Monitoring 기능
+
 ---
 
