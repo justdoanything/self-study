@@ -3,8 +3,8 @@ React
 ## 기존 방식과 React 방식의 차이점
 - 기존 방식 : JS에서 HTML에 있는 요소를 가져오고 → JS에서 값을 변경하고 → 다시 HTML을 업데이트 해주는 방식 (시작이 HTML)
 - React 방식 : JS에서 HTML 요소를 선택해서 바로 업데이트 해주는 방식 (시작이 JS)
-- babel : jsx를 html 코드로 변환
-####jsx
+- babel : jsx를 html 코드로 변환\
+#### jsx
 ```html
 <!-- React -->
 <script src="https://unpkg.com/react@17.0.2/umd/react.production.min.js"></script>
@@ -18,7 +18,7 @@ React
     )
 </script>
 ```
-####html
+#### html
 ```html
 <!-- babel converts jsx to html -->
 <script>
@@ -32,7 +32,7 @@ React
     );
 </script>
 ```
-####Container
+#### Container
 ```html
 <!-- Render Container Type -->
 <script>
@@ -88,7 +88,7 @@ React
     render();
 </script>
 ```
-####Re-rendering (useState)
+#### Re-rendering (useState)
 ```html
 <!-- useState에 modify 함수를 사용하면 해당 Component는 자동으로 re-rendering 된다. -->
 <script>
@@ -109,7 +109,7 @@ React
     ReactDOM.render(<Sample />, root); 
 </script>
 ```
-####Prop
+#### Prop
 ``` html
 <script>
     //function Btn({text, onClickEvent, fontSize = 12}) {
