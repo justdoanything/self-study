@@ -1,11 +1,20 @@
 MSA
 ===
 1. [MSA Architecture 구성](#MSA-Architecture-구성)
-2. [Circuit Breaker](#Circuit-Breaker)
+2. [Hystrix](#Circuit-Breaker)
+3. [Spring Cloud](#Spring-Cloud)
+4. [Ribbon Client](#Load-Balancing) 
+5. [Eureka](#Discovery)
+6. [API Gateway](#API-Gateway)
+7. [SAGA](#SAGA)
+8. [Kafka](#Kafka)
+9. [OpenFeign](#OpenFeign)
+10. [API Composition](#API-Composition)
+11. [CQRS](#CQRS)
+12. [부록](#부록)
 
 
 ---
-
 
 - ## MSA Architecture 구성
     - #### Outer Architecture (= NS구조, North to South)
