@@ -452,7 +452,8 @@ MSA
 
 ---
 
-- ## CQRS (Command Query Responsibility Segregation)
+- ## CQRS
+  - CQRS : Command Query Responsibility Segregation
   - 서비스가 쪼개져 있는데 각 서비스에 종속되어 있는 데이터를 JOIN 해서 보여줘야하는 경우엔 API Composition에서 처리할 수 있겠지만 복잡하기 때문에 CQRS 패턴을 사용해서 처리할 수 있다.
   - 각 서비스 DB를 Queue에 
   서비스 A에 CUD가 발생하면 본인 DB에 CUD하고 그 내용을 Queue에 전달
