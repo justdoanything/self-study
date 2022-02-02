@@ -55,6 +55,7 @@
 - `Docker Container`는 이미지를 실행한 상태라고 볼 수 있고 추가되거나 변하는 값은 `Container`에 저장합니다.
 - 한 개의 `Image`로 한 개의 `Server`에서 여러개의 `Container`를 생성해서 실행할 수 있습니다.
 - `Docker Image`는 실항할 때 필요한 모든 요소들을 갖고있기 때문에 통채로 관리하면 `Image`의 용량이 너무 커지는 문제가 있었는데 이를 `Docker Layer` 개념으로 해결했습니다.
+
 ![image](https://user-images.githubusercontent.com/21374902/147167708-010adcfc-cda2-4399-a69a-807ba6d2a690.png)
 
 
@@ -207,7 +208,7 @@
 - `docker-compose up` 명령어로 서비스들을 한번에 실행하고 `docker-compose down`으로 한번에 내릴 수 있습니다.
 
 ```shell
-### 기준 docker 명령어
+### 기존 docker 명령어
 docker run -dp 3000:3000 \
   -w /app -v ${PWD}:/app \
   --network todo-app \
@@ -228,7 +229,7 @@ docker run -d \
 ```
 
 ```yml
-### 변환 한 docker-compose.yml 파일
+### 변환한 docker-compose.yml 파일
 version: "3.8"
 
 services:
@@ -450,13 +451,13 @@ ENV         | Container에서 사용할 환경변수를 지정. -e 옵션을 사
 ---
 1️⃣4️⃣ Docker와 Kubernetes
 ===
-- Docker : 한 환경에서 Process 단위로 구분하여 실행\
-  Kubernetes : Container Orchestration Tool\
+- `Docker` : 한 환경에서 Process 단위로 구분하여 실행\
+- `Kubernetes` : Container Orchestration Tool\
   (Orchestration Tool : Kubernetes, Docker Swarm, ECS, Normad, ...)
-- Docker는 기술적인 개념이자 도구이고
-  Kubernetes는 Docker를 관리하는 도구하고 볼 수 있다.
-- Image를 만들고 Container를 올리는 것은 Docker
-  만들어진 Container를 관리하는 것은 Kubernetes
+- Docker는 `기술적인 개념이자 도구`이고\
+  Kubernetes는 `Docker를 관리하는 도구`라고 볼 수 있다.
+- Image를 만들고 Container를 올리는 것은 `Docker`\
+  만들어진 Container를 관리하는 것은 `Kubernetes`
 - Kubernetes는 다수의 Container를 실행 및 관리하며 Service 단위로 관리할 수 있게 해준다.
   1. Self-Healing : Container가 죽으면 자동으로 재시작
   2. Load balancing : 새로운 Container를 만들고 죽이며 부하에 대한 Control
@@ -511,7 +512,7 @@ ENV         | Container에서 사용할 환경변수를 지정. -e 옵션을 사
   - 언어, 프레임워크와 상관없이 동일한 방식으로 배포할 수 있다.
   - 서버에 접속해서 Container를 실행할 줄 알면 된다.
   - 서버에 최신 image를 올려둔 후 이전 Container를 중지 후 삭제하고 최신 image로 Container를 실행시켜주면 됩니다.
-- 하지만 위 방법은 무중단 배포를 의미하는 것은 아니기 때문에 무중단 배포를 위해선 아래 자료를 참고 합니다.
+- 하지만 위 방법은 무중단 배포를 의미하는 것은 아니기 때문에 무중단 배포를 위해선 아래 자료를 참고 합니다.\
 https://subicura.com/2016/06/07/zero-downtime-docker-deployment.html
 
 
