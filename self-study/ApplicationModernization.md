@@ -211,6 +211,72 @@ Middle-Ware
 
 Yarn
 ===
+- #### Javscript Package Management Tool 중에 하나로 비슷한 Tool로는 npm이 있다.
+- #### npm의 단점들 보완하기 위해 페이스북에서 만든 Tool 이고 npm의 단점은 아래와 같다.
+  - ###### 비효율적인 의존성 탐색
+    > `require.resolve.paths('react')` 명령어를 통해서 `react` 패키지를 찾기 위해 순회하는 경로를 볼 수 있는데 상위 폴더인 `node_module` 폴더를 계속 탐색하기 때문에 패키지를 바로 찾지 못하면 `readdir`, `stat` 와 같은 느린 I/O 호출이 반복된다.
+    ```sh
+    $ node
+    Welcome to Node.js v12.16.3.
+    Type ".help" for more information.
+    > require.resolve.paths('react')
+    [
+      '/Users/toss/dev/toss-frontend-libraries/repl/node_modules',
+      '/Users/toss/dev/toss-frontend-libraries/node_modules',
+      '/Users/toss/node_modules',
+      '/Users/node_modules',
+      '/node_modules',
+      '/Users/toss/.node_modules',
+      '/Users/toss/.node_libraries',
+      '/Users/toss/.nvm/versions/node/v12.16.3/lib/node',
+      '/Users/toss/.node_modules',
+      '/Users/toss/.node_libraries',
+      '/Users/toss/.nvm/versions/node/v12.16.3/lib/node'
+    ]
+    ```
+  - ###### 환경에 따라 달라질 수 있는 구성
+    > 패키지를 탐색할 때 상위 폴더의 `node_module` 폴더를 순회하는데 그 `node_module`에 원하는 패키지가 없다면 의존성을 불러오지 못할 수 있다. 혹은 다른 버전의 의존성을 불러올 수 있다. 
+  - ###### 비효율적인 설치
+    > npm은 설치할 때 전체 패키지를 다운받기 때문에 `node_module` 폴더는 큰 공간과 많은 I/O 작업을 필요로 한다. 또한 이러한 복잡한 구조는 유효한지 검증하기 어렵다.
+  - ###### 유령 의존성 (Phantom Dependency)
+    > 아래 Dependency Tree를 보면 A, B 패키지는 중복 설치되는 것을 볼 수 있다.\
+      이를 해결하기 위해서 NPM은 Hosting 기법을 사용하는데 이렇게 되면 원래 `require` 할 수 없었던 `B (1.0)` 패키지를 불러올 수 있게 된다.\
+      이렇게 직접 의존하고 있지 않은 패키지를 가져올 수 있는 것을 `유령 의존성` 이라고 한다.\
+      즉, `package.json`에 명시하지 않은 패키지를 사용할 수 있게 되고 다른 의존성을 `package.json` 에서 제거했을 때 같이 사라지기도 합니다. 
+
+    ![image](https://user-images.githubusercontent.com/21374902/152487628-367f40d7-2ac7-4b49-8e1d-173d320c4fd5.png)    
+
+- #### Yarn의 특징
+  - ###### 명확한 의존성
+    > yarn은 Cache 파일(`.yarn/cache`)에 의존성 정보를 저장하고 `.pnp.cjs` 파일에 의존성을 찾을 수 있는 정보를 저장한다.\
+    `.pnp.cjs` 파일을 이용하면 disk I/O 없이 어떤 패키지가 어떤 의존성을 갖고 있는지 각 위치는 어디인지 알 수 있다.\
+    `react` 패키지는 `.pnp.cjs` 파일에 다음과 같이 명시되어 있다.
+
+    ```cjs
+    /* react 패키지 중에서 */
+    ["react", [
+      /* npm:17.0.1 버전은 */
+      ["npm:17.0.1", {
+        /* 이 위치에 있고 */
+        "packageLocation": "./.yarn/cache/react-npm-17.0.1-98658812fc-a76d86ec97.zip/node_modules/react/",
+        /* 이 의존성들을 참조한다. */
+        "packageDependencies": [
+          ["loose-envify", "npm:1.4.0"],
+          ["object-assign", "npm:4.1.1"]
+        ],
+      }]
+    ]],
+    ```
+  - ###### 빠른 속도
+    > yarn은 다운받은 패키지 데이터를 캐시(cache)에 저장하여 이후에 중복된 데이터는 다운로드하지않고 저장된 파일을 활용한다. 또한 여러개의 패키지를 설치할 때 병렬로 처리하기 때문에 속도가 빠른편이다. (npm은 순차적 설치한다.)
+  - ###### 안정성(stability)
+    > `.pnp.cjs` 파일을 이용하여 관리되기 때문에 더 이상 외부 환경에 영향을 받지 않고 다양한 기기 및 CI 환경에서 `require()` 또는 `import`가 동일한 버전으로 동작하는 것을 보장할 수 있다.
+  - ###### Zero Install 
+    > yarn은 의존성을 압축 파일로 관리하기 때문에 npm의 `node_module` 폴더에 비해 크기가 매우 적다. 따라서 의존성을 버전 관리에 포함할 수 있는데 이를 `Zero Install` 이라고 부른다.\
+    `Zero Install`을 하면 새로 저장소를 복제하거나 브랜치를 바꿨을 때 yarn install을 실행하지 않아도 되고 CI에서 의존성을 설치하는데 소요되는 시간과 용량을 크게 절약할 수 있다.
+- ##### Reference 
+  - https://toss.tech/article/node-modules-and-yarn-berry
+
 
 
 ---
