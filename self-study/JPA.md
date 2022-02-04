@@ -171,10 +171,6 @@ JPA (Java Persistence API)
     }
     ```
     - assembler가 올바른 Link가 생성된 것을 볼 수 있다. 기본적으로 Link는 현재 호출된 컨트롤러 메소드를 기반으로 생성이 된다.
-
-> Dynamic Profiling
-추후 업데이트
-
 #### Persistence Framework
   - Architecture에서 데이터에 영속성을 부여해주는 계층
   - JDBC를 이용해 직접 구현할 수 있지만 대부분 Persistence Framework를 사용한다.

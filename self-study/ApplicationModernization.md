@@ -135,17 +135,17 @@ NGINX
 Apache and NGINX
 ===
 - Apache (WAS)
-  - 쓰레드 / 프로세스 기반 구조로 요청 하나당 쓰레드 하나가 처리하는 구조
-  - 사용자가 많으면 많은 쓰레드 생성, 메모리 및 CPU 낭비가 심함
-  - 하나의 쓰레드 : 하나의 클라이언트 라는 구조
+  - Thread-Process 기반 구조로 Request 하나당 Thread 하나가 처리하는 구조
+  - 사용자가 많으면 많은 Thread가 생성되기 때문에 Memory 및 CPU 낭비가 심함
+  - One Thread - One Client 구조
 
 - NGINX (Web Server)
-  - 비동기 Event-Driven 기반 구조. 
-  - 다수의 연결을 효과적으로 처리가능. 
-  - 대부분의 코어 모듈이 Apache보다 적은 리소스로 더 빠르게 동작가능
-  - 더 작은 쓰레드로 클라이언트의 요청들을 처리가능
+  - 비동기 Event-Driven 기반 구조
+  - 다수의 연결을 효과적으로 처리 가능
+  - 대부분의 Core Module이 Apache보다 적은 Resource로 더 빠르게 동작가능
+  - 더 작은 Thread로 Clinet Request를 처리 가능
 
-- 이렇게 쓰레드 기반은 하나의 커넥션당 하나의 쓰레드를 잡아 먹지만 이벤트 드라이븐방식은 여러개의 커넥션을 몽땅 다 Event Handler를 통해 비동기 방식으로 처리해 먼저 처리되는 것부터 로직이 진행되게끔 합니다. 이것과 관한 비동기 방식과 이벤트 드라이븐 방식은 아래 글을 참고 하면 됩니다. 
+- Thread-Process 방식은 하나의 Connection당 하나의 Thread를 잡아 먹지만 Event-Driven 방식은 여러개의 Connection을 모두 다 Event Handler를 통해 비동기 방식으로 처리해 먼저 처리되는 것부터 로직이 진행되게끔 합니다.
 
 ![image](https://user-images.githubusercontent.com/21374902/150284927-d9b7fd92-7f26-4126-bdc0-c25b4bb8c69d.png)
 
