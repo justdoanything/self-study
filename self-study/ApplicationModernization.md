@@ -2,12 +2,12 @@
 ===
 1. [Web Server와 WAS](#Web-Server-And-WAS)
 2. [NGINX](#NGINX)
-3. [Apache와 NGINX](#Apache-and-NGINX)
-4. [WAF](#WAF-(Web-Application-Firewall))
-5. [ECS와 EC2](#AWS-ECS-and-EC2)
-6. [Middle Ware](#Middle-Ware)
-7. [Yarn](#Yarn)
-8. [Redis](#Redis)
+3. [Redis](#Redis)
+4. [Middle Ware](#Middle-Ware)
+5. [Apache와 NGINX](#Apache-and-NGINX)
+6. [WAF](#WAF-(Web-Application-Firewall))
+7. [ECS와 EC2](#AWS-ECS-and-EC2)
+8. [Yarn](#Yarn)
 9. [Spring](#Spring)
 
 ---
@@ -155,6 +155,18 @@ Apache and NGINX
   - https://m.blog.naver.com/jhc9639/220967352282
 
 ---
+Redis
+===
+
+---
+
+Middle-Ware
+===
+
+
+---
+
+
 WAF (Web Application Firewall)
 ===
 - It helps protect web applications by filtering and monitoring HTTP traffic between a web apllication and the internet. It typically protects web applications from attacks such as cross-site forgery, cross-site-scripting(XSS), file inclusion and SQL injection among others.
@@ -203,11 +215,8 @@ AWS ECS and EC2
   - https://docs.aws.amazon.com/ko_kr/AmazonECS/latest/developerguide/Welcome.html
   - https://docs.aws.amazon.com/ko_kr/AWSEC2/latest/UserGuide/concepts.html
 ---
-Middle-Ware
-===
 
 
----
 
 Yarn
 ===
@@ -251,7 +260,6 @@ Yarn
     > yarn은 Cache 파일(`.yarn/cache`)에 의존성 정보를 저장하고 `.pnp.cjs` 파일에 의존성을 찾을 수 있는 정보를 저장한다.\
     `.pnp.cjs` 파일을 이용하면 disk I/O 없이 어떤 패키지가 어떤 의존성을 갖고 있는지 각 위치는 어디인지 알 수 있다.\
     `react` 패키지는 `.pnp.cjs` 파일에 다음과 같이 명시되어 있다.
-
     ```cjs
     /* react 패키지 중에서 */
     ["react", [
@@ -282,12 +290,6 @@ Yarn
 ---
 
 
-
-Redis
-===
-
-
----
 
 Spring
 ===
