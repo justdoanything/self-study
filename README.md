@@ -2,12 +2,20 @@
 ## First purpose is
 - Study CS knowledge, New Tech, Tool and everything of IT by my self.
   - AM (Application Modernization)
-  - AWS with Terraform
+    + Web Server와 WAS
+    + NGINX
+    + Redis
+    + Middle Ware
+    + Apache와 NGINX
+    + WAF
+    + ECS와 EC2
+    + Yarn
+    + Spring
   - Docker
   - JPA
-  - Computer Science Knowledge
+  - MSA
   - React
-  - Spring-Boot
+  - AWS with Terraform
 
 ## Second is
   - Practice Algorithm by Python
