@@ -3,7 +3,7 @@ React
 ## 기존 방식과 React 방식의 차이점
 - 기존 방식 : JS에서 HTML에 있는 요소를 가져오고 → JS에서 값을 변경하고 → 다시 HTML을 업데이트 해주는 방식 (시작이 HTML)
 - React 방식 : JS에서 HTML 요소를 선택해서 바로 업데이트 해주는 방식 (시작이 JS)
-- babel : jsx를 html 코드로 변환\
+- babel : jsx를 html 코드로 변환
 #### jsx
 ```html
 <!-- React -->
@@ -199,13 +199,14 @@ React
   const useState[value, setValue] = useState([]);
   setValue((currentArray) => [value, ...currentArray]);
   ```
-
-
-
 ---
+
+
+
+
+
 ### Practice Code
-[Repositroy : self-study/self-study/React_Practice.html](https://github.com/justdoanything/self-study/blob/main/self-study/React_Practice.html)
-[Repository : self-study/self-study/do-react](https://github.com/justdoanything/self-study/tree/main/self-study/do-react)
+- [Repository : self-study/self-study/do-react](https://github.com/justdoanything/self-study/tree/main/self-study/do-react)
 
 ---
 ### Reference
