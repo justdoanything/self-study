@@ -20,7 +20,8 @@
 17. [Docker Deploy](#1️⃣7️⃣-Docker-Deploy)
 18. [gitlab-ci.yml 예제](#1️⃣8️⃣-gitlab-ci.yml-예제)
 19. [Gitlab에 maven build 및 docker build 로그 분석](#1️⃣9️⃣-Gitlab에-maven-build-및-docker-build-로그-분석)
-20. [Docker Desktop 없이 사용하기 (Windows10)](#2️⃣0️⃣Docker-Desktop-없이-사용하기-(Windows10))
+20. [Docker Desktop 없이 사용하기 (Windows10)](#2️⃣0️⃣-Docker-Desktop-없이-사용하기-(Windows10))
+21. [Docker Network](#2️⃣1️⃣-Docker-Network)
 
 ＊ [참고자료](#*️⃣-참고자료)
 
@@ -757,7 +758,7 @@ https://subicura.com/2016/06/07/zero-downtime-docker-deployment.html
 
 
 
-2️⃣0️⃣Docker Desktop 없이 사용하기 (Windows10)
+2️⃣0️⃣ Docker Desktop 없이 사용하기 (Windows10)
 ===
 1. ###### Docker Desktop 삭제
 2. ###### WSL에 docker 설치
@@ -796,8 +797,6 @@ https://subicura.com/2016/06/07/zero-downtime-docker-deployment.html
       
       # Docker 설치
       $ sudo apt install -y docker-ce docker-ce-cli containerd.io
-      $ sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-      $ sudo chmod +x /usr/local/bin/docker-compose
 
       # Docker 그룹에 사용자 추가
       $ sudo usermod -aG docker $USER
@@ -817,6 +816,45 @@ https://subicura.com/2016/06/07/zero-downtime-docker-deployment.html
     - docker-ce : https://vntgcorp.github.io/DockerWithoutDesktop/
 
 ---
+
+
+
+2️⃣1️⃣ Docker Network
+===
+- Docker Container는 격리된 환경에서 구동되기 때문에 기본적으로 Container 간의 통신이 불가능하지만 `Docker Network`로 연결하면 통신이 가능합니다.
+- Docker Network Driver 종류
+  - bridge
+    - 기본값으로 하나의 호스트 컴퓨터 내에서 다른 Container와 통신할 때 사용
+  - host
+    - Standalone Container에서 주로 쓰이며 Container와 Docker host와의 연결은 제거하고 호스트의 네트워크를 직접적으로 사용
+  - overlay
+    - 여러개의 Docker Daemon을 연결하고 Swarm service들이 서로 통신할 수 있게 연결해줍니다.
+    - 여러 호스트에 분산되어 있는 Container 간에 통신을 가능하게 해줍니다.
+    - Container 간에 OS 수준의 routing을 안해도 됩니다.
+  - ipvlan
+    - IPv4, IPv6 주소에 대한 제어를 유저에게 부여합니다.
+    - Layer 2 VLAN의 통합을 할 수 있다는데 네트워크 전문가용인 것 같습니다.
+  - macvlan
+    - Container에 MAC 주소를 할당해서 네트워크에 물리적 장치로 사용할 수 있습니다.
+    - Docker Daemon은 트래픽을 Container의 MAC 주소로 라우팅합니다.
+    - Docker host의 네트워크가 아니라 물리적인 네트워크에 지정해서 바로 연결하고 싶은 Legacy Application를 다룰 때 유용한 드라이버일 수 있습니다.
+  - none
+    - 모든 네트워킹을 비활성화합니다. 주로 사용자가 정의한 네트워크 드라이버와 같이 사용됩니다.
+    - Swarm Service는 이 옵션을 사용하지 못합니다.
+- Docker Network 명령어
+  - 생성 : `docker network create {network name}`
+  - 상세 정보 확인 : `docker network inspect {network name}`
+  - 연결 : \
+    `docker network connect {network name} {container name}` \
+    `docker run -itd --name {container name} --network {network name} busybox`
+  - 연결 해제 : `docker network disconnect {network driver} {container}`
+  - 제거 : docker network rm {network name}`
+- Reference : https://docs.docker.com/network/
+
+---
+
+
+
 *️⃣ 참고자료
 ===
 - Docker Docs : [Docker Docs](https://docs.docker.com/get-started/overview/)
