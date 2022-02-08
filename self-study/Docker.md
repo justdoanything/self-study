@@ -20,6 +20,7 @@
 17. [Docker Deploy](#1️⃣7️⃣-Docker-Deploy)
 18. [gitlab-ci.yml 예제](#1️⃣8️⃣-gitlab-ci.yml-예제)
 19. [Gitlab에 maven build 및 docker build 로그 분석](#1️⃣9️⃣-Gitlab에-maven-build-및-docker-build-로그-분석)
+20. [Docker Desktop 없이 사용하기 (Windows10)](#2️⃣0️⃣Docker-Desktop-없이-사용하기-(Windows10))
 
 ＊ [참고자료](#*️⃣-참고자료)
 
@@ -752,6 +753,69 @@ https://subicura.com/2016/06/07/zero-downtime-docker-deployment.html
     Cleaning up project directory and file based variables
     Job succeeded
     ```
+---
+
+
+
+2️⃣0️⃣Docker Desktop 없이 사용하기 (Windows10)
+===
+1. ###### Docker Desktop 삭제
+2. ###### WSL에 docker 설치
+    - #### 공통
+      ```sh
+      # docker-compose 설치
+      $ sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+      $ sudo chmod +x /usr/local/bin/docker-compose
+      ```
+    - ### docker.io
+      ```sh
+      # docker.io 설치
+      $ sudo apt update
+      $ sudo apt upgrade -y
+      $ sudo apt install -y docker.io
+      
+      # Docker 그룹에 사용자 추가
+      $ sudo usermod -aG docker $USER
+      ```
+    - ### docker-ce
+      ```sh
+      # 기존 Docker 삭제
+      $ sudo apt remove -y docker docker-engine docker.io containerd runc
+      $ sudo apt purge -y docker-ce docker-ce-cli containerd.io
+      $ sudo rm -fr /var/lib/containerd/
+      
+      # 필요한 패키지 설치
+      $ sudo apt install -y apt-transport-https ca-certificates curl gnupg lsb-release
+      $ sudo apt update
+      
+      # Docker 공식 GPG 키
+      $ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+      
+      # Docker stable repo 사용
+      $ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+      
+      # Docker 설치
+      $ sudo apt install -y docker-ce docker-ce-cli containerd.io
+      $ sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+      $ sudo chmod +x /usr/local/bin/docker-compose
+
+      # Docker 그룹에 사용자 추가
+      $ sudo usermod -aG docker $USER
+      ```
+3. ###### docker 실행
+    ```sh
+    # Docker daemon 실행
+    $ sudo dockerd
+    ```
+4. ###### Windows Terminal 에서 Docker 실행
+    ```sh
+    # wsl {command}
+    PS D:\> wsl docker ps -al
+    ```
+5. ###### Reference
+    - docker.io : https://www.bearpooh.com/92
+    - docker-ce : https://vntgcorp.github.io/DockerWithoutDesktop/
+
 ---
 *️⃣ 참고자료
 ===
