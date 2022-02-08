@@ -848,7 +848,7 @@ https://subicura.com/2016/06/07/zero-downtime-docker-deployment.html
     `docker network connect {network name} {container name}` \
     `docker run -itd --name {container name} --network {network name} busybox`
   - 연결 해제 : `docker network disconnect {network driver} {container}`
-  - 제거 : docker network rm {network name}`
+  - 제거 : `docker network rm {network name}`
 - Reference : https://docs.docker.com/network/
 
 ---
