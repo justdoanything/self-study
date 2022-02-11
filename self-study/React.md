@@ -201,6 +201,34 @@ React
   ```
 ---
 
+# fetch
+```js
+fetch("https://url", {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+    },
+    body: JSON.stringify({
+        'fromEmail': 'yongwoo.leee@lgcns.com',
+        'toEmail': ['yongwoo.leee@lgcns.com'],
+        'mailSubject': 'Test Mailing - Beaver',
+        'mailContent': 'Test Mailing - Beaver'
+    })
+}).then((response) => {
+    console.log(response.status);
+    if (response.status === 200) {
+        alert("메일 전송 성공");
+    } else {
+        alert("메일 전송 실패 : " + response.status);
+    }
+        
+    response.json().then((json) => {
+        console.log(json);
+    });
+});     
+```
+
 
 
 
