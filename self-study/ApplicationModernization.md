@@ -438,3 +438,47 @@ Spring
 Flyway
 ===
 - DB를 형상관리하고 코드로 관리하고 Migration 할 때 사용할 수 있다.
+- 소스크도는 git 등으로 형상관리가 가능하지만 DB 테이블, 데이터는 관리하지 못했다.
+- Local 에서 변경한 Database Schema와 Data를 실제 환경(개발, 운영)에 누락없이 안전하게 반영할 수 있게 됩니다.
+- 지정한 Database의 Schema를 비교하면서 수작업의 위험성을 낮출 수 있습니다.
+- 동작방식
+  - Flyway는 Meta Table을 만들고 사용자가 정의한 SQL을 실행하여 Migration을 하고 History를 Meta Table에 저장합니다.
+  - History Table을 통해 이전의 이력(DDL/DML)을 관리해서 database 중복 작업을 방지
+  - History Table에서 이전에 수행했던 작업을 재수행하기 쉽고 동일한 결과를 보장
+- 동작방식
+  - 기본적으로 Migration을 하려는 Schema(Database)는 비워져있어야한다. 
+  - 별도 설정하지 않는 경우 비워져있지않으면 'Found non-empty schema(s) "tableName" without schema history table!' 이와 같은 에러 발생한다.
+  - Target Schema(Database)에 flyway_schema_history(flyway 변경 이력 관리 meta table)을 생성한다.
+  - flyway_schema_history 테이블이 생성되거나 기존재한다면 지정된 classpath에서 .sql 확장자 파일을 탐색하여 버전 순서대로 실행한다. (순서, version, description, checksum 등이 flyway_schema_history 테이블에 저장된다.)
+  - history table 샘플
+- SQL Naming Rule
+  - prefix
+    - V : default 값으로 Version Migration용 접두사
+    - R : 반복 Migration용 접두사
+  - version : version은 version migration에서만 사용되며 숫자, 마침표(.), 언더바(_) 조합으로 구성할 수 있습니다.
+  - separator : 설명 구문을 구분하기 위한 값이며 언더바 2개(__)로 사용합니다.
+  - description : schema_version 테이블에 저장할 때 설명으로 사용됩니다.
+  - suffix : 기본 확장자는 .sql 입니다.
+  - 예 : V1_1_022_member.sql
+- Command
+  - 6개의 명령을 지원하며 Execution Mode에 따라 다르게 동작한다.
+  - Migrate : database를 migration 합니다.
+  - Info : 모든 migration 상세정보를 출력합니다.
+  - Validate : database에 적용된 migration 정보의 유효성을 검증합니다.
+  - Baseline : flyway로 관리되기 이전의 database가 존재하면 해당 database를 flyway baseline으로 설정할 수 있습니다.
+  - Repair : Meta Table 문제를 해결할 때 사용합니다. 메타 데이터 테이블 문제를 해결하기 위해 사용하는데 두가지 용법이 존재한다. 
+    - 실패한 마이그레이션 항목 제거( DDL 트랜잭션을 지원하지 않는 database에만 해당)
+    - 적용된 마이그레이션의 체크섬을 사용 가능한 마이그레이션의 체크섬으로 재정렬. 
+  - Clean : database의 schema_version 테이블을 포함한 모든 요소를(table, view, procedure, ...) 삭제합니다.
+- 실행방법
+  - Command-line : 콘솔에서 명령을 입력하여 실행하는 방법
+  - API(Java/Android) : Java로 작성된 프로그램내에서 API를 이용하여 실행.
+  - Maven : Maven에 통합하여 실행.
+  - Gradle : Gradle에 통합하여 실행.
+  - Ant : Ant에 통합하여 실행.
+  - SBT : SBT(Scala 빌드 도구)에 통합하여 실행.
+- flyway 사용법
+- flyway 실습예제
+- Reference
+  - https://flywaydb.org/documentation/
+  - 
