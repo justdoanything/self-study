@@ -437,6 +437,12 @@ Spring
 ---
 Flyway
 ===
+![image](https://user-images.githubusercontent.com/21374902/153998066-6a914dc7-58e9-4e2c-b035-dcd04dab4dc1.png)
+![image](https://user-images.githubusercontent.com/21374902/153998100-3613f969-b32a-4b09-9ee5-9311cbc362a6.png)
+![image](https://user-images.githubusercontent.com/21374902/153998380-31cbe6d8-2275-48b7-ac8e-5181340bcdf1.png)
+![image](https://user-images.githubusercontent.com/21374902/153998388-c5b50387-bbd9-4802-b31d-075d4f7dbd14.png)
+![image](https://user-images.githubusercontent.com/21374902/153998396-eca9bd45-a57d-4bd4-9f92-8a3e3a1c6620.png)
+![image](https://user-images.githubusercontent.com/21374902/153998406-8044eacd-ff55-4b1a-81cb-3dfcbf25d18a.png)
 - DB를 형상관리하고 코드로 관리하고 Migration 할 때 사용할 수 있다.
 - 소스크도는 git 등으로 형상관리가 가능하지만 DB 테이블, 데이터는 관리하지 못했다.
 - Local 에서 변경한 Database Schema와 Data를 실제 환경(개발, 운영)에 누락없이 안전하게 반영할 수 있게 됩니다.
@@ -463,13 +469,19 @@ Flyway
 - Command
   - 6개의 명령을 지원하며 Execution Mode에 따라 다르게 동작한다.
   - Migrate : database를 migration 합니다.
+  ![image](https://user-images.githubusercontent.com/21374902/153998132-4dce9b27-c1bd-4e28-a680-b6d67e23c77a.png)
   - Info : 모든 migration 상세정보를 출력합니다.
+  ![image](https://user-images.githubusercontent.com/21374902/153998148-b0edea83-3384-4820-9fca-69f3a6f0ba87.png)
   - Validate : database에 적용된 migration 정보의 유효성을 검증합니다.
+  ![image](https://user-images.githubusercontent.com/21374902/153998164-f07c3121-f23f-41e7-a1a0-04b9dfd34ecc.png)
   - Baseline : flyway로 관리되기 이전의 database가 존재하면 해당 database를 flyway baseline으로 설정할 수 있습니다.
+  ![image](https://user-images.githubusercontent.com/21374902/153998188-6003d2b6-a113-4f61-809c-cf0a61e79cf4.png)
   - Repair : Meta Table 문제를 해결할 때 사용합니다. 메타 데이터 테이블 문제를 해결하기 위해 사용하는데 두가지 용법이 존재한다. 
     - 실패한 마이그레이션 항목 제거( DDL 트랜잭션을 지원하지 않는 database에만 해당)
     - 적용된 마이그레이션의 체크섬을 사용 가능한 마이그레이션의 체크섬으로 재정렬. 
-  - Clean : database의 schema_version 테이블을 포함한 모든 요소를(table, view, procedure, ...) 삭제합니다.
+  ![image](https://user-images.githubusercontent.com/21374902/153998205-9d5111ce-dcb5-48e3-a0b7-bd89716ae43b.png)
+  - Clean : database의 schema_version 테이블을 포함한 모든 요소를(table, view, 
+  ![image](https://user-images.githubusercontent.com/21374902/153998219-14a5a9c2-6e46-423a-94f4-5ab6d70d102e.png)procedure, ...) 삭제합니다.
 - 실행방법
   - Command-line : 콘솔에서 명령을 입력하여 실행하는 방법
   - API(Java/Android) : Java로 작성된 프로그램내에서 API를 이용하여 실행.
@@ -478,7 +490,8 @@ Flyway
   - Ant : Ant에 통합하여 실행.
   - SBT : SBT(Scala 빌드 도구)에 통합하여 실행.
 - flyway 사용법
+
 - flyway 실습예제
 - Reference
   - https://flywaydb.org/documentation/
-  - 
+  - https://www.popit.kr/%EB%82%98%EB%A7%8C-%EB%AA%A8%EB%A5%B4%EA%B3%A0-%EC%9E%88%EB%8D%98-flyway-db-%EB%A7%88%EC%9D%B4%EA%B7%B8%EB%A0%88%EC%9D%B4%EC%85%98-tool/
