@@ -16,7 +16,20 @@ Serverless
 - Lambda Layer
 - X-Ray SDK
 - SAM(Serverless Application Model)
-  - dd
+  - Create AWS account
+  - Create an IAM user with Administrator Permissions.
+    Admin User 생성 (root 계정 사용은 위험)
+  - Install AWS CLI 
+  - Install Docker
+  - Install AWS SAM CLI
+    - sam init
+      - template.yaml is important
+    - sam build
+    - sam deploy --guided
+    - sam local start-api 
+    - sam local invoke -d 9999 HellowWorldFunction\
+      - template.yaml에 Resouces 아래 있는 값이 name
+      - package.json에 localRoot, port(9999), remoteRoot 추가
 
 ![image](https://user-images.githubusercontent.com/21374902/154208609-e7f15006-d53b-4a00-a25f-ac563c04b4a4.png)
 - IaC
@@ -28,4 +41,6 @@ Serverless
 - https://www.inflearn.com/course/AWS-서버리스-웹앱
 - https://github.com/hp-edu/awskanbanboard
 
+### Implement
+- https://github.com/justdoanything/awskanbanboard
 ---
