@@ -27,9 +27,11 @@ Serverless
     - sam build
     - sam deploy --guided
     - sam local start-api 
-    - sam local invoke -d 9999 HellowWorldFunction\
+    - sam local invoke -d 9999 HellowWorldFunction
       - template.yaml에 Resouces 아래 있는 값이 name
       - package.json에 localRoot, port(9999), remoteRoot 추가
+    - sam validate
+    - 
 
 ![image](https://user-images.githubusercontent.com/21374902/154208609-e7f15006-d53b-4a00-a25f-ac563c04b4a4.png)
 - IaC
