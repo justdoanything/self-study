@@ -468,7 +468,7 @@ Flyway
   
   - Clean : database의 schema_version 테이블을 포함한 모든 요소를(table, view, procedure, ...)\
   ![image](https://user-images.githubusercontent.com/21374902/153998219-14a5a9c2-6e46-423a-94f4-5ab6d70d102e.png)
-- ### 실행방법
+- ### Flyway 실행방법
   - Command-line : 콘솔에서 명령을 입력하여 실행하는 방법
   - API(Java/Android) : Java로 작성된 프로그램내에서 API를 이용하여 실행.
   - Maven : Maven에 통합하여 실행.
@@ -476,8 +476,47 @@ Flyway
   - Ant : Ant에 통합하여 실행.
   - SBT : SBT(Scala 빌드 도구)에 통합하여 실행.
 
-- ### flyway 실습예제
-- ### Reference
+- ### Flyway 실습예제(Maven 기반)
+  - flayway dependency 추가 & build 설정 추가
+  ```xml
+  <dependencies>
+   <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <version>1.4.193</version>
+   </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+        <plugin>
+          <groupId>org.flywaydb</groupId>
+          <artifactId>flyway-maven-plugin</artifactId>
+          <version>4.0.3</version>
+          <configuration>
+              <url>jdbc:h2:tcp://192.168.56.101:9092/~/test,h2.version=1.4.193</url>
+              <user>sa</user>
+              <locations>
+                <location>classpath:db/migration</location>
+              </locations>
+          </configuration>
+        </plugin>
+    </plugins>
+  </build>
+  ```
+  - Migration SQL 생성
+    - 원하는 경로에 SQL 파일 생성\    
+    ![image](https://user-images.githubusercontent.com/21374902/154786923-6b9960c3-6472-4a74-8511-ddd036e59812.png)
+  - Migration 수행
+    - `mvn flyway:migrate`를 실행하면 db/migration 하위에 있는 sql 파일들이 version에 따라 실행된다.\
+    ![image](https://user-images.githubusercontent.com/21374902/154786952-e2a9f14e-b8e6-4ad1-a065-a0fee2b7a873.png)
+  - Migration 확인
+    - `mvn flyway:info` 명령어를 통해 Schema_version에 실행한 이력을 확인할 수 있다.\
+    ![image](https://user-images.githubusercontent.com/21374902/154786978-b9298012-cbeb-48c2-aa65-a3eb78cb3735.png)
+
+- ### 잔여과제
+  - Docker, AWS 배포 환경에서 자동으로 migration을 수행하려면 어떤 작업이 필요한가?
+  - 수동으로 해야하면 어떤 시점에 어떻게 수동으로 해야하며 자동으로 하려면 어떻게 해야하고 어떤 점들을 챙겨야 하는가 ? 
+  - ### Reference
   - https://flywaydb.org/documentation/
   - https://www.popit.kr/%EB%82%98%EB%A7%8C-%EB%AA%A8%EB%A5%B4%EA%B3%A0-%EC%9E%88%EB%8D%98-flyway-db-%EB%A7%88%EC%9D%B4%EA%B7%B8%EB%A0%88%EC%9D%B4%EC%85%98-tool/
 
