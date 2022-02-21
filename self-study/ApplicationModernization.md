@@ -525,4 +525,50 @@ Flyway
 ---
 Test-Automation
 ===
-- 테스트 자동화
+- ## TDD, BDD, DDD, ATDD
+  - ###### TDD (Test-Driven Development)
+    - 짧은 개발 사이클을 반복하는 SW 개발 프로세스 중에서 요구사항을 검증하는 자동화된 테스트 케이스를 먼저 작성합니다. 테스트 케이스를 통과하기 위한 최소한의 코드를 생성하고 코드에 대한 리팩토링을 진행합니다. 
+    - TDD 과정
+      1. Test case 작성 (Bad case 위주로 작성하는게 좋음)
+      2. Test case에 대한 Main code 작성
+      3. Test case 수행
+      4. Test code 및 Main code 리팩토링\
+         `새로운 Test case가 추가되면 a~d 반복`
+    - TDD 장점
+      - 개발과 테스트를 위한 주기를 단축시켜 주고 유지보수 포인트를 줄여줍니다.
+      - 기존 기능을 아무것도 깨지 않고 리팩터링이나 코드를 수정할 수 있게 합니다.
+      - Test case 수행 결과가 산출물이 되기도 합니다.
+  - ###### BDD (Behavior-Driven Development)
+    - Test case가 아니라 Application Behavior에 대한 부분을 작성합니다.
+    - TDD는 구현 세부 사항을 확인하기 위한 단위 테스트에 의존하지만 BDD는 동작을 확인하기 위해 실행 가능한 시나리오에 중점을 둡니다.
+    - BDD는 프로그래밍 언어로 작성하는 것이 아닌 비개발자도 이해할 수 있는 공통적인 언어로 작성해야 합니다.
+    - BDD 시나리오의 3가지 중요 포인트
+      1. Given : 동작이 트리거되기 전의 환경 (전제 조건) 상태를 설명합니다.
+      2. When : 행동을 유발하는 행동을 설명합니다.
+      3. Then : 행동의 예상 결과를 설명합니다.
+    - TDD는 일반적으로 단위 수준의 테스트이고 BDD는 시스템 수준의 테스트입니다.
+    - BDD 과정
+      1. Application Behavior 작성
+      2. Automation Script 작성 (프로그래밍 언어가 아니라 자연어(영어 등)로 작성)
+      3. Main code 작성
+      4. Behavior 수행
+      5. Behavior 및 Code 리팩토링\
+        `새로운 Test case가 추가되면 a~e 반복`
+    - ###### TDD vs BDD
+      TDD | BDD
+      ---|:---
+      유형(기준) 없음 / 배치 불가능 | 사용자 작업에 의해 주도되는 프로젝트에 대한 더 나은 접근 방식 일 수 있습니다. 예 : 전자 상거래 웹 사이트, 애플리케이션 시스템 등
+      테스트 주도 개발을 의미합니다. | 행동 중심 개발을 의미합니다.
+      프로세스는 테스트 케이스를 작성하는 것으로 시작됩니다. | 프로세스는 예상되는 동작에 따라 시나리오를 작성하는 것으로 시작됩니다.
+      TDD는 기능이 구현되는 방법에 중점을 둡니다.	| BDD는 최종 사용자를위한 애플리케이션의 동작에 중점을 둡니다.
+      테스트 케이스는 프로그래밍 언어로 작성됩니다.	| 시나리오는 간단한 영어 형식으로 작성되므로 TDD와 비교할 때 더 읽기 쉽습니다.
+      애플리케이션 기능이 TDD의 테스트 케이스에 많은 영향을 미치는 방식 변경.	| BDD 시나리오는 기능 변경의 영향을 많이받지 않습니다.
+      개발자 간의 협업 만 필요합니다.	| 모든 이해 관계자들 간의 협력이 필요합니다.
+      TDD를 지원하는 일부 도구는 JUnit, TestNG, NUnit 등입니다.	| BDD를 지원하는 도구로는 SpecFlow, Cucumber, MSpec 등이 있습니다.
+      TDD의 테스트는 프로그래밍 지식이있는 사람 만 이해할 수 있습니다. | BDD의 테스트는 프로그래밍 지식이없는 테스트를 포함한 모든 사람이 이해할 수 있습니다.
+      TDD는 테스트에 버그가있을 가능성을 줄입니다. | 테스트의 버그는 TDD와 비교할 때 추적하기 어렵습니다.
+  - ###### DDD (Domain-Driven Development)
+  - ###### ATDD (Acceptance Test-Driven Development)
+
+- Reference
+  - https://ko.myservername.com/top-10-visual-resume-tools
