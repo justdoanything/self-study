@@ -143,6 +143,32 @@ React
         function(user) { return user.name; }
     );
     ```
+- each
+    ```js
+    function _each(list, iter){
+        for(var i=0; i<list.length; i++){
+            iter(list[i]);
+        }
+    }
+
+    function _map(list, mapper){
+        var new_list = [];
+        _each(list, function(val){
+            new_list.push(mapper(val));
+        });
+        return new_list;
+    }
+
+    function _filter() {
+        var new_list = [];
+        _each(list, function(val) {
+            if(predi(val)){
+                new_list.push(val);
+            }
+        });
+        return new_list;
+    }
+    ```
 
 ## 기존 방식과 React 방식의 차이점
 - 기존 방식 : JS에서 HTML에 있는 요소를 가져오고 → JS에서 값을 변경하고 → 다시 HTML을 업데이트 해주는 방식 (시작이 HTML)
