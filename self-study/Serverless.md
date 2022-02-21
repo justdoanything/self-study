@@ -60,7 +60,6 @@ Serverless
 ![image](https://user-images.githubusercontent.com/21374902/154211592-0593c68d-d9dd-4a37-a02d-14a319a34256.png)
 
 - SAM
-
 ![image](https://user-images.githubusercontent.com/21374902/154211518-468ea1ee-3c73-43d8-9ad7-916b59407568.png)
 
 
