@@ -169,6 +169,170 @@ React
         return new_list;
     }
     ```
+- curry : 인자를 하나씩 받고 인자가 다 채워지면 main함수가 실행되는 것
+    ```js
+    function _curry(fn) {
+        return function(a){
+            return function(b){
+                return fn(a, b);
+            }
+        }
+    }
+
+
+    // 일반적으로
+    var add = function(a, b) {
+        return a + b;
+    }
+    add(5, 10);
+
+    // curry는
+    var add = _curry(function(a, b) {
+        return a + b;
+    });
+    add(5)(10);
+
+    // 인자가 2개면 바로 실행하는 함수
+
+    function _curry(fn) {
+        return function(a, b){
+            return if(argument.length == 2) return fn(a, b) : function(b){ return fn(a, b); };
+            }
+        }
+    }
+    add(5, 10);
+
+    // 오른쪽 부터 실행
+    function _curryr(fn){
+        return function(a, b){
+            return if(argument.length == 2) return fn(a, b) : function(b){ return fn(b, a); };
+            }
+        }
+    }
+
+    //_get
+    function _get(obj, key){
+        return obj == null ? undefined : obj[key];
+    }
+    _get(users[0]], 'name');
+    
+    var _getr = _curryr(function(obj, key){
+        return obj == null ? undefined : obj[key];
+    });
+    _getr('name')(users[0]);
+
+    _map(
+        _filter(users, function(user) { return user.age >= 30; }),
+        _getr('name')
+    );
+  ```
+- reduce
+    ```js
+    function _reduce(list, iter, start) {
+        if(argument.length == 2) {
+            start = list[0];
+            // list = list.slice(1); // array 객체에서만 동작
+            list = _rest(list);
+        }
+        _each(list, function(val) {
+            start = iter(memo, val);
+        });
+        return start;
+    }
+
+    // 결과가 6, 
+    _reduce([1, 2, 3], function(a, b) {
+        return a + b;
+    }, 0);
+
+    start = add(0, 1);
+    start = add(start, 2);
+    start = add(start, 3);
+
+    add(add(add(0,1), 2), 3);
+
+    var slice = Array.prototype.slice;
+    function _rest(list, num) {
+        return slice.call(list, num || 1);
+    }
+    ```
+
+- pipe
+    ```js
+    function _pipe() {
+        var fns = arguments;
+        return function(arg) {
+            return _reduce(fns, function(arg, fn) {
+                return fn(arg);
+            }, arg);
+        }
+    }
+
+    var f1 = _pipe(
+        function(a) { return a + 1; },  // 1 + 1
+        function(a) { return a * 2; }   // 2 * 2
+    );
+    f1(1);
+    ```
+- go
+    ```js
+    function _go(arg){
+        var fns = _rest(arguments);
+        return _pipe.apply(null, fns)(arg);
+
+    }
+
+    _go(1, 
+        function(a) { return a + 1; },
+        function(a) { return a * 2; },
+        function(a) { return a * a; },
+        console.log
+    );
+
+    _go(users,
+        function(users) {
+            return _filter(users, function(user) {
+                return user.age >= 30;
+            });
+        },
+        function(users) {
+            return _map(users, _getr('name'));
+        },
+        console.log
+    );
+
+    var _mapr = _curryr(_mapr),
+    _filterr = _curryr(_filter);
+
+    _go(users,
+        _filterr(function(user) { return user.age >= 30;}),
+        _mapr(_get('name')),
+        console.log
+    );
+
+    _go(users,
+        _filterr(user => user.age >= 30),
+        _mapr(_get('name')),
+        console.log
+    );
+    
+    // 화살표 함수
+    var a = function(user) { return user.age >= 30; };
+    var a = user => user.age >= 30;
+
+    var add = function(a, b) {return a + b; };
+    var add = (a, b) => {
+        a + b
+    };
+
+    // 함수가 아니라 객체로 반환하고 싶으면  ( ) 으로 감싸라
+    var add = (a, b) => (
+        { val: a + b }
+    );
+    ```
+
+
+
 
 ## 기존 방식과 React 방식의 차이점
 - 기존 방식 : JS에서 HTML에 있는 요소를 가져오고 → JS에서 값을 변경하고 → 다시 HTML을 업데이트 해주는 방식 (시작이 HTML)
