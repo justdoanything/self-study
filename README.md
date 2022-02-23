@@ -8,12 +8,26 @@
     + Middle Ware
     + Apache와 NGINX
     + WAF
-    + ECS와 EC2
     + Yarn
     + Spring
+    + Flyway
+    + Test Automation
+  - AWS
+    + ECS와 EC2
   - Docker
   - JPA
   - MSA
+    + MSA Architecture 구성
+    + Hystrix
+    + Spring Cloud
+    + Ribbon Client
+    + Eureka
+    + API Gateway
+    + SAGA
+    + Kafka
+    + OpenFeign
+    + API Coposition
+    + CQRS
   - React
   - AWS with Terraform
 
