@@ -1,336 +1,111 @@
 React
 ===
 
+<details>
+
+  <summary>click to collapse</summary>
+
+  this one starts expanded because of the "open"
+
+</details>
+
 ## 함수형 프로그래밍 (ES5)
-- 순수함수
-  - 동일한 인자를 줬을 때 동일한 값을 주고 부수효과`(결과를 만드는 것 외에 외부 상태에 영향을 미치는 것)`가 없는 함수
-    ```js
-    // 동일한 인자에 동일한 결과를 만드는 함수
-    function add(a, b){
-        return a + b;
-    }
+  - Move to https://github.com/justdoanything/self-study/blob/main/self-study/React-ES5.html
 
-    // 인자 값을 상태를 변경하지 않고 동일한 경과를 만드는 함수
-    var obj = { val: 10};
-    function add5(obj, b){
-        return { val: obj.val + b };
-    }
-    ```
-  - 순수 함수가 아닌 경우
-    ```js
-    // 동일한 인자를 줘도 외부 값에 따라 결과가 달라지는 경우
-    var c = 10;
-    function add2(a, b){
-        return a + b + c;
-    }
-    
-    // 부수효과(외부 상태에 영향을 끼치는)가 있는 경우
-    function add3(a, b){
-        c = b;
-        return a + b;
-    }
+<details>
+ <summary>go</summary>
 
-    // 결과 값이 없고 인자값의 상태를 직접 변경하는 경우
-    var obj = { val: 10};
-    function add4(obj, b){
-        obj.val += b;
-    }
-    ```
-- 일급함수
-  - 함수를 값으로 다룰 수 있는 함수. 함수를 변수에 담을 수 있고 변수에 담은 함수가 값으로 다뤄질 수 있어서 인자로 사용될 수 있다.
-    ```js
-    var f1 = function(a) { return a * a; };
-    var f2 = add;
-    function f3(f) {
-        return f();
-    }
-    f3(function() { return 10; });
-
-    function add_maker(a){
-        return function(b) {
-            return a + b;
-        }
-    }
-    var add10 = add_maker(10);
-    var add15 = add_maker(15);
-    add10(20);  // 30
-    add15(20);  // 35
-
-    function f4(f1, f2, f3){
-        return f3(f1() + f2());
-    }
-
-    f4(
-        function() { return 2; },
-        function() { return 1; },
-        function(a) { return a * a}
-    );  // 9 
-    ```
-- Map, Filter
-    ```js
-    var users = [
-        { id: 1, name: 'ID', age: 36},
-        { id: 2, name: 'BJ', age: 32},
-        { id: 3, name: 'JM', age: 32},
-        { id: 4, name: 'PJ', age: 27},
-        { id: 5, name: 'HA', age: 25},
-        { id: 6, name: 'JE', age: 26},
-        { id: 7, name: 'JI', age: 31},
-        { id: 8, name: 'MP', age: 23}
-    ]
-
-    // 명령형 코드
-    // 30세 이상인 users
-    var temp_users = [];
-    for(var i = 0; i < users.length; i++) {
-        if(users[i].age >= 30) {
-            temp_users.push(users[i]);
-        }
-    }
-    // 30세 이상인 users의 name
-    var names = [];
-    for(var i = 0; i < temp_users.length; i++){
-        names.push(temp_users[i].name);
-    }
-
-    // 30세 미만인 users
-    var temp_users = [];
-    for(var i = 0; i < users.length; i++) {
-        if(users[i].age < 30) {
-            temp_users.push(users[i]);
-        }
-    }
-
-    // 30세 미만 users의 age
-    var ages = [];
-    for(var i = 0; i < temp_users.length; i++){
-        ages.push(temp_users[i].age);
-    }
-    
-    /***************************************************/
-    
-    // 함수형으로 변환
-    function _filter(users, predi) {
-        var new_list = [];
-        for(var i=0; i < users.length; i++) {
-            if(predi(users[i])){
-                new_list.push(users[i]);
-            }
-        }
-        return new_list;
-    }
-    _filter(users, function(user) { return user.age >= 30; });
-    _filter(users, function(user) { return user.age < 30; });
-
-    _filter([1, 2, 3, 4], function(num) { return num % 2; });
-
-    function _map(list, mapper){
-        var new_list = [];
-        for(var i = 0; i < list.length; i++) {
-            new_list.push(mapper(list[i]));
-        }
-        return new_list;
-    }
-
-    var over_30 = _filter(users, function(user) { return user.age >= 30 });
-    _map(over_30, function(user) { return user.name });
-
-    _map([1, 2, 3], function(num) { return num * 2; });
-
-    // 통합
-    _map(
-        _filter(users, function(user) { return user.age >= 30; }),
-        function(user) { return user.name; }
-    );
-    ```
-- each
-    ```js
-    function _each(list, iter){
-        for(var i=0; i<list.length; i++){
-            iter(list[i]);
-        }
-    }
-
-    function _map(list, mapper){
-        var new_list = [];
-        _each(list, function(val){
-            new_list.push(mapper(val));
+```js
+function _go(arg){
+    var fns = _rest(arguments);
+    return _pipe.apply(null, fns)(arg);
+}
+_go(1, 
+    function(a) { return a + 1; },
+    function(a) { return a * 2; },
+    function(a) { return a * a; },
+    console.log
+);
+_go(users,
+    function(users) {
+        return _filter(users, function(user) {
+            return user.age >= 30;
         });
-        return new_list;
-    }
+    },
+    function(users) {
+        return _map(users, _getr('name'));
+    },
+    console.log
+);
+var _mapr = _curryr(_mapr),
+_filterr = _curryr(_filter);
+_go(users,
+    _filterr(function(user) { return user.age >= 30;}),
+    _mapr(_get('name')),
+    console.log
+);
+_go(users,
+    _filterr(user => user.age >= 30),
+    _mapr(_get('name')),
+    console.log
+);
 
-    function _filter() {
-        var new_list = [];
-        _each(list, function(val) {
-            if(predi(val)){
-                new_list.push(val);
-            }
-        });
-        return new_list;
-    }
-    ```
-- curry : 인자를 하나씩 받고 인자가 다 채워지면 main함수가 실행되는 것
-    ```js
-    function _curry(fn) {
-        return function(a){
-            return function(b){
-                return fn(a, b);
-            }
-        }
-    }
+// 화살표 함수
+var a = function(user) { return user.age >= 30; };
+var a = user => user.age >= 30;
+var add = function(a, b) {return a + b; };
+var add = (a, b) => {
+    a + b
+};
+// 함수가 아니라 객체로 반환하고 싶으면  ( ) 으로 감싸라    
+var add = (a, b) => (
+    { val: a + b }
+);
+```
+</details>
 
+<defails>
+  <summary>다형성</summary>
 
-    // 일반적으로
-    var add = function(a, b) {
-        return a + b;
-    }
-    add(5, 10);
+```js
+// 6. _each의 외부 다형성 높이기
+// 1. _each에 null 넣어도 에러 안나게
+_each(null, console.log);
+console.log( _filter(null, function(v) { return v; }) );
 
-    // curry는
-    var add = _curry(function(a, b) {
-        return a + b;
-    });
-    add(5)(10);
+// 2. _keys 만들기
+// 3. _keys에서도 _is_object인지 검사하여 null 에러 안나게
+console.log( _keys({ name: 'ID', age: 33 }) );
+console.log( _keys([1, 2, 3, 4]) );
+console.log( _keys(10) );
+console.log( _keys(null) );
 
-    // 인자가 2개면 바로 실행하는 함수
-
-    function _curry(fn) {
-        return function(a, b){
-            return if(argument.length == 2) return fn(a, b) : function(b){ return fn(a, b); };
-            }
-        }
-    }
-    add(5, 10);
-
-    // 오른쪽 부터 실행
-    function _curryr(fn){
-        return function(a, b){
-            return if(argument.length == 2) return fn(a, b) : function(b){ return fn(b, a); };
-            }
-        }
-    }
-
-    //_get
-    function _get(obj, key){
-        return obj == null ? undefined : obj[key];
-    }
-    _get(users[0]], 'name');
-    
-    var _getr = _curryr(function(obj, key){
-        return obj == null ? undefined : obj[key];
-    });
-    _getr('name')(users[0]);
-
-    _map(
-        _filter(users, function(user) { return user.age >= 30; }),
-        _getr('name')
-    );
-  ```
-- reduce
-    ```js
-    function _reduce(list, iter, start) {
-        if(argument.length == 2) {
-            start = list[0];
-            // list = list.slice(1); // array 객체에서만 동작
-            list = _rest(list);
-        }
-        _each(list, function(val) {
-            start = iter(memo, val);
-        });
-        return start;
-    }
-
-    // 결과가 6, 
-    _reduce([1, 2, 3], function(a, b) {
-        return a + b;
-    }, 0);
-
-    start = add(0, 1);
-    start = add(start, 2);
-    start = add(start, 3);
-
-    add(add(add(0,1), 2), 3);
-
-    var slice = Array.prototype.slice;
-    function _rest(list, num) {
-        return slice.call(list, num || 1);
-    }
-    ```
-
-- pipe
-    ```js
-    function _pipe() {
-        var fns = arguments;
-        return function(arg) {
-            return _reduce(fns, function(arg, fn) {
-                return fn(arg);
-            }, arg);
-        }
-    }
-
-    var f1 = _pipe(
-        function(a) { return a + 1; },  // 1 + 1
-        function(a) { return a * 2; }   // 2 * 2
-    );
-    f1(1);
-    ```
-- go
-    ```js
-    function _go(arg){
-        var fns = _rest(arguments);
-        return _pipe.apply(null, fns)(arg);
-
-    }
-
-    _go(1, 
-        function(a) { return a + 1; },
-        function(a) { return a * 2; },
-        function(a) { return a * a; },
-        console.log
-    );
-
-    _go(users,
-        function(users) {
-            return _filter(users, function(user) {
-                return user.age >= 30;
-            });
-        },
-        function(users) {
-            return _map(users, _getr('name'));
-        },
-        console.log
-    );
-
-    var _mapr = _curryr(_mapr),
-    _filterr = _curryr(_filter);
-
-    _go(users,
-        _filterr(function(user) { return user.age >= 30;}),
-        _mapr(_get('name')),
-        console.log
-    );
-
-    _go(users,
-        _filterr(user => user.age >= 30),
-        _mapr(_get('name')),
-        console.log
-    );
-    
-    // 화살표 함수
-    var a = function(user) { return user.age >= 30; };
-    var a = user => user.age >= 30;
-
-    var add = function(a, b) {return a + b; };
-    var add = (a, b) => {
-        a + b
-    };
-
-    // 함수가 아니라 객체로 반환하고 싶으면  ( ) 으로 감싸라
-    var add = (a, b) => (
-        { val: a + b }
-    );
-    ```
-
+// 4. _each 외부 다형성 높이기
+_each({
+  13: 'ID',
+  19: 'HD',
+  29: 'YD'
+}, function(name) {
+  console.log(name);
+});
+console.log( _map({
+  13: 'ID',
+  19: 'HD',
+  29: 'YD'
+}, function(name) {
+  return name.toLowerCase();
+}) );
+_go({
+    1: users[0],
+    3: users[2],
+    5: users[4]
+  },
+  _map(function(user) {
+    return user.name.toLowerCase();
+  }),
+  console.log);
+```
+</details>
 
 
 
@@ -572,5 +347,5 @@ fetch("https://url", {
 
 ---
 ### Reference
-- [Nomadcoder's ReactJS로 영화 웹 서비스 만들기](https://nomadcoders.co/react-for-beginners/lobby)
 - [Inflearn - 자바스크립트로 알아보는 함수형 프로그래밍 (ES5)](https://www.inflearn.com/course/%ED%95%A8%EC%88%98%ED%98%95-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8D/lecture/6776?tab=curriculum&volume=1.00&speed=1.5)
+- [Nomadcoder's ReactJS로 영화 웹 서비스 만들기](https://nomadcoders.co/react-for-beginners/lobby)
