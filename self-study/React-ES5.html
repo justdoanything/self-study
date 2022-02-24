@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>함수형 프로그래밍-ES5</title>
+</head>
+
+<body>
+    <script>
+        console.log("==Pure Function==");
+        // 순수 함수 (Pure Function) : 동일한 인자를 줬을 때 동일한 값을 주고 부수효과 (결과를 만드는 것 외에 외부 상태에 영향을 미치는 것)가 없는 함수 
+        // 1. 동일한 인자에 동일한 경과를 만드는 함수
+        function 함수함수1(a, b) {
+            return a + b;
+        }
+
+        // 2. 인자 값을 상태를 변경하지 않고 동일한 결과를 만드는 함수
+        var obj = { val: 10 };
+        function 순수함수2(obj, b) {
+            return { val: obj.val + b };
+        }
+
+        // 3. 동일한 인자를 줘도 외부 값에 따라 결과가 달라지는 경우
+        var c = 10;
+        function 순수하지않은함수1(a, b) {
+            return a + b + c;
+        }
+        순수하지않은함수1(1, 2);
+        c = 20;
+        순수하지않은함수1(1, 2);
+
+        // 4. 부수효과가 있는 경우
+        function 순수하지않은함수2(a, b) {
+            c = b;
+            return a + b;
+        }
+
+        // 5. 결과 값이 없고 인자값의 상태를 직접 변경하는 경우
+        function 순수하지않은함수3(obj, b) {
+            obj.val += b;
+        }
+
+
+
+        console.log("==First-class Function==");
+        // 일급함수 (First-class Function): 함수를 값으로 다룰 수 있는 함수. 변수에 함수를 담을 수 있고 변수에 담은 함수가 값으로 다뤄질 수 있어서 인자로 사용할 수 있다.
+        var 일급함수1 = function (a) { return a * a };
+        var tempValue = 일급함수1;
+        function 일급함수2(func, a) {
+            // 인자 값을 받아서 함수 실행
+            return func(a);
+        }
+        function 일급함수3(func) {
+            // 단순 함수 실행
+            return func();
+        }
+        console.log(일급함수2(tempValue));
+        console.log(일급함수2(일급함수1, 10));
+        console.log(일급함수2(function (a) { return a * a }, 20));
+        console.log(일급함수3(function (a) { return a * a }, 20));
+        console.log(일급함수3(function () { return 10; }));
+
+
+        console.log("==add_maker==");
+        function add_maker(a) {
+            return function (b) {
+                return a + b;
+            }
+        }
+        var add10 = add_maker(10);
+        var add15 = add_maker(15);
+        console.log(add10(20)); // 30
+        console.log(add_maker(10)(20)); // 30
+        // add_maker(10)(20);
+        // function (b) { return 10 + b};
+        // return 10 + 20;
+        console.log(add15(20)); // 35
+
+        function 삼중함수(f1, f2, f3) {
+            return f3(f1() + f2());
+        }
+        console.log(삼중함수(
+            function () { return 2; },
+            function () { return 1; },
+            function (a) { return a * a }
+        ));  // 9
+        // f3( 2 + f2());
+        // f3( 2 + 1 );
+        // return 3 * 3;
+
+
+        console.log("==명령형 함수==");
+        var users = [
+            { id: 1, name: 'ID', age: 36 },
+            { id: 2, name: 'BJ', age: 32 },
+            { id: 3, name: 'JM', age: 32 },
+            { id: 4, name: 'PJ', age: 27 },
+            { id: 5, name: 'HA', age: 25 },
+            { id: 6, name: 'JE', age: 26 },
+            { id: 7, name: 'JI', age: 31 },
+            { id: 8, name: 'MP', age: 23 }
+        ];
+
+        // 30세 이상인 users
+        var 결과 = [];
+        for (var i = 0; i < users.length; i++) {
+            if (users[i].age >= 30)
+                결과.push(users[i]);
+        }
+        console.log(결과);
+
+        // 30세 이상인 user의 name
+        var 서른살이상이름 = [];
+        for (var i = 0; i < 결과.length; i++) {
+            서른살이상이름.push(결과[i].name);
+        }
+        console.log(서른살이상이름);
+
+        // 위 함수는 명령형 함수이다. 함수형으로 변환한다.
+        console.log("==filter== 조건에 맞는 요소만 추출");
+        function _filter(list, condition) {
+            var new_list = [];
+            for (var i = 0; i < list.length; i++) {
+                if (condition(list[i])) {
+                    new_list.push(list[i]);
+                }
+            }
+            return new_list;
+        }
+        console.log(_filter(users, function (user) { return user.age >= 30 }));
+        console.log(_filter([1, 2, 3, 4, 5, 6], function (num) { return num > 3; }));
+
+        console.log("==map== 모든 요소에 함수 적용");
+        function _map(list, mapper) {
+            var new_list = [];
+            for (var i = 0; i < list.length; i++) {
+                new_list.push(mapper(list[i]));
+            }
+            return new_list;
+        }
+        var over30 = _filter(users, function (user) { return user.age >= 30 });
+        console.log(_map(over30, function (user) { return user.name }));
+        console.log(_map([1, 2, 3, 4, 5, 6], function (num) { return num + 1 }));
+
+        // _filter와 _map 합치기
+        console.log("===_map에 _filter 적용===")
+        console.log(_map(
+            _filter(users, function (user) { return user.age >= 30 }),
+            function (user) { return user.name }
+        ));
+
+
+
+        console.log("==each== map과 같이 모든 요소에 함수를 적용하지만 결과를 반환하지 않음.");
+        function _each(list, iterator) {
+            for (var i = 0; i < list.length; i++) {
+                iterator(list[i]);
+            }
+        }
+        // _each를 사용한 _map 구현
+        function _map_each(list, mapper) {
+            var new_list = [];
+            _each(list, function (value) {
+                new_list.push(mapper(value));
+            });
+            return new_list;
+        }
+        console.log("===_map에 _each, _filter 적용===")
+        console.log(
+            _map_each(
+                _filter(users, function (user) { return user.age >= 30 }),
+                function (user) { return user.name }));
+
+
+
+        console.log("===curry=== 인자를 하나씩 받고 인자가 다 채워졌을 떄 main 함수를 실행");
+        function _curry(func) {
+            return function (a) {
+                return function (b) {
+                    return func(a, b);
+                }
+            }
+        }
+
+        var _curry_add = _curry(function (a, b) {
+            return a + b;
+        });
+        console.log(_curry_add(5)(10)); // 일반적으론 add(5, 10)을 사용
+        /*
+        _curry_add {
+          return function (a) {
+                return function (b) {
+                    return a + b;;
+                }
+            }
+        }
+        ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+        _curry_add(5)(10)
+        ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+        function (5) {
+            return function (b) {
+                return 5 + b;;
+            }
+        }
+        ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+        function (10) {
+            return 5 + 10;
+        }
+        */
+
+        // 인자가 2개로 들어오면 main 함수 바로 실행
+        function _curry_인자2개바로실행(func) {
+            return function (a, b) {
+                if (arguments.length == 2)
+                    return func(a, b)
+                else
+                    return function (b) { return func(a, b); };
+            }
+        }
+        var _curry_add_인자2개 = _curry_인자2개바로실행(function (a, b) {
+            return a + b;
+        })
+        console.log(_curry_add_인자2개(5, 10));
+        console.log(_curry_add_인자2개(5)(10));
+
+        // curry의 오른쪽부터 사용하는 함수
+        function _curry_reverse(func) {
+            return function (a, b) {
+                if (arguments.length == 2)
+                    return func(b, a);
+                else
+                    return function (b) { return func(b, a); };
+            }
+        }
+        var _curry_빼기 = _curry_인자2개바로실행(function (a, b) {
+            return a - b;
+        });
+        var _curry_reverse_빼기 = _curry_reverse(function (a, b) {
+            return a - b;
+        });
+
+        console.log("===_curry와 _curry_reverse 비교===");
+        console.log(_curry_빼기(5, 10));            // 5 - 10 = -5
+        console.log(_curry_reverse_빼기(5, 10));    // 10 - 5 = 5
+        console.log(_curry_빼기(5)(10));            // 5 - 10 = -5
+        console.log(_curry_reverse_빼기(5)(10));    // 10 - 5 = 5
+
+
+
+        console.log("===get=== list를 순자척으로 탐색");
+        function _get(obj, key) {
+            return obj == null ? undefined : obj[key];
+        }
+        console.log(_get(users[0], 'name'));
+
+        // key부터 찾고 obj에서 선택 (뒤에꺼 부터 실행)
+        var _getr = _curry_reverse(function (obj, key) {
+            return obj == null ? undefined : obj[key];
+        });
+        console.log(_getr('name')(users[0]));
+        console.log(_getr('name', users[0]));
+
+
+
+        console.log("===rest=== 앞에서부터 index 만큼 제거");
+        var slice = Array.prototype.slice;
+        function _rest(list, num) {
+            return slice.call(list, num || 1);
+        }
+        console.log(users);
+        console.log(_rest(users, 1)); // 첫번째 요소만 제거
+        console.log(_rest(users, 3)); // 3번째 요소까지 제거
+
+
+
+        console.log("===reduce=== start 값부터 모든 요소에 함수 적용");
+        function _reduce(list, iterator, start) {
+            if (arguments.length == 2) {
+                start = list[0];
+                list = _rest(list, 1);
+            }
+            _each(list, function (value) {
+                start = iterator(start, value);
+            });
+            return start;
+        }
+        console.log(_reduce([1, 2, 3], function (a, b) {
+            return a + b;
+        }, 1));
+
+
+
+        console.log("===pipe=== 인자로 함수를 여러개 받고 차례대로 수행");
+        function _pipe() {
+            var fns = arguments;
+            return function (arg) {
+                return _reduce(fns, function (arg, func) {
+                    return func(arg);
+                }, arg);
+            }
+        }
+        var 파이프 = _pipe(
+            function (a) { return a + 1; },
+            function (a) { return a * 2; }
+        );
+        console.log(파이프(1));
+
+
+
+        console.log("===go=== 인자로 함수를 여러개 받고 차례대로 수행");
+        function _go(arg) {
+            var fns = _rest(arguments);
+            return _pipe.apply(null, fns)(arg);
+        }
+
+        _go(1,
+            function (a) { return a + 1; },
+            function (a) { return a * 2; },
+            function (a) { return a * a },
+            console.log
+        );
+    </script>
+</body>
