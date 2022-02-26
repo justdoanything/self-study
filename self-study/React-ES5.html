@@ -387,6 +387,154 @@
 
 
 
+        console.log("===다형성===");
+        // 1. _each에 null이 있어도 에러 skip 하기
+        // _get 함수를 사용해서 해결
+        function _each_null(list, iterator) {
+            for (var i = 0, len = _get(list, 'length'); i < len; i++) {
+                iterator(list[i]);
+            }
+            return list;
+        };
+        //_each(null, console.log);     // 에러 발생
+        _each_null(null, console.log);  // 에러 발생하지 않음.
+
+        // map, map_each, map_each_null 
+        function _map(list, mapper) {
+            var new_list = [];
+            for (var i = 0; i < list.length; i++) {
+                new_list.push(mapper(list[i]));
+            }
+            return new_list;
+        }
+
+        function _map_each_null(list, mapper) {
+            var new_list = [];
+            _each_null(list, function (value) {
+                new_list.push(mapper(value));
+            });
+            return new_list;
+        }
+        console.log(_map_each_null(null, function (v) { return v; }));
+
+        // _filter에 _each_null 적용
+        function _filter_null(list, condition) {
+            var new_list = [];
+            _each_null(list, function (value) {
+                if (condition(value)) {
+                    new_list.push(value);
+                }
+            });
+            return new_list;
+        }
+        console.log(_filter(users, function (user) { return user.age >= 30; }));
+        console.log(_filter_null(users, function (user) { return user.age >= 30; }));
+
+        var nullValue = null;
+        _go(
+            nullValue,
+            function (nullValue) { return _filter_null(nullValue, function (v) { return v % 2; }) },
+            function (nullValue) { return _map_each_null(nullValue, function (v) { return v * v }) },
+            console.log
+        );
+
+
+
+        console.log("===keys===");
+        console.log(Object.keys({ name: 'ID', age: 33 }));
+        console.log(Object.keys([1, 2, 3, 4]));
+        console.log(Object.keys(10));
+        // console.log(Object.keys(null)); // 에러 발생
+
+        // !! 연산자
+        // 변수의 값을 boolean 형태로 변환해준다. 또한 값이 있는지 없는지 확인할 떄 사용할 수 있다.
+        // !true => true
+        // !!true => false
+        function _is_object(obj) {
+            return typeof obj == 'object' && !!obj;
+        }
+        console.log(Object.keys(_is_object(null)));
+
+        function _keys(obj) {
+            return _is_object(obj) ? Object.keys(obj) : [];
+        }
+
+        console.log("===_each 함수에 map 형태 변수 적용===")
+        _each({ 13: 'AB', 19: 'CD', 20: 'EF' }
+            , function (name) { console.log(name); }
+        ); // 배열 형태가 아니라 length 가 없고 에러가 남.
+
+        function _each_null_keys(list, iterator) {
+            var keys = _keys(list);
+            for (var i = 0, len = keys.length; i < len; i++) {
+                iterator(keys[i]);
+            }
+            return list;
+        };
+        _each_null_keys(
+            { 13: 'AB', 19: 'CD', 20: 'EF' }
+            , function (name) { console.log(name); }
+        );
+
+        // each를 사용하고 map, filter에도 적용해보기
+
+
+
+        console.log("===Collection===");
+        // 수집하기 : map, values, pluck
+        // 거르기 : filter, reject, compact, without
+        // 찾아내기 : find, some, every
+        // 접기 : reduce, min, max, group_by, couunt_by
+
+        // map으로 values와 pluck 만들기
+        // values
+        console.log("===values===");
+        function _values(data) {
+
+            var new_list = [];
+            var keys = _keys(data);
+            for (var i = 0; i < keys.length; i++) {
+                new_list.push(_get(data, keys[i]));
+            }
+            return new_list;
+        }
+        console.log(users[0]);
+        console.log(_keys(users[0]));
+        console.log(_values(users[0]));
+
+        function _identity(val) {
+            return val;
+        }
+
+        console.log(_map_reverse(_identity)(users[0])); // 안되는데...흠
+
+        // pluck
+        console.log("===pluck===");
+        function _pluck(data, key) {
+            /*
+            return _map(data, function (obj) {
+                return obj[key];
+            })
+            */
+            return _map(data, _get_reverse(key));
+        }
+        console.log(_pluck(users, 'age'));
+
+        // reject
+        console.log("===reject===");
+        function _reject(data, condition) {
+            return _filter(data, function (value) {
+                return !condition(value)
+            });
+        }
+        console.log(
+            _filter(users, function (user) { return user.age >= 30; })
+        );
+        console.log(
+            _reject(users, function (user) { return user.age >= 30; })
+        )
+
+        // compact
 
     </script>
-</body>c
+</body>
