@@ -255,11 +255,11 @@
         console.log(_get(users[0], 'name'));
 
         // key부터 찾고 obj에서 선택 (뒤에꺼 부터 실행)
-        var _getr = _curry_reverse(function (obj, key) {
+        var _get_reverse = _curry_reverse(function (obj, key) {
             return obj == null ? undefined : obj[key];
         });
-        console.log(_getr('name')(users[0]));
-        console.log(_getr('name', users[0]));
+        console.log(_get_reverse('name')(users[0]));
+        console.log(_get_reverse('name', users[0]));
 
 
 
@@ -308,10 +308,10 @@
 
 
 
-        console.log("===go=== 인자로 함수를 여러개 받고 차례대로 수행");
+        console.log("===go=== 인자로 변수 1개와 함수를 여러개 받고 차례대로 수행");
         function _go(arg) {
             var fns = _rest(arguments);
-            return _pipe.apply(null, fns)(arg);
+            return _pipe.apply(null, fns)(arg); //pipe는 인자를 여러개 받기 때문에 .apply 사용
         }
 
         _go(1,
@@ -320,5 +320,73 @@
             function (a) { return a * a },
             console.log
         );
+
+        _go(users,
+            function (user) {
+                return _filter(users, function (user) {
+                    return user.age >= 30;
+                });
+            },
+            function (users) {
+                return _map(users, _get_reverse('name'));
+            },
+            console.log
+        );
+
+
+
+        console.log("===map, filter 반대로 적용=== curry_rerverse 함수 사용");
+        var _map_reverse = _curry_reverse(_map);
+        var _filter_reverse = _curry_reverse(_filter);
+
+        // _map과 _map_reverse
+        console.log(_map([1, 2, 3], function (value) { return value * 2 }));
+        console.log(_map_reverse(function (value) { return value * 2 })([1, 2, 3]));
+
+        // _filter와 _filter_reverse
+        console.log(_filter(users, function (user) { return user.age >= 30; }));
+        console.log(_filter_reverse(function (user) { return user.age >= 30; }, users));
+
+        // 위의 함수를 reverse로 구현
+        _go(users,
+            function (users) {
+                return _filter_reverse(
+                    function (user) { return user.age >= 30; }
+                )(users);
+            },
+            function (users) {
+                return _map_reverse(_get_reverse('name'))(users);
+            },
+            console.log
+        );
+
+
+
+        console.log("===Arrow Function==");
+        var 화살표적용안함 = function (user) { return user.age >= 30; };
+        var 화살표적용 = user => user.age >= 30;
+
+        var 화살표적용안함2 = function (a, b) { return a + b };
+        var 화살표적용2 = (a, b) => { return a + b };
+
+        //함수가 아닌 객체를 반환하고 싶을 땐 ( ) 로 감싼다.
+        var 객체반환 = (a, b) => ({ val: a + b });
+        console.log(화살표적용2(1, 2));
+        console.log(객체반환(1, 2));
+
+        _go(
+            users,
+            function (users) {
+                return _filter(users, (user => user.age >= 30));
+            },
+            function (users) {
+                return _map(users, _get_reverse('name'));
+            },
+            console.log
+        );
+
+
+
+
     </script>
-</body>
+</body>c
