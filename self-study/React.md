@@ -1,16 +1,10 @@
 React
 ===
-
-<details>
-
-  <summary>click to collapse</summary>
-
-  this one starts expanded because of the "open"
-
-</details>
-
 ## 함수형 프로그래밍 (ES5)
   - Move to https://github.com/justdoanything/self-study/blob/main/self-study/React-ES5.html
+
+## 리액트를 다루는 기술
+  - memo
 
 ## 기존 방식과 React 방식의 차이점
 - 기존 방식 : JS에서 HTML에 있는 요소를 가져오고 → JS에서 값을 변경하고 → 다시 HTML을 업데이트 해주는 방식 (시작이 HTML)
@@ -250,5 +244,5 @@ fetch("https://url", {
 
 ---
 ### Reference
-- [Inflearn - 자바스크립트로 알아보는 함수형 프로그래밍 (ES5)](https://www.inflearn.com/course/%ED%95%A8%EC%88%98%ED%98%95-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8D/lecture/6776?tab=curriculum&volume=1.00&speed=1.5)
+- 리액트를 다루는 기술(개정판) / 길민준 / 길벗
 - [Nomadcoder's ReactJS로 영화 웹 서비스 만들기](https://nomadcoders.co/react-for-beginners/lobby)
