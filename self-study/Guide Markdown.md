@@ -53,4 +53,14 @@ __double underscores__
 `absolute` | 위치 상 **_부모_(조상)요소**를 기준으로 배치 |
 `fixed` | **브라우저 창**을 기준으로 배치 |
 
+
+
+<details>
+
+  <summary>click to collapse</summary>
+
+  this one starts expanded because of the "open"
+
+</details>
+
 출처 : [github ihoneymon](https://gist.github.com/ihoneymon/652be052a0727ad59601)
