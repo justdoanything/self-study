@@ -524,7 +524,7 @@
         console.log(_pluck(users, 'age'));
 
         // reject
-        console.log("===reject===");
+        console.log("===reject=== 조건에 반대되는 값만 반환");
         function _reject(data, condition) {
             return _filter(data, function (value) {
                 return !condition(value)
@@ -538,6 +538,162 @@
         )
 
         // compact
+        console.log("===compact=== false가 아닌 값 반환");
+        var _compact = function (data) {
+            return _filter(data, _identity);
+        };
+        console.log(_compact([1, 2, 0, false, null, {}]));
+
+        // find
+        console.log("===find=== 매칭되는 값을 1개 반환");
+        function _find(data, condition) {
+            var keys = _keys(data);
+            for (var i = 0, len = keys.length; i < len; i++) {
+                var val = data[keys[i]];
+                if (condition(val)) return val;
+            }
+        }
+        console.log(
+            _find(users, function (user) {
+                return user.age < 30;
+            })
+        );
+
+        // find_index
+        console.log("===find_index=== 매칭되는 값의 index 반환");
+        function _find_index(data, condition) {
+            var keys = _keys(data);
+            for (var i = 0, len = keys.length; i < len; i++) {
+                if (condition(data[keys[i]])) return i;
+            }
+        }
+        console.log(
+            _find_index(users, function (user) {
+                return user.age < 30;
+            })
+        );
+
+        // _go 함수 적용을 위한 _find, _find_index 변경
+        function _find_curryr(data, condition) {
+            return _curry_reverse(_find(data, condtion));
+        }
+        function _find_index_curryr(data, condition) {
+            return _curry_reverse(_find_index(data, condtion));
+        }
+        var test = _curry_reverse(function (data, confition) {
+            var keys = _keys(data);
+            for (var i = 0, len = keys.length; i < len; i++) {
+                var val = data[keys[i]];
+                if (condition(val)) return val;
+            }
+        })
+
+        // some : 조건 중 1개라도 참이면 true
+        // every : 조건을 모두 만족해야 true
+        _some([1, 2, 5, 10, 20], function (val) {
+            return val > 10;
+        });
+        _every([1, 2, 5, 10, 20], function (val) {
+            return val > 10;
+        });
+
+        // reduce 활용
+        //min, max, min_by, max_by
+        //group_by, push
+        //count_by, inc
+        _min([1, 2, 3, 4, 10, 5, -4]); // -4
+        _max([1, 2, 3, 4, 10, 5, -4]); // 10
+
+        _min_by([1, 2, 3, 4, 10, 5, -4], Math.abs); // 1
+        _max_by([1, 2, 3, 4, 10, 5, -11], Math.abs); // -11
+
+        //_go에 사용하기 위해선 curry_reverse 가 필요
+        var _min_by = _curry_reverse(_min_by);
+
+        // 30대를 제외하고 나이가 많은 사람 찾기
+        // 30대를 제외하고 나이가 많은 사람의 이름 찾기 
+        /*
+        _go(users,
+            _filter,
+            _min_by,
+            _get
+        );
+
+        _go(users,
+            _filter,
+            _map(_get()),
+            _min
+        );
+        */
+
+        //group by
+        var _group_by = _curry_reverse(function (data, iter) {
+            return _reduce(data, function (grouped, val) {
+                //var key = iter(val);
+                //(grouped[key] = grouped[key] || []).push(val);
+                //return grouped;
+
+                return _push(grouped, iter(val), val);
+            }, {});
+        })
+
+        _group_by(users, function (user) {
+            return user.age;
+        })
+
+        _go(users,
+            _group_by(function (user) {
+                return user.age;
+            }),
+            console.log
+        );
+        //push
+        function _push(obj, key, val) {
+            (obj[key] = obj[key] || []).push(val);
+            return obj;
+        }
+
+
+        //count_by
+        var _count_by = _curry_reverse(function (data, iter) {
+            return _reduce(data, function (count, val) {
+                //var key = iter(val);
+                //count[key] ? count[key]++ : count[key] = 1;
+                //return count;
+
+                return _inc(count, iter(val));
+            }, {});
+        });
+
+        _count_by(users, function (user) {
+            return user.age;
+        });
+
+        var _inc = function (count, key) {
+            count[key] ? count[key]++ : count[key] = 1;
+            return count;
+        }
+
+        _go(users,
+            _count_by(function (user) { return user.age - user.age % 10; }),
+            _map((count, key) => `<li>${key}대는 ${count}명 입니다.<li>`),
+            list => '<ul>' + list.join('') + '</ul>',
+            document.write.bind(documetnt)
+        );
+
+        var _func1 = _pipe(
+            _count_by(function (user) { return user.age - user.age % 10; }),
+            _map((count, key) => `<li>${key}대는 ${count}명 입니다.<li>`),
+            list => '<ul>' + list.join('') + '</ul>',
+            document.write.bind(documetnt)
+        );
+
+        _func1(users);
+
+        var _f2 = _pipe(
+            _reject(user => user.age < 20, f1)
+        );
+
 
     </script>
 </body>
