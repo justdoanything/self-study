@@ -86,7 +86,124 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
   
   - 정상 구동 화면\
     ![image](https://user-images.githubusercontent.com/21374902/157167987-36ab1b4e-bad0-4355-ac44-5faedd0b30d6.png)
+- 무작정 따라해보기 - wordpress 실행하기
+  - wordpress-k8s.yml 작성
+    ![image](https://user-images.githubusercontent.com/21374902/157173397-bcf2a579-9f5b-48a6-bbce-de732ae857a2.png)
+    ```yml
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: wordpress-mysql
+      labels:
+        app: wordpress
+    spec:
+      selector:
+        matchLabels:
+          app: wordpress
+          tier: mysql
+      template:
+        metadata:
+          labels:
+            app: wordpress
+            tier: mysql
+        spec:
+          containers:
+            - image: mariadb:10.7
+              name: mysql
+              env:
+                - name: MYSQL_ROOT_PASSWORD
+                  value: password
+              ports:
+                - containerPort: 3306
+                  name: mysql
 
+    ---
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: wordpress-mysql
+      labels:
+        app: wordpress
+    spec:
+      ports:
+        - port: 3306
+      selector:
+        app: wordpress
+        tier: mysql
+
+    ---
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: wordpress
+      labels:
+        app: wordpress
+    spec:
+      selector:
+        matchLabels:
+          app: wordpress
+          tier: frontend
+      template:
+        metadata:
+          labels:
+            app: wordpress
+            tier: frontend
+        spec:
+          containers:
+            - image: wordpress:5.5.3-apache
+              name: wordpress
+              env:
+                - name: WORDPRESS_DB_HOST
+                  value: wordpress-mysql
+                - name: WORDPRESS_DB_PASSWORD
+                  value: password
+              ports:
+                - containerPort: 80
+                  name: wordpress
+
+    ---
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: wordpress
+      labels:
+        app: wordpress
+    spec:
+      type: NodePort
+      ports:
+        - port: 80
+      selector:
+        app: wordpress
+        tier: frontend
+    ```
+    
+  - docker-compose.yml 버전 참고
+    ![image](https://user-images.githubusercontent.com/21374902/157173260-bbbe2ee7-3b5d-4033-89b0-0d9458a7818b.png)
+    ```yml
+    version: "3"
+
+    services:
+      wordpress:
+        image: wordpress:5.5.3-apache
+        environment:
+          WORDPRESS_DB_HOST: mysql
+          WORDPRESS_DB_PASSWORD: password
+        ports:
+          - "30000:80"
+
+      mysql:
+        image: mariadb:10.7
+        environment:
+          MYSQL_ROOT_PASSWORD: password
+    ```
+    
+  - wordpress-k8s.yml 실행 : `kubectl apply -f wordpress-k8s.yml`
+  - Terminal을 추가로 열어서 Monitoring 실행 : `watch -n 0.5 kubectl get all`
+    - Status = Running 확인
+    ![image](https://user-images.githubusercontent.com/21374902/157172750-93658332-9176-4cee-8d1b-f18652f16e35.png)
+    - 실행한 wordpress 확인
+      - ㅇㅇ                                                                       
+  - wordpress 리소스 제거 : `kubectl delete -f wordpress-k8s.yml`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
 
 
 
