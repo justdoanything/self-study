@@ -34,10 +34,10 @@ public static void main(String[] args){
 }
 ```
 
-*single asterisks*
-_single underscores_
-**double asterisks**
-__double underscores__
+*single asterisks* \
+_single underscores_ \
+**double asterisks** \
+__double underscores__ \
 ~~cancelline~~
 
 
