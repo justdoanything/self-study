@@ -26,8 +26,8 @@ Docker를 공부했던 내용을 기반으로 K8S의 개념과 기능을 공부�
 - `Container Orchestration` : Kubernetes, Swarm, ...
 
 ## What Kubernetes
-- Containter를 쉽고 빠르게 배포/확장하고 관리를 자동화해주는 Open Source Platform
-- Kubernetes의 장점
+- #### Containter를 쉽고 빠르게 배포/확장하고 관리를 자동화해주는 Open Source Platform
+- #### Kubernetes의 장점
   - Planet Scale
   - Never Outgrow
   - Run Anywhere
@@ -35,33 +35,58 @@ Docker를 공부했던 내용을 기반으로 K8S의 개념과 기능을 공부�
   - Masive Popularity
   - Infinite Expandability
   - De Facto
-- Docker와 Kubernetes를 활용한 관리\
+- #### Docker와 Kubernetes를 활용한 관리
   ![image](https://user-images.githubusercontent.com/21374902/157634817-812cd265-0ad8-41ae-94f0-d800ec938d0d.png)
 
-- Desired State
-  - 현재 상태와 원하는 상태를 비교하고 미리 설정해둔 상태로 복원시켜주고 지속적으로 관리해주는 것
-    - ![image](https://user-images.githubusercontent.com/21374902/157641975-55f68ae6-923a-489d-acb7-70d012ba535e.png)
-  - Scheduler로 통해 일정 주기로 상태를 체크하고 각 Controller를 생성해서 관리할 항목을 나눠서 제어할 수 있다.
-    - ![image](https://user-images.githubusercontent.com/21374902/157642553-e540951a-2a24-44a8-bad5-da6336cc63f1.png)
-    - ![image](https://user-images.githubusercontent.com/21374902/157642820-5578c4e1-8e84-45c6-8fd4-e67b05bbdd02.png)
-- Kubernetes 구성 요소
-  - Master
+- #### Desired State
+  - 현재 상태와 원하는 상태를 비교하고 미리 설정해둔 상태로 복원시켜주고 지속적으로 관리해주는 것\
+  ![image](https://user-images.githubusercontent.com/21374902/157641975-55f68ae6-923a-489d-acb7-70d012ba535e.png)
+  - Scheduler로 통해 일정 주기로 상태를 체크하고 각 Controller를 생성해서 관리할 항목을 나눠서 제어할 수 있다.\
+  ![image](https://user-images.githubusercontent.com/21374902/157642820-5578c4e1-8e84-45c6-8fd4-e67b05bbdd02.png)
+- #### Kubernetes 구성 요소
+  - ###### Master 구성 요소
     - etcd
+      - 모든 상태와 데이터를 저장하는 요소
+      - 분산 시스템으로 안정성을 높이고 (고가용성) 가볍고 빠르게 동작 (일관성)
+      - Key-Value 형태로 데이터를 저장
+      - TTL (Time to live), Watch 등 부가 기능 제공
     - API Server
+      - 상태를 바꾸거나 조회할 때 유일하게 etcd와 통신하는 모듈
+      - Restful API 형태로 동작
+      - 권한을 체크하고 권한이 없을 경우 차단
+      - 다양한 내부 모듈 중간에서 통신하는 역할
+      - 수평으로 확장되도록 디자인
     - Scheduler
+      - 새로 생성된 Pod를 감지하고 실행할 Node를 선택
+      - Node의 현재 상태와 Pod의 요구 사항을 체크
     - Controller
-  - Master 조회 흐름
+      - 끊임 없이 상태를 체크하고 정상 상태를 유지
+      - 복잡성을 낮추기 위해 하나의 프로세스로 실행되고 목적마다 다양한 Controller가 있을 수 있음.
+  - ###### Master 조회 흐름
     - Controller ➡ API Server : 리소스 정보 조회 요청
     - API Server : 리소스 정보 조회 권한 체크 
     - API Server ➡ etcd : etcd 정보 조회
-  - Master 기본 흐름
+  - ###### Master 기본 흐름
     - etcd ➡ API Server : 원하는 상태로 변경 됐다고 전달
     - API Server ➡ Controller : 원하는 상태로 변경 됐다고 전달
     - Controller : 원하는 상태로 리소스 변경
     - Controller 🔃 API Server : 변경 사항 전달
     - API Server : 리소스 정보 갱신 권한 체크
     - API Server 🔃 etcd : 정보 갱신
+  - ###### Node 구성 요소
+    - Kubelet
+      - 각 노드에서 실행되고 컨테이너를 관리함.
+      - Pod를 실행/중지하고 Pod의 상태를 체크
+      - CRI (Container Runtime Interface)
+    - Proxy
+      - 내/외부 통신을 설정하고 네트워크 Proxy와 부하 분산 역할
+      - 지금은 성능상의 이유로 별도의 별도의 Proxy 프로그램을 띄우지 않고 Kernel 단에서 iptables/IPVS를 사용해서 동작하도록 함.
+      - Proxy는 설정만 관리
 
+![image](https://user-images.githubusercontent.com/21374902/157651756-dd4c3d61-d674-4fd6-9dd9-fa616d1caa0c.png)
+
+- #### 하나의 Pod가 생성되는 과정
+![image](https://user-images.githubusercontent.com/21374902/157654094-02033c94-0d41-4d18-925a-123077f4d51a.png)
 
 ---
 
