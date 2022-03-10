@@ -40,9 +40,32 @@ Docker를 공부했던 내용을 기반으로 K8S의 개념과 기능을 공부�
 
 - Desired State
   - 현재 상태와 원하는 상태를 비교하고 미리 설정해둔 상태로 복원시켜주고 지속적으로 관리해주는 것
-  - ![image](https://user-images.githubusercontent.com/21374902/157641975-55f68ae6-923a-489d-acb7-70d012ba535e.png)
+    - ![image](https://user-images.githubusercontent.com/21374902/157641975-55f68ae6-923a-489d-acb7-70d012ba535e.png)
+  - Scheduler로 통해 일정 주기로 상태를 체크하고 각 Controller를 생성해서 관리할 항목을 나눠서 제어할 수 있다.
+    - ![image](https://user-images.githubusercontent.com/21374902/157642553-e540951a-2a24-44a8-bad5-da6336cc63f1.png)
+    - ![image](https://user-images.githubusercontent.com/21374902/157642820-5578c4e1-8e84-45c6-8fd4-e67b05bbdd02.png)
+- Kubernetes 구성 요소
+  - Master
+    - etcd
+    - API Server
+    - Scheduler
+    - Controller
+  - Master 조회 흐름
+    - Controller ➡ API Server : 리소스 정보 조회 요청
+    - API Server : 리소스 정보 조회 권한 체크 
+    - API Server ➡ etcd : etcd 정보 조회
+  - Master 기본 흐름
+    - etcd ➡ API Server : 원하는 상태로 변경 됐다고 전달
+    - API Server ➡ Controller : 원하는 상태로 변경 됐다고 전달
+    - Controller : 원하는 상태로 리소스 변경
+    - Controller 🔃 API Server : 변경 사항 전달
+    - API Server : 리소스 정보 갱신 권한 체크
+    - API Server 🔃 etcd : 정보 갱신
+
 
 ---
+
+
 ## 실습환경 세팅하기
 _Kubernetes Adminstrator_ 교육을 들었을 땐 AWS Cloud9에서 1개의 Master, 2개의 Worker 환경을 별도로 제공받아서 실습했었습니다. 하지만 Local 환경에선 n개의 환경을 각각 구축하기 까다롭기 때문에 `minikube`을 사용해서 구성하도록 하겠습니다.
 
