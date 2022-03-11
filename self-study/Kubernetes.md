@@ -35,14 +35,15 @@ Docker를 공부했던 내용을 기반으로 K8S의 개념과 기능을 공부�
   - Masive Popularity
   - Infinite Expandability
   - De Facto
+
 - #### Docker와 Kubernetes를 활용한 관리
-  ![image](https://user-images.githubusercontent.com/21374902/157634817-812cd265-0ad8-41ae-94f0-d800ec938d0d.png)
+![image](https://user-images.githubusercontent.com/21374902/157634817-812cd265-0ad8-41ae-94f0-d800ec938d0d.png)
 
 - #### Desired State
-  - 현재 상태와 원하는 상태를 비교하고 미리 설정해둔 상태로 복원시켜주고 지속적으로 관리해주는 것\
-  ![image](https://user-images.githubusercontent.com/21374902/157641975-55f68ae6-923a-489d-acb7-70d012ba535e.png)
-  - Scheduler로 통해 일정 주기로 상태를 체크하고 각 Controller를 생성해서 관리할 항목을 나눠서 제어할 수 있다.\
-  ![image](https://user-images.githubusercontent.com/21374902/157642820-5578c4e1-8e84-45c6-8fd4-e67b05bbdd02.png)
+  - 현재 상태와 원하는 상태를 비교하고 미리 설정해둔 상태로 복원시켜주고 지속적으로 관리해주는 것
+![image](https://user-images.githubusercontent.com/21374902/157641975-55f68ae6-923a-489d-acb7-70d012ba535e.png)
+  - Scheduler로 통해 일정 주기로 상태를 체크하고 각 Controller를 생성해서 관리할 항목을 나눠서 제어할 수 있다.
+![image](https://user-images.githubusercontent.com/21374902/157642820-5578c4e1-8e84-45c6-8fd4-e67b05bbdd02.png)
 - #### Kubernetes 구성 요소
   - ###### Master 구성 요소
     - etcd
@@ -82,14 +83,39 @@ Docker를 공부했던 내용을 기반으로 K8S의 개념과 기능을 공부�
       - 내/외부 통신을 설정하고 네트워크 Proxy와 부하 분산 역할
       - 지금은 성능상의 이유로 별도의 별도의 Proxy 프로그램을 띄우지 않고 Kernel 단에서 iptables/IPVS를 사용해서 동작하도록 함.
       - Proxy는 설정만 관리
-
-![image](https://user-images.githubusercontent.com/21374902/157651756-dd4c3d61-d674-4fd6-9dd9-fa616d1caa0c.png)
+    ![image](https://user-images.githubusercontent.com/21374902/157651756-dd4c3d61-d674-4fd6-9dd9-fa616d1caa0c.png)
 
 - #### 하나의 Pod가 생성되는 과정
-![image](https://user-images.githubusercontent.com/21374902/157654094-02033c94-0d41-4d18-925a-123077f4d51a.png)
+  ![image](https://user-images.githubusercontent.com/21374902/157654094-02033c94-0d41-4d18-925a-123077f4d51a.png)
 
+- #### Kubernetes Object
+  - ###### Pod
+    - 가장 작은 배포 단위이며 Pod마다 고유한 IP를 부여 받음
+    - 여러개의 Container를 갖을 수 있음
+    - 하나의 Pod에 Container + Cache를 넣고 local port로 공유할 수 있음
+  - ###### ReplicaSet
+    - 설정한 환경에 맞는 Pod의 상태와 수를 관리 
+  - ###### Deployment
+    - ReplicaSet의 상위 개념으로 ReplicaSet을 이용해 배포하고 Version 업그레이드
+  - ###### Workload
+    - DAEMON SET : 모든 Node에 반드시 1개씩만 떠있는 Pod (로그, 모니터링)
+    - STATEFUL SETS : 순서대로 수행하거나 같은 볼륨을 재활용하고 싶을 때 
+    - JOB : 한번 실행하고 죽음
+  - ###### Cluster IP
+    - Pod는 동적으로 변하기 때문에 `Service`에 `Cluster IP`를 붙여서 사용
+    - 하지만 Cluster IP는 내부에서만 접근이 가능하기 때문에 `Node`에 `NodePort`를 만들고 `외부에서 접근할 수 있도록 함`
+    - 다른 Node에 할당된 NodePort로 연결해도 `자동으로 지정된 Service로 연결해줌.`
+    - 두번째 그림에서 Node1이 죽으면 Service가 정상적으로 되지 않기 때문에 `NodePort 앞단에 Load Balancer를 둠.`
+    - 외부엔 `하나의 IP (Load Balancer)를 노출`
+      ![image](https://user-images.githubusercontent.com/21374902/157827744-a3aaceb3-61ed-4857-9e6b-d5ba75dec19e.png)
+      ![image](https://user-images.githubusercontent.com/21374902/157827906-7e2c903f-bc5a-4fc3-a185-ab2117f758b5.png)
+      ![image](https://user-images.githubusercontent.com/21374902/157829327-7b90c7ed-0b6f-4b7e-8c55-0aa23f6fe26c.png)
+  - ###### Ingress
+    - Domain 또는 경로별로 라우팅 해줌
+      ![image](https://user-images.githubusercontent.com/21374902/157829810-1af8eeba-3202-4425-b7c3-0edd55aa5e7d.png)
+  - ###### 일반적인 구성
+    ![image](https://user-images.githubusercontent.com/21374902/157829970-ac03a92d-fe0d-40ef-8acd-80da6e846867.png)
 ---
-
 
 ## 실습환경 세팅하기
 _Kubernetes Adminstrator_ 교육을 들었을 땐 AWS Cloud9에서 1개의 Master, 2개의 Worker 환경을 별도로 제공받아서 실습했었습니다. 하지만 Local 환경에선 n개의 환경을 각각 구축하기 까다롭기 때문에 `minikube`을 사용해서 구성하도록 하겠습니다.
@@ -106,8 +132,8 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
     - ~~💥memory 할당 문제로 `minikube start --driver=hyperv`가 안될 경우, 가상 메모리 설정 필요~~
       - ~~제어판 > 시스템 및 보안 > 시스템 > 고급 시스템 설정~~
       - ~~고급 탭 > '성능' 영역에 '설정(S)' > 고급 탭 > '가상 메모리' 영역에 '변경(C)'~~
-      - ~~'모든 드라이브에 대한 페이징 파일 크기 자동 관리(A)' 체크 해제 > '사용자 지정 크기(C)' 선택 > 처음 크기 : 4096, 최대 크기 : 8192 > 설정 > 확인 > 재부팅~~ \
-      ![image](https://user-images.githubusercontent.com/21374902/157142064-ccdc512f-d2d5-4c29-8ece-1414734761a2.png)
+      - ~~'모든 드라이브에 대한 페이징 파일 크기 자동 관리(A)' 체크 해제 > '사용자 지정 크기(C)' 선택 > 처음 크기 : 4096, 최대 크기 : 8192 > 설정 > 확인 > 재부팅~~ 
+        ![image](https://user-images.githubusercontent.com/21374902/157142064-ccdc512f-d2d5-4c29-8ece-1414734761a2.png)
 
   - #### 💥 Docker Desktop을 사용할 수 없기 때문에 WSL2 환경에 세팅
     - 참고 : [Docker Desktop 없이 Docker 사용하기](https://github.com/justdoanything/self-study/blob/main/self-study/Docker.md#2%EF%B8%8F%E2%83%A30%EF%B8%8F%E2%83%A3-Docker-Desktop-%EC%97%86%EC%9D%B4-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0-(Windows10))  
@@ -282,9 +308,9 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
   - wordpress-k8s.yml 실행 : `kubectl apply -f wordpress-k8s.yml`
   - Terminal을 추가로 열어서 Monitoring 실행 : `watch -n 0.5 kubectl get all`
     - Status = Running 확인
-    ![image](https://user-images.githubusercontent.com/21374902/157172750-93658332-9176-4cee-8d1b-f18652f16e35.png)
+      ![image](https://user-images.githubusercontent.com/21374902/157172750-93658332-9176-4cee-8d1b-f18652f16e35.png)
     - 실행한 wordpress 확인
-      - ㅇㅇ                                                                       
+      - ㅇ                                                                       
   - wordpress 리소스 제거 : `kubectl delete -f wordpress-k8s.yml`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
 
 
