@@ -1,6 +1,8 @@
 # self-study
 ## First purpose is
 - Study CS knowledge, New Tech, Tool and everything of IT by my self.
+  - Docker
+  - Kubenetes
   - AM (Application Modernization)
     + Web Server와 WAS
     + NGINX
@@ -12,10 +14,6 @@
     + Spring
     + Flyway
     + Test Automation
-  - AWS
-    + ECS와 EC2
-  - Docker
-  - JPA
   - MSA
     + MSA Architecture 구성
     + Hystrix
@@ -28,9 +26,12 @@
     + OpenFeign
     + API Coposition
     + CQRS
+  - JPA
+  - Terraform with AWS
+  - Serverless
+  - AWS
+    + ECS와 EC2
   - React
-  - AWS with Terraform
 
 ## Second is
   - Practice Algorithm by Python
-(Thanks Reference : [Packer's Gitbub](https://github.com/qkrrudtjr954/programmers))
