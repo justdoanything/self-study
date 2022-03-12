@@ -123,6 +123,8 @@ _Kubernetes Adminstrator_ 교육을 들었을 땐 AWS Cloud9에서 1개의 Maste
 Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-server, etcd, kubelet, kube-proxy를 설치해야 하고 필요에 따라 dns, ingress controller, storage class등을 설치해야 합니다. 실습에선 `minukube`로 대체합니다.
 
 - ### minukube & kubectl 설치
+  - Kubernetes를 운영환경에 설치하기 위해선 최소 3대의 Master와 Container 배포를 위한 n개의 Node 서버가 필요하지만 실습(개발환경)에선 minikube를 사용
+  - 개발환경은 1개의 Node만 사용하기 때문에 Node가 여러개 일 떄 Scheduling하는 테스트가 어렵고 Load Balancer와 Persistent Local Storage를 가상으로 만들어야 합니다
   - #### ~~Windows 10에 설치~~  
     - ~~Hyper-V 활성화~~
       - ~~Check : `DISM /Online /Enable-Feature /All /FeatureName:Microsoft-Hyper-V`~~
@@ -310,7 +312,12 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
     - Status = Running 확인
       ![image](https://user-images.githubusercontent.com/21374902/157172750-93658332-9176-4cee-8d1b-f18652f16e35.png)
     - 실행한 wordpress 확인
-      - ㅇ                                                                       
+      - `minikube ip`로 IP 확인
+      - `kubectl get all`에서 service/wordpress의 PORT 확인 : 31564
+      - ### 💥 Browser로 접속하면 접근 불가
+        - WSL 내부에서 올렸기 때문에 PC Browser에서 바로 접근 불가
+        - WSL의 방화벽을 뚫거나 Port Forwarding을 해야하는데 방법이 어려워서 Ubuntu GUI를 사용해 WSL에서 WEb Browser를 열고 테스트
+        - 
   - wordpress 리소스 제거 : `kubectl delete -f wordpress-k8s.yml`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
 
 
