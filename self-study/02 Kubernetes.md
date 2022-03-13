@@ -356,7 +356,7 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
     - 전체 오브젝트 종류 확인
   - ###### kubectl explain pod
     - 특정 오브젝트 설명 보기
-- ### Pod 배포
+- ### Pod 배포 - 명령어
   - Pod는 Kubernetes에서 관리하는 가장 작은 배포 단위이며 1개의 Pod 안에 여러개의 Container를 있을 수 있습니다.
   - Docker Hub에 있는 image로 Pod 실행해보기\
   `kubectl run task_daemon --image yongwoo1992/repeatedly_multi_task:1.0`\
@@ -370,7 +370,125 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
     - `Scheduler` ➡ `minikube(node)` : Pod를 Node에 할당 (실습 환경은 단일 node - minikube)
     - `Kubelet` ➡ `Container` : 할당 된 Pod를 확인하고 Container 생성
     - `Kubelet` ➡ `API Server` : Pod의 상태를 전달
-
+- ### Pod 배포 - Yaml
+  - YAML 파일을 작성하고 `apply` 명령어로 Pod를 배포할 수 있습니다.
+  - `kubectl apply -f sample.yml`
+    ```yml
+    # sample.yml
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: echo
+      labels:
+        app: echo
+    spec:
+      containers:
+        - name: app
+          image: yongwoo1992/repeatedly_multi_task:1.0
+    ```
+- ### Container 상태 모니터링
+  - Container가 생성된 직후에는 서비스할 수 없는 상태이다.
+  - Container가 준비되고 그 안에 있는 Application이 Running 되어야 서비스할 수 있는 상태라고 할 수 있다.
+    ![image](https://user-images.githubusercontent.com/21374902/158043731-9c1cb4d3-500c-41f6-bed7-73e663253c58.png)
+  - 일반적으로 Container의 상태를 지속적으로 체크하고 이상이 있으면 자동으로 재시작해주는 옵션을 사용한다.
+    - #### livenessProbe : Container의 상태가 정상이 아니면 `재시작`
+      - Container의 상태를 체크하는 방법은 여러가지가 있다. : `httpGet`, `exec`, `tcpSocket`, `grpc`
+      - `httpGet`을 사용한 예제
+      ```yml
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: echo-rp
+        labels:
+          app: echo
+      spec:
+        containers:
+          - name: app
+            image: ghcr.io/subicura/echo:v1
+            livenessProbe:
+              httpGet:
+                path: /not/exist
+                port: 8080
+              initialDelaySeconds: 5 # 5초 이후에 상태 확인
+              timeoutSeconds: 2 # 요청에 대한 timeout 시간 설정 (Default 1)
+              periodSeconds: 5 # 10초마다 확인 (Defaults 10)
+              failureThreshold: 1 # 1번 실패하면 재시작 (Defaults 3)
+      ```
+    - #### readinessProbe : Container의 상태가 정상이 아니면 `요청 제외`
+      - Container의 상태가 이상해도 재시작하지 않고 요청만 제외시킨다.
+        ```yml
+        apiVersion: v1
+        kind: Pod
+        metadata:
+          name: echo-rp
+          labels:
+            app: echo
+        spec:
+          containers:
+            - name: app
+              image: ghcr.io/subicura/echo:v1
+              readinessProbe:
+                httpGet:
+                  path: /not/exist
+                  port: 8080
+                initialDelaySeconds: 5
+                timeoutSeconds: 2
+                periodSeconds: 5
+                failureThreshold: 1
+        ```
+    - #### livenessProbe + readinessProbe
+      - 일반적으론 2가지 옵션을 같이 사용한다.
+        ```yml
+        apiVersion: v1
+        kind: Pod
+        metadata:
+          name: echo-health
+          labels:
+            app: echo
+        spec:
+          containers:
+            - name: app
+              image: ghcr.io/subicura/echo:v1
+              livenessProbe:
+                httpGet:
+                  path: /
+                  port: 3000
+              readinessProbe:
+                httpGet:
+                  path: /
+                  port: 3000
+        ```
+- ### 다중 Container 자원 공유
+  - 하나의 Pod에 여러개의 Container가 있을 때 Container끼리 자원이나 네트워크를 공유할 수 있다.
+  - 네트워크를 localhost로 공유하는 예제
+    ```yml
+    # multi-container-k8s.yml
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: counter
+      labels:
+        app: counter
+    spec:
+      containers:
+        - name: app
+          image: subicura/counter:latest
+          env:
+            - name: REDIS_HOST
+              value: "localhost"
+        - name: db
+          image: redis
+    ```
+    - `kubectl -f multi-container-k8s.yml`
+    - `kubectl logs counter app`
+    - `kubectl logs counter db`
+    - `telnet localhost:6379`
+    - `dbsize`
+    - `keys *`
+    - `set count 5`
+    - `get count`
+    - `quit`
+    - `kubectl delete pod counter`
 
 
 
