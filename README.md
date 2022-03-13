@@ -10,6 +10,7 @@
   - Serverless
   - AWS
   - React
+  - ES5
 
 ## Second is
   - Practice Algorithm by Python
