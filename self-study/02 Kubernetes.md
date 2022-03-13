@@ -310,15 +310,68 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
   - wordpress-k8s.yml 실행 : `kubectl apply -f wordpress-k8s.yml`
   - Terminal을 추가로 열어서 Monitoring 실행 : `watch -n 0.5 kubectl get all`
     - Status = Running 확인
-      ![image](https://user-images.githubusercontent.com/21374902/157172750-93658332-9176-4cee-8d1b-f18652f16e35.png)
+      ![image](https://user-images.githubusercontent.com/21374902/158041664-739224aa-744d-43b1-a7d7-091b501bb821.png)
     - 실행한 wordpress 확인
       - `minikube ip`로 IP 확인
-      - `kubectl get all`에서 service/wordpress의 PORT 확인 : 31564
-      - ### 💥 Browser로 접속하면 접근 불가
-        - WSL 내부에서 올렸기 때문에 PC Browser에서 바로 접근 불가
-        - WSL의 방화벽을 뚫거나 Port Forwarding을 해야하는데 방법이 어려워서 Ubuntu GUI를 사용해 WSL에서 WEb Browser를 열고 테스트
-        - 
-  - wordpress 리소스 제거 : `kubectl delete -f wordpress-k8s.yml`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+      - `kubectl get all`에서 service/wordpress의 PORT 확인
+      - Docker로 사용중이면 `minikube service wordpress`
+  - wordpress 리소스 제거 : `kubectl delete -f wordpress-k8s.yml`
+  
+- ### 명령어
+  - ###### kubectl apply -f {file or url}
+    - 파일 또는 URL까지 사용해서 배포할 수 있다.
+    - `kubectl apply -f https://subicura.com/k8s/code/guide/index/wordpress-k8s.yml`
+    ![image](https://user-images.githubusercontent.com/21374902/158041249-d03d52e1-25a8-4a43-ab25-2a7bad41df46.png)
+  - ###### kubectl get {type}
+    - Resource를 확인할 수 있다.
+    - `kubectl get po, svc`
+      ![image](https://user-images.githubusercontent.com/21374902/158041617-2957a616-407f-44fa-8cbb-db25d56ca862.png)
+    - `kubectl get all`
+      ![image](https://user-images.githubusercontent.com/21374902/158041664-739224aa-744d-43b1-a7d7-091b501bb821.png)
+    - `kubectl get pod -o wide`\
+      `kubectl get pod -o yaml`\
+      `kubectl get pod -o json`\
+      `kubectl get pod --show-labels`
+  - ###### kubectl describe {type} {name}
+    - Resource의 상세한 상태를 볼 수 있다.
+    - `kubectl describe pod wordpress-74757b6ff-s6k2h`
+  - ###### kubectl delete {type} {name}
+    - Resource를 제거할 수 있다.
+    - `kubectl delete pod wordpress-74757b6ff-s6k2h`
+      - Pod를 삭제해도 ReplicaSet에 따라 자동으로 재생성 된다.
+  - ###### kubectl logs {pod name}
+    - Container의 로그를 확인할 수 있다.
+    - `kubectl logs wordpress-mysql-5447bfc5b-zqg94`
+    - `kubectl logs wordpress-74757b6ff-wbkl7`
+  - ###### kubectl exec {pod name} -- {command}
+    - Container에 명령어를 전달할 수 있다.
+    - `kubectl exec -it wordpress-mysql-5447bfc5b-zqg94 -- bash`
+    - Pod 안에 여러개의 Container가 있으면 `-c` 옵션으로 Container를 선택해줘야 한다.
+      - `kubectl exec -it wordpress -c db -- sh`
+  - ###### kubectl config current-context
+    - kubectl은 여러 개의 Kubernetes Cluster Context로 설정하고 필요에 따라 선택할 수 있다. 
+    - `kubectl config current-context`
+    - `kubectl config use-context minikube`
+  - ###### kubectl api-resources
+    - 전체 오브젝트 종류 확인
+  - ###### kubectl explain pod
+    - 특정 오브젝트 설명 보기
+- ### Pod 배포
+  - Pod는 Kubernetes에서 관리하는 가장 작은 배포 단위이며 1개의 Pod 안에 여러개의 Container를 있을 수 있습니다.
+  - Docker Hub에 있는 image로 Pod 실행해보기\
+  `kubectl run task_daemon --image yongwoo1992/repeatedly_multi_task:1.0`\
+    `kubectl get po`\
+    `kubectl exec -it task_daemon -- bash`\
+    `sh run.sh status`
+  - Pod가 배포되는 과정
+    - `Scheduler` 🔃 `API Server` : 할당되지 않은 Pod가 있는지 체크
+    - `Kubelet` 🔃 `API Server` : Node에 할당된 Pod가 있는지 체크 
+    - `kubectl run` 수행
+    - `Scheduler` ➡ `minikube(node)` : Pod를 Node에 할당 (실습 환경은 단일 node - minikube)
+    - `Kubelet` ➡ `Container` : 할당 된 Pod를 확인하고 Container 생성
+    - `Kubelet` ➡ `API Server` : Pod의 상태를 전달
+
+
 
 
 
