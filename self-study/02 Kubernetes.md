@@ -83,7 +83,8 @@ Docker를 공부했던 내용을 기반으로 K8S의 개념과 기능을 공부�
       - 내/외부 통신을 설정하고 네트워크 Proxy와 부하 분산 역할
       - 지금은 성능상의 이유로 별도의 별도의 Proxy 프로그램을 띄우지 않고 Kernel 단에서 iptables/IPVS를 사용해서 동작하도록 함.
       - Proxy는 설정만 관리
-    ![image](https://user-images.githubusercontent.com/21374902/157651756-dd4c3d61-d674-4fd6-9dd9-fa616d1caa0c.png)
+
+![image](https://user-images.githubusercontent.com/21374902/157651756-dd4c3d61-d674-4fd6-9dd9-fa616d1caa0c.png)
 
 - #### 하나의 Pod가 생성되는 과정
   ![image](https://user-images.githubusercontent.com/21374902/157654094-02033c94-0d41-4d18-925a-123077f4d51a.png)
@@ -134,8 +135,8 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
     - ~~💥memory 할당 문제로 `minikube start --driver=hyperv`가 안될 경우, 가상 메모리 설정 필요~~
       - ~~제어판 > 시스템 및 보안 > 시스템 > 고급 시스템 설정~~
       - ~~고급 탭 > '성능' 영역에 '설정(S)' > 고급 탭 > '가상 메모리' 영역에 '변경(C)'~~
-      - ~~'모든 드라이브에 대한 페이징 파일 크기 자동 관리(A)' 체크 해제 > '사용자 지정 크기(C)' 선택 > 처음 크기 : 4096, 최대 크기 : 8192 > 설정 > 확인 > 재부팅~~ 
-        ![image](https://user-images.githubusercontent.com/21374902/157142064-ccdc512f-d2d5-4c29-8ece-1414734761a2.png)
+      - ~~'모든 드라이브에 대한 페이징 파일 크기 자동 관리(A)' 체크 해제 > '사용자 지정 크기(C)' 선택 > 처음 크기 : 4096, 최대 크기 : 8192 > 설정 > 확인 > 재부팅~~ \
+      ![image](https://user-images.githubusercontent.com/21374902/157142064-ccdc512f-d2d5-4c29-8ece-1414734761a2.png)
 
   - #### 💥 Docker Desktop을 사용할 수 없기 때문에 WSL2 환경에 세팅
     - 참고 : [Docker Desktop 없이 Docker 사용하기](https://github.com/justdoanything/self-study/blob/main/self-study/Docker.md#2%EF%B8%8F%E2%83%A30%EF%B8%8F%E2%83%A3-Docker-Desktop-%EC%97%86%EC%9D%B4-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0-(Windows10))  
@@ -490,7 +491,10 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
     - `quit`
     - `kubectl delete pod counter`
 
-
+- ### ReplicaSet
+  - ReplicaSet은 label을 체크해서 원하는 수의 Pod가 충족되지 않으면 새로운 Pod을 자동으로 생성한다.
+  - Pod만 구성했을 때와 ReplicaSet을 같이 구성했을 때
+    ![image](https://user-images.githubusercontent.com/21374902/158137366-53b85b39-7ac7-4259-80fc-e82c410c8d02.png)
 
 
 ---   
@@ -512,6 +516,6 @@ watch -n 0.5 kubectl get all
 
 ---   
 - Reference
-  - [subicura 블로그](https://subicura.com/k8s)
-  - [Inflearn - 쿠버네티스-입문](https://www.inflearn.com/course/%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4-%EC%9E%85%EB%AC%B8)
+  - [subicura 블로그 - k8s](https://subicura.com/k8s)
+  - [Inflearn - 쿠버네티스 입문](https://www.inflearn.com/course/%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4-%EC%9E%85%EB%AC%B8)
   - [github - k8s_course](https://github.com/wsjang619/k8s_course)
