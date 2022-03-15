@@ -528,10 +528,87 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
   - ReplicaSet이 동작하는 방식
     - `Scheduler` 🔃 `API Server` : 할당되지 않은 Pod가 있는지 체크
     - `ReplicaSet Controller` 🔃 `API Server` : 조건 기준으로 체크
-    - `ReplicaSet Controller` ➡ `API Server` : Pod 생성 및 제거 
-    
-
-
+    - `ReplicaSet Controller` ➡ `API Server` : Pod 생성 및 제거
+- ### Deployment
+  - Deployment를 사용하면 Pod를 새로운 버전으로 업데이트하고 관리할 수 있다.
+  - ReplicaSet을 이용하여 Pod을 업데이트하고 이력을 관리하여 Rollback 하거나 특정 버전 revision으로 돌아갈 수 있다.
+  - Deployment 방식은 크게 2가지 이다.
+    - Recreate : 현재 운영중인 Pod를 모두 삭제하고 새로운 버전의 Pod를 생성한다. Downtime이 발생할 수 있기 때문에 권장하지 않는다.
+    - RollingUpdate(default) : 새로운 버전의 n개의 Pod를 생성하고 기존 버전의 Pod를 삭제한다.
+  - Deployment 생성
+    ```yml
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: echo-deploy
+    spec:
+      replicas: 4
+      selector:
+        matchLabels:
+          app: echo
+          tier: app
+      template:
+        metadata:
+          labels:
+            app: echo
+            tier: app
+        spec:
+          containers:
+            - name: echo
+              image: ghcr.io/subicura/echo:v1
+    ```
+    `kubectl apply -f echo-deployment.yml`\
+    `kubectl get po,rs,deploy`
+  - Version 변경 : spec.template.spec.containers.image의 v1 → v2로 변경 후 `kubectl apply -f echo-deployment.yml`
+  - 배포되는 과정
+    - 기존에 v1 기준으로 ReplicaSet이 있고 그 안에 Pod는 4개 존재
+    - v2를 배포하면 v2를 위한 ReplicaSet이 생성됨
+    - ReplicaSet(v1)에 있는 Pod가 1개씩 줄면서 ReplicaSet(v2)는 1개씩 늘어남.
+    - 상세정보 : `kubectl describe deploy/echo-deploy`
+  - Deployment가 동작하는 방식
+    - `Scheduler` 🔃 `API Server` : 할당되지 않은 Pod가 있는지 체크
+    - `Deployment Controller` 🔃 `API Server` : 조건 기준으로 체크
+    - `ReplicaSet Controller` 🔃 `API Server` : 조건 기준으로 체크
+    - `Deployment Controller` ➡ `API Server` : 조건에 맞는 ReplicaSet 생성
+    - `ReplicaSet Controller` ➡ `API Server` : Pod 생성 및 제거
+  - Deployment 버전 관리
+    - `kubectl rollout history deploy/echo-deploy` : History 확인
+    - `kubectl rollout history deploy/echo-deploy --revision=1` : version 1 에 대한 history 확인
+    - `kubectl rollout undo deploy/echo-deploy` : 바로 전으로 Rollback
+    - `kubectl rollout undo deploy/echo-deploy --to-revision=2` : 특정 version으로 Rollback
+  - RollingUpdate의 maxSurge, maxUnavailable
+    - maxSurge, maxUnavailable 옵션을 주면 한번에 실행하는 Pod의 수를 조정할 수 있다. 
+    ```yml
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: echo-deploy-st
+    spec:
+      replicas: 4
+      selector:
+        matchLabels:
+          app: echo
+          tier: app
+      minReadySeconds: 5
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxSurge: 3
+          maxUnavailable: 3
+      template:
+        metadata:
+          labels:
+            app: echo
+            tier: app
+        spec:
+          containers:
+            - name: echo
+              image: ghcr.io/subicura/echo:v1
+              livenessProbe:
+                httpGet:
+                  path: /
+                  port: 3000
+    ```
 
 
 k get rs -w
