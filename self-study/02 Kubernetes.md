@@ -23,7 +23,8 @@ Docker를 공부했던 내용을 기반으로 K8S의 개념과 기능을 공부�
   - 많은 Container를 하나하나 관리하고 Rollout, Rollback 하기엔 어려움이 있음.
   - 서비스 검색이 어려움.
   - 부하에 따른 Container 수를 관리하거나 소수의 Container가 죽었을 때 자동으로 살리는 기능 등 Container 관리를 자동으로 하고 싶어짐.
-- `Container Orchestration` : Kubernetes, Swarm, ...
+- `Container Orchestration` : Kubernetes, Swarm, ...\
+  _(Orchestration : Computer System, Application, Service의 자동화된 설정, 관리, 조정 하는 것)_
 
 ## What Kubernetes
 - #### Containter를 쉽고 빠르게 배포/확장하고 관리를 자동화해주는 Open Source Platform
@@ -495,8 +496,45 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
   - ReplicaSet은 label을 체크해서 원하는 수의 Pod가 충족되지 않으면 새로운 Pod을 자동으로 생성한다.
   - Pod만 구성했을 때와 ReplicaSet을 같이 구성했을 때
     ![image](https://user-images.githubusercontent.com/21374902/158137366-53b85b39-7ac7-4259-80fc-e82c410c8d02.png)
+  - ReplicaSet 생성
+    ```yml
+    apiVersion: apps/v1
+    kind: ReplicaSet
+    metadata:
+      name: echo-rs
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: echo
+          tier: app
+      template:
+        metadata:
+          labels:
+            app: echo
+            tier: app
+        spec:
+          containers:
+            - name: echo
+              image: ghcr.io/subicura/echo:v1
+    ```
+    `kubectl apply -f echo-rs.yml`\
+    `kubectl get po,rs`
+  - ReplicaSet은 label 기준으로 체크 한다.
+    - spec.selector 에서 label 조건 체크
+    - `kubectl get pod --show-labels` : 생성된 Pod의 label 확인
+    - `kubectl label pod/echo-rs-tcdwj app-` : label 제거
+    - ReplicaSet은 새로운 Pod 생성함.
+  - ReplicaSet이 동작하는 방식
+    - `Scheduler` 🔃 `API Server` : 할당되지 않은 Pod가 있는지 체크
+    - `ReplicaSet Controller` 🔃 `API Server` : 조건 기준으로 체크
+    - `ReplicaSet Controller` ➡ `API Server` : Pod 생성 및 제거 
+    
 
 
+
+
+k get rs -w
 ---   
 
 강사 : 장원석
