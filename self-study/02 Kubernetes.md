@@ -6,14 +6,32 @@ kubernetes
 - [학습목표](#학습목표)
 - [Why Container Orchestration](#Why-Container-Orchestration)
 - [Kubernetes](#What-Kubernetes)
+- [Kubernetes 구성 요소](#Kubernetes-구성-요소)
+- [Kubernetes Object](Kubernetes-Object)
 - [실습환경 세팅하기](#실습환경-세팅하기)
+- [무작정 따라해보기 - wordpress 실행하기](#무작정-따라해보기---wordpress-실행하기)
+- [Kubernetes 명령어](#Kubernetes-명령어)
+- [Pod 배포하기](#Pod-배포하기)
+- [Container 상태 모니터링](#Container-상태-모니터링)
+- [다중 Container 자원 공유](#다중-Container-자원-공유)
+- [ReplicaSet](#ReplicaSet)
+- [Deployment](#Deployment)
+- [Service](#Service)
+
+
 
 ---
+
+
 
 ## 학습목표
 Docker를 공부했던 내용을 기반으로 K8S의 개념과 기능을 공부한다. 실습 위주로 공부하고 최종적으로 AWS 환경에서 Kubernetes를 설정하고 배포한다.
 
+
+
 ---
+
+
 
 ## Why Container Orchestration
 - `서버를 문서로 관리`
@@ -25,6 +43,12 @@ Docker를 공부했던 내용을 기반으로 K8S의 개념과 기능을 공부�
   - 부하에 따른 Container 수를 관리하거나 소수의 Container가 죽었을 때 자동으로 살리는 기능 등 Container 관리를 자동으로 하고 싶어짐.
 - `Container Orchestration` : Kubernetes, Swarm, ...\
   _(Orchestration : Computer System, Application, Service의 자동화된 설정, 관리, 조정 하는 것)_
+
+
+
+---
+
+
 
 ## What Kubernetes
 - #### Containter를 쉽고 빠르게 배포/확장하고 관리를 자동화해주는 Open Source Platform
@@ -38,14 +62,24 @@ Docker를 공부했던 내용을 기반으로 K8S의 개념과 기능을 공부�
   - De Facto
 
 - #### Docker와 Kubernetes를 활용한 관리
-![image](https://user-images.githubusercontent.com/21374902/157634817-812cd265-0ad8-41ae-94f0-d800ec938d0d.png)
+  ![image](https://user-images.githubusercontent.com/21374902/157634817-812cd265-0ad8-41ae-94f0-d800ec938d0d.png)
 
 - #### Desired State
   - 현재 상태와 원하는 상태를 비교하고 미리 설정해둔 상태로 복원시켜주고 지속적으로 관리해주는 것
+
 ![image](https://user-images.githubusercontent.com/21374902/157641975-55f68ae6-923a-489d-acb7-70d012ba535e.png)
+
   - Scheduler로 통해 일정 주기로 상태를 체크하고 각 Controller를 생성해서 관리할 항목을 나눠서 제어할 수 있다.
+
 ![image](https://user-images.githubusercontent.com/21374902/157642820-5578c4e1-8e84-45c6-8fd4-e67b05bbdd02.png)
-- #### Kubernetes 구성 요소
+
+
+
+---
+
+
+
+## Kubernetes 구성 요소
   - ###### Master 구성 요소
     - etcd
       - 모든 상태와 데이터를 저장하는 요소
@@ -88,9 +122,16 @@ Docker를 공부했던 내용을 기반으로 K8S의 개념과 기능을 공부�
 ![image](https://user-images.githubusercontent.com/21374902/157651756-dd4c3d61-d674-4fd6-9dd9-fa616d1caa0c.png)
 
 - #### 하나의 Pod가 생성되는 과정
-  ![image](https://user-images.githubusercontent.com/21374902/157654094-02033c94-0d41-4d18-925a-123077f4d51a.png)
 
-- #### Kubernetes Object
+![image](https://user-images.githubusercontent.com/21374902/157654094-02033c94-0d41-4d18-925a-123077f4d51a.png)
+
+
+
+---
+
+
+
+## Kubernetes Object
   - ###### Pod
     - 가장 작은 배포 단위이며 Pod마다 고유한 IP를 부여 받음
     - 여러개의 Container를 갖을 수 있음
@@ -117,7 +158,12 @@ Docker를 공부했던 내용을 기반으로 K8S의 개념과 기능을 공부�
       ![image](https://user-images.githubusercontent.com/21374902/157829810-1af8eeba-3202-4425-b7c3-0edd55aa5e7d.png)
   - ###### 일반적인 구성
     ![image](https://user-images.githubusercontent.com/21374902/157829970-ac03a92d-fe0d-40ef-8acd-80da6e846867.png)
+
+
+
 ---
+
+
 
 ## 실습환경 세팅하기
 _Kubernetes Adminstrator_ 교육을 들었을 땐 AWS Cloud9에서 1개의 Master, 2개의 Worker 환경을 별도로 제공받아서 실습했었습니다. 하지만 Local 환경에선 n개의 환경을 각각 구축하기 까다롭기 때문에 `minikube`을 사용해서 구성하도록 하겠습니다.
@@ -198,7 +244,14 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
   
   - 정상 구동 화면\
     ![image](https://user-images.githubusercontent.com/21374902/157167987-36ab1b4e-bad0-4355-ac44-5faedd0b30d6.png)
-- 무작정 따라해보기 - wordpress 실행하기
+
+
+
+---
+
+
+
+## 무작정 따라해보기 - wordpress 실행하기
   - wordpress-k8s.yml 작성
     ![image](https://user-images.githubusercontent.com/21374902/157173397-bcf2a579-9f5b-48a6-bbce-de732ae857a2.png)
     ```yml
@@ -319,7 +372,13 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
       - Docker로 사용중이면 `minikube service wordpress`
   - wordpress 리소스 제거 : `kubectl delete -f wordpress-k8s.yml`
   
-- ### 명령어
+
+
+  ---
+
+
+
+## Kubernetes 명령어
   - ###### kubectl apply -f {file or url}
     - 파일 또는 URL까지 사용해서 배포할 수 있다.
     - `kubectl apply -f https://subicura.com/k8s/code/guide/index/wordpress-k8s.yml`
@@ -358,6 +417,14 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
     - 전체 오브젝트 종류 확인
   - ###### kubectl explain pod
     - 특정 오브젝트 설명 보기
+
+
+
+---
+
+
+
+## Pod 배포하기
 - ### Pod 배포 - 명령어
   - Pod는 Kubernetes에서 관리하는 가장 작은 배포 단위이며 1개의 Pod 안에 여러개의 Container를 있을 수 있습니다.
   - Docker Hub에 있는 image로 Pod 실행해보기\
@@ -388,7 +455,14 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
         - name: app
           image: yongwoo1992/repeatedly_multi_task:1.0
     ```
-- ### Container 상태 모니터링
+
+
+
+---
+
+
+
+## Container 상태 모니터링
   - Container가 생성된 직후에는 서비스할 수 없는 상태이다.
   - Container가 준비되고 그 안에 있는 Application이 Running 되어야 서비스할 수 있는 상태라고 할 수 있다.
     ![image](https://user-images.githubusercontent.com/21374902/158043731-9c1cb4d3-500c-41f6-bed7-73e663253c58.png)
@@ -460,7 +534,14 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
                   path: /
                   port: 3000
         ```
-- ### 다중 Container 자원 공유
+
+
+
+---
+
+
+
+## 다중 Container 자원 공유
   - 하나의 Pod에 여러개의 Container가 있을 때 Container끼리 자원이나 네트워크를 공유할 수 있다.
   - 네트워크를 localhost로 공유하는 예제
     ```yml
@@ -492,7 +573,13 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
     - `quit`
     - `kubectl delete pod counter`
 
-- ### ReplicaSet
+
+
+---
+
+
+
+## ReplicaSet
   - ReplicaSet은 label을 체크해서 원하는 수의 Pod가 충족되지 않으면 새로운 Pod을 자동으로 생성한다.
   - Pod만 구성했을 때와 ReplicaSet을 같이 구성했을 때
     ![image](https://user-images.githubusercontent.com/21374902/158137366-53b85b39-7ac7-4259-80fc-e82c410c8d02.png)
@@ -529,7 +616,14 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
     - `Scheduler` 🔃 `API Server` : 할당되지 않은 Pod가 있는지 체크
     - `ReplicaSet Controller` 🔃 `API Server` : 조건 기준으로 체크
     - `ReplicaSet Controller` ➡ `API Server` : Pod 생성 및 제거
-- ### Deployment
+
+
+
+---
+
+
+
+## Deployment
   - Deployment를 사용하면 Pod를 새로운 버전으로 업데이트하고 관리할 수 있다.
   - ReplicaSet을 이용하여 Pod을 업데이트하고 이력을 관리하여 Rollback 하거나 특정 버전 revision으로 돌아갈 수 있다.
   - Deployment 방식은 크게 2가지 이다.
@@ -609,6 +703,56 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
                   path: /
                   port: 3000
     ```
+
+
+
+---
+
+
+
+## Service
+  - [[Kubernetes Object의 Cluster IP]](#Cluster-IP) 에서 볼 수 있듯이 Cluster IP는 내부에서만 접근이 가능하고 NodePort로 접근을 해도 Main NodePort가 죽으면 서비스가 일시적으로 동작하지 않을 수 있다.
+  - Cluster IP는 Cluster 내부에서 새로운 IP를 할당하고 여러 개의 Pod를 바라보는 Load Balance 기능을 제공한다.
+  - Service 이름을 내부 Domain Server에 등록해서 Pod 간에 Service 이름으로 통신할 수 있다.
+  - redis를 Service로 노출하는 예제
+    ```yml
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: redis
+    spec:
+      selector:
+        matchLabels:
+          app: counter
+          tier: db
+      template:
+        metadata:
+          labels:
+            app: counter
+            tier: db
+        spec:
+          containers:
+            - name: redis
+              image: redis
+              ports:
+                - containerPort: 6379
+                  protocol: TCP
+
+    ---
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: redis
+    spec:
+      ports:
+        - port: 6379
+          protocol: TCP
+      selector:
+        app: counter
+        tier: db
+    ```
+    - Service의 selector는 Deployment에서 정의한 label을 사용해서 해당 Pod의 6379 포트로 연결하도록 설정한다.
+  - 
 
 
 k get rs -w
