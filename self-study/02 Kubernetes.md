@@ -711,48 +711,299 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
 
 
 ## Service
-  - [[Kubernetes Object의 Cluster IP]](#Cluster-IP) 에서 볼 수 있듯이 Cluster IP는 내부에서만 접근이 가능하고 NodePort로 접근을 해도 Main NodePort가 죽으면 서비스가 일시적으로 동작하지 않을 수 있다.
-  - Cluster IP는 Cluster 내부에서 새로운 IP를 할당하고 여러 개의 Pod를 바라보는 Load Balance 기능을 제공한다.
+  - Pod는 생성되고 사라지고를 반복하기 때문에 Pod에 직접 통신하는 것은 힘들다.
+    ![image](https://user-images.githubusercontent.com/21374902/158757760-fcc420ee-e151-4b31-9368-178d5b354466.png)
+  - [[Kubernetes Object의 Cluster IP]](#Cluster-IP) 에서 볼 수 있듯이 Service의 Cluster IP는 내부에서만 접근이 가능하고 NodePort로 접근을 해도 Main NodePort가 죽으면 서비스가 일시적으로 동작하지 않을 수 있다.
   - Service 이름을 내부 Domain Server에 등록해서 Pod 간에 Service 이름으로 통신할 수 있다.
-  - redis를 Service로 노출하는 예제
+  - ### Service (ClusterIP)
+    - redis를 Service로 노출하는 예제\
+      (Service로 접근을 하면 redis Pod로 연결)
+      ```yml
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: redis
+      spec:
+        selector:
+          matchLabels:
+            app: counter
+            tier: db
+        template:
+          metadata:
+            labels:
+              app: counter
+              tier: db
+          spec:
+            containers:
+              - name: redis
+                image: redis
+                ports:
+                  - containerPort: 6379
+                    protocol: TCP
+
+      ---
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: redis
+      spec:
+        ports:
+          - port: 6379
+            protocol: TCP
+        selector:
+          app: counter
+          tier: db
+      ```
+      - Service의 selector는 Deployment에서 정의한 label을 사용해서 해당 Pod의 6379 포트로 연결하도록 설정한다.
+      - 같은 Cluster에서 생성된 Pod라면 `redis`라는 domain으로 접근할 수 있습니다.
+    - redis에 접근할 counter를 Deployment로 생성
+      ```yml
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: counter
+      spec:
+        selector:
+          matchLabels:
+            app: counter
+            tier: app
+        template:
+          metadata:
+            labels:
+              app: counter
+              tier: app
+          spec:
+            containers:
+              - name: counter
+                image: ghcr.io/subicura/counter:latest
+                env:
+                  - name: REDIS_HOST
+                    value: "redis"  # Service 이름
+                  - name: REDIS_PORT
+                    value: "6379"
+      ```
+      - counter에 접근한 후 redis에 접근할 수 있습니다.\
+        `kubectl exec -it counter -- sh`\
+        `telnet redis 6379`\
+        `dbsize`\
+        `KEYS *`\
+        `GET count`
+  - ### Service 생성 흐름
+    - `Scheduler` 🔃 `API Server` : 할당되지 않은 Pod가 있는지 체크
+    - `Endpoint Controller` 🔃 `API Server` : Service와 Pod를 감시하면서 조건에 맞는 Pod의 IP 수집
+    - `Endpoint Controller` ➡ `API Server` : 수집한 IP로 Endpoint 생성
+    - `Kube-Proxy` ➡ `API Server` : 변화를 감지하고 Node의 iptables를 설정
+    - `CoreDNS` ➡ `API Server` : Service를 감시하고 Service의 이름과 IP를 CoreDNS에 추가
+      - `iptables` : Kernel 레벨의 네트워크 도구
+      - `CoreDNS` : `kube-dns`로 생성되며 빠르고 편리하게 사용할 수 있는 Cluster 내부용 Domain Name Server
+      - `iptables` 설정으로 여러 IP에 트래픽을 전달하고 `CoreDNS`를 이용해서 IP 대신 Domain을 사용할 수 있다.
+  - ### Endpoint
+    - Endpoint Address 정보엔 redis Pod의 IP를 확인할 수 있습니다.
+    - `kubectl get ep`
+    - `kubectl describe ep redis`
+  - ### Service (NodePort)
+    - Cluster IP는 Cluster 내부에서만 접근할 수 있기 때문에 외부(Node)에서 접근할 수 있도록 NodePort를 사용한다.
+      ```yml
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: counter-np
+      spec:
+        type: NodePort
+        ports:
+          - port: 3000
+            protocol: TCP
+            nodePort: 31000
+        selector:
+          app: counter
+          tier: app
+      ```
+      - minikube ip의 31000 port로 접근하면 counter로 접근할 수 있다.
+  - ### Service (LoadBalancer)
+    - NodePort는 Main Node가 사라지면 자동으로 다른 Node를 통해 접근이 불가능하다는 점이다.
+    - 살아있는 Node를 구분하기 위해서 모든 Node를 바라보는 `Load Balaner`가 필요하고 요청은 Load Balancer를 통해서 살아있는 NodePort로 연결된다.
+    - LoadBalancer 생성
+      ```yml
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: counter-lb
+      spec:
+        type: LoadBalancer
+        ports:
+          - port: 30000
+            targetPort: 3000
+            protocol: TCP
+        selector:
+          app: counter
+          tier: app
+      ```
+      - EXTERNAL-IP가 pending인 이유
+        - Local 환경에선 특정 노드(실습환경에선 minikube 단일 노드)를 가리키는 Load Balancer가 외부에 필요한데 그게 없기 때문에 EXTERNAL-IP가 지정되지 않는다.
+        - minikube에 가상 Load Balancer 만들기
+          - `minikube addons enable metallb` : 가상 환경에서 Load Balancer를 만들어주고 minikube에 떠있는 현재 노드를 설정
+          - minikube의 ip를 ConfigMap으로 지정
+            - `mikikube addons configure metallb`\
+              `-- Enter Load Balancer Start IP` : # minikube ip 결과값 입력\
+              `-- Enter Load Balancer End IP` : # minikube ip 결과값 입력
+            - yml 사용
+              ```yml
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                namespace: metallb-system
+                name: config
+              data:
+                config: |
+                  address-pools:
+                  - name: default
+                    protocol: layer2
+                    addresses:
+                    - 192.168.64.4/32 # minikube ip
+              ```
+      - minikube ip:30000 접근
+      - Docker 사용중이면 `minikube service counter-lb`
+
+
+
+---
+
+
+
+## Ingress
+- 하나의 Cluster에서 여러개의 Service를 운영할 때 여러개의 Domain과 Service를 매칭해서 사용할 수 있다.
+  ![image](https://user-images.githubusercontent.com/21374902/158762956-958b3fcf-3569-4642-992c-fbfeee150344.png)
+- htto(80), https(443) Port로 여러 개의 Service를 연결해야할 때 Ingress를 사용한다.
+- ### Ingress 활성화
+  - Ingress는 다른 Object와 달리 별도의 Controller를 설치해야 한다. Controller의 종류는 많지만 실습에선 nginx ingress controller를 사용한다.\
+  (그 외엔 haproxy, traefik, alb 등이 있다.)
+  - `minikube addons enable ingress`
+  - `kubectl -n ingress-nginx get pod`
+  - `curl -I http://minikube ip/healthz`
+  - Docker 사용중이라면 `minikube service ingress-nginx-controller -n ingress-nginx --url` 명령어로 접속 주소 확인
+- 2개의 다른 버전인 echo Web Application 배포
+  - `spec.rules.host`는 minikube ip로 변경
+  - Docker 사용중이면 `spec.rules.host`에 127.0.0.1 사용 : v1.echo.127.0.0.1.sslip.io
+  - v1 배포
     ```yml
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      name: echo-v1
+    spec:
+      rules:
+        - host: v1.echo.192.168.64.5.sslip.io # minikube ip 사용
+          http:
+            paths:
+              - path: /
+                pathType: Prefix
+                backend:
+                  service:
+                    name: echo-v1
+                    port:
+                      number: 3000
+
+    ---
     apiVersion: apps/v1
     kind: Deployment
     metadata:
-      name: redis
+      name: echo-v1
     spec:
+      replicas: 3
       selector:
         matchLabels:
-          app: counter
-          tier: db
+          app: echo
+          tier: app
+          version: v1
       template:
         metadata:
           labels:
-            app: counter
-            tier: db
+            app: echo
+            tier: app
+            version: v1
         spec:
           containers:
-            - name: redis
-              image: redis
-              ports:
-                - containerPort: 6379
-                  protocol: TCP
+            - name: echo
+              image: ghcr.io/subicura/echo:v1
+              livenessProbe:
+                httpGet:
+                  path: /
+                  port: 3000
 
     ---
     apiVersion: v1
     kind: Service
     metadata:
-      name: redis
+      name: echo-v1
     spec:
       ports:
-        - port: 6379
+        - port: 3000
           protocol: TCP
       selector:
-        app: counter
-        tier: db
+        app: echo
+        tier: app
+        version: v1
     ```
-    - Service의 selector는 Deployment에서 정의한 label을 사용해서 해당 Pod의 6379 포트로 연결하도록 설정한다.
-  - 
+  - v2 배포
+    ```yml
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      name: echo-v2
+    spec:
+      rules:
+        - host: v2.echo.192.168.64.5.sslip.io  # minikube ip 사용
+          http:
+            paths:
+              - path: /
+                pathType: Prefix
+                backend:
+                  service:
+                    name: echo-v2
+                    port:
+                      number: 3000
+
+    ---
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: echo-v2
+    spec:
+      replicas: 3
+      selector:
+        matchLabels:
+          app: echo
+          tier: app
+          version: v2
+      template:
+        metadata:
+          labels:
+            app: echo
+            tier: app
+            version: v2
+        spec:
+          containers:
+            - name: echo
+              image: ghcr.io/subicura/echo:v2
+              livenessProbe:
+                httpGet:
+                  path: /
+                  port: 3000
+
+    ---
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: echo-v2
+    spec:
+      ports:
+        - port: 3000
+          protocol: TCP
+      selector:
+        app: echo
+        tier: app
+        version: v2
+    ```
 
 
 k get rs -w
