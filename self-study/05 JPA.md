@@ -253,3 +253,19 @@ JPA (Java Persistence API)
   - [InfoWorld's article](https://www.infoworld.com/article/3379043/what-is-jpa-introduction-to-the-java-persistence-api.html)
   - [gunju-jo's github](https://gunju-ko.github.io/spring/2018/05/01/Spring-Data-JPA-Paging.html)
 ---
+
+
+스프링 데이터 JPA / 백강선 / 인프런
+===
+Java Try With Resource
+
+ORM은 객체지향적인 Coding을 할 수 있게 해주고 간결성과 재사용성을 높여준다.
+
+Database마다 다른 형태의 Query를 신경쓰지 않아도 된다.
+
+ORM 패러다임의 불일치
+  - 밀도 문제
+  - 서브타입 문제
+  - 식별성 문제
+  - 관계 문제
+  - 데이터 네비게이션 문제
