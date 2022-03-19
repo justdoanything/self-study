@@ -173,17 +173,21 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
 - ### minukube & kubectl 설치
   - Kubernetes를 운영환경에 설치하기 위해선 최소 3대의 Master와 Container 배포를 위한 n개의 Node 서버가 필요하지만 실습(개발환경)에선 minikube를 사용
   - 개발환경은 1개의 Node만 사용하기 때문에 Node가 여러개 일 떄 Scheduling하는 테스트가 어렵고 Load Balancer와 Persistent Local Storage를 가상으로 만들어야 합니다
-  - #### ~~Windows 10에 설치~~  
-    - ~~Hyper-V 활성화~~
-      - ~~Check : `DISM /Online /Enable-Feature /All /FeatureName:Microsoft-Hyper-V`~~
-      - ~~On : `bcdedit /set hypervisorlaunchtype off`~~
-      - ~~Off : `bcdedit /set hypervisorlaunchtype auto`~~
-    - ~~minikube 설치 : [minikube-installer.exe](https://github.com/kubernetes/minikube/releases/latest/download/minikube-installer.exe)~~
-    - ~~💥memory 할당 문제로 `minikube start --driver=hyperv`가 안될 경우, 가상 메모리 설정 필요~~
-      - ~~제어판 > 시스템 및 보안 > 시스템 > 고급 시스템 설정~~
-      - ~~고급 탭 > '성능' 영역에 '설정(S)' > 고급 탭 > '가상 메모리' 영역에 '변경(C)'~~
-      - ~~'모든 드라이브에 대한 페이징 파일 크기 자동 관리(A)' 체크 해제 > '사용자 지정 크기(C)' 선택 > 처음 크기 : 4096, 최대 크기 : 8192 > 설정 > 확인 > 재부팅~~ \
-      ![image](https://user-images.githubusercontent.com/21374902/157142064-ccdc512f-d2d5-4c29-8ece-1414734761a2.png)
+  - #### ~~Windows 10에 설치~~
+    <details>
+      <summary>Docker Desktop으로 설치</summary>
+      
+      - Hyper-V 활성화
+        - Check : `DISM /Online /Enable-Feature /All /FeatureName:Microsoft-Hyper-V`
+        - On : `bcdedit /set hypervisorlaunchtype off`
+        - Off : `bcdedit /set hypervisorlaunchtype auto`
+      - minikube 설치 : [minikube-installer.exe](https://github.com/kubernetes/minikube/releases/latest/download/minikube-installer.exe)
+      - 💥memory 할당 문제로 `minikube start --driver=hyperv`가 안될 경우, 가상 메모리 설정 필요
+        - 제어판 > 시스템 및 보안 > 시스템 > 고급 시스템 설정
+        - 고급 탭 > '성능' 영역에 '설정(S)' > 고급 탭 > '가상 메모리' 영역에 '변경(C)'
+        - '모든 드라이브에 대한 페이징 파일 크기 자동 관리(A)' 체크 해제 > '사용자 지정 크기(C)' 선택 > 처음 크기 : 4096, 최대 크기 : 8192 > 설정 > 확인 > 재부팅 \
+        ![image](https://user-images.githubusercontent.com/21374902/157142064-ccdc512f-d2d5-4c29-8ece-1414734761a2.png)
+    </details>
 
   - #### 💥 Docker Desktop을 사용할 수 없기 때문에 WSL2 환경에 세팅
     - 참고 : [Docker Desktop 없이 Docker 사용하기](https://github.com/justdoanything/self-study/blob/main/self-study/Docker.md#2%EF%B8%8F%E2%83%A30%EF%B8%8F%E2%83%A3-Docker-Desktop-%EC%97%86%EC%9D%B4-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0-(Windows10))  
@@ -251,127 +255,137 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
 
 
 
-## 무작정 따라해보기 - wordpress 실행하기
-  - wordpress-k8s.yml 작성
+## 무작정 따라해보기
+  - kubernetes 버전
     ![image](https://user-images.githubusercontent.com/21374902/157173397-bcf2a579-9f5b-48a6-bbce-de732ae857a2.png)
-    ```yml
-    apiVersion: apps/v1
-    kind: Deployment
-    metadata:
-      name: wordpress-mysql
-      labels:
-        app: wordpress
-    spec:
-      selector:
-        matchLabels:
-          app: wordpress
-          tier: mysql
-      template:
-        metadata:
-          labels:
-            app: wordpress
-            tier: mysql
-        spec:
-          containers:
-            - image: mariadb:10.7
-              name: mysql
-              env:
-                - name: MYSQL_ROOT_PASSWORD
-                  value: password
-              ports:
-                - containerPort: 3306
-                  name: mysql
-
-      ---
-      apiVersion: v1
-      kind: Service
-      metadata:
-        name: wordpress-mysql
-        labels:
-          app: wordpress
-      spec:
-        ports:
-          - port: 3306
-        selector:
-          app: wordpress
-          tier: mysql
-
-      ---
+    <details>
+      <summary>📑 wordpress 실습</summary>
+    
+      ```yml
       apiVersion: apps/v1
       kind: Deployment
       metadata:
-        name: wordpress
+        name: wordpress-mysql
         labels:
           app: wordpress
       spec:
         selector:
           matchLabels:
             app: wordpress
-            tier: frontend
+            tier: mysql
         template:
           metadata:
             labels:
               app: wordpress
-              tier: frontend
+              tier: mysql
           spec:
             containers:
-              - image: wordpress:5.5.3-apache
-                name: wordpress
+              - image: mariadb:10.7
+                name: mysql
                 env:
-                  - name: WORDPRESS_DB_HOST
-                    value: wordpress-mysql
-                  - name: WORDPRESS_DB_PASSWORD
+                  - name: MYSQL_ROOT_PASSWORD
                     value: password
                 ports:
-                  - containerPort: 80
-                    name: wordpress
+                  - containerPort: 3306
+                    name: mysql
 
-      ---
-      apiVersion: v1
-      kind: Service
-      metadata:
-        name: wordpress
-        labels:
-          app: wordpress
-      spec:
-        type: NodePort
-        ports:
-          - port: 80
-        selector:
-          app: wordpress
-          tier: frontend
+        ---
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: wordpress-mysql
+          labels:
+            app: wordpress
+        spec:
+          ports:
+            - port: 3306
+          selector:
+            app: wordpress
+            tier: mysql
+
+        ---
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: wordpress
+          labels:
+            app: wordpress
+        spec:
+          selector:
+            matchLabels:
+              app: wordpress
+              tier: frontend
+          template:
+            metadata:
+              labels:
+                app: wordpress
+                tier: frontend
+            spec:
+              containers:
+                - image: wordpress:5.5.3-apache
+                  name: wordpress
+                  env:
+                    - name: WORDPRESS_DB_HOST
+                      value: wordpress-mysql
+                    - name: WORDPRESS_DB_PASSWORD
+                      value: password
+                  ports:
+                    - containerPort: 80
+                      name: wordpress
+
+        ---
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: wordpress
+          labels:
+            app: wordpress
+        spec:
+          type: NodePort
+          ports:
+            - port: 80
+          selector:
+            app: wordpress
+            tier: frontend
       ```
     
-  - docker-compose.yml 버전 참고
-    ![image](https://user-images.githubusercontent.com/21374902/157173260-bbbe2ee7-3b5d-4033-89b0-0d9458a7818b.png)
-    ```yml
-    version: "3"
-
-    services:
-      wordpress:
-        image: wordpress:5.5.3-apache
-        environment:
-          WORDPRESS_DB_HOST: mysql
-          WORDPRESS_DB_PASSWORD: password
-        ports:
-          - "30000:80"
-
-      mysql:
-        image: mariadb:10.7
-        environment:
-          MYSQL_ROOT_PASSWORD: password
-    ```
+      - wordpress-k8s.yml 실행 : `kubectl apply -f wordpress-k8s.yml`
+      - Terminal을 추가로 열어서 Monitoring 실행 : `watch -n 0.5 kubectl get all`
+        - Status = Running 확인
+          ![image](https://user-images.githubusercontent.com/21374902/158041664-739224aa-744d-43b1-a7d7-091b501bb821.png)
+        - 실행한 wordpress 확인
+          - `minikube ip`로 IP 확인
+          - `kubectl get all`에서 service/wordpress의 PORT 확인
+          - Docker로 사용중이면 `minikube service wordpress`
+      - wordpress 리소스 제거 : `kubectl delete -f wordpress-k8s.yml`
+    </details>
     
-  - wordpress-k8s.yml 실행 : `kubectl apply -f wordpress-k8s.yml`
-  - Terminal을 추가로 열어서 Monitoring 실행 : `watch -n 0.5 kubectl get all`
-    - Status = Running 확인
-      ![image](https://user-images.githubusercontent.com/21374902/158041664-739224aa-744d-43b1-a7d7-091b501bb821.png)
-    - 실행한 wordpress 확인
-      - `minikube ip`로 IP 확인
-      - `kubectl get all`에서 service/wordpress의 PORT 확인
-      - Docker로 사용중이면 `minikube service wordpress`
-  - wordpress 리소스 제거 : `kubectl delete -f wordpress-k8s.yml`
-  
+    
+  - 참고 : docker-compose.yml 버전
+    ![image](https://user-images.githubusercontent.com/21374902/157173260-bbbe2ee7-3b5d-4033-89b0-0d9458a7818b.png)
+    
+    <details>
+      <summary> 📑docker-compose 버전</summary>
+      
+      ```yml
+      version: "3"
+
+      services:
+        wordpress:
+          image: wordpress:5.5.3-apache
+          environment:
+            WORDPRESS_DB_HOST: mysql
+            WORDPRESS_DB_PASSWORD: password
+          ports:
+            - "30000:80"
+
+        mysql:
+          image: mariadb:10.7
+          environment:
+            MYSQL_ROOT_PASSWORD: password
+      ```
+    </details>
+
 
 
   ---
@@ -469,71 +483,85 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
   - 일반적으로 Container의 상태를 지속적으로 체크하고 이상이 있으면 자동으로 재시작해주는 옵션을 사용한다.
     - #### livenessProbe : Container의 상태가 정상이 아니면 `재시작`
       - Container의 상태를 체크하는 방법은 여러가지가 있다. : `httpGet`, `exec`, `tcpSocket`, `grpc`
-      - `httpGet`을 사용한 예제
-      ```yml
-      apiVersion: v1
-      kind: Pod
-      metadata:
-        name: echo-rp
-        labels:
-          app: echo
-      spec:
-        containers:
-          - name: app
-            image: ghcr.io/subicura/echo:v1
-            livenessProbe:
-              httpGet:
-                path: /not/exist
-                port: 8080
-              initialDelaySeconds: 5 # 5초 이후에 상태 확인
-              timeoutSeconds: 2 # 요청에 대한 timeout 시간 설정 (Default 1)
-              periodSeconds: 5 # 10초마다 확인 (Defaults 10)
-              failureThreshold: 1 # 1번 실패하면 재시작 (Defaults 3)
-      ```
+        <details>
+          <summary> 📑 livenessProbe 실습 - httpGet 사용</summary>
+
+          ```yml
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: echo-rp
+            labels:
+              app: echo
+          spec:
+            containers:
+              - name: app
+                image: ghcr.io/subicura/echo:v1
+                livenessProbe:
+                  httpGet:
+                    path: /not/exist
+                    port: 8080
+                  initialDelaySeconds: 5 # 5초 이후에 상태 확인
+                  timeoutSeconds: 2 # 요청에 대한 timeout 시간 설정 (Default 1)
+                  periodSeconds: 5 # 10초마다 확인 (Defaults 10)
+                  failureThreshold: 1 # 1번 실패하면 재시작 (Defaults 3)
+          ```
+          - 상태 확인
+        </details>
+      
     - #### readinessProbe : Container의 상태가 정상이 아니면 `요청 제외`
       - Container의 상태가 이상해도 재시작하지 않고 요청만 제외시킨다.
-        ```yml
-        apiVersion: v1
-        kind: Pod
-        metadata:
-          name: echo-rp
-          labels:
-            app: echo
-        spec:
-          containers:
-            - name: app
-              image: ghcr.io/subicura/echo:v1
-              readinessProbe:
-                httpGet:
-                  path: /not/exist
-                  port: 8080
-                initialDelaySeconds: 5
-                timeoutSeconds: 2
-                periodSeconds: 5
-                failureThreshold: 1
-        ```
+        <details>
+          <summary> 📑 readinessProbe 실습</summary>
+          
+          ```yml
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: echo-rp
+            labels:
+              app: echo
+          spec:
+            containers:
+              - name: app
+                image: ghcr.io/subicura/echo:v1
+                readinessProbe:
+                  httpGet:
+                    path: /not/exist
+                    port: 8080
+                  initialDelaySeconds: 5
+                  timeoutSeconds: 2
+                  periodSeconds: 5
+                  failureThreshold: 1
+          ```
+        </details>
+        
     - #### livenessProbe + readinessProbe
       - 일반적으론 2가지 옵션을 같이 사용한다.
-        ```yml
-        apiVersion: v1
-        kind: Pod
-        metadata:
-          name: echo-health
-          labels:
-            app: echo
-        spec:
-          containers:
-            - name: app
-              image: ghcr.io/subicura/echo:v1
-              livenessProbe:
-                httpGet:
-                  path: /
-                  port: 3000
-              readinessProbe:
-                httpGet:
-                  path: /
-                  port: 3000
-        ```
+        <details>
+          <summary> 📑 livenessProbe + readinessProbe 실습 예제</summary>
+
+          ```yml
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: echo-health
+            labels:
+              app: echo
+          spec:
+            containers:
+              - name: app
+                image: ghcr.io/subicura/echo:v1
+                livenessProbe:
+                  httpGet:
+                    path: /
+                    port: 3000
+                readinessProbe:
+                  httpGet:
+                    path: /
+                    port: 3000
+          ```
+        </details>
 
 
 
@@ -543,35 +571,40 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
 
 ## 다중 Container 자원 공유
   - 하나의 Pod에 여러개의 Container가 있을 때 Container끼리 자원이나 네트워크를 공유할 수 있다.
-  - 네트워크를 localhost로 공유하는 예제
-    ```yml
-    # multi-container-k8s.yml
-    apiVersion: v1
-    kind: Pod
-    metadata:
-      name: counter
-      labels:
-        app: counter
-    spec:
-      containers:
-        - name: app
-          image: subicura/counter:latest
-          env:
-            - name: REDIS_HOST
-              value: "localhost"
-        - name: db
-          image: redis
-    ```
-    - `kubectl -f multi-container-k8s.yml`
-    - `kubectl logs counter app`
-    - `kubectl logs counter db`
-    - `telnet localhost:6379`
-    - `dbsize`
-    - `keys *`
-    - `set count 5`
-    - `get count`
-    - `quit`
-    - `kubectl delete pod counter`
+    <details>
+      <summary> 📑 localhost를 공유하는 예제</summary>
+
+      ```yml
+      # multi-container-k8s.yml
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: counter
+        labels:
+          app: counter
+      spec:
+        containers:
+          - name: app
+            image: subicura/counter:latest
+            env:
+              - name: REDIS_HOST
+                value: "localhost"
+          - name: db
+            image: redis
+      ```
+      - 상태확인
+        - `kubectl -f multi-container-k8s.yml`
+        - `kubectl logs counter app`
+        - `kubectl logs counter db`
+        - `telnet localhost:6379`
+        - `dbsize`
+        - `keys *`
+        - `set count 5`
+        - `get count`
+        - `quit`
+        - `kubectl delete pod counter`
+
+    </details>
 
 
 
@@ -580,42 +613,47 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
 
 
 ## ReplicaSet
+  ![image](https://user-images.githubusercontent.com/21374902/158137366-53b85b39-7ac7-4259-80fc-e82c410c8d02.png)
   - ReplicaSet은 label을 체크해서 원하는 수의 Pod가 충족되지 않으면 새로운 Pod을 자동으로 생성한다.
   - Pod만 구성했을 때와 ReplicaSet을 같이 구성했을 때
-    ![image](https://user-images.githubusercontent.com/21374902/158137366-53b85b39-7ac7-4259-80fc-e82c410c8d02.png)
-  - ReplicaSet 생성
-    ```yml
-    apiVersion: apps/v1
-    kind: ReplicaSet
-    metadata:
-      name: echo-rs
-    spec:
-      replicas: 1
-      selector:
-        matchLabels:
-          app: echo
-          tier: app
-      template:
-        metadata:
-          labels:
+    <details>
+      <summary> 📑 ReplicaSet 예제</summary>
+
+      ```yml
+      apiVersion: apps/v1
+      kind: ReplicaSet
+      metadata:
+        name: echo-rs
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
             app: echo
             tier: app
-        spec:
-          containers:
-            - name: echo
-              image: ghcr.io/subicura/echo:v1
-    ```
-    `kubectl apply -f echo-rs.yml`\
-    `kubectl get po,rs`
-  - ReplicaSet은 label 기준으로 체크 한다.
-    - spec.selector 에서 label 조건 체크
-    - `kubectl get pod --show-labels` : 생성된 Pod의 label 확인
-    - `kubectl label pod/echo-rs-tcdwj app-` : label 제거
-    - ReplicaSet은 새로운 Pod 생성함.
-  - ReplicaSet이 동작하는 방식
-    - `Scheduler` 🔃 `API Server` : 할당되지 않은 Pod가 있는지 체크
-    - `ReplicaSet Controller` 🔃 `API Server` : 조건 기준으로 체크
-    - `ReplicaSet Controller` ➡ `API Server` : Pod 생성 및 제거
+        template:
+          metadata:
+            labels:
+              app: echo
+              tier: app
+          spec:
+            containers:
+              - name: echo
+                image: ghcr.io/subicura/echo:v1
+      ```
+      - 상태 확인
+        - `kubectl apply -f echo-rs.yml`\
+        - `kubectl get po,rs`
+      - ReplicaSet은 label 기준으로 체크 한다.
+        - spec.selector 에서 label 조건 체크
+        - `kubectl get pod --show-labels` : 생성된 Pod의 label 확인
+        - `kubectl label pod/echo-rs-tcdwj app-` : label 제거
+        - ReplicaSet은 새로운 Pod 생성함.
+      - ReplicaSet이 동작하는 방식
+        - `Scheduler` 🔃 `API Server` : 할당되지 않은 Pod가 있는지 체크
+        - `ReplicaSet Controller` 🔃 `API Server` : 조건 기준으로 체크
+        - `ReplicaSet Controller` ➡ `API Server` : Pod 생성 및 제거
+
+    </details>
 
 
 
@@ -629,31 +667,37 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
   - Deployment 방식은 크게 2가지 이다.
     - Recreate : 현재 운영중인 Pod를 모두 삭제하고 새로운 버전의 Pod를 생성한다. Downtime이 발생할 수 있기 때문에 권장하지 않는다.
     - RollingUpdate(default) : 새로운 버전의 n개의 Pod를 생성하고 기존 버전의 Pod를 삭제한다.
-  - Deployment 생성
-    ```yml
-    apiVersion: apps/v1
-    kind: Deployment
-    metadata:
-      name: echo-deploy
-    spec:
-      replicas: 4
-      selector:
-        matchLabels:
-          app: echo
-          tier: app
-      template:
+      <details>
+        <summary> 📑 Deployment 예제</summary>
+
+        ```yml
+        apiVersion: apps/v1
+        kind: Deployment
         metadata:
-          labels:
-            app: echo
-            tier: app
+          name: echo-deploy
         spec:
-          containers:
-            - name: echo
-              image: ghcr.io/subicura/echo:v1
-    ```
-    `kubectl apply -f echo-deployment.yml`\
-    `kubectl get po,rs,deploy`
-  - Version 변경 : spec.template.spec.containers.image의 v1 → v2로 변경 후 `kubectl apply -f echo-deployment.yml`
+          replicas: 4
+          selector:
+            matchLabels:
+              app: echo
+              tier: app
+          template:
+            metadata:
+              labels:
+                app: echo
+                tier: app
+            spec:
+              containers:
+                - name: echo
+                  image: ghcr.io/subicura/echo:v1
+        ```
+        - 상태 확인
+          - `kubectl apply -f echo-deployment.yml`\
+          - `kubectl get po,rs,deploy`
+        - Version 변경 : spec.template.spec.containers.image의 v1 → v2로 변경 후
+          - `kubectl apply -f echo-deployment.yml`
+      </details>
+    
   - 배포되는 과정
     - 기존에 v1 기준으로 ReplicaSet이 있고 그 안에 Pod는 4개 존재
     - v2를 배포하면 v2를 위한 ReplicaSet이 생성됨
@@ -672,37 +716,41 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
     - `kubectl rollout undo deploy/echo-deploy --to-revision=2` : 특정 version으로 Rollback
   - RollingUpdate의 maxSurge, maxUnavailable
     - maxSurge, maxUnavailable 옵션을 주면 한번에 실행하는 Pod의 수를 조정할 수 있다. 
-    ```yml
-    apiVersion: apps/v1
-    kind: Deployment
-    metadata:
-      name: echo-deploy-st
-    spec:
-      replicas: 4
-      selector:
-        matchLabels:
-          app: echo
-          tier: app
-      minReadySeconds: 5
-      strategy:
-        type: RollingUpdate
-        rollingUpdate:
-          maxSurge: 3
-          maxUnavailable: 3
-      template:
+      <details>
+        <summary> 📑 RollingUpdate 예제 </summary>
+        
+        ```yml
+        apiVersion: apps/v1
+        kind: Deployment
         metadata:
-          labels:
-            app: echo
-            tier: app
+          name: echo-deploy-st
         spec:
-          containers:
-            - name: echo
-              image: ghcr.io/subicura/echo:v1
-              livenessProbe:
-                httpGet:
-                  path: /
-                  port: 3000
-    ```
+          replicas: 4
+          selector:
+            matchLabels:
+              app: echo
+              tier: app
+          minReadySeconds: 5
+          strategy:
+            type: RollingUpdate
+            rollingUpdate:
+              maxSurge: 3
+              maxUnavailable: 3
+          template:
+            metadata:
+              labels:
+                app: echo
+                tier: app
+            spec:
+              containers:
+                - name: echo
+                  image: ghcr.io/subicura/echo:v1
+                  livenessProbe:
+                    httpGet:
+                      path: /
+                      port: 3000
+        ```
+      </details>
 
 
 
@@ -716,8 +764,9 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
   - [[Kubernetes Object의 Cluster IP]](#Cluster-IP) 에서 볼 수 있듯이 Service의 Cluster IP는 내부에서만 접근이 가능하고 NodePort로 접근을 해도 Main NodePort가 죽으면 서비스가 일시적으로 동작하지 않을 수 있다.
   - Service 이름을 내부 Domain Server에 등록해서 Pod 간에 Service 이름으로 통신할 수 있다.
   - ### Service (ClusterIP)
-    - redis를 Service로 노출하는 예제\
-      (Service로 접근을 하면 redis Pod로 연결)
+    <details>
+      <summary> 📑 redis를 Service로 노출하는 예제</summary>
+
       ```yml
       apiVersion: apps/v1
       kind: Deployment
@@ -754,9 +803,14 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
           app: counter
           tier: db
       ```
+      - 상태 확인
       - Service의 selector는 Deployment에서 정의한 label을 사용해서 해당 Pod의 6379 포트로 연결하도록 설정한다.
       - 같은 Cluster에서 생성된 Pod라면 `redis`라는 domain으로 접근할 수 있습니다.
-    - redis에 접근할 counter를 Deployment로 생성
+    </details>
+
+    <details>
+      <summary> 📑 redis에 접근할 Deployment로 생성 예제 </summary>
+
       ```yml
       apiVersion: apps/v1
       kind: Deployment
@@ -788,6 +842,8 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
         `dbsize`\
         `KEYS *`\
         `GET count`
+    </details>
+
   - ### Service 생성 흐름
     - `Scheduler` 🔃 `API Server` : 할당되지 않은 Pod가 있는지 체크
     - `Endpoint Controller` 🔃 `API Server` : Service와 Pod를 감시하면서 조건에 맞는 Pod의 IP 수집
@@ -803,66 +859,78 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
     - `kubectl describe ep redis`
   - ### Service (NodePort)
     - Cluster IP는 Cluster 내부에서만 접근할 수 있기 때문에 외부(Node)에서 접근할 수 있도록 NodePort를 사용한다.
-      ```yml
-      apiVersion: v1
-      kind: Service
-      metadata:
-        name: counter-np
-      spec:
-        type: NodePort
-        ports:
-          - port: 3000
-            protocol: TCP
-            nodePort: 31000
-        selector:
-          app: counter
-          tier: app
-      ```
-      - minikube ip의 31000 port로 접근하면 counter로 접근할 수 있다.
+      <details>
+        <summary> 📑 NodePort 예제</summary>
+
+        ```yml
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: counter-np
+        spec:
+          type: NodePort
+          ports:
+            - port: 3000
+              protocol: TCP
+              nodePort: 31000
+          selector:
+            app: counter
+            tier: app
+        ```
+        - 상태 확인
+        - minikube ip의 31000 port로 접근하면 counter로 접근할 수 있다.
+      </details>
   - ### Service (LoadBalancer)
     - NodePort는 Main Node가 사라지면 자동으로 다른 Node를 통해 접근이 불가능하다는 점이다.
     - 살아있는 Node를 구분하기 위해서 모든 Node를 바라보는 `Load Balaner`가 필요하고 요청은 Load Balancer를 통해서 살아있는 NodePort로 연결된다.
-    - LoadBalancer 생성
-      ```yml
-      apiVersion: v1
-      kind: Service
-      metadata:
-        name: counter-lb
-      spec:
-        type: LoadBalancer
-        ports:
-          - port: 30000
-            targetPort: 3000
-            protocol: TCP
-        selector:
-          app: counter
-          tier: app
-      ```
-      - EXTERNAL-IP가 pending인 이유
-        - Local 환경에선 특정 노드(실습환경에선 minikube 단일 노드)를 가리키는 Load Balancer가 외부에 필요한데 그게 없기 때문에 EXTERNAL-IP가 지정되지 않는다.
-        - minikube에 가상 Load Balancer 만들기
-          - `minikube addons enable metallb` : 가상 환경에서 Load Balancer를 만들어주고 minikube에 떠있는 현재 노드를 설정
-          - minikube의 ip를 ConfigMap으로 지정
-            - `mikikube addons configure metallb`\
-              `-- Enter Load Balancer Start IP` : # minikube ip 결과값 입력\
-              `-- Enter Load Balancer End IP` : # minikube ip 결과값 입력
-            - yml 사용
-              ```yml
-              apiVersion: v1
-              kind: ConfigMap
-              metadata:
-                namespace: metallb-system
-                name: config
-              data:
-                config: |
-                  address-pools:
-                  - name: default
-                    protocol: layer2
-                    addresses:
-                    - 192.168.64.4/32 # minikube ip
-              ```
-      - minikube ip:30000 접근
-      - Docker 사용중이면 `minikube service counter-lb`
+      <details>
+        <summary> 📑 LoadBalancer 예제</summary>
+
+        ```yml
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: counter-lb
+        spec:
+          type: LoadBalancer
+          ports:
+            - port: 30000
+              targetPort: 3000
+              protocol: TCP
+          selector:
+            app: counter
+            tier: app
+        ```
+        - 상태 확인
+
+        - EXTERNAL-IP가 pending인 이유
+          - Local 환경에선 특정 노드(실습환경에선 minikube 단일 노드)를 가리키는 Load Balancer가 외부에 필요한데 그게 없기 때문에 EXTERNAL-IP가 지정되지 않는다.
+          - minikube에 가상 Load Balancer 만들기
+            - `minikube addons enable metallb` : 가상 환경에서 Load Balancer를 만들어주고 minikube에 떠있는 현재 노드를 설정
+            - minikube의 ip를 ConfigMap으로 지정
+              - `mikikube addons configure metallb`\
+                `-- Enter Load Balancer Start IP` : # minikube ip 결과값 입력\
+                `-- Enter Load Balancer End IP` : # minikube ip 결과값 입력
+              - yml 사용
+                ```yml
+                apiVersion: v1
+                kind: ConfigMap
+                metadata:
+                  namespace: metallb-system
+                  name: config
+                data:
+                  config: |
+                    address-pools:
+                    - name: default
+                      protocol: layer2
+                      addresses:
+                      - 192.168.64.4/32 # minikube ip
+                ```
+        - minikube ip:30000 접근
+        - Docker 사용중이면 `minikube service counter-lb`
+      
+      </details>
+      
 
 
 
@@ -881,146 +949,155 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
   - `kubectl -n ingress-nginx get pod`
   - `curl -I http://minikube ip/healthz`
   - Docker 사용중이라면 `minikube service ingress-nginx-controller -n ingress-nginx --url` 명령어로 접속 주소 확인
-- 2개의 다른 버전인 echo Web Application 배포
+- ### 2개의 다른 버전인 echo Web Application 배포
   - `spec.rules.host`는 minikube ip로 변경
   - Docker 사용중이면 `spec.rules.host`에 127.0.0.1 사용 : v1.echo.127.0.0.1.sslip.io
-  - v1 배포
-    ```yml
-    apiVersion: networking.k8s.io/v1
-    kind: Ingress
-    metadata:
-      name: echo-v1
-    spec:
-      rules:
-        - host: v1.echo.192.168.64.5.sslip.io # minikube ip 사용
-          http:
-            paths:
-              - path: /
-                pathType: Prefix
-                backend:
-                  service:
-                    name: echo-v1
-                    port:
-                      number: 3000
+    <details>
+      <summary> 📑 v1 배포 예제</summary>
 
-    ---
-    apiVersion: apps/v1
-    kind: Deployment
-    metadata:
-      name: echo-v1
-    spec:
-      replicas: 3
-      selector:
-        matchLabels:
-          app: echo
-          tier: app
-          version: v1
-      template:
-        metadata:
-          labels:
+      ```yml
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: echo-v1
+      spec:
+        rules:
+          - host: v1.echo.192.168.64.5.sslip.io # minikube ip 사용
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name: echo-v1
+                      port:
+                        number: 3000
+
+      ---
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: echo-v1
+      spec:
+        replicas: 3
+        selector:
+          matchLabels:
             app: echo
             tier: app
             version: v1
-        spec:
-          containers:
-            - name: echo
-              image: ghcr.io/subicura/echo:v1
-              livenessProbe:
-                httpGet:
-                  path: /
-                  port: 3000
+        template:
+          metadata:
+            labels:
+              app: echo
+              tier: app
+              version: v1
+          spec:
+            containers:
+              - name: echo
+                image: ghcr.io/subicura/echo:v1
+                livenessProbe:
+                  httpGet:
+                    path: /
+                    port: 3000
 
-    ---
-    apiVersion: v1
-    kind: Service
-    metadata:
-      name: echo-v1
-    spec:
-      ports:
-        - port: 3000
-          protocol: TCP
-      selector:
-        app: echo
-        tier: app
-        version: v1
-    ```
-  - v2 배포
-    ```yml
-    apiVersion: networking.k8s.io/v1
-    kind: Ingress
-    metadata:
-      name: echo-v2
-    spec:
-      rules:
-        - host: v2.echo.192.168.64.5.sslip.io  # minikube ip 사용
-          http:
-            paths:
-              - path: /
-                pathType: Prefix
-                backend:
-                  service:
-                    name: echo-v2
-                    port:
-                      number: 3000
-
-    ---
-    apiVersion: apps/v1
-    kind: Deployment
-    metadata:
-      name: echo-v2
-    spec:
-      replicas: 3
-      selector:
-        matchLabels:
+      ---
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: echo-v1
+      spec:
+        ports:
+          - port: 3000
+            protocol: TCP
+        selector:
           app: echo
           tier: app
-          version: v2
-      template:
-        metadata:
-          labels:
+          version: v1
+      ```
+    </details>
+    <details>
+      <summary> 📑 v2 배포 예제</summary>
+
+      ```yml
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: echo-v2
+      spec:
+        rules:
+          - host: v2.echo.192.168.64.5.sslip.io  # minikube ip 사용
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name: echo-v2
+                      port:
+                        number: 3000
+
+      ---
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: echo-v2
+      spec:
+        replicas: 3
+        selector:
+          matchLabels:
             app: echo
             tier: app
             version: v2
-        spec:
-          containers:
-            - name: echo
-              image: ghcr.io/subicura/echo:v2
-              livenessProbe:
-                httpGet:
-                  path: /
-                  port: 3000
+        template:
+          metadata:
+            labels:
+              app: echo
+              tier: app
+              version: v2
+          spec:
+            containers:
+              - name: echo
+                image: ghcr.io/subicura/echo:v2
+                livenessProbe:
+                  httpGet:
+                    path: /
+                    port: 3000
 
-    ---
-    apiVersion: v1
-    kind: Service
-    metadata:
-      name: echo-v2
-    spec:
-      ports:
-        - port: 3000
-          protocol: TCP
-      selector:
-        app: echo
-        tier: app
-        version: v2
-    ```
+      ---
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: echo-v2
+      spec:
+        ports:
+          - port: 3000
+            protocol: TCP
+        selector:
+          app: echo
+          tier: app
+          version: v2
+      ```
+
+    </details>
+    
+  - 상태 확인
+    - `kubectl apply -f echo-v1.yml, echo-v2.yml`
+    - `kubectl get ing`
+    - 접속 테스트
+      - Docker는 v1.echo.127.0.0.1.sslip.io:PORT로 테스트한다.\
+        PORT는 ingress-nginx-controller 서비스의 첫번째 항목
+- ### Ingress 생성 흐름
+  - `Ingress Controller` 🔃 `API Server` : Ingress 변화가 있는지 확인
+  - `Endpoint Controller` ➡ `Nginx, HAProxy, ...` : 변경 된 내용을 Nginx에 설정하고 프로세스 재시작
+
+
+
+
+---   
 
 
 k get rs -w
----   
-
-강사 : 장원석
-강의이름 : Kubernetes Adminstrator
-
-https://github.com/wsjang619/k8s_course
-
 watch -n 0.5 kubectl get all
-
----   
-
-인프런
-
-
 
 
 
@@ -1028,4 +1105,4 @@ watch -n 0.5 kubectl get all
 - Reference
   - [subicura 블로그 - k8s](https://subicura.com/k8s)
   - [Inflearn - 쿠버네티스 입문](https://www.inflearn.com/course/%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4-%EC%9E%85%EB%AC%B8)
-  - [github - k8s_course](https://github.com/wsjang619/k8s_course)
+  - [Kubernetes Adminstrator - 장원석](https://github.com/wsjang619/k8s_course)
