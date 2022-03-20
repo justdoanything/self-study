@@ -1,3 +1,10 @@
+# Markdown 사용법
+
+visual code에서 `Markdown Preview Github Styling` extension을 설치하고 `ctrl+shift+V` 단축키를 부르면 미리보기 화면이 나온다.
+
+---
+
+
 ```
 영역
 ```
