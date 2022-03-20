@@ -17,7 +17,11 @@ kubernetes
 - [ReplicaSet](#ReplicaSet)
 - [Deployment](#Deployment)
 - [Service](#Service)
-
+- [Ingress](#Ingress)
+- [Volume](#Volume)
+- [ConfigMap](#ConfigMap)
+- [Secret](#Secret)
+   
 
 
 ---
@@ -671,6 +675,7 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
         <summary> 📑 Deployment 예제</summary>
 
         ```yml
+        # echo-deployment.yml 
         apiVersion: apps/v1
         kind: Deployment
         metadata:
@@ -720,6 +725,7 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
         <summary> 📑 RollingUpdate 예제 </summary>
         
         ```yml
+        # echo-strategy.yml 
         apiVersion: apps/v1
         kind: Deployment
         metadata:
@@ -768,6 +774,7 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
       <summary> 📑 redis를 Service로 노출하는 예제</summary>
 
       ```yml
+      # counter-redis-svc.yml 
       apiVersion: apps/v1
       kind: Deployment
       metadata:
@@ -812,6 +819,7 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
       <summary> 📑 redis에 접근할 Deployment로 생성 예제 </summary>
 
       ```yml
+      # counter-app.yml 
       apiVersion: apps/v1
       kind: Deployment
       metadata:
@@ -837,11 +845,11 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
                     value: "6379"
       ```
       - counter에 접근한 후 redis에 접근할 수 있습니다.\
-        `kubectl exec -it counter -- sh`\
-        `telnet redis 6379`\
-        `dbsize`\
-        `KEYS *`\
-        `GET count`
+        - `kubectl exec -it counter -- sh`
+        - `telnet redis 6379`
+        - `dbsize`
+        - `KEYS *`
+        - `GET count`
     </details>
 
   - ### Service 생성 흐름
@@ -863,6 +871,7 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
         <summary> 📑 NodePort 예제</summary>
 
         ```yml
+        # counter-nodeport.yml 
         apiVersion: v1
         kind: Service
         metadata:
@@ -887,6 +896,7 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
         <summary> 📑 LoadBalancer 예제</summary>
 
         ```yml
+        # counter-lb.yml 
         apiVersion: v1
         kind: Service
         metadata:
@@ -913,6 +923,7 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
                 `-- Enter Load Balancer End IP` : # minikube ip 결과값 입력
               - yml 사용
                 ```yml
+                # metallb-cm.yml 
                 apiVersion: v1
                 kind: ConfigMap
                 metadata:
@@ -956,6 +967,7 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
       <summary> 📑 v1 배포 예제</summary>
 
       ```yml
+      # echo-v1.yml 
       apiVersion: networking.k8s.io/v1
       kind: Ingress
       metadata:
@@ -1019,6 +1031,7 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
       <summary> 📑 v2 배포 예제</summary>
 
       ```yml
+      # echo-v2.yml 
       apiVersion: networking.k8s.io/v1
       kind: Ingress
       metadata:
@@ -1092,12 +1105,267 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
 
 
 
+---
 
----   
 
 
-k get rs -w
-watch -n 0.5 kubectl get all
+## Volume
+- Volume를 따로 지정해주지 않으면 데아터는 모두 Container 내부에 저장되고 Pod가 제거되면 데이터는 모두 사라진다.
+- Mysql과 같은 Database는 데이터가 유실되지 않도록 해야하기 때문에 반드시 별도의 저장소에 데이터를 저장해야 한다.
+- ElasticBlockStore(AWS), AzureDisk(Azure), GcePersistentDisk(GCP)를 사용해야 하지만 실습 환경에선 Local을 이용한다.
+- ### Sidecar : Container에서 생성되는 Log 파일을 별도로 수집하는 방식
+  <details>
+    <summary> 📑 Sidecar 예제</summary>
+
+    ```yml
+    # empty-dir.yml 
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: sidecar
+    spec:
+      containers:
+        - name: app
+          image: busybox
+          args:
+            - /bin/sh
+            - -c
+            - >
+              while true;
+              do
+                echo "$(date)\n" >> /var/log/example.log;
+                sleep 1;
+              done
+          volumeMounts:
+            - name: varlog
+              mountPath: /var/log
+        - name: sidecar
+          image: busybox
+          args: [/bin/sh, -c, "tail -f /var/log/example.log"]
+          volumeMounts:
+            - name: varlog
+              mountPath: /var/log
+      volumes:
+        - name: varlog
+          emptyDir: {}
+    ```
+
+    - 상태확인
+      - `kubectl apply -f empty-dir.yml`
+      - `kubectl logs -f sidecar -c sidecar`
+
+  </details>
+
+![image](https://user-images.githubusercontent.com/21374902/159108809-98178a99-249b-4c2b-9e6b-853b19d83c4d.png)
+
+- ### Hostpath : Host(외부)의 directory를 Container directory에 연결하는 방식
+  <details>
+    <summary> 📑 Hostpath 예제</summary>
+
+    ```yml
+    # hostpath.yml  
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: host-log
+    spec:
+      containers:
+        - name: log
+          image: busybox
+          args: ["/bin/sh", "-c", "sleep infinity"]
+          volumeMounts:
+            - name: varlog
+              mountPath: /host/var/log
+      volumes:
+        - name: varlog
+          hostPath:
+            path: /var/log
+    ```
+
+    - 상태 확인
+      - `kubectl apply -f hostpath.yml`
+      - `kubectl exec -it host-log -- sh`
+      - `ls -al /host/var/log`
+  
+  </details>
+
+![image](https://user-images.githubusercontent.com/21374902/159108963-78340da1-3555-43f0-b878-70a697d8d184.png)
+
+
+
+---
+
+
+
+## ConfigMap
+- Container에서 사용하는 Configuration 파일은 image를 build 할 때 복사할 수 있지만 ConfigMap을 사용하면 Container를 실행할 때 외부 파일을 연결할 수 있다.
+  <details>
+    <summary> 📑 ConfigMap 생성 예제 </summary>
+
+    ```yml
+    # config-file.yml 
+    global:
+      scrape_interval: 15s
+
+    scrape_configs:
+      - job_name: prometheus
+        metrics_path: /prometheus/metrics
+        static_configs:
+          - targets:
+              - localhost:9090
+    ```
+    - ConfigMap 생성 : `kubectl create cm my-config --from-file=config-file.yml`
+    - ConfigMap 조회 : `kubectl get cm`
+    - ConfigMap 상세조회 : `kubectl describe cm/my-config`
+    
+  </details>
+
+  <details>
+    <summary> 📑 ConfigMap 연결 </summary>
+
+    ```yml
+    # alpine.yml 
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: alpine
+    spec:
+      containers:
+        - name: alpine
+          image: alpine
+          command: ["sleep"]
+          args: ["100000"]
+          volumeMounts:
+            - name: config-vol
+              mountPath: /etc/config
+      volumes:
+        - name: config-vol
+          configMap:
+            name: my-config
+    ```
+    - `kubectl apply -f alpine.yml`
+    - 접속 후 설정 확인
+      - `kubectl exec -it alpine -- ls /etc/config`
+      - `kubectl exec -it alpine -- cat /etc/config/config-file.yml`
+
+  </details>
+
+- ### ENV 형식
+  - env 형식을 그대로 사용할 수 있다.
+    <details>
+      <summary>📑 ENV 형식 예제</summary>
+      
+      ```yml
+      # config-env.yml 
+      hello=world
+      haha=hoho
+      ```
+      - env 포멧으로 생성 : `kubectl create cm env-config --from-env-file=config-env.yml`
+      - env-config 조회 : `kubectl describe cm/env-config`
+
+    </details>
+
+
+- ### YAML 형식
+  <details>
+    <summary>📑 YAML 형식 예제</summary>
+      
+    ```yml
+    # config-map.yml 
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: my-config
+    data:
+      hello: world
+      kuber: netes
+      multiline: |-
+        first
+        second
+        third
+    ```
+    - 기존 configmap 삭제 : `kubectl delete cm/my-config`
+    - ConfigMap 생성 : `kubectl apply -f config-map.yml`
+    - alpine 적용 : `kubectl apply -f alpine.yml`
+    - 적용내용 확인 : `kubectl exec -it alpine -- cat /etc/config/multilineonfig`
+  </details>
+
+- ### ConfigMap을 환경변수로 사용
+  <details>
+    <summary>📑 ConfigMap을 환경변수로 사용하는 예제</summary>
+      
+    ```yml
+    # alpine-env.yml 
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: alpine-env
+    spec:
+      containers:
+        - name: alpine
+          image: alpine
+          command: ["sleep"]
+          args: ["100000"]
+          env:
+            - name: hello
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: hello
+    ```
+    - 적용 : `kubectl apply -f alpine-env.yml`
+    - env 확인 : `kubectl exec -it alpine-env -- env`
+  </details>
+---
+
+
+
+## Secret
+- ConfigMap과 유사한 특징을 갖지만 보안을 더 강화하여 데이터를 base64 암호화해서 저장한다.
+- ### Secret 생성
+  - username.txt 작성 : admin
+  - userpassword.txt 작성 : 1q2w3e4r
+  - secret 생성 : `kubectl create secret generic db-user-pass --from-file=./username.txt --from-file=./password.txt`
+  - secret 상세 조회 : `kubectl describe secret/db-user-pass`
+  - -o yaml로 상세 조회 : `kubectl get secret/db-user-pass -o yaml`
+  - 저장된 데이터 base64 decode : `echo 'MXEydzNlNHI=' | base64 --decode`
+- ### Secret을 환경변수로 연결
+  <details>
+    <summary>📑 Secret을 환경변수로 연결하는 예제</summary>
+      
+    ```yml
+    # alpine-env.yml 
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: alpine-env
+    spec:
+      containers:
+        - name: alpine
+          image: alpine
+          command: ["sleep"]
+          args: ["100000"]
+          env:
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: db-user-pass
+                  key: username.txt
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-user-pass
+                  key: password.txt
+    ```
+    - 적용 : `kubectl apply -f alpine-env.yml`
+    - env 확인 : `kubectl exec -it alpine-env -- env`
+  </details>
+
+---
+
+## 기타 명령어
+- `kubectl get rs -w`
+- `watch -n 0.5 kubectl get all`
 
 
 
