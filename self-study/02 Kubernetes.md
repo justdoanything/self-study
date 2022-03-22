@@ -177,34 +177,60 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
 - ### minukube & kubectl 설치
   - Kubernetes를 운영환경에 설치하기 위해선 최소 3대의 Master와 Container 배포를 위한 n개의 Node 서버가 필요하지만 실습(개발환경)에선 minikube를 사용
   - 개발환경은 1개의 Node만 사용하기 때문에 Node가 여러개 일 떄 Scheduling하는 테스트가 어렵고 Load Balancer와 Persistent Local Storage를 가상으로 만들어야 합니다
-  - #### ~~Windows 10에 설치~~
     <details>
-      <summary>Docker Desktop으로 설치</summary>
+      <summary> 📑 Windows10 (Hyper-V)</summary>
       
       - Hyper-V 활성화
         - Check : `DISM /Online /Enable-Feature /All /FeatureName:Microsoft-Hyper-V`
         - On : `bcdedit /set hypervisorlaunchtype off`
         - Off : `bcdedit /set hypervisorlaunchtype auto`
-      - minikube 설치 : [minikube-installer.exe](https://github.com/kubernetes/minikube/releases/latest/download/minikube-installer.exe)
-      - 💥memory 할당 문제로 `minikube start --driver=hyperv`가 안될 경우, 가상 메모리 설정 필요
-        - 제어판 > 시스템 및 보안 > 시스템 > 고급 시스템 설정
-        - 고급 탭 > '성능' 영역에 '설정(S)' > 고급 탭 > '가상 메모리' 영역에 '변경(C)'
-        - '모든 드라이브에 대한 페이징 파일 크기 자동 관리(A)' 체크 해제 > '사용자 지정 크기(C)' 선택 > 처음 크기 : 4096, 최대 크기 : 8192 > 설정 > 확인 > 재부팅 \
-        ![image](https://user-images.githubusercontent.com/21374902/157142064-ccdc512f-d2d5-4c29-8ece-1414734761a2.png)
+      - 설치
+        - minikube 설치 : [minikube-installer.exe](https://github.com/kubernetes/minikube/releases/latest/download/minikube-installer.exe)
+        - Kubernetes 설치 : `curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.20.0/bin/windows/amd64/kubectl.exe`
+      - 실행
+        - docker 기반 실행 : `minikube start --driver=docker`
+        - hyperv 기반 실행 : `minikube start --driver=hyperv`
+        - 💥memory 할당 문제로 안될 경우, 가상 메모리 설정 필요
+          - 제어판 > 시스템 및 보안 > 시스템 > 고급 시스템 설정
+          - 고급 탭 > '성능' 영역에 '설정(S)' > 고급 탭 > '가상 메모리' 영역에 '변경(C)'
+          - '모든 드라이브에 대한 페이징 파일 크기 자동 관리(A)' 체크 해제 > '사용자 지정 크기(C)' 선택 > 처음 크기 : 4096, 최대 크기 : 8192 > 설정 > 확인 > 재부팅 \
+          ![image](https://user-images.githubusercontent.com/21374902/157142064-ccdc512f-d2d5-4c29-8ece-1414734761a2.png)
     </details>
 
-  - #### 💥 Docker Desktop을 사용할 수 없기 때문에 WSL2 환경에 세팅
-    - 참고 : [Docker Desktop 없이 Docker 사용하기](https://github.com/justdoanything/self-study/blob/main/self-study/Docker.md#2%EF%B8%8F%E2%83%A30%EF%B8%8F%E2%83%A3-Docker-Desktop-%EC%97%86%EC%9D%B4-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0-(Windows10))  
-    - minikube 설치 및 실행
-      - `curl –LO https://storage.googleapis.com/minikube/releases/latest/minikube_latest_amd64.deb`
-      - `sudo dpkg –i minikube_latest_amd64.deb`
-      - `minikube start --driver=docker`
-      - `minikube kubectl`
-    - kubectl 설치
-      - `curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"`
-      - `chmod +x ./kubectl`
-      - `sudo mv ./kubectl /usr/local/bin/kubectl`
-    - minikube 명령어
+    <details>
+      <summary> 📑 Windows10 (WSL2)</summary>
+      
+      #### 💥 Docker Desktop을 사용할 수 없기 때문에 WSL2 환경에 세팅
+      
+      - 참고 : [Docker Desktop 없이 Docker 사용하기](https://github.com/justdoanything/self-study/blob/main/self-study/Docker.md#2%EF%B8%8F%E2%83%A30%EF%B8%8F%E2%83%A3-Docker-Desktop-%EC%97%86%EC%9D%B4-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0-(Windows10))  
+      - minikube 설치 및 실행
+        - `curl –LO https://storage.googleapis.com/minikube/releases/latest/minikube_latest_amd64.deb`
+        - `sudo dpkg –i minikube_latest_amd64.deb`
+        - `minikube start --driver=docker`
+        - `minikube kubectl`
+      - kubectl 설치
+        - `curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"`
+        - `chmod +x ./kubectl`
+        - `sudo mv ./kubectl /usr/local/bin/kubectl`
+      - 실행
+        - `minikube start --driver=docker`
+
+    </details>
+
+    <details>
+      <summary> 📑 MacOS </summary>
+      
+      - 설치
+        - minikube : `brew install minikube` \
+        OR `curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-darwin-amd64 && chmod +x minikube`
+        - kubernetes : `brew install kubectl` \
+        OR `curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.20.0/bin/darwin/amd64/kubectl && chmod +x kubectl`
+
+    </details>
+
+    <details>
+      <summary> 📑 minikube 명령어</summary>
+
       ```sh
       # 버전확인
       minikube version
@@ -249,7 +275,8 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
       # 가상머신 제거
       minikube delete # 현재 사용중인 profile의 가상머신 제거
       ```
-  
+    </details>
+
   - 정상 구동 화면\
     ![image](https://user-images.githubusercontent.com/21374902/157167987-36ab1b4e-bad0-4355-ac44-5faedd0b30d6.png)
 
