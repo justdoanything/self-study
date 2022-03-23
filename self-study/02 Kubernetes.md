@@ -1549,13 +1549,133 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
 ---
 
 
+## Persistent Volume
+- Persistent Volume (PV) : 관리자에 의해 생성된 볼륨
+- Persistent Volume Claim (PVC) : 사용자가 볼륨을 사용하기 위해 PV에 요청하게 된다.
+- PV/PVC의 Lifecycle
+  - Provisioning
+    - 정적, 동적인 PV를 생성하는 단계이다.
+    - Static Provisioning : 설정 파일 등을 통해 특정 용량을 가진 PV를 미리 생성해두고 요청이 있을 때 미리 생성한 PV를 할당하여 사용
+    - Dynamic Provisioning : 사용자가 요청할 때 PV를 생성해서 할당하고 사용자는 원하는 만큼 용량을 설정해서 생성할 수 있다.
+  - Binding
+    - PV를 PVC에 연결시키는 단계이다.
+    - PVC는 사용자가 요청하는 볼륨을 PV에 요청하고 PV는 그에 맞는 볼륨이 있으면 할당한다.
+    - 만약 PVC가 요청하는 볼륨이 PV에 없다면 해당 요청은 무한정 남아있게 되고, PVC가 요청하는 볼륨이 PV에 생성되면 그 요청은 받아들여져 할당한다.
+    - PVC와 PV는 ClaimRef를 사용하는 1:1 관계 이며 바인딩이 정상적으로 완료될 경우 bound 상태가 된다.
+  - Using
+    - Pod는 PVC를 볼륨으로 사용 합니다. Cluster는 PVC를 확인하여 Binding 된 PV를 찾고 해당 볼륨을 Pod에서 사용할 수 있도록 해준다.
+    - 만약 Pod가 사용중인 PVC를 삭제하려고 하면 Storage Object in Use Protection에 의해 삭제되지 않는다. 만약 삭제 요청을 하였다면 Pod가 PVC를 사용하지 않을때까지 삭제 요청은 연기된다.
+  - Reclamiming
+    - PV는 기존에 사용했던 PVC가 아니더라도 다른 PVC로 재활용이 가능하다.
+    - 사용이 종료된 PVC를 삭제할 때, 사용했던 PV의 데이터를 어떻게 처리할지에 대한 설정한다.
+      - Retain : PV의 데이터를 그대로 보존 합니다.
+      - Recycle : 재사용하게될 경우 기존의 PV 데이터들을 모두 삭제 후 재사용 합니다.
+      - Delete : 사용이 종료되면 해당 볼륨을 삭제 합니다.
+ - PV/PVC 사용 예제
+   <details>
+    <summary> 📑 PV 생성 예제</summary>
+
+    ```yml
+    apiVersion: v1 
+      kind: PersistentVolume 
+      metadata: 
+        name: dev-pv 
+      spec: 
+        capacity: 
+          storage: 2Gi 
+        volumeMode: Filesystem 
+        accessModes: 
+        - ReadWriteOnce 
+        storageClassName: manual 
+        persistentVolumeReclaimPolicy: Delete 
+        hostPath: 
+          path: /tmp/log_backup
+    ```
+
+   </details>
+
+   <details>
+    <summary> 📑 PVC 생성 예제</summary>
+
+    ```yml
+    apiVersion: v1 
+    kind: PersistentVolumeClaim 
+    metadata: 
+      name: dev-pvc 
+    spec: 
+      accessModes: 
+      - ReadWriteOnce 
+      volumeMode: Filesystem 
+      resources: 
+        requests: 
+          storage: 2Gi 
+      storageClassName: manual
+    ```
+
+   </details>
+
+   <details>
+    <summary> 📑 PVC를 사용할 Deployment 예제</summary>
+
+    ```yml
+    apiVersion: apps/v1 
+    kind: Deployment 
+    metadata: 
+      name: test-deployment 
+      labels: 
+        app: test-deployment 
+    spec: 
+      replicas: 1 
+      selector: 
+        matchLabels: 
+          app: test-deployment 
+      template: 
+        metadata: 
+          labels: 
+            app: test-deployment 
+        spec: 
+          containers: 
+          - name: test-deployment 
+            image: nginx 
+            ports: 
+            - containerPort: 8080 
+            volumeMounts: 
+            - mountPath: "/var/log/test.log" 
+              name: dev-volume 
+          volumes: 
+          - name: dev-volume 
+            persistentVolumeClaim: 
+              claimName: dev-pvc
+    ```
+
+   </details>
+
+
+
+---
+
 ## StatefulSet
-- Application의 상태를 저장하고 관리하는데 사용된다.
+- Application의 상태를 저장하고 관리하는데 사용된다. Deployment와 ReplicaSet과 다르게 각 Pod의 고유성을 보장한다. Pod마다 고유한 식별자가 존재해서 고유한 데이터를 보관한다.
+- StatefulSet의 특징
+  - Pod 이름에 식별자 부여
+    - StatefulSet에 의해 생성되는 Pod는 명시적으로 순서에 해당하는 식별자가 Pod 이름에 부여된다. 
+    - 예를 들어 mynginx라는 이름의 Pod를 정의하면 StatefulSet에 의해 생성되는 Pod는 mynginx-0, mynginx-1, mynginx-2...와 같이 이름이 부여된다.
+  - Pod 생성 순서화
+    - 모든 Pod를 동시에 병렬적으로 생성하는 Deployment와는 다르게 StatefulSet은 정해진 순서대로 Pod를 하나씩 생성한다. 
+    - 예를 들어 master 노드가 생성되어 실행되고 난 후 slave 노드가 생성되어야 하는 경우 StatefulSet을 통해 Pod의 생성 순서를 정의하면 된다.
+  - 개별 Pod에 대한 PVC 관리
+    - StatefulSet은 PV를 요청하기 위한 PVC를 템플릿 형태로 정의한다. 따라서 Pod마다 각각 PVC와 PV를 생성하여 관리할 수 있다.
+- Deployment, ReplicaSet 비교
+  - Deployment, ReplicaSet은 주로 Stateless한 Application을 관리할 때 사용한다. Pod가 생성되는 순서를 지정할 수 없기 때문에 PVC를 이용해 mount할 때 지정 된 Pod를 찾을 수 없다.
+  - StateufulSet은 Stateful한 Application을 관리할 때 사용한다.
 - Stateless vs. Stateful
-  - Stateless : Process와 Application이 격리된 것으로 간주한다. 과거 Transaction에 대한 정보가 참조되거나 저장되지 않기 때문이다. 각 Transaction은 모두 처음부터 시작된다. CDN, Web, Print Server와 같이 단기 요청을 처리하는 것이다. `검색`하는 것처럼 개별적인 Transaction으로 동작하고 중간에 중단되면 새롭게 시작하면 된다.
+  - #### Stateless 
+    - Process와 Application이 격리된 것으로 간주한다. 과거 Transaction에 대한 정보가 참조되거나 저장되지 않기 때문이다. 각 Transaction은 모두 처음부터 시작된다. CDN, Web, Print Server와 같이 단기 요청을 처리하는 것이다. `검색`하는 것처럼 개별적인 Transaction으로 동작하고 중간에 중단되면 새롭게 시작하면 된다.
     - Apache, Nginx, 검색
-  - Stateful : 이전 Transaction의 Context에 따라 수행되기 때문에 현재 Transaction이 과거 Transaction의 영향을 받는다. 과거 정보를 저장하기 때문에 중간에 중단되어도 그 이전 지점부터 다시 시작할 수 있다. 
+  - #### Stateful
+    - 이전 Transaction의 Context에 따라 수행되기 때문에 현재 Transaction이 과거 Transaction의 영향을 받는다. 과거 정보를 저장하기 때문에 중간에 중단되어도 그 이전 지점부터 다시 시작할 수 있다. 
     - MariaDB, MongoDB, Banking, Email
+
 
 ---
 
@@ -1571,4 +1691,5 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
   - [subicura 블로그 - k8s](https://subicura.com/k8s)
   - [Inflearn - 쿠버네티스 입문](https://www.inflearn.com/course/%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4-%EC%9E%85%EB%AC%B8)
   - [Kubernetes Adminstrator - 장원석](https://github.com/wsjang619/k8s_course)
-  - [Kubernetes Document](https://kubernetes.io/ko/docs)
+  - [Kubernetes Documents](https://kubernetes.io/ko/docs)
+  - https://nirsa.tistory.com/157
