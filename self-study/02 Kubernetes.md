@@ -221,11 +221,14 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
       <summary> 📑 MacOS </summary>
       
       - 설치
-        - minikube : `brew install minikube` \
+        - minikube : \
+        `brew install minikube` \
         OR `curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-darwin-amd64 && chmod +x minikube`
-        - kubernetes : `brew install kubectl` \
+        - kubernetes : \
+        `brew install kubectl` \
         OR `curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.20.0/bin/darwin/amd64/kubectl && chmod +x kubectl`
-
+      - 실행
+        - `minikube start --driver=docker`
     </details>
 
     <details>
@@ -320,64 +323,64 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
                   - containerPort: 3306
                     name: mysql
 
-        ---
-        apiVersion: v1
-        kind: Service
-        metadata:
-          name: wordpress-mysql
-          labels:
-            app: wordpress
-        spec:
-          ports:
-            - port: 3306
-          selector:
-            app: wordpress
-            tier: mysql
+      ---
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: wordpress-mysql
+        labels:
+          app: wordpress
+      spec:
+        ports:
+          - port: 3306
+        selector:
+          app: wordpress
+          tier: mysql
 
-        ---
-        apiVersion: apps/v1
-        kind: Deployment
-        metadata:
-          name: wordpress
-          labels:
-            app: wordpress
-        spec:
-          selector:
-            matchLabels:
-              app: wordpress
-              tier: frontend
-          template:
-            metadata:
-              labels:
-                app: wordpress
-                tier: frontend
-            spec:
-              containers:
-                - image: wordpress:5.5.3-apache
-                  name: wordpress
-                  env:
-                    - name: WORDPRESS_DB_HOST
-                      value: wordpress-mysql
-                    - name: WORDPRESS_DB_PASSWORD
-                      value: password
-                  ports:
-                    - containerPort: 80
-                      name: wordpress
-
-        ---
-        apiVersion: v1
-        kind: Service
-        metadata:
-          name: wordpress
-          labels:
-            app: wordpress
-        spec:
-          type: NodePort
-          ports:
-            - port: 80
-          selector:
+      ---
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: wordpress
+        labels:
+          app: wordpress
+      spec:
+        selector:
+          matchLabels:
             app: wordpress
             tier: frontend
+        template:
+          metadata:
+            labels:
+              app: wordpress
+              tier: frontend
+          spec:
+            containers:
+              - image: wordpress:5.5.3-apache
+                name: wordpress
+                env:
+                  - name: WORDPRESS_DB_HOST
+                    value: wordpress-mysql
+                  - name: WORDPRESS_DB_PASSWORD
+                    value: password
+                ports:
+                  - containerPort: 80
+                    name: wordpress
+
+      ---
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: wordpress
+        labels:
+          app: wordpress
+      spec:
+        type: NodePort
+        ports:
+          - port: 80
+        selector:
+          app: wordpress
+          tier: frontend
       ```
     
       - wordpress-k8s.yml 실행 : `kubectl apply -f wordpress-k8s.yml`
@@ -388,6 +391,15 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
           - `minikube ip`로 IP 확인
           - `kubectl get all`에서 service/wordpress의 PORT 확인
           - Docker로 사용중이면 `minikube service wordpress`
+        - 💥 minikube service wordpress 접속 불가 현상
+          - wordpress의 NodePort로 접근이 안되고 minikube service 명령어로도 접근이 안됨
+          - Docker Desktop 으로 해결
+            - minikube에 있는 리소스 제거 : `kubectl delete -f wordpress-k8s.yml`
+            - minikube 중단 : `minikube stop`
+            - Docker Desktop에서 kubernetes 활성화 : 환경설정 ▶️ Kubernetes ▶️ Enable Kubernetes ▶️ Apply & Restart
+            - Docker Desktop 자원 설정 : `kubectl config use-context docker-desktop`
+            - wordpress 시작 : `kubectl apply -f wordpress.yml`
+            - wordpress의 NodePort로 접근 : localhost:32499
       - wordpress 리소스 제거 : `kubectl delete -f wordpress-k8s.yml`
     </details>
     
