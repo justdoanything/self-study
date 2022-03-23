@@ -9,7 +9,7 @@ kubernetes
 - [Kubernetes 구성 요소](#Kubernetes-구성-요소)
 - [Kubernetes Object](Kubernetes-Object)
 - [실습환경 세팅하기](#실습환경-세팅하기)
-- [무작정 따라해보기 - wordpress 실행하기](#무작정-따라해보기---wordpress-실행하기)
+- [무작정 따라해보기](#무작정-따라해보기)
 - [Kubernetes 명령어](#Kubernetes-명령어)
 - [Pod 배포하기](#Pod-배포하기)
 - [Container 상태 모니터링](#Container-상태-모니터링)
@@ -21,6 +21,13 @@ kubernetes
 - [Volume](#Volume)
 - [ConfigMap](#ConfigMap)
 - [Secret](#Secret)
+- [DaemonSet](#DaemonSet)
+- [Job](#Job)
+- [CronJob](#Cronjob)
+- [Persistent Volume](#Persistent-Volume)
+- [StatefulSet](#StatefulSet)
+- [ResourceQuota](#ResourceQuota)
+- [LimitRange](#LimitRange)
    
 
 
@@ -1668,6 +1675,8 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
 - Deployment, ReplicaSet 비교
   - Deployment, ReplicaSet은 주로 Stateless한 Application을 관리할 때 사용한다. Pod가 생성되는 순서를 지정할 수 없기 때문에 PVC를 이용해 mount할 때 지정 된 Pod를 찾을 수 없다.
   - StateufulSet은 Stateful한 Application을 관리할 때 사용한다.
+    ![image](https://user-images.githubusercontent.com/21374902/159690051-5f4a8562-a34f-4a2c-af78-8afb49a44913.png)
+    ![image](https://user-images.githubusercontent.com/21374902/159690256-a70e5234-a8d7-4571-95c9-1a1ec8354852.png)
 - Stateless vs. Stateful
   - #### Stateless 
     - Process와 Application이 격리된 것으로 간주한다. 과거 Transaction에 대한 정보가 참조되거나 저장되지 않기 때문이다. 각 Transaction은 모두 처음부터 시작된다. CDN, Web, Print Server와 같이 단기 요청을 처리하는 것이다. `검색`하는 것처럼 개별적인 Transaction으로 동작하고 중간에 중단되면 새롭게 시작하면 된다.
@@ -1676,6 +1685,103 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
     - 이전 Transaction의 Context에 따라 수행되기 때문에 현재 Transaction이 과거 Transaction의 영향을 받는다. 과거 정보를 저장하기 때문에 중간에 중단되어도 그 이전 지점부터 다시 시작할 수 있다. 
     - MariaDB, MongoDB, Banking, Email
 
+![image](https://user-images.githubusercontent.com/21374902/159689716-6ad3570a-74d9-4c2a-b0a4-0fb77946d08f.png)
+
+
+---
+
+
+
+## ResourceQuota
+- Namespace에 생성할 수 있고 최대 리소스 제한을 설정할 수 있다.
+- ResourceQuota 예제
+  <details>
+    <summary> 📑 ResourceQuota 예제</summary>
+
+    ```yml
+    apiVersion: v1
+    kind: ResourceQuota
+    metadata:
+      name: rq
+      namespace: namespace1
+    spec:
+      hard:
+        requests.memory: 5Gi
+        limits.memory: 10Gi
+    ```
+   </details>
+   
+   <details>
+    <summary> 📑 ResourceQuota 예제</summary>
+
+    ```yml
+    apiVersion: v1
+    kind: ResourceQuota
+    metadata:
+      name: pod
+    spect:
+      containers:
+        - name: container
+          image: nginx
+          resources:
+            requests:
+              memory: 2Gi
+            limits:
+              memory: 4Gi
+    ```
+   </details>
+
+
+
+---
+
+
+## LimitRange
+- Namespace에 생성할 수 있고 최대 Pod의 리소스를 제한할 수 있다.
+- LimitRange 예제
+  <details>
+    <summary> 📑 LimitRange 예제</summary>
+
+    ```yml
+    apiVersion: v1
+    kind: LimitRange
+    metadata:
+      name: lr
+    spec:
+      limits:
+        min:
+          memory: 2Gi
+        max:
+          memory: 5Gi
+        maxLimitRequestRatio:
+          memory: 2
+        defaultRequest:
+          memory: 2Gi
+        default:
+          memory: 3Gi
+    ```
+   </details>
+   
+   <details>
+    <summary> 📑 LimitRange 예제</summary>
+
+    ```yml
+    apiVersion: v1
+    kind: LimitRange
+    metadata:
+      name: pod
+    spec:
+      containers:
+        - name: container
+          image: nginx
+          resources:
+            requests:
+              memory: 2Gi
+            limits:
+              memory: 3Gi
+    ```
+   </details>
+
 
 ---
 
@@ -1683,7 +1789,7 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
 ## 기타 명령어
 - `kubectl get rs -w`
 - `watch -n 0.5 kubectl get all`
-
+- `kubectl top pod` : pod의 CPU, Memory 정보를 확인
 
 
 ---   
