@@ -148,6 +148,9 @@ Docker를 공부했던 내용을 기반으로 K8S의 개념과 기능을 공부�
     - DAEMON SET : 모든 Node에 반드시 1개씩만 떠있는 Pod (로그, 모니터링)
     - STATEFUL SETS : 순서대로 수행하거나 같은 볼륨을 재활용하고 싶을 때 
     - JOB : 한번 실행하고 죽음
+  - ###### Namespace
+    - 동일한 물리 Cluster에서 가상 Cluster를 나눠 지원하는 Object
+    - Namespace가 다르면 같음 이름의 Object가 존재할 수 있다.
   - ###### Cluster IP
     - Pod는 동적으로 변하기 때문에 `Service`에 `Cluster IP`를 붙여서 사용
     - 하지만 Cluster IP는 내부에서만 접근이 가능하기 때문에 `Node`에 `NodePort`를 만들고 `외부에서 접근할 수 있도록 함`
@@ -758,6 +761,9 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
     - `kubectl rollout history deploy/echo-deploy --revision=1` : version 1 에 대한 history 확인
     - `kubectl rollout undo deploy/echo-deploy` : 바로 전으로 Rollback
     - `kubectl rollout undo deploy/echo-deploy --to-revision=2` : 특정 version으로 Rollback
+  - Deployment Scale
+    - `kubectl scale deployment echo-deploy --replicas=3` : Deployment로 생성 된 Pod 수 조정
+    - `kubectl scale rs echo-replica --replicas=3` : ReplicaSet으로 생성 된 Pod 수 조정
   - RollingUpdate의 maxSurge, maxUnavailable
     - maxSurge, maxUnavailable 옵션을 주면 한번에 실행하는 Pod의 수를 조정할 수 있다. 
       <details>
@@ -808,6 +814,25 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
     ![image](https://user-images.githubusercontent.com/21374902/158757760-fcc420ee-e151-4b31-9368-178d5b354466.png)
   - [[Kubernetes Object의 Cluster IP]](#Cluster-IP) 에서 볼 수 있듯이 Service의 Cluster IP는 내부에서만 접근이 가능하고 NodePort로 접근을 해도 Main NodePort가 죽으면 서비스가 일시적으로 동작하지 않을 수 있다.
   - Service 이름을 내부 Domain Server에 등록해서 Pod 간에 Service 이름으로 통신할 수 있다.
+
+  - ### Service 생성 흐름
+    - `Scheduler` 🔃 `API Server` : 할당되지 않은 Pod가 있는지 체크
+    - `Endpoint Controller` 🔃 `API Server` : Service와 Pod를 감시하면서 조건에 맞는 Pod의 IP 수집
+    - `Endpoint Controller` ➡ `API Server` : 수집한 IP로 Endpoint 생성
+    - `Kube-Proxy` ➡ `API Server` : 변화를 감지하고 Node의 iptables를 설정
+    - `CoreDNS` ➡ `API Server` : Service를 감시하고 Service의 이름과 IP를 CoreDNS에 추가
+      - `iptables` : Kernel 레벨의 네트워크 도구
+      - `CoreDNS` : `kube-dns`로 생성되며 빠르고 편리하게 사용할 수 있는 Cluster 내부용 Domain Name Server
+      - `iptables` 설정으로 여러 IP에 트래픽을 전달하고 `CoreDNS`를 이용해서 IP 대신 Domain을 사용할 수 있다.
+  - ### Endpoint
+    - Endpoint Address 정보엔 redis Pod의 IP를 확인할 수 있습니다.
+    - `kubectl get ep`
+    - `kubectl describe ep redis`
+  
+  - ### Service 의 종류
+    - ClusterIP : Service가 기본적으로 갖고있는 ClusterIP를 사용
+    - NodePort : 모든 Node에 Port를 할당해서 접근
+    - LoadBalancer : Load Balance Plugin을 설치해서 접근
   - ### Service (ClusterIP)
     <details>
       <summary> 📑 redis를 Service로 노출하는 예제</summary>
@@ -819,7 +844,7 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
       metadata:
         name: redis
       spec:
-        selector:
+        selector: #label selector : 특정 label을 찾아서 해당하는 Object만 관리
           matchLabels:
             app: counter
             tier: db
@@ -890,20 +915,6 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
         - `KEYS *`
         - `GET count`
     </details>
-
-  - ### Service 생성 흐름
-    - `Scheduler` 🔃 `API Server` : 할당되지 않은 Pod가 있는지 체크
-    - `Endpoint Controller` 🔃 `API Server` : Service와 Pod를 감시하면서 조건에 맞는 Pod의 IP 수집
-    - `Endpoint Controller` ➡ `API Server` : 수집한 IP로 Endpoint 생성
-    - `Kube-Proxy` ➡ `API Server` : 변화를 감지하고 Node의 iptables를 설정
-    - `CoreDNS` ➡ `API Server` : Service를 감시하고 Service의 이름과 IP를 CoreDNS에 추가
-      - `iptables` : Kernel 레벨의 네트워크 도구
-      - `CoreDNS` : `kube-dns`로 생성되며 빠르고 편리하게 사용할 수 있는 Cluster 내부용 Domain Name Server
-      - `iptables` 설정으로 여러 IP에 트래픽을 전달하고 `CoreDNS`를 이용해서 IP 대신 Domain을 사용할 수 있다.
-  - ### Endpoint
-    - Endpoint Address 정보엔 redis Pod의 IP를 확인할 수 있습니다.
-    - `kubectl get ep`
-    - `kubectl describe ep redis`
   - ### Service (NodePort)
     - Cluster IP는 Cluster 내부에서만 접근할 수 있기 때문에 외부(Node)에서 접근할 수 있도록 NodePort를 사용한다.
       <details>
@@ -989,6 +1000,10 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
 
 
 ## Ingress
+- 참고사항 : FQDN
+  - Pod와 Service에 DNS Record를 생성한다.
+  - Service : {service name}.{namespace}.svc.cluster.local
+  - Pod : {Pod IP}.{namespace}.pod.cluster.local
 - 하나의 Cluster에서 여러개의 Service를 운영할 때 여러개의 Domain과 Service를 매칭해서 사용할 수 있다.
   ![image](https://user-images.githubusercontent.com/21374902/158762956-958b3fcf-3569-4642-992c-fbfeee150344.png)
 - htto(80), https(443) Port로 여러 개의 Service를 연결해야할 때 Ingress를 사용한다.
@@ -1402,6 +1417,149 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
 
 ---
 
+## DaemonSet
+- Node의 지정한 개수의 Pod를 유지시켜 준다.
+- DaemonSet vs. ReplicaSet
+  - ReplicaSet은 Node와 상관없이 Pod의 개수를 유지시켜 준다. 즉, Pod를 새로 생성할 때 각 Node의 자원상태를 보고 가능한 Node에 생성한다.
+  - DaemonSet은 1개의 Node에 몇개의 Pod를 생성할지 정한다.
+- DaemonSet 예제
+  <details>
+    <summary> 📑 DaemonSet 예제1</summary>
+
+    ```yml
+    apiVersion: apps/v1
+    kind: DaemonSet
+    metadata:
+      name: daemonset1
+    spec:
+      selector:
+        matchLabels:
+          type: app
+      template:
+        metadata:
+          labels:
+            type: app
+        spec:
+          containers:
+            - name: container
+              image: nginx
+              ports:
+              - containerPort: 80
+
+    ``` 
+  </details>
+
+  <details>
+    <summary> 📑 DaemonSet 예제2</summary>
+
+    ```yml
+    apiVersion: apps/v1
+    kind: DaemonSet
+    metadata:
+      name: daemonset1
+    spec:
+      selector:
+        matchLabels:
+          type: app
+      template:
+        metadata:
+          labels:
+            type: app
+        spec:
+          nodeSelector:
+            os: centos
+          containers:
+            - name: container
+              image: nginx
+              ports:
+              - containerPort: 80
+    ``` 
+  </details>
+
+
+
+---
+
+
+## Job
+- 실행되고 종료되어야 하는 Pod를 관리할 때 사용
+- Job 예제
+  <details>
+    <summary> 📑 Job 예제</summary>
+
+    ```yml
+    apiVersion: apps/v1
+    kind: Job
+    metadata:
+      name: job1
+    spec:
+      completions: 4  # 몇개의 Pod에 실행할지
+      parallelism: 2  # 동시에 몇개의 Pod에서 실행할지
+      activeDeadlineSeconds: 20 # 몇초동안만 살려둘지
+      template:
+        spec:
+          containers:
+          - name : job1
+            image: perl
+            command: ["perl", "-Mbignum=bpi", "-wle", "print bpi(2000)"]
+          restartPolicy: Never
+      backoffLimit: 3 # 재시도 횟수
+    ``` 
+  </details>
+
+
+
+---
+
+
+## CronJob
+- Job을 주기적으로 생성하는 역할을 한다.
+- ConcurrencyPolicy : 실행전략
+  - Allow (default) : 동시에 실행되는 Job 허용한다.
+  - Forbid : 동시에 실행되는 것을 허용하지 않는다. 이전 Job이 아직 완료되지 않은 경우, 새로운 Job의 실행을 건너 뛴다.
+  - Replace : 이전 Job이 아직 완료되지 않은 경우, 이전 Job을 중단하고 새로운 Job을 실행한다.
+- CronJob 예제
+  <details>
+    <summary> 📑 CronJob 예제</summary>
+
+    ```yml
+    apiVersion: apps/v1
+    kind: CronJob
+    metadata:
+      name: hello
+    spec:
+      schedule: "*/1 * * * *"
+      concurrencyPolicy: Replace
+      jobTemplate:
+        spec:
+          template:
+            spec:
+              containers:
+              - name: hello
+                image: busybox
+                imagePullPolicy: IfNotPresent
+                command:
+                - /bin/sh
+                - -c
+                - date; echo Hello from the kubernetes cluster
+    ``` 
+  </details>
+
+
+---
+
+
+## StatefulSet
+- Application의 상태를 저장하고 관리하는데 사용된다.
+- Stateless vs. Stateful
+  - Stateless : Process와 Application이 격리된 것으로 간주한다. 과거 Transaction에 대한 정보가 참조되거나 저장되지 않기 때문이다. 각 Transaction은 모두 처음부터 시작된다. CDN, Web, Print Server와 같이 단기 요청을 처리하는 것이다. `검색`하는 것처럼 개별적인 Transaction으로 동작하고 중간에 중단되면 새롭게 시작하면 된다.
+    - Apache, Nginx, 검색
+  - Stateful : 이전 Transaction의 Context에 따라 수행되기 때문에 현재 Transaction이 과거 Transaction의 영향을 받는다. 과거 정보를 저장하기 때문에 중간에 중단되어도 그 이전 지점부터 다시 시작할 수 있다. 
+    - MariaDB, MongoDB, Banking, Email
+
+---
+
+
 ## 기타 명령어
 - `kubectl get rs -w`
 - `watch -n 0.5 kubectl get all`
@@ -1413,3 +1571,4 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
   - [subicura 블로그 - k8s](https://subicura.com/k8s)
   - [Inflearn - 쿠버네티스 입문](https://www.inflearn.com/course/%EC%BF%A0%EB%B2%84%EB%84%A4%ED%8B%B0%EC%8A%A4-%EC%9E%85%EB%AC%B8)
   - [Kubernetes Adminstrator - 장원석](https://github.com/wsjang619/k8s_course)
+  - [Kubernetes Document](https://kubernetes.io/ko/docs)
