@@ -28,7 +28,7 @@ kubernetes
 - [StatefulSet](#StatefulSet)
 - [ResourceQuota](#ResourceQuota)
 - [LimitRange](#LimitRange)
-   
+- [기타 명령어](#기타-명령어)
 
 
 ---
