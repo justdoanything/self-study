@@ -395,21 +395,22 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
     
       - wordpress-k8s.yml 실행 : `kubectl apply -f wordpress-k8s.yml`
       - Terminal을 추가로 열어서 Monitoring 실행 : `watch -n 0.5 kubectl get all`
+        - MacOS는 watch 설치 필요 : `brew install watch`
         - Status = Running 확인
           ![image](https://user-images.githubusercontent.com/21374902/158041664-739224aa-744d-43b1-a7d7-091b501bb821.png)
-        - 실행한 wordpress 확인
-          - `minikube ip`로 IP 확인
-          - `kubectl get all`에서 service/wordpress의 PORT 확인
-          - Docker로 사용중이면 `minikube service wordpress`
-        - 💥 minikube service wordpress 접속 불가 현상
-          - wordpress의 NodePort로 접근이 안되고 minikube service 명령어로도 접근이 안됨
-          - Docker Desktop 으로 해결
-            - minikube에 있는 리소스 제거 : `kubectl delete -f wordpress-k8s.yml`
-            - minikube 중단 : `minikube stop`
-            - Docker Desktop에서 kubernetes 활성화 : 환경설정 ▶️ Kubernetes ▶️ Enable Kubernetes ▶️ Apply & Restart
-            - Docker Desktop 자원 설정 : `kubectl config use-context docker-desktop`
-            - wordpress 시작 : `kubectl apply -f wordpress.yml`
-            - wordpress의 NodePort로 접근 : localhost:32499
+      - 실행한 wordpress 확인
+        - `minikube ip`로 IP 확인
+        - `kubectl get all`에서 service/wordpress의 PORT 확인
+        - `Docker`로 사용중이면 `minikube service wordpress`
+      - 💥 minikube service wordpress 접속 불가 현상
+        - wordpress의 NodePort로 접근이 안되고 minikube service 명령어로도 접근이 안됨
+        - Docker Desktop 으로 해결
+          - minikube에 있는 리소스 제거 : `kubectl delete -f wordpress-k8s.yml`
+          - minikube 중단 : `minikube stop`
+          - Docker Desktop에서 kubernetes 활성화 : 환경설정 ▶️ Kubernetes ▶️ Enable Kubernetes ▶️ Apply & Restart
+          - Docker Desktop 자원 설정 : `kubectl config use-context docker-desktop`
+          - wordpress 시작 : `kubectl apply -f wordpress.yml`
+          - wordpress의 NodePort로 접근 : localhost:32499
       - wordpress 리소스 제거 : `kubectl delete -f wordpress-k8s.yml`
     </details>
     
@@ -448,13 +449,13 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
 ## Kubernetes 명령어
   - ###### kubectl apply -f {file or url}
     - 파일 또는 URL까지 사용해서 배포할 수 있다.
-    - `kubectl apply -f https://subicura.com/k8s/code/guide/index/wordpress-k8s.yml`
+    - `kubectl apply -f https://subicura.com/k8s/code/guide/index/wordpress-k8s.yml`\
     ![image](https://user-images.githubusercontent.com/21374902/158041249-d03d52e1-25a8-4a43-ab25-2a7bad41df46.png)
   - ###### kubectl get {type}
     - Resource를 확인할 수 있다.
-    - `kubectl get po, svc`
+    - `kubectl get po, svc`\
       ![image](https://user-images.githubusercontent.com/21374902/158041617-2957a616-407f-44fa-8cbb-db25d56ca862.png)
-    - `kubectl get all`
+    - `kubectl get all`\
       ![image](https://user-images.githubusercontent.com/21374902/158041664-739224aa-744d-43b1-a7d7-091b501bb821.png)
     - `kubectl get pod -o wide`\
       `kubectl get pod -o yaml`\
@@ -495,10 +496,7 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
 - ### Pod 배포 - 명령어
   - Pod는 Kubernetes에서 관리하는 가장 작은 배포 단위이며 1개의 Pod 안에 여러개의 Container를 있을 수 있습니다.
   - Docker Hub에 있는 image로 Pod 실행해보기\
-  `kubectl run task_daemon --image yongwoo1992/repeatedly_multi_task:1.0`\
-    `kubectl get po`\
-    `kubectl exec -it task_daemon -- bash`\
-    `sh run.sh status`
+  `kubectl run task_daemon --image yongwoo1992/repeatedly_multi_task:1.0 kubectl get po kubectl exec -it task_daemon -- bash sh run.sh status`
   - Pod가 배포되는 과정
     - `Scheduler` 🔃 `API Server` : 할당되지 않은 Pod가 있는지 체크
     - `Kubelet` 🔃 `API Server` : Node에 할당된 Pod가 있는지 체크 
