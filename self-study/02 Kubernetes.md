@@ -472,7 +472,7 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
     - Container의 로그를 확인할 수 있다.
     - `kubectl logs wordpress-mysql-5447bfc5b-zqg94`
     - `kubectl logs wordpress-74757b6ff-wbkl7`
-  - ###### kubectl exec {pod name} -- {command}
+  - ###### kubectl exec {option} {pod name} -- {command}
     - Container에 명령어를 전달할 수 있다.
     - `kubectl exec -it wordpress-mysql-5447bfc5b-zqg94 -- bash`
     - Pod 안에 여러개의 Container가 있으면 `-c` 옵션으로 Container를 선택해줘야 한다.
@@ -506,20 +506,25 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
     - `Kubelet` ➡ `API Server` : Pod의 상태를 전달
 - ### Pod 배포 - Yaml
   - YAML 파일을 작성하고 `apply` 명령어로 Pod를 배포할 수 있습니다.
-  - `kubectl apply -f sample.yml`
+  - `kubectl apply -f yongwoo_daemon.yml`
     ```yml
-    # sample.yml
     apiVersion: v1
     kind: Pod
     metadata:
-      name: echo
+      name: yongwoo-daemon
       labels:
-        app: echo
+        app: yongwoo
     spec:
       containers:
-        - name: app
-          image: yongwoo1992/repeatedly_multi_task:1.0
+      - name: yongwoo-daemon
+        image: yongwoo1992/repeatedly_multi_task:1.0
     ```
+  - 상태 확인
+    - Pod 정보 확인 : `watch -n 0.5 kubectl get all`
+    - Pod 내 Container 접속
+      - `kubectl exec -it yongwoo-daemon -- bash`
+      - `sh run.sh status`
+    - Pod 삭제 : `kubectl delete -f yongwoo_daemon.yml`
 
 
 
@@ -541,23 +546,26 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
           apiVersion: v1
           kind: Pod
           metadata:
-            name: echo-rp
+            name: sample-rp
             labels:
-              app: echo
+              app: sample
           spec:
             containers:
-              - name: app
-                image: ghcr.io/subicura/echo:v1
-                livenessProbe:
-                  httpGet:
-                    path: /not/exist
-                    port: 8080
-                  initialDelaySeconds: 5 # 5초 이후에 상태 확인
-                  timeoutSeconds: 2 # 요청에 대한 timeout 시간 설정 (Default 1)
-                  periodSeconds: 5 # 10초마다 확인 (Defaults 10)
-                  failureThreshold: 1 # 1번 실패하면 재시작 (Defaults 3)
+            - name: app
+              image: ghcr.io/subicura/echo:v1
+              livenessProbe:
+                httpGet:
+                  path: /not/exist
+                  port: 8080
+                initialDelaySeconds: 5 # 5초 이후에 상태 확인
+                timeoutSeconds: 2 # 요청에 대한 timeout 시간 >설정 (Default : 1)
+                periodSeconds: 5 # 5초마다 Pod 확인 (Default : 10)
+                failureThreshold: 1 # 1번 실패하면 재시작 (Default : 3)
           ```
           - 상태 확인
+            - `/not/exist`는 존재하지 않기 때문에 Pod는 계속 에러 응답을 보낸다.
+            - `Running` 상태와 `CrashLoopBackOff` 상태를 반복하면서 `RESTARTS` 가 늘어나는 것을 확인 할 수 있다.
+
         </details>
       
     - #### readinessProbe : Container의 상태가 정상이 아니면 `요청 제외`
@@ -569,22 +577,24 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
           apiVersion: v1
           kind: Pod
           metadata:
-            name: echo-rp
+            name: sample-rp
             labels:
-              app: echo
+              app: sample
           spec:
             containers:
-              - name: app
-                image: ghcr.io/subicura/echo:v1
-                readinessProbe:
-                  httpGet:
-                    path: /not/exist
-                    port: 8080
-                  initialDelaySeconds: 5
-                  timeoutSeconds: 2
-                  periodSeconds: 5
-                  failureThreshold: 1
+            - name: app
+              image: ghcr.io/subicura/echo:v1
+              readinessProbe:
+                httpGet:
+                  path: /not/exist
+                  port: 8080
+                initialDelaySeconds: 5
+                timeoutSeconds: 2
+                periodSeconds: 5
+                failureThreshold: 1
           ```
+          - 상태 확인
+            - `readinessProbe`는 재시작을 하지 않기 때문에 `READY` 상태가 `0/1`로 남아있는 것을 볼 수 있다.
         </details>
         
     - #### livenessProbe + readinessProbe
@@ -596,23 +606,27 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
           apiVersion: v1
           kind: Pod
           metadata:
-            name: echo-health
+            name: sample-lp-rp
             labels:
-              app: echo
+              app: sample
           spec:
             containers:
-              - name: app
-                image: ghcr.io/subicura/echo:v1
-                livenessProbe:
-                  httpGet:
-                    path: /
-                    port: 3000
-                readinessProbe:
-                  httpGet:
-                    path: /
-                    port: 3000
+            - name: app
+              image: ghcr.io/subicura/echo:v1
+              livenessProbe:
+                httpGet:
+                  path: /
+                  port: 3000
+              readinessProbe:
+                httpGet:
+                  path: /
+                  port: 3000
           ```
+          - 상태 확인
+            - 3000 port는 정상적으로 응답하기 때문에 `READY = 1/1`, `STATUS=Running` 을 확인할 수 있다.
+            - 
         </details>
+        
 
 
 
