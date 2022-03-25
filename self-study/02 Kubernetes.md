@@ -306,6 +306,7 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
       <summary>📑 wordpress 실습</summary>
     
       ```yml
+      # wordpress.yml
       apiVersion: apps/v1
       kind: Deployment
       metadata:
@@ -508,6 +509,7 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
   - YAML 파일을 작성하고 `apply` 명령어로 Pod를 배포할 수 있습니다.
   - `kubectl apply -f yongwoo_daemon.yml`
     ```yml
+    # yongwoo_daemon.yml
     apiVersion: v1
     kind: Pod
     metadata:
@@ -543,6 +545,7 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
           <summary> 📑 livenessProbe 실습 - httpGet 사용</summary>
 
           ```yml
+          # livenessProbe.yml
           apiVersion: v1
           kind: Pod
           metadata:
@@ -574,6 +577,7 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
           <summary> 📑 readinessProbe 실습</summary>
           
           ```yml
+          # readinessProbe.yml
           apiVersion: v1
           kind: Pod
           metadata:
@@ -603,6 +607,7 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
           <summary> 📑 livenessProbe + readinessProbe 실습 예제</summary>
 
           ```yml
+          # liveAndRead.yml
           apiVersion: v1
           kind: Pod
           metadata:
@@ -624,7 +629,8 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
           ```
           - 상태 확인
             - 3000 port는 정상적으로 응답하기 때문에 `READY = 1/1`, `STATUS=Running` 을 확인할 수 있다.
-            - 
+            - 둘 다 /not/exist, 8080 으로 변경하면 `READY = 0/1`, `STATUS=Running` 면서 `RESTARTS`는 계속 증가한다.
+            - livenessProbe 만 불가능 상태로 바꾸면 `READY = 1/1`, `STATUS=Running` 면서 `RESTARTS`는 계속 증가한다.
         </details>
         
 
@@ -640,7 +646,7 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
       <summary> 📑 localhost를 공유하는 예제</summary>
 
       ```yml
-      # multi-container-k8s.yml
+      # multi-containers.yml
       apiVersion: v1
       kind: Pod
       metadata:
@@ -649,26 +655,25 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
           app: counter
       spec:
         containers:
-          - name: app
-            image: subicura/counter:latest
-            env:
-              - name: REDIS_HOST
-                value: "localhost"
-          - name: db
-            image: redis
+        - name: app
+          image: ghcr.io/subicura/counter:latest
+          env:
+          - name: REDIS_HOST
+            value: "localhost"
+        - name: db
+          image: redis
       ```
-      - 상태확인
-        - `kubectl -f multi-container-k8s.yml`
-        - `kubectl logs counter app`
-        - `kubectl logs counter db`
-        - `telnet localhost:6379`
-        - `dbsize`
-        - `keys *`
-        - `set count 5`
-        - `get count`
-        - `quit`
-        - `kubectl delete pod counter`
-
+      - 상태 확인
+        - app의 로그 확인 : `kubectl logs counter app`
+        - db의 로그 확인 : `kubectl logs counter db`
+        - db에 접속해서 redis 동작 확인
+          - `kubectl exec -it counter -c app -- sh`  # -c 옵션으로 container 지정
+          - `curl localhost:3000`
+          - `telnet localhost 6379`
+          - `dbsize`
+          - `keys *`
+          - `get count`
+          - `quit`
     </details>
 
 
