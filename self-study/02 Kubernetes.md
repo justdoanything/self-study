@@ -693,38 +693,37 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
       apiVersion: apps/v1
       kind: ReplicaSet
       metadata:
-        name: echo-rs
+        name: rs
       spec:
-        replicas: 1
-        selector:
+        replicas: 1  # Pod 개수
+        selector:    # label 체크 조건
           matchLabels:
             app: echo
             tier: app
-        template:
+        template:     # 생성할 Pod 정보 
           metadata:
             labels:
               app: echo
               tier: app
           spec:
             containers:
-              - name: echo
-                image: ghcr.io/subicura/echo:v1
+            - name: echo
+              image: ghcr.io/subicura/echo:v1
       ```
       - 상태 확인
-        - `kubectl apply -f echo-rs.yml`\
-        - `kubectl get po,rs`
-      - ReplicaSet은 label 기준으로 체크 한다.
-        - spec.selector 에서 label 조건 체크
-        - `kubectl get pod --show-labels` : 생성된 Pod의 label 확인
-        - `kubectl label pod/echo-rs-tcdwj app-` : label 제거
-        - ReplicaSet은 새로운 Pod 생성함.
-      - ReplicaSet이 동작하는 방식
-        - `Scheduler` 🔃 `API Server` : 할당되지 않은 Pod가 있는지 체크
-        - `ReplicaSet Controller` 🔃 `API Server` : 조건 기준으로 체크
-        - `ReplicaSet Controller` ➡ `API Server` : Pod 생성 및 제거
-
+        - ReplicaSet은 label 기준으로 체크 한다. (spec.selector)
+        - 생성 된 Pod의 label 확인 : `kubectl get pod --show-labels`
+        - label 제거 : `kubectl label pod {pod name} app-`\
+          ▶️ Pod가 1개 새로 생성되는 것을 확인 할 수 있음.
+        - label 추가 : `kubectl label pod {pod name} app=echo`\
+          ▶️ Pod 중 1개가 삭제 됨.
+          
+      
     </details>
-
+  - ReplicaSet이 동작하는 방식
+    - `Scheduler` 🔃 `API Server` : 할당되지 않은 Pod가 있는지 체크
+    - `ReplicaSet Controller` 🔃 `API Server` : 조건 기준으로 체크
+    - `ReplicaSet Controller` ➡ `API Server` : Pod 생성 및 제거
 
 
 ---
@@ -741,11 +740,10 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
         <summary> 📑 Deployment 예제</summary>
 
         ```yml
-        # echo-deployment.yml 
         apiVersion: apps/v1
         kind: Deployment
         metadata:
-          name: echo-deploy
+          name: dp
         spec:
           replicas: 4
           selector:
@@ -759,21 +757,23 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
                 tier: app
             spec:
               containers:
-                - name: echo
-                  image: ghcr.io/subicura/echo:v1
+              - name: echo
+                image: ghcr.io/subicura/echo:v2
+                # image: ghcr.io/subicura/echo:v1
         ```
         - 상태 확인
-          - `kubectl apply -f echo-deployment.yml`\
-          - `kubectl get po,rs,deploy`
+          - 생성 된 자원 확인
         - Version 변경 : spec.template.spec.containers.image의 v1 → v2로 변경 후
           - `kubectl apply -f echo-deployment.yml`
+          - Pod가 8개 되는게 아니고 기존 4개는 사라지고 새로운 버전의 4개가 생성되는 것을 볼 수 있다.
+          - replicaSet은 새롭게 1개가 생성되고 기존 replicaSet은 0/0/0 상태를 갖는다.
       </details>
     
   - 배포되는 과정
     - 기존에 v1 기준으로 ReplicaSet이 있고 그 안에 Pod는 4개 존재
     - v2를 배포하면 v2를 위한 ReplicaSet이 생성됨
     - ReplicaSet(v1)에 있는 Pod가 1개씩 줄면서 ReplicaSet(v2)는 1개씩 늘어남.
-    - 상세정보 : `kubectl describe deploy/echo-deploy`
+    - 상제 정보 확인  : `kubectl describe deploy {deployment name}`
   - Deployment가 동작하는 방식
     - `Scheduler` 🔃 `API Server` : 할당되지 않은 Pod가 있는지 체크
     - `Deployment Controller` 🔃 `API Server` : 조건 기준으로 체크
@@ -781,20 +781,19 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
     - `Deployment Controller` ➡ `API Server` : 조건에 맞는 ReplicaSet 생성
     - `ReplicaSet Controller` ➡ `API Server` : Pod 생성 및 제거
   - Deployment 버전 관리
-    - `kubectl rollout history deploy/echo-deploy` : History 확인
-    - `kubectl rollout history deploy/echo-deploy --revision=1` : version 1 에 대한 history 확인
-    - `kubectl rollout undo deploy/echo-deploy` : 바로 전으로 Rollback
-    - `kubectl rollout undo deploy/echo-deploy --to-revision=2` : 특정 version으로 Rollback
-  - Deployment Scale
-    - `kubectl scale deployment echo-deploy --replicas=3` : Deployment로 생성 된 Pod 수 조정
-    - `kubectl scale rs echo-replica --replicas=3` : ReplicaSet으로 생성 된 Pod 수 조정
+    - History 확인 : `kubectl rollout history deploy {deployment name}`
+    - 특정 버전에 대한 History 확인 : `kubectl rollout history deploy {deployment name} --revision=1`
+    - 이전 버전으로 rollback : `kubectl rollout undo deploy {deployment name}`
+    - 특정 버전으로 rollback : `kubectl rollout undo deploy /{deployment name} --to-revision=2`
+  - 배포 후 조정
+    - `Deployment`로 생성 된 Pod의 수 조정 : `kubectl scale deployment {deployment name} --replicas=3`
+    - `ReplicaSet`으로 생성 된 Pod 수 조정 : `kubectl scale rs echo-replica --replicas=3`
   - RollingUpdate의 maxSurge, maxUnavailable
     - maxSurge, maxUnavailable 옵션을 주면 한번에 실행하는 Pod의 수를 조정할 수 있다. 
       <details>
         <summary> 📑 RollingUpdate 예제 </summary>
         
         ```yml
-        # echo-strategy.yml 
         apiVersion: apps/v1
         kind: Deployment
         metadata:
@@ -808,7 +807,7 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
           minReadySeconds: 5
           strategy:
             type: RollingUpdate
-            rollingUpdate:
+            rollingUpdate:  # 한 번에 작업하는 Pod의 개수 설정
               maxSurge: 3
               maxUnavailable: 3
           template:
@@ -825,7 +824,30 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
                       path: /
                       port: 3000
         ```
-      </details>
+        </details>
+
+    - 처음에 실행했던 Deployment : 1개씩 up/down
+      ```
+      Normal  ScalingReplicaSet  30s   deployment-controller  Scaled up replica set dp-77cd7699f4 to 4
+      Normal  ScalingReplicaSet  13s   deployment-controller  Scaled up replica set dp-76dcd9f4f9 to 1
+      Normal  ScalingReplicaSet  12s   deployment-controller  Scaled down replica set dp-77cd7699f4 to 3
+      Normal  ScalingReplicaSet  12s   deployment-controller  Scaled up replica set dp-76dcd9f4f9 to 2
+      Normal  ScalingReplicaSet  11s   deployment-controller  Scaled down replica set dp-77cd7699f4 to 2
+      Normal  ScalingReplicaSet  11s   deployment-controller  Scaled up replica set dp-76dcd9f4f9 to 3
+      Normal  ScalingReplicaSet  11s   deployment-controller  Scaled down replica set dp-77cd7699f4 to 1
+      Normal  ScalingReplicaSet  11s   deployment-controller  Scaled up replica set dp-76dcd9f4f9 to 4
+      Normal  ScalingReplicaSet  9s    deployment-controller  Scaled down replica set dp-77cd7699f4 to 0
+      ```
+
+    - maxSurge 옵션을 주고 실행했던 Deployment : 3개씩 up/down
+      ```log
+      Normal  ScalingReplicaSet  85s   deployment-controller  Scaled up replica set dp-roll-dbd946f9c to 4
+      Normal  ScalingReplicaSet  28s   deployment-controller  Scaled up replica set dp-roll-bf855bcd8 to 3
+      Normal  ScalingReplicaSet  28s   deployment-controller  Scaled down replica set dp-roll-dbd946f9c to 1
+      Normal  ScalingReplicaSet  28s   deployment-controller  Scaled up replica set dp-roll-bf855bcd8 to 4
+      Normal  ScalingReplicaSet  19s   deployment-controller  Scaled down replica set dp-roll-dbd946f9c to 0
+      ```  
+      
 
 
 
