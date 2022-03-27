@@ -794,35 +794,33 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
         <summary> 📑 RollingUpdate 예제 </summary>
         
         ```yml
-        apiVersion: apps/v1
-        kind: Deployment
         metadata:
-          name: echo-deploy-st
-        spec:
-          replicas: 4
-          selector:
-            matchLabels:
+        name: dp-roll
+      spec:
+        replicas: 4
+        selector:
+          matchLabels:
+            app: echo
+            tier: app
+        minReadySeconds: 5
+        strategy:
+          type: RollingUpdate
+          rollingUpdate:
+            maxSurge: 3
+            maxUnavailable: 3
+        template:
+          metadata:
+            labels:
               app: echo
               tier: app
-          minReadySeconds: 5
-          strategy:
-            type: RollingUpdate
-            rollingUpdate:  # 한 번에 작업하는 Pod의 개수 설정
-              maxSurge: 3
-              maxUnavailable: 3
-          template:
-            metadata:
-              labels:
-                app: echo
-                tier: app
-            spec:
-              containers:
-                - name: echo
-                  image: ghcr.io/subicura/echo:v1
-                  livenessProbe:
-                    httpGet:
-                      path: /
-                      port: 3000
+          spec:
+            containers:
+            - name: echo
+              image: ghcr.io/subicura/echo:v2
+              livenessProbe:
+                httpGet:
+                  path: /
+                  port: 3000
         ```
         </details>
 
@@ -884,13 +882,12 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
       <summary> 📑 redis를 Service로 노출하는 예제</summary>
 
       ```yml
-      # counter-redis-svc.yml 
       apiVersion: apps/v1
       kind: Deployment
       metadata:
         name: redis
       spec:
-        selector: #label selector : 특정 label을 찾아서 해당하는 Object만 관리
+        selector:
           matchLabels:
             app: counter
             tier: db
@@ -901,11 +898,11 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
               tier: db
           spec:
             containers:
-              - name: redis
-                image: redis
-                ports:
-                  - containerPort: 6379
-                    protocol: TCP
+            - name: redis
+              image: redis
+              ports:
+              - containerPort: 6379
+                protocol: TCP
 
       ---
       apiVersion: v1
@@ -914,22 +911,22 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
         name: redis
       spec:
         ports:
-          - port: 6379
-            protocol: TCP
-        selector:
+        - port: 6379  # Service가 생성할 Port
+          protocol: TCP
+          # targetPort: Service가 접근할 Pod의 Port (안적으면 위 port와 동일)
+        selector: # Service가 접근할 Pod의 label 조건
           app: counter
           tier: db
       ```
       - 상태 확인
-      - Service의 selector는 Deployment에서 정의한 label을 사용해서 해당 Pod의 6379 포트로 연결하도록 설정한다.
-      - 같은 Cluster에서 생성된 Pod라면 `redis`라는 domain으로 접근할 수 있습니다.
+        - Service의 selector는 Deployment에서 정의한 label을 사용해서 해당 Pod의 6379 포트로 연결하도록 설정한다.
+        - 같은 Cluster에서 생성된 Pod라면 `redis`라는 domain으로 접근할 수 있습니다.
     </details>
 
     <details>
       <summary> 📑 redis에 접근할 Deployment로 생성 예제 </summary>
 
       ```yml
-      # counter-app.yml 
       apiVersion: apps/v1
       kind: Deployment
       metadata:
@@ -946,17 +943,17 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
               tier: app
           spec:
             containers:
-              - name: counter
-                image: ghcr.io/subicura/counter:latest
-                env:
-                  - name: REDIS_HOST
-                    value: "redis"  # Service 이름
-                  - name: REDIS_PORT
-                    value: "6379"
+            - name: counter
+              image: ghcr.io/subicura/counter:latest
+              env:
+              - name: REDIS_HOST
+                value: "redis"  # 위에서 만든 Service 이름
+              - name: REDIS_PORT
+                value: "6379"
       ```
-      - counter에 접근한 후 redis에 접근할 수 있습니다.\
-        - `kubectl exec -it counter -- sh`
-        - `telnet redis 6379`
+      - 상태 확인
+        - `kubectl exec -it counter-{...} -- sh`
+        - `telnet redis 6379` # redis 라는 이름으로 접근 가능
         - `dbsize`
         - `KEYS *`
         - `GET count`
@@ -967,23 +964,23 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
         <summary> 📑 NodePort 예제</summary>
 
         ```yml
-        # counter-nodeport.yml 
-        apiVersion: v1
+        aapiVersion: v1
         kind: Service
         metadata:
           name: counter-np
         spec:
           type: NodePort
           ports:
-            - port: 3000
-              protocol: TCP
-              nodePort: 31000
+          - port: 3000
+            protocol: TCP
+            nodePort: 31000
           selector:
             app: counter
             tier: app
         ```
         - 상태 확인
-        - minikube ip의 31000 port로 접근하면 counter로 접근할 수 있다.
+          - 외부에서 접속할 수 있도록 31000 port를 open한 것 이다.
+          - `localhost:31000` 으로 접속하면 counter에 정상적으로 연결된 것을 볼 수 있다.
       </details>
   - ### Service (LoadBalancer)
     - NodePort는 Main Node가 사라지면 자동으로 다른 Node를 통해 접근이 불가능하다는 점이다.
@@ -992,50 +989,49 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
         <summary> 📑 LoadBalancer 예제</summary>
 
         ```yml
-        # counter-lb.yml 
         apiVersion: v1
         kind: Service
         metadata:
-          name: counter-lb
+          name: couunter-lb
         spec:
           type: LoadBalancer
           ports:
-            - port: 30000
-              targetPort: 3000
-              protocol: TCP
+          - port: 30000
+            targetPort: 3000
+            protocol: TCP
           selector:
             app: counter
             tier: app
         ```
         - 상태 확인
-
-        - EXTERNAL-IP가 pending인 이유
-          - Local 환경에선 특정 노드(실습환경에선 minikube 단일 노드)를 가리키는 Load Balancer가 외부에 필요한데 그게 없기 때문에 EXTERNAL-IP가 지정되지 않는다.
-          - minikube에 가상 Load Balancer 만들기
-            - `minikube addons enable metallb` : 가상 환경에서 Load Balancer를 만들어주고 minikube에 떠있는 현재 노드를 설정
-            - minikube의 ip를 ConfigMap으로 지정
-              - `mikikube addons configure metallb`\
-                `-- Enter Load Balancer Start IP` : # minikube ip 결과값 입력\
-                `-- Enter Load Balancer End IP` : # minikube ip 결과값 입력
-              - yml 사용
-                ```yml
-                # metallb-cm.yml 
-                apiVersion: v1
-                kind: ConfigMap
-                metadata:
-                  namespace: metallb-system
-                  name: config
-                data:
-                  config: |
-                    address-pools:
-                    - name: default
-                      protocol: layer2
-                      addresses:
-                      - 192.168.64.4/32 # minikube ip
-                ```
+          - Docker Desktop 사용할 경우
+            - LoadBalancer에 EXTERNAL-IP, Port 확인 후 접근
+          - minikube를 사용할 경우, EXTERNAL-IP = pending 상태
+            - Local 환경에선 특정 노드(실습환경에선 minikube 단일 노드)를 가리키는 Load Balancer가 외부에 필요한데 그게 없기 때문에 EXTERNAL-IP가 지정되지 않는다.
+            - minikube에 가상 Load Balancer 만들기
+              - `minikube addons enable metallb` : 가상 환경에서 Load Balancer를 만들어주고 minikube에 떠있는 현재 노드를 설정
+              - minikube의 ip를 ConfigMap으로 지정
+                - `mikikube addons configure metallb`\
+                  `-- Enter Load Balancer Start IP` : # minikube ip 결과값 입력\
+                  `-- Enter Load Balancer End IP` : # minikube ip 결과값 입력
+                - yml 사용
+                  ```yml
+                  # metallb-cm.yml 
+                  apiVersion: v1
+                  kind: ConfigMap
+                  metadata:
+                    namespace: metallb-system
+                    name: config
+                  data:
+                    config: |
+                      address-pools:
+                      - name: default
+                        protocol: layer2
+                        addresses:
+                        - 192.168.64.4/32 # minikube ip
+                  ```
         - minikube ip:30000 접근
         - Docker 사용중이면 `minikube service counter-lb`
-      
       </details>
       
 
@@ -1067,23 +1063,22 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
       <summary> 📑 v1 배포 예제</summary>
 
       ```yml
-      # echo-v1.yml 
       apiVersion: networking.k8s.io/v1
       kind: Ingress
       metadata:
-        name: echo-v1
+        name: ing-v1
       spec:
         rules:
-          - host: v1.echo.192.168.64.5.sslip.io # minikube ip 사용
-            http:
-              paths:
-                - path: /
-                  pathType: Prefix
-                  backend:
-                    service:
-                      name: echo-v1
-                      port:
-                        number: 3000
+        - host: v1.ing.127.0.0.1.sslip.io
+          http:
+            path:
+            - path: /
+              pathType: Prefix
+              backend:
+                service:
+                  name: ing-v1
+                  port:
+                    number: 3000
 
       ---
       apiVersion: apps/v1
@@ -1103,14 +1098,14 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
               app: echo
               tier: app
               version: v1
-          spec:
+          sepc:
             containers:
-              - name: echo
-                image: ghcr.io/subicura/echo:v1
-                livenessProbe:
-                  httpGet:
-                    path: /
-                    port: 3000
+            - name: echo
+              image: ghcr.io/subicura/echo:v1
+              livenessProbe:
+                httpGet:
+                  path: /
+                  port: 3000
 
       ---
       apiVersion: v1
@@ -1119,8 +1114,8 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
         name: echo-v1
       spec:
         ports:
-          - port: 3000
-            protocol: TCP
+        - port: 3000
+          protocol: TCP
         selector:
           app: echo
           tier: app
@@ -1190,7 +1185,6 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
           tier: app
           version: v2
       ```
-
     </details>
     
   - 상태 확인
