@@ -164,11 +164,15 @@ Docker를 공부했던 내용을 기반으로 K8S의 개념과 기능을 공부�
     - 다른 Node에 할당된 NodePort로 연결해도 `자동으로 지정된 Service로 연결해줌.`
     - 두번째 그림에서 Node1이 죽으면 Service가 정상적으로 되지 않기 때문에 `NodePort 앞단에 Load Balancer를 둠.`
     - 외부엔 `하나의 IP (Load Balancer)를 노출`
+
       ![image](https://user-images.githubusercontent.com/21374902/157827744-a3aaceb3-61ed-4857-9e6b-d5ba75dec19e.png)
+    
       ![image](https://user-images.githubusercontent.com/21374902/157827906-7e2c903f-bc5a-4fc3-a185-ab2117f758b5.png)
+    
       ![image](https://user-images.githubusercontent.com/21374902/157829327-7b90c7ed-0b6f-4b7e-8c55-0aa23f6fe26c.png)
   - ###### Ingress
     - Domain 또는 경로별로 라우팅 해줌
+      
       ![image](https://user-images.githubusercontent.com/21374902/157829810-1af8eeba-3202-4425-b7c3-0edd55aa5e7d.png)
   - ###### 일반적인 구성
     ![image](https://user-images.githubusercontent.com/21374902/157829970-ac03a92d-fe0d-40ef-8acd-80da6e846867.png)
@@ -203,7 +207,8 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
         - 💥memory 할당 문제로 안될 경우, 가상 메모리 설정 필요
           - 제어판 > 시스템 및 보안 > 시스템 > 고급 시스템 설정
           - 고급 탭 > '성능' 영역에 '설정(S)' > 고급 탭 > '가상 메모리' 영역에 '변경(C)'
-          - '모든 드라이브에 대한 페이징 파일 크기 자동 관리(A)' 체크 해제 > '사용자 지정 크기(C)' 선택 > 처음 크기 : 4096, 최대 크기 : 8192 > 설정 > 확인 > 재부팅 \
+          - '모든 드라이브에 대한 페이징 파일 크기 자동 관리(A)' 체크 해제 > '사용자 지정 크기(C)' 선택 > 처음 크기 : 4096, 최대 크기 : 8192 > 설정 > 확인 > 재부팅 
+
           ![image](https://user-images.githubusercontent.com/21374902/157142064-ccdc512f-d2d5-4c29-8ece-1414734761a2.png)
     </details>
 
@@ -301,7 +306,9 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
 
 ## 무작정 따라해보기
   - kubernetes 버전
+
     ![image](https://user-images.githubusercontent.com/21374902/157173397-bcf2a579-9f5b-48a6-bbce-de732ae857a2.png)
+
     <details>
       <summary>📑 wordpress 실습</summary>
     
@@ -398,7 +405,9 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
       - Terminal을 추가로 열어서 Monitoring 실행 : `watch -n 0.5 kubectl get all`
         - MacOS는 watch 설치 필요 : `brew install watch`
         - Status = Running 확인
+
           ![image](https://user-images.githubusercontent.com/21374902/158041664-739224aa-744d-43b1-a7d7-091b501bb821.png)
+
       - 실행한 wordpress 확인
         - `minikube ip`로 IP 확인
         - `kubectl get all`에서 service/wordpress의 PORT 확인
@@ -417,6 +426,7 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
     
     
   - 참고 : docker-compose.yml 버전
+
     ![image](https://user-images.githubusercontent.com/21374902/157173260-bbbe2ee7-3b5d-4033-89b0-0d9458a7818b.png)
     
     <details>
@@ -450,14 +460,19 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
 ## Kubernetes 명령어
   - ###### kubectl apply -f {file or url}
     - 파일 또는 URL까지 사용해서 배포할 수 있다.
-    - `kubectl apply -f https://subicura.com/k8s/code/guide/index/wordpress-k8s.yml`\
+    - `kubectl apply -f https://subicura.com/k8s/code/guide/index/wordpress-k8s.yml`
+
     ![image](https://user-images.githubusercontent.com/21374902/158041249-d03d52e1-25a8-4a43-ab25-2a7bad41df46.png)
   - ###### kubectl get {type}
     - Resource를 확인할 수 있다.
-    - `kubectl get po, svc`\
+    - `kubectl get po, svc`
+
       ![image](https://user-images.githubusercontent.com/21374902/158041617-2957a616-407f-44fa-8cbb-db25d56ca862.png)
-    - `kubectl get all`\
+      
+    - `kubectl get all`
+
       ![image](https://user-images.githubusercontent.com/21374902/158041664-739224aa-744d-43b1-a7d7-091b501bb821.png)
+
     - `kubectl get pod -o wide`\
       `kubectl get pod -o yaml`\
       `kubectl get pod -o json`\
@@ -537,7 +552,9 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
 ## Container 상태 모니터링
   - Container가 생성된 직후에는 서비스할 수 없는 상태이다.
   - Container가 준비되고 그 안에 있는 Application이 Running 되어야 서비스할 수 있는 상태라고 할 수 있다.
+
     ![image](https://user-images.githubusercontent.com/21374902/158043731-9c1cb4d3-500c-41f6-bed7-73e663253c58.png)
+
   - 일반적으로 Container의 상태를 지속적으로 체크하고 이상이 있으면 자동으로 재시작해주는 옵션을 사용한다.
     - #### livenessProbe : Container의 상태가 정상이 아니면 `재시작`
       - Container의 상태를 체크하는 방법은 여러가지가 있다. : `httpGet`, `exec`, `tcpSocket`, `grpc`
@@ -855,7 +872,9 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
 
 ## Service
   - Pod는 생성되고 사라지고를 반복하기 때문에 Pod에 직접 통신하는 것은 힘들다.
+
     ![image](https://user-images.githubusercontent.com/21374902/158757760-fcc420ee-e151-4b31-9368-178d5b354466.png)
+
   - [[Kubernetes Object의 Cluster IP]](#Cluster-IP) 에서 볼 수 있듯이 Service의 Cluster IP는 내부에서만 접근이 가능하고 NodePort로 접근을 해도 Main NodePort가 죽으면 서비스가 일시적으로 동작하지 않을 수 있다.
   - Service 이름을 내부 Domain Server에 등록해서 Pod 간에 Service 이름으로 통신할 수 있다.
 
@@ -1047,7 +1066,9 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
   - Service : {service name}.{namespace}.svc.cluster.local
   - Pod : {Pod IP}.{namespace}.pod.cluster.local
 - 하나의 Cluster에서 여러개의 Service를 운영할 때 여러개의 Domain과 Service를 매칭해서 사용할 수 있다.
+
   ![image](https://user-images.githubusercontent.com/21374902/158762956-958b3fcf-3569-4642-992c-fbfeee150344.png)
+
 - htto(80), https(443) Port로 여러 개의 Service를 연결해야할 때 Ingress를 사용한다.
 - ### Ingress 활성화
   - Ingress는 다른 Object와 달리 별도의 Controller를 설치해야 한다. Controller의 종류는 많지만 실습에선 nginx ingress controller를 사용한다.\
@@ -1714,8 +1735,11 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
 - Deployment, ReplicaSet 비교
   - Deployment, ReplicaSet은 주로 Stateless한 Application을 관리할 때 사용한다. Pod가 생성되는 순서를 지정할 수 없기 때문에 PVC를 이용해 mount할 때 지정 된 Pod를 찾을 수 없다.
   - StateufulSet은 Stateful한 Application을 관리할 때 사용한다.
+
     ![image](https://user-images.githubusercontent.com/21374902/159690051-5f4a8562-a34f-4a2c-af78-8afb49a44913.png)
+
     ![image](https://user-images.githubusercontent.com/21374902/159690256-a70e5234-a8d7-4571-95c9-1a1ec8354852.png)
+    
 - Stateless vs. Stateful
   - #### Stateless 
     - Process와 Application이 격리된 것으로 간주한다. 과거 Transaction에 대한 정보가 참조되거나 저장되지 않기 때문이다. 각 Transaction은 모두 처음부터 시작된다. CDN, Web, Print Server와 같이 단기 요청을 처리하는 것이다. `검색`하는 것처럼 개별적인 Transaction으로 동작하고 중간에 중단되면 새롭게 시작하면 된다.
