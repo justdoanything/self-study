@@ -1,16 +1,19 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ing-v1
+  name: echo-v1
 spec:
   rules:
-  - host: v1.ing.192.168.65.4.sslip.io
+  - host: v1.echo.127.0.0.1.sslip.io
     http:
       paths:
       - path: /
+        pathType: Prefix
         backend:
-          serviceName: ing-v1
-          servicePort: 3000
+          service:
+            name: echo-v1
+            port:
+              number: 3000
 
 ---
 apiVersion: apps/v1

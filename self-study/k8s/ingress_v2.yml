@@ -4,7 +4,7 @@ metadata:
   name: ing-v2
 spec:
   rules:
-  - host: v2.ing.192.168.65.4.sslip.io
+  - host: v2.ing.sslip.io
     http:
       paths:
       - path: /
