@@ -1211,17 +1211,18 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
 - Mysql과 같은 Database는 데이터가 유실되지 않도록 해야하기 때문에 반드시 별도의 저장소에 데이터를 저장해야 한다.
 - ElasticBlockStore(AWS), AzureDisk(Azure), GcePersistentDisk(GCP)를 사용해야 하지만 실습 환경에선 Local을 이용한다.
 - ### Sidecar : Container에서 생성되는 Log 파일을 별도로 수집하는 방식
-  <details>
-    <summary> 📑 Sidecar 예제</summary>
+  - `app`은 `/var/log/example.log`에 로그 파일을 만들고 `sidecar`은 해당 로그 파일을 처리
+  - Pod가 삭제되면 directory도 삭제된다.
+    <details>
+      <summary> 📑 Sidecar 예제</summary>
 
-    ```yml
-    # empty-dir.yml 
-    apiVersion: v1
-    kind: Pod
-    metadata:
-      name: sidecar
-    spec:
-      containers:
+      ```yml
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: sidecar
+      spec:
+        containers:
         - name: app
           image: busybox
           args:
@@ -1234,57 +1235,63 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
                 sleep 1;
               done
           volumeMounts:
-            - name: varlog
-              mountPath: /var/log
+          - name: varlog
+            mountPath: /var/log
         - name: sidecar
           image: busybox
           args: [/bin/sh, -c, "tail -f /var/log/example.log"]
           volumeMounts:
-            - name: varlog
-              mountPath: /var/log
-      volumes:
+          - name: varlog
+            mountPath: /var/log
+        volumes:
         - name: varlog
           emptyDir: {}
-    ```
+      ```
 
-    - 상태확인
-      - `kubectl apply -f empty-dir.yml`
-      - `kubectl logs -f sidecar -c sidecar`
+      - 상태확인
+        - `kubectl logs -f sidecar -c sidecar`
 
-  </details>
+    </details>
 
 ![image](https://user-images.githubusercontent.com/21374902/159108809-98178a99-249b-4c2b-9e6b-853b19d83c4d.png)
 
 - ### Hostpath : Host(외부)의 directory를 Container directory에 연결하는 방식
-  <details>
-    <summary> 📑 Hostpath 예제</summary>
+  - `app` 입장에선 외부 directory인 `host`의 `/var/log`를 `app` 안의 `/host/var/log`로 연결
+  - Pod가 삭제되도 directory는 삭제되지 않는다.
+    <details>
+      <summary> 📑 Hostpath 예제</summary>
 
-    ```yml
-    # hostpath.yml  
-    apiVersion: v1
-    kind: Pod
-    metadata:
-      name: host-log
-    spec:
-      containers:
+      ```yml
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: host-log
+      spec:
+        containers:
         - name: log
           image: busybox
           args: ["/bin/sh", "-c", "sleep infinity"]
           volumeMounts:
-            - name: varlog
-              mountPath: /host/var/log
-      volumes:
+          - name: varlog
+            mountPath: /host/var/log
+        volumes:
         - name: varlog
           hostPath:
             path: /var/log
-    ```
+      ```
 
-    - 상태 확인
-      - `kubectl apply -f hostpath.yml`
-      - `kubectl exec -it host-log -- sh`
-      - `ls -al /host/var/log`
-  
-  </details>
+      - 상태 확인
+        - `kubectl exec -it host-log -- sh`
+        - `cd /host/var/log`
+        - `vi test.yml`
+        - `eixt`
+        - `kubectl delete -f hostpath.yml`
+        - `kubectl apply -f hostpath.yml`
+        - `kubectl exec -it host-log -- sh`
+        - `cd /host/var/log`
+        - `vi test.yml`
+    
+    </details>
 
 ![image](https://user-images.githubusercontent.com/21374902/159108963-78340da1-3555-43f0-b878-70a697d8d184.png)
 
@@ -1296,24 +1303,25 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
 
 ## ConfigMap
 - Container에서 사용하는 Configuration 파일은 image를 build 할 때 복사할 수 있지만 ConfigMap을 사용하면 Container를 실행할 때 외부 파일을 연결할 수 있다.
+- ConfigMap을 1개 만들고 Pod에 volume으로 mount 하는 예제
   <details>
     <summary> 📑 ConfigMap 생성 예제 </summary>
 
     ```yml
-    # config-file.yml 
     global:
       scrape_interval: 15s
 
     scrape_configs:
-      - job_name: prometheus
-        metrics_path: /prometheus/metrics
-        static_configs:
-          - targets:
-              - localhost:9090
+    - job_name: prometheus
+      metrics_path: /prometheus/metrics
+      static_configs:
+      - targets:
+        - localhost:9000
     ```
-    - ConfigMap 생성 : `kubectl create cm my-config --from-file=config-file.yml`
-    - ConfigMap 조회 : `kubectl get cm`
-    - ConfigMap 상세조회 : `kubectl describe cm/my-config`
+    - 상태 확인
+      - ConfigMap 생성 : `kubectl create cm my-config --from-file=configMap.yml`
+      - ConfigMap 조회 : `kubectl get cm`
+      - ConfigMap 상세조회 : `kubectl describe cm/my-config`
     
   </details>
 
@@ -1321,27 +1329,25 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
     <summary> 📑 ConfigMap 연결 </summary>
 
     ```yml
-    # alpine.yml 
     apiVersion: v1
     kind: Pod
     metadata:
       name: alpine
     spec:
       containers:
-        - name: alpine
-          image: alpine
-          command: ["sleep"]
-          args: ["100000"]
-          volumeMounts:
-            - name: config-vol
-              mountPath: /etc/config
-      volumes:
+      - name: alpine
+        image: alpine
+        command: ["sleep"]
+        args: ["100000"]
+        volumeMounts:
         - name: config-vol
-          configMap:
-            name: my-config
+          mountPath: /etc/config
+      volumes:
+      - name: config-vol
+        configMap:
+          name: my-config
     ```
-    - `kubectl apply -f alpine.yml`
-    - 접속 후 설정 확인
+    - 상태 확인
       - `kubectl exec -it alpine -- ls /etc/config`
       - `kubectl exec -it alpine -- cat /etc/config/config-file.yml`
 
@@ -1353,11 +1359,10 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
       <summary>📑 ENV 형식 예제</summary>
       
       ```yml
-      # config-env.yml 
       hello=world
       haha=hoho
       ```
-      - env 포멧으로 생성 : `kubectl create cm env-config --from-env-file=config-env.yml`
+      - env 포멧으로 생성 : `kubectl create cm env-config --from-env-file=configMap_env.yml`
       - env-config 조회 : `kubectl describe cm/env-config`
 
     </details>
@@ -1368,7 +1373,6 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
     <summary>📑 YAML 형식 예제</summary>
       
     ```yml
-    # config-map.yml 
     apiVersion: v1
     kind: ConfigMap
     metadata:
@@ -1382,37 +1386,37 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
         third
     ```
     - 기존 configmap 삭제 : `kubectl delete cm/my-config`
-    - ConfigMap 생성 : `kubectl apply -f config-map.yml`
-    - alpine 적용 : `kubectl apply -f alpine.yml`
-    - 적용내용 확인 : `kubectl exec -it alpine -- cat /etc/config/multilineonfig`
+    - ConfigMap 생성 : `kubectl apply -f configMap_yaml.yml`
+    - alpine 적용 : `kubectl apply -f configMap_deploy.yml`
+    - 적용내용 확인 : `kubectl exec -it alpine -- cat /etc/config/multiline`
   </details>
 
 - ### ConfigMap을 환경변수로 사용
-  <details>
-    <summary>📑 ConfigMap을 환경변수로 사용하는 예제</summary>
-      
-    ```yml
-    # alpine-env.yml 
-    apiVersion: v1
-    kind: Pod
-    metadata:
-      name: alpine-env
-    spec:
-      containers:
-        - name: alpine
-          image: alpine
-          command: ["sleep"]
-          args: ["100000"]
-          env:
-            - name: hello
-              valueFrom:
-                configMapKeyRef:
-                  name: my-config
-                  key: hello
-    ```
-    - 적용 : `kubectl apply -f alpine-env.yml`
-    - env 확인 : `kubectl exec -it alpine-env -- env`
-  </details>
+  - ConfigMap을 volume에 mount하지 않고 환경변수로 설정한다.
+    <details>
+      <summary>📑 ConfigMap을 환경변수로 사용하는 예제</summary>
+        
+      ```yml
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: alpine-env
+      spec:
+        containers:
+          - name: alpine
+            image: alpine
+            command: ["sleep"]
+            args: ["100000"]
+            env:
+              - name: hello
+                valueFrom:
+                  configMapKeyRef:
+                    name: my-config
+                    key: hello
+      ```
+      - 적용 : `kubectl apply -f alpine-env.yml`
+      - env 확인 : `kubectl exec -it alpine-env -- env`
+    </details>
 ---
 
 
@@ -1431,7 +1435,6 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
     <summary>📑 Secret을 환경변수로 연결하는 예제</summary>
       
     ```yml
-    # alpine-env.yml 
     apiVersion: v1
     kind: Pod
     metadata:
