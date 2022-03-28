@@ -1066,17 +1066,17 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
       apiVersion: networking.k8s.io/v1
       kind: Ingress
       metadata:
-        name: ing-v1
+        name: echo-v1
       spec:
         rules:
-        - host: v1.ing.127.0.0.1.sslip.io
+        - host: v1.echo.127.0.0.1.sslip.io
           http:
-            path:
+            paths:
             - path: /
               pathType: Prefix
               backend:
                 service:
-                  name: ing-v1
+                  name: echo-v1
                   port:
                     number: 3000
 
@@ -1126,23 +1126,22 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
       <summary> 📑 v2 배포 예제</summary>
 
       ```yml
-      # echo-v2.yml 
       apiVersion: networking.k8s.io/v1
       kind: Ingress
       metadata:
         name: echo-v2
       spec:
         rules:
-          - host: v2.echo.192.168.64.5.sslip.io  # minikube ip 사용
-            http:
-              paths:
-                - path: /
-                  pathType: Prefix
-                  backend:
-                    service:
-                      name: echo-v2
-                      port:
-                        number: 3000
+        - host: v2.echo.127.0.0.1.sslip.io
+          http:
+            paths:
+            - path: /
+              pathType: Prefix
+              backend:
+                service:
+                  name: echo-v2
+                  port:
+                    number: 3000
 
       ---
       apiVersion: apps/v1
@@ -1162,14 +1161,14 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
               app: echo
               tier: app
               version: v2
-          spec:
+          sepc:
             containers:
-              - name: echo
-                image: ghcr.io/subicura/echo:v2
-                livenessProbe:
-                  httpGet:
-                    path: /
-                    port: 3000
+            - name: echo
+              image: ghcr.io/subicura/echo:v2
+              livenessProbe:
+                httpGet:
+                  path: /
+                  port: 3000
 
       ---
       apiVersion: v1
@@ -1178,8 +1177,8 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
         name: echo-v2
       spec:
         ports:
-          - port: 3000
-            protocol: TCP
+        - port: 3000
+          protocol: TCP
         selector:
           app: echo
           tier: app
@@ -1193,6 +1192,10 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
     - 접속 테스트
       - Docker는 v1.echo.127.0.0.1.sslip.io:PORT로 테스트한다.\
         PORT는 ingress-nginx-controller 서비스의 첫번째 항목
+      - 💥 Mac M1 + Docker Desktop 환경에서 접속 불가능한 문제 발생
+        - nginx controller 설치 : `kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.2/deploy/static/provider/cloud/deploy.yaml`
+        - spec.rules.host 값 변경 : `v1.echo.127.0.0.1.sslip.io`
+        - 그런데도 접속이 안됨! 나중에 다시 확인해봐야함.
 - ### Ingress 생성 흐름
   - `Ingress Controller` 🔃 `API Server` : Ingress 변화가 있는지 확인
   - `Endpoint Controller` ➡ `Nginx, HAProxy, ...` : 변경 된 내용을 Nginx에 설정하고 프로세스 재시작
