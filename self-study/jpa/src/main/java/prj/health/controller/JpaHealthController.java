@@ -12,13 +12,8 @@ import prj.health.service.JpaHealthService;
 @RestController
 public class JpaHealthController {
     
-    @Autowired
-    JpaHealthService jpaService;
-    
     @RequestMapping("/health")
     public ResponseEntity healthCheck(){
-        System.out.println("################## ==> test");
-        jpaService.test();
         return new ResponseEntity<>("OK", HttpStatus.OK);
     }
 }
