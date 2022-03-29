@@ -1,0 +1,10 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+  devtools:
+    livereload:
+      enabled: true
+
+yongwoo:
+  test: local
