@@ -68,6 +68,25 @@
   }
   ```
 
+## Entity 상태 전파
+- Cascade
+  ```java
+  /*
+   * Post와 Comment의 양방향 관계를 맺고 
+   * session.save(post); 만 해주게 되면 Comment엔 데이터가 저장되지 않는다.
+   * casecade = CasecadeType.PRESIST 옵션을 주면 Post가 저장될 때 상태를 전파한다.
+   * casdcade = CasecadeType.REMOVE 옵션을 주면 Post가 삭제될 때 상태를 전파한다.
+   * Database의 casecade 옵션을 주는 것과 같다.
+   */ 
+   public class Post {
+    @OneToMany(mappedBy = "post", cascade = { CascadeType.PERSIST, CasecaseType.REMOVE})
+    private Set<Comment> comments = new HashSet<>();
+   }
+   
+
+
+  ```
+
 
 ## Reference
 - [스프링 데이터 JPA / 백기선 / 인프런](https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81-%EB%8D%B0%EC%9D%B4%ED%84%B0-jpa/dashboard)
