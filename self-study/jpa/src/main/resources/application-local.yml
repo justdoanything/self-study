@@ -5,3 +5,16 @@ spring:
   devtools:
     livereload:
       enabled: true
+  datasource:
+    url: jdbc:postgresql://localhost:5432/springdata
+    username: yongwoo
+    password: yongwoo
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+
