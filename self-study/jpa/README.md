@@ -1,11 +1,13 @@
-# [Github - JPA 정리](https://github.com/justdoanything/self-study/blob/main/self-study/05%20JPA.md)
+# JPA 실습 내용 정리
 
-# postgres 설치 및 접속
+## [Link to Github - 05 JPA](https://github.com/justdoanything/self-study/blob/main/self-study/05%20JPA.md)
+
+## postgres 설치 및 접속
   - docker run -p 5432:5432 -e POSTGRES_PASSWORD=yongwoo -e POSTGRES_USER=yongwoo -e POSTGRES_DB=springdata --name postgres_boot -d postgres
   - docker exec -it postgres_boot bash
   - psql -U yongwoo springdata
 
-# @Value
+## @Value
 - @Entity 안에 한 Column으로 Class를 갖기 위해선 @Embeddable, @Embedded 을 사용해준다.
     ```java
     // Column이 될 Class
@@ -65,3 +67,7 @@
     account.addStudy(study);
   }
   ```
+
+
+## Reference
+- [스프링 데이터 JPA / 백기선 / 인프런](https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81-%EB%8D%B0%EC%9D%B4%ED%84%B0-jpa/dashboard)
