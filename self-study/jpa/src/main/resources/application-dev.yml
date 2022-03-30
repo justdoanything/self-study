@@ -1,7 +1,20 @@
 spring:
   config:
     activate:
-      on-profile: local
+      on-profile: dev
   devtools:
     livereload:
       enabled: true
+  datasource:
+    url: jdbc:postgresql://localhost:5432/springdata
+    username: yongwoo
+    password: yongwoo
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+
