@@ -1,4 +1,4 @@
-# [Github - JPA 정리](#https://github.com/justdoanything/self-study/blob/main/self-study/05%20JPA.md)
+# [Github - JPA 정리](https://github.com/justdoanything/self-study/blob/main/self-study/05%20JPA.md)
 
 # postgres 설치 및 접속
   - docker run -p 5432:5432 -e POSTGRES_PASSWORD=yongwoo -e POSTGRES_USER=yongwoo -e POSTGRES_DB=springdata --name postgres_boot -d postgres
