@@ -37,3 +37,18 @@ AWS ECS and EC2
   - https://docs.aws.amazon.com/ko_kr/AmazonECS/latest/developerguide/Welcome.html
   - https://docs.aws.amazon.com/ko_kr/AWSEC2/latest/UserGuide/concepts.html
 ---
+
+Dynamodb
+===
+- CloudWatch와 SNS(Simple Notification Service)
+- Lambda
+- Dynamo DB
+- IAM
+- API Gateway
+- Deploy
+- CORS
+- S3 Hosting (OAI(Origin Access Identities) 방식)
+- Cloud Watch Dashboard
+- Lambda Layer
+- X-Ray SDK
+- SAM(Serverless Application Model)
