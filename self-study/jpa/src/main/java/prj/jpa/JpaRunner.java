@@ -1,7 +1,13 @@
 package prj.jpa;
 
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import org.hibernate.Session;
 import org.springframework.boot.ApplicationArguments;
@@ -9,10 +15,8 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import prj.jpa.basic.Account;
 import prj.jpa.basic.Comment;
 import prj.jpa.basic.Post;
-import prj.jpa.basic.Study;
 
 @Component
 @Transactional
@@ -43,6 +47,7 @@ public class JpaRunner implements ApplicationRunner {
         // session.save(study);
 
         /*******************************************************************/
+        
         Post post = new Post();
         post.setTitle("JPA 강의");
         
@@ -56,8 +61,30 @@ public class JpaRunner implements ApplicationRunner {
 
         session.save(post);
         
-        Post post2 = session.get(Post.class, 1l);
-        session.delete(post2);
+        // Post post2 = session.get(Post.class, 1l);
+        // session.delete(post2);
 
+        /*******************************************************************/
+
+        /* JPQL 하는 방법 */
+        TypedQuery<Post> query =  entityManager.createQuery("select p from Post AS p", Post.class);
+        List<Post> posts = query.getResultList();
+        System.out.println("=====JPQL=====");
+        posts.forEach(System.out::println);
+
+        /* type safe한 방법*/
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Post> criteriaQuery = builder.createQuery(Post.class);
+        Root<Post> criteriaRoot = criteriaQuery.from(Post.class);
+        criteriaQuery.select(criteriaRoot);
+
+        List<Post> criteriaPost = entityManager.createQuery(criteriaQuery).getResultList();
+        System.out.println("=====Criteria=====");
+        criteriaPost.forEach(System.out::println);
+
+        /* NativeQuery */
+        List<Post> nativePosts = entityManager.createNativeQuery("select * from Post AS p", Post.class).getResultList();
+        System.out.println("=====Native=====");
+        nativePosts.forEach(System.out::println);
     }
 }

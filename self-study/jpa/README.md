@@ -2,6 +2,22 @@
 
 ## [Link to Github - 05 JPA](https://github.com/justdoanything/self-study/blob/main/self-study/05%20JPA.md)
 
+## Java Statement
+- Try with resources
+  ```java
+  try(Resource resource = new Resources()){
+    ...
+  }catch(Excption e){
+    ...
+  }
+  ```
+
+- Method Reference
+  ```java
+  ...
+  posts.forEach(System.out::print);
+  ```
+
 ## postgres 설치 및 접속
   - docker run -p 5432:5432 -e POSTGRES_PASSWORD=yongwoo -e POSTGRES_USER=yongwoo -e POSTGRES_DB=springdata --name postgres_boot -d postgres
   - docker exec -it postgres_boot bash
@@ -84,6 +100,43 @@
     @OneToMany(mappedBy = "post", cascade = { CascadeType.PERSIST, CasecaseType.REMOVE})
     private Set<Comment> comments = new HashSet<>();
    }
+  ```
+
+## Fetch : 데이터를 가져오는 시점
+  ```java
+  /*
+   * @ManyToOne의 기본값은 EAGER : 연관있는 데이터를 모두 select
+   * @OneToMany의 기본값은 LAZY : 실제 데이터에 대해서 select이 발생했을 때 query를 실행
+   */
+
+  ...
+  @ManyToOne(fetch = FatchType.EAGER)
+  private Account owner;
+
+  ...
+  @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
+  private Set<Comment> comments = new HashSet<>();
+  ```
+
+## Query를 직접 사용하는 방법
+- JPQL
+  ```java
+  CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+  CriteriaQuery<Post> criteriaQuery = builder.createQuery(Post.class);
+  Root<Post> criteriaRoot = criteriaQuery.from(Post.class);
+  criteriaQuery.select(criteriaRoot);
+  ```
+- Type Safe한 방법 : 실제 query를 명시하지 않음
+  ```java
+  List<Post> criteriaPost = entityManager.createQuery(criteriaQuery).getResultList();
+  System.out.println("=====Criteria=====");
+  criteriaPost.forEach(System.out::println);
+  ```
+- Native Query
+  ```java
+  List<Post> nativePosts = entityManager.createNativeQuery("select * from Post AS p", Post.class).getResultList();
+  System.out.println("=====Native=====");
+  nativePosts.forEach(System.out::println);
   ```
 
 

@@ -26,4 +26,10 @@ public class Post {
         this.comments.add(comment);
         comment.setPost(this);
     }
+
+    @Override
+    public String toString() {
+        return "id : " + this.id + "\n"
+        + "title : " + this.title;
+    }
 }
