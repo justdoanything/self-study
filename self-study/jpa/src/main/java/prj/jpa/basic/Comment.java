@@ -18,4 +18,9 @@ public class Comment {
     private String comment;
     @ManyToOne
     private Post post;
+
+    @Override
+    public String toString(){
+        return "{\"comment\":" + this.comment + "\"}";
+    }
 }

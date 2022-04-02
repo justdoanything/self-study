@@ -156,15 +156,17 @@
 - 기본으로 제공하는 함수 기반으로 Customize 함수 사용 가능
   ```java
   public interface PostRepository extends JpaRepository<Post, Long> {
-    
     // Customize Function 사용 가능
     Page<Post> findByTitleContains(String title, PageRequest pageRequest);
     long countByTitleContains(String title);
   }
+
+  // PostRepositoryTest.java
   ```
 - 기본으로 제공하는 함수 전체 중에서 일부만 사용하고 싶을 때
   ```java
   // 사용할 함수만 담고 있는 Interface
+  @NoRepositoryBean
   public interface CustomRepository<T, Id extends Serializable> extends Repository<T, Id> {
     <E extends T> E save(E entity);
     List<T> findAll();
@@ -177,6 +179,8 @@
     // fineAll();
     // count();
   }
+
+  // CommentRepositoryTest.java
   ```
 
 

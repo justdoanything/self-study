@@ -1,4 +1,4 @@
-package prj.yong.jpa.jpa;
+package prj.test;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ import prj.jpa.basic.Post;
 import prj.jpa.springJPA.PostRepository;
 
 @DataJpaTest
-public class JpaRunnerTest {
+public class PostRepositoryTest {
     @Autowired
     PostRepository postRepository;
     
