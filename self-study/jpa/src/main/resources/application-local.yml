@@ -26,4 +26,4 @@ logging:
       hibernate:
         type:
           descriptor:
-            sql: true
+            sql: trace

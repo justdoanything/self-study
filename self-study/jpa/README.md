@@ -151,5 +151,38 @@
 
 ---
 
+## Spring JPA 사용
+- JpaRepository 상속받아서 사용
+- 기본으로 제공하는 함수 기반으로 Customize 함수 사용 가능
+  ```java
+  public interface PostRepository extends JpaRepository<Post, Long> {
+    
+    // Customize Function 사용 가능
+    Page<Post> findByTitleContains(String title, PageRequest pageRequest);
+    long countByTitleContains(String title);
+  }
+  ```
+- 기본으로 제공하는 함수 전체 중에서 일부만 사용하고 싶을 때
+  ```java
+  // 사용할 함수만 담고 있는 Interface
+  public interface CustomRepository<T, Id extends Serializable> extends Repository<T, Id> {
+    <E extends T> E save(E entity);
+    List<T> findAll();
+    long count();
+  }
+
+  // 위 함수를 상속받아 Comment 객체를 사용하는 Interface
+  public interface CommentRepository extends CustomRepository<Comment, Long> {
+    // save(Comment comment);
+    // fineAll();
+    // count();
+  }
+  ```
+
+
+
+
+---
+
 ## Reference
 - [스프링 데이터 JPA / 백기선 / 인프런](https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81-%EB%8D%B0%EC%9D%B4%ED%84%B0-jpa/dashboard)

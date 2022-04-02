@@ -90,6 +90,10 @@ public class JpaRunner implements ApplicationRunner {
 
         /*******************************************************************/
         
+        Post post = new Post();
+        post.setTitle("JPA 재밌어요!!");
+        postRepository.save(post);
+
         List<Post> list = postRepository.findAll();
         list.forEach(System.out::print);
 

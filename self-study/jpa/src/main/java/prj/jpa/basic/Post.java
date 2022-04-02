@@ -12,6 +12,7 @@ import javax.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 
+
 @Entity
 @Getter
 @Setter
@@ -29,7 +30,6 @@ public class Post {
 
     @Override
     public String toString() {
-        return "id : " + this.id + "\n"
-        + "title : " + this.title;
+        return "{\"id\":\"" + this.id + "\", \"title\":" + this.title + "\"}";
     }
 }
