@@ -1,6 +1,7 @@
 package prj.test;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -42,6 +43,9 @@ public class CommentRepositoryTest {
         List<Comment> comments = commentRepository.findAll();
         comments.forEach(System.out::println);
         
-
+        Optional<Comment> byId = commentRepository.findById(100l);
+        Assertions.assertThat(byId).isEmpty();
+        Comment comment = byId.orElseThrow(IllegalArgumentException::new);
+        
     }
 }

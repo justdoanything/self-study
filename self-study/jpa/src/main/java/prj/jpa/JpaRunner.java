@@ -96,6 +96,5 @@ public class JpaRunner implements ApplicationRunner {
 
         List<Post> list = postRepository.findAll();
         list.forEach(System.out::print);
-
     }
 }

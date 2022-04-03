@@ -183,8 +183,24 @@
   // CommentRepositoryTest.java
   ```
 
+---
 
+## Null 체크
+- Optional 함수 사용
+```java
+Optional<Comment> byId = commentRepository.findById(100l);
+Assertions.assertThat(byId).isEmpty();
+Comment comment = byId.orElseThrow(IllegalArgumentException::new);
+```
 
+- Spring Annotation 사용
+  - @NonNull, @Nullable
+```java
+<E extends T> E save(@NonNull E entity);
+
+@Nullable
+<E extends T> Optional<E> findById(@Nullable Id id);
+```
 
 ---
 
