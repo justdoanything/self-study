@@ -5,13 +5,77 @@ Serverless
 ![image](https://user-images.githubusercontent.com/21374902/151154723-dc2e7c38-d46a-4c7b-b7c7-df03cb61d3c5.png)
 
 - CloudWatch와 SNS(Simple Notification Service)
-- Lambda
-- Dynamo DB
+  - 비용 관련 제한 설정을 하고 초과했을 시 알람이 올 수 있도록 할 수 있다.
+- AWS Lambda
+  - 별도의 Back-End Instance를 구성하지 않고 Lambda를 생성해서 처리할 수 있다.
+  - `Create AWS Lambda`를 하고 `트리거`와 `대상`을 추가해주면 된다.
+  - Nodejs, Java, Python, Ruby, .NET, Go 언어를 지원한다.
+- Amazon DynamoDB
+  - `Create Amazon DynamoDB`를 하고 `항목`을 설정해서 Attribute를 설정할 수 있다.
+  - AWS Lambda에서 Nodejs를 사용해 DynamoDB를 연결하는 Sample
+    ```js
+    // AWS API를 사용하기 위한 준비
+    var AWS = require("aws-sdk");
+    var dynamoDB = new AWS.DynamoDB.DocumentClient({apiVersion: "2022-01-01"});
+
+    exports.handler = async event => {
+      console.log("Received : " + JSON.stringify(event, null, 2));
+      let response = "";
+      try {
+        var params = {
+          // FilterExpression: "Year = :this_year",
+          // ExpressionAttributeValues: { ":this_year": 2015 },
+          TableName: "sampleTable"
+        };
+        
+        console.log("Params : " + params);
+        const cards = await dynamoDB.scan(params).promise();
+
+        response = {
+          statusCode: 200,
+          body: JSON.stringify(cards);
+        };
+      } catch(exception){
+        console.error(exception);
+        response = {
+          statusCode: 500,
+          body: JSON.stringify({"Message : ": exception})
+        };
+      }
+      return response;
+    }
+    ```
 - IAM
+  - 각 Resource의 접근 권한 설정
 - API Gateway
-- Deploy
+  - `Create Amazon API Gateway`를 하고 `Resource 생성`으로 Domain 구조를 잡는다.
+  - `Method 생성`으로 AWS Lambda와 연결해줄 수 있다.
+  - `API 배포`를 통해서 배포하고 URL를 알아낼 수 있다.
+  - API Gateway를 배포할 때 `요율(1초에 처리할 수 있는 요청수)`과 `버스트(한 번에 처리할 수 있는 요청수)`를 설정할 수 있다.
 - CORS
+  - Client단에서 API를 호출하는 예제
+    ```js
+    const callAPI = async request => {
+      const response = await fetch(request.url, {
+        method: "POST", // POST, GET, PUT, DELETE, ...
+        mode: "cors",
+        cache: "no-cache", // no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        redirect: "follow",
+        referrer: "no-referrer",
+        body: request.data ? JOSN.stringify(request.data) : null
+      });
+      console.log(response)
+    };
+    ```
+  - Amazon API Gateway에서 CORS 설정과 API Key 설정을 할 수 있다.
 - S3 Hosting (OAI(Origin Access Identities) 방식)
+  - `Create S3` -> 속성 -> 정적 웹 사이트 호스팅 -> index.html 설정하고 Endpoint 확인
+  - 짜놓은 코드를 S3에 업로드 (index.html, app.js, ...)
 - Cloud Watch Dashboard
 - Lambda Layer
 - X-Ray SDK
