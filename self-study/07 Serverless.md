@@ -74,11 +74,48 @@ Serverless
     ```
   - Amazon API Gateway에서 CORS 설정과 API Key 설정을 할 수 있다.
 - S3 Hosting (OAI(Origin Access Identities) 방식)
-  - `Create S3` -> 속성 -> 정적 웹 사이트 호스팅 -> index.html 설정하고 Endpoint 확인
-  - 짜놓은 코드를 S3에 업로드 (index.html, app.js, ...)
+  - `Create S3` ▻ 속성 ▻ 정적 웹 사이트 호스팅 ▻ index.html 설정하고 Endpoint 확인
+  - 짜놓은 코드 파일을 `S3`에 업로드 (index.html, app.js, ...)
+  - `S3`는 반드시 public 이어야 함 (보안성 취약, 불필요한 비용 증가 우려)
+  - `CloudFront`를 사용해서 배포하기
+    - `S3`를 private로 만들고 코드 파일 업로드
+    - `Create CloudFront` ▻ `Create Distribution` ▻ `Origin Domain Name` 설정 ▻ `OAI` 설정 ▻ Default Root Object = index.html 설정
+  - 🌟 AWS `임시 요청 Redirection` 문제
+    - `CloudFront`를 생성할 때 `Origin Domain Name`에 `S3 Bucket`의 URL을 설정해준다. 이 때, Region을 제외하면 임시 요청 Redirection 문제가 발생한다.\
+    _(예시 : https://{bucket-name}.s3.{region}.amazonaws.com)_
+    - URL에 Region을 명시하지 않으면 Client의 요청이 다른 Region으로 갈 수 있다.
+    - 예를들어, `US Region`으로 갔다면 `S3 Bucket`이 없기 때문에 AWS 라우터는 내부적으로 `Seoul Region`으로 가라고 알려주고 이 정보가 `Edge Location`에 전파된다.
+    - 하지만 이 때, `Seoul Region`에 있는 `S3 주소(IP)`로 Redirect가 되도록하는데 `S3 Bucket`이 `Private` 라면 데이터를 정상적으로 받을 수 없게 된다.
+    - `CloudFront`가 해야할 서비스는 사용자가 직접 `S3 Bucket`으로 접근하는게 아니라 `CloudFront`의 `OAI`를 통해서 받아온 `S3`의 자료를 미리 `Edge Location`에 뿌려놨어야 한다. 하지만 `임시 요청 Redirection`을 하면 `S3`에 직접 요청하기 때문에 문제가 발생한다.
+    - `ClloudFront`에 `Origin Domain Name`을 선택할 때 URL에 반드시 Region 이름이 들어가야 한다.
 - Cloud Watch Dashboard
-- Lambda Layer
-- X-Ray SDK
+  - Resource 상황을 볼 수 있는 Dashboard
+  - Cloud Watch Alram을 통해서 에러가 발생했을 때 알람을 보낼 수 있다.
+- AWS X-Ray & AWS Lambda Layer
+  - aws-xray-sdk 설치 : `npm install aws-xray-sdk`
+  - 설치한 폴더를 압축한 후 AWS Lambda ▻ 계층 ▻ 계층 생성 ▻ 압축 파일 업로드
+  - AWS Lambda ▻ 함수 ▻ Add Layer 
+  - AWS Lambda를 사용하는 js 코드에 X-Ray 추가
+    ```js
+    // AWS X-Ray 사용을 위해 수정
+    //var AWS = require("aws-sdk");
+    var AWSXray = require("aws-xray-sdk");
+    var AWS = AWSXray.captureAWS(require("aws-sdk"));
+    var dynamoDB = new AWS.DynamoDB.DocumentClient({apiVersion: "2022-01-01"});
+
+    exports.handler = async event => {
+      // 상세정보를 X-Ray에 남기도록 추가
+      var segment = AWSXray.getSegment();
+      var subSegment = segment.addNewSubsegment("main");
+      subSegment.addAnnotation("App", "Main Lambda");
+      ...
+
+      subSegment.addMetadata("Exception", exception);
+      subSegment.addMetadata("Event", event);
+      subSegment.addMetadata("Parameter", params);
+      subSegment.close();
+    }
+    ```
 - SAM(Serverless Application Model)
   - Create AWS account
   - Create an IAM user with Administrator Permissions.
