@@ -3,7 +3,9 @@
 ## [Link to Github - 05 JPA](https://github.com/justdoanything/self-study/blob/main/self-study/05%20JPA.md)
 
 ## Java Statement
+
 - Try with resources
+
   ```java
   try(Resource resource = new Resources()){
     ...
@@ -21,48 +23,52 @@
 ---
 
 ## postgres 설치 및 접속
-  - docker run -p 5432:5432 -e POSTGRES_PASSWORD=yongwoo -e POSTGRES_USER=yongwoo -e POSTGRES_DB=springdata --name postgres_boot -d postgres
-  - docker exec -it postgres_boot bash
-  - psql -U yongwoo springdata
+
+- docker run -p 5432:5432 -e POSTGRES_PASSWORD=yongwoo -e POSTGRES_USER=yongwoo -e POSTGRES_DB=springdata --name postgres_boot -d postgres
+- docker exec -it postgres_boot bash
+- psql -U yongwoo springdata
 
 ---
 
 ## @Value
+
 - @Entity 안에 한 Column으로 Class를 갖기 위해선 @Embeddable, @Embedded 을 사용해준다.
-    ```java
-    // Column이 될 Class
-    @Embeddable
-    public class Address { ... } 
 
-    // Address Class를 Column으로 사용
-    ...
-    @Id @GeneratedValue
-    private Long id;
-    private String username;
-    private String password;
+  ```java
+  // Column이 될 Class
+  @Embeddable
+  public class Address { ... }
 
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name="street", column = @Column(name="homeStreet")),
-        @AttributeOverride(name="city", column = @Column(name="homeCity")),
-        @AttributeOverride(name="state", column = @Column(name="homeState")),
-        @AttributeOverride(name="zipCode", column = @Column(name="homeZipCode"))
+  // Address Class를 Column으로 사용
+  ...
+  @Id @GeneratedValue
+  private Long id;
+  private String username;
+  private String password;
 
-    })
-    private Address homeAddress;
+  @Embedded
+  @AttributeOverrides({
+      @AttributeOverride(name="street", column = @Column(name="homeStreet")),
+      @AttributeOverride(name="city", column = @Column(name="homeCity")),
+      @AttributeOverride(name="state", column = @Column(name="homeState")),
+      @AttributeOverride(name="zipCode", column = @Column(name="homeZipCode"))
 
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name="street", column = @Column(name="officeStreet")),
-        @AttributeOverride(name="city", column = @Column(name="officeCity")),
-        @AttributeOverride(name="state", column = @Column(name="officeState")),
-        @AttributeOverride(name="zipCode", column = @Column(name="officeZipCode"))
+  })
+  private Address homeAddress;
 
-    })
-    private Address officeAddrss;
-    ```
+  @Embedded
+  @AttributeOverrides({
+      @AttributeOverride(name="street", column = @Column(name="officeStreet")),
+      @AttributeOverride(name="city", column = @Column(name="officeCity")),
+      @AttributeOverride(name="state", column = @Column(name="officeState")),
+      @AttributeOverride(name="zipCode", column = @Column(name="officeZipCode"))
+
+  })
+  private Address officeAddrss;
+  ```
 
 - @OneToMany, @ManyToOne
+
   ```java
   // @ManyToOne
   public class Study {
@@ -91,17 +97,18 @@
 ---
 
 ## Entity 상태 전파
+
 - Cascade
   ```java
   /*
-   * Post와 Comment의 양방향 관계를 맺고 
+   * Post와 Comment의 양방향 관계를 맺고
    * session.save(post); 만 해주게 되면 Comment엔 데이터가 저장되지 않는다.
    *
    * casecade = CasecadeType.PRESIST 옵션을 주면 Post가 저장될 때 상태를 전파한다.
    * casdcade = CasecadeType.REMOVE 옵션을 주면 Post가 삭제될 때 상태를 전파한다.
    *
    * Database의 casecade 옵션을 주는 것과 같다.
-   */ 
+   */
    public class Post {
     @OneToMany(mappedBy = "post", cascade = { CascadeType.PERSIST, CasecaseType.REMOVE})
     private Set<Comment> comments = new HashSet<>();
@@ -111,24 +118,26 @@
 ---
 
 ## Fetch : 데이터를 가져오는 시점
-  ```java
-  /*
-   * @ManyToOne의 기본값은 EAGER : 연관있는 데이터를 모두 select
-   * @OneToMany의 기본값은 LAZY : 실제 데이터에 대해서 select이 발생했을 때 query를 실행
-   */
 
-  ...
-  @ManyToOne(fetch = FatchType.EAGER)
-  private Account owner;
+```java
+/*
+ * @ManyToOne의 기본값은 EAGER : 연관있는 데이터를 모두 select
+ * @OneToMany의 기본값은 LAZY : 실제 데이터에 대해서 select이 발생했을 때 query를 실행
+ */
 
-  ...
-  @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
-  private Set<Comment> comments = new HashSet<>();
-  ```
+...
+@ManyToOne(fetch = FatchType.EAGER)
+private Account owner;
+
+...
+@OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
+private Set<Comment> comments = new HashSet<>();
+```
 
 ---
 
 ## Query를 직접 사용하는 방법
+
 - JPQL
   ```java
   CriteriaBuilder builder = entityManager.getCriteriaBuilder();
@@ -152,8 +161,10 @@
 ---
 
 ## Spring JPA 사용
+
 - JpaRepository 상속받아서 사용
 - 기본으로 제공하는 함수 기반으로 Customize 함수 사용 가능
+
   ```java
   public interface PostRepository extends JpaRepository<Post, Long> {
     // Customize Function 사용 가능
@@ -163,7 +174,9 @@
 
   // PostRepositoryTest.java
   ```
+
 - 기본으로 제공하는 함수 전체 중에서 일부만 사용하고 싶을 때
+
   ```java
   // 사용할 함수만 담고 있는 Interface
   @NoRepositoryBean
@@ -186,7 +199,9 @@
 ---
 
 ## Null 체크
+
 - Optional 함수 사용
+
 ```java
 Optional<Comment> byId = commentRepository.findById(100l);
 Assertions.assertThat(byId).isEmpty();
@@ -195,6 +210,7 @@ Comment comment = byId.orElseThrow(IllegalArgumentException::new);
 
 - Spring Annotation 사용
   - @NonNull, @Nullable
+
 ```java
 <E extends T> E save(@NonNull E entity);
 
@@ -204,5 +220,58 @@ Comment comment = byId.orElseThrow(IllegalArgumentException::new);
 
 ---
 
+## Query 선언
+
+- 함수명으로 정의
+  ```java
+  List<Comment> findByTitleContains(String title);
+  List<Comment> findByTitleContainsIgnoreCase(String title);
+  ```
+  - 함수명 규칙과 리턴 타입
+    - find, get, query, count, ...
+    - distinct, first, top, ...
+    - ignoreCase, between, lessThan, greaterThan, like, ...
+    - orderByAsc, orderByDesc, ...
+    - E, Optional, List<E>, Page<E>, Slice<E>, Stream<E>, ...
+    - Pageable, Sort, ...
+- @Query 사용
+  - 기본값은 `JPQL`
+    ```java
+    @Query("SELECT c FROM Comment AS c")
+    List<Comment> findByComment();
+    ```
+  - `SQL`을 사용하려면 `nativeQuery` 옵션 필요
+    ```java
+    @Query(value = "SELECT * FROM Comment AS c", nativeQuery = true)
+    List<Comment> findByComment();
+    ```
+- Query를 생성하는 전략을 지정할 수 있다 : `queryLookupStrategy`
+  - CREATE : 함수 이름을 분석해서 쿼리 생성
+  - CREATE_IF_NOT_FOUND (기본값) : 미리 정의해 둔 쿼리를 찾고 없으면 함수명으로 쿼리 생성
+  - USE_DECLARED_QUERY : 미리 정의해 둔 쿼리를 찾아서 사용
+
+---
+
+## 비동기로 Query 실행
+
+- `@SpringBootApplication`에 `@EnableAsync` 추가
+- Repository 안에 있는 함수에 `@Async` 추가
+- Future Class 사용
+
+  - Future
+  - CompletableFuture
+  - ListenableFuture
+
+  ```java
+  @Async
+  Future<List<Comment>> findByCommentContains(String keyword);
+
+  @Async
+  ListenableFuture<List<Comment>> findByComment(String keyword);
+  ```
+
+---
+
 ## Reference
+
 - [스프링 데이터 JPA / 백기선 / 인프런](https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81-%EB%8D%B0%EC%9D%B4%ED%84%B0-jpa/dashboard)
