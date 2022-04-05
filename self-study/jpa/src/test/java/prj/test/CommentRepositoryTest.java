@@ -45,7 +45,8 @@ public class CommentRepositoryTest {
         // List<Comment> result = future.get();  // Blocking 됨.
         // result.forEach(System.out::println);
 
-        // 비동기로 실행되는 thread는 
+        /* 비동기 방식을 추천하지 않는 이유 */
+        // 위에서 insert한 결과는 실제 database에 영향을 미치지 않기 때문에 select 되는 결과가 없다.
         ListenableFuture<List<Comment>> listenFuture = commentRepository.findByComment("테스트 코멘트1");
         listenFuture.addCallback(new ListenableFutureCallback<List<Comment>>() {
             @Override

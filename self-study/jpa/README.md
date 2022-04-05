@@ -260,7 +260,7 @@ Comment comment = byId.orElseThrow(IllegalArgumentException::new);
 
   - Future
   - CompletableFuture
-  - ListenableFuture
+  - ListenableFuture : CallBack 함수 사용할 수 있음
 
   ```java
   @Async
@@ -269,6 +269,12 @@ Comment comment = byId.orElseThrow(IllegalArgumentException::new);
   @Async
   ListenableFuture<List<Comment>> findByComment(String keyword);
   ```
+
+- 비동기 방식을 추천하지 않는 이유
+  - JPA는 실제로 데이터를 사용하지 않는 경우 Database에 영향을 미치지 않고 모두 Context에만 갖다.
+  - 비동기 방식으로 처리할 경우, Main Thread에서 insert해도 실제 Database에 insert를 하지 않고 있기 때문에 다른 Thread(Select 하는 함수)에서 데이터가 검색되지 않는다.
+  - 각 Thread는 서로가 어떤 작업을 하고 있는지 모르기 때문이다.
+  - CommonRepositoryTest.java 참고
 
 ---
 
