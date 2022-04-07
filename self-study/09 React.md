@@ -341,6 +341,41 @@ fetch("https://url", {
   reportWebVitals();
   ```
 
+- 언어 변경 이벤트 적용 (MUI 사용)
+
+  ```js
+  import MenuItem from "@mui/material/MenuItem";
+  import FormControl from "@mui/material/FormControl";
+  import Select, { SelectChangeEvent } from "@mui/material/Select";
+
+  import { useTranslation } from "react-i18next";
+
+  function navBar {
+    const { t, i18n } = useTranslation();
+    const [lang, setLang] = React.useState(i18n.language);
+    const changeLaunage = (event: SelectChangeEvent) => {
+      i18n.changeLanguage(event.target.value);
+      setLang(event.target.value);
+    };
+
+    return (
+      <div className="langBtn">
+        <FormControl sx={{ m: 1, minWidth: 50 }}>
+          <Select
+            value={lang}
+            onChange={changeLaunage}
+            inputProps={{ "aria-label": "Without label" }}
+          >
+            <MenuItem value="ko">KOR</MenuItem>
+            <MenuItem value="en">ENG</MenuItem>
+          </Select>
+        </FormControl>
+      </div>;
+    )
+  }
+
+  ```
+
 - 언어팩을 적용할 Component에 `useTranslation` 추가
 
   ```js
