@@ -6,6 +6,12 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Launch App",
+      "request": "launch",
+      "mainClass": "prj.effective.App"
+    },
+    {
+      "type": "java",
       "name": "Launch effective",
       "request": "launch",
       "mainClass": "prj.effective.effective",
