@@ -1,5 +1,11 @@
 import java.lang.ref.Cleaner;
 
+
+/**
+ * State 인스턴스가 Room 인스턴스를 참조하면 순환참조가 일어나서 청소되지 않는다.
+ * try-resources문을 사용해서 Room 객체를 사용하면 프로그램이 정상적으로 청소됨("====방 청소!")을 볼 수 있지만
+ * 단순하게 new Room(10);으로 선언해서 사용한다면 언제 청소될지 알 수 없다.
+ */
 public class CleanerSample implements AutoCloseable {
     private static final Cleaner cleaner = Cleaner.create();
 
