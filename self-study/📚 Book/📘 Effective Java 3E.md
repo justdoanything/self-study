@@ -2,27 +2,35 @@
 
 ### 2장 객체 생성자 파괴
 
-- `생성자 대신 정적 팩터리메서드를 고려하라.`
+- 💦 `생성자 대신 정적 팩터리메서드를 고려하라.`
   - 🏷 정적 팩터리 메서드와 public 생성자는 각자의 쓰임새가 있으니 상대적인 장단점을 이해하고 사용하는 것이 좋다. 그렇다고 하더라도 정적 팩터리를 사용하는게 유리한 경우가 더 많으므로 무작정 public 생성자를 제공하던 습관이 있다면 고치자.
+
 - `생성자에 매개변수가 많다면 빌더를 고려하라.`
   - Telescoping Constructor Pattern : 점층적 생성자 패턴, 1개, 2개, 3개, ..., n개를 받는 생성자를 생성
   - JavaBeans Pattern : 매개 변수가 없는 생성자를 만들고 setter 메소드를 사용하는 것
   - Builder Pattern\
      `BuilderPattern.java`
   - 🏷 생성자나 정적 팩터리가 처리해야 할 매개변수가 많다면 빌더 패턴을 선택하는게 더 낫다. 매개변수 중 다수가 필수가 아니거나 같은 타입이면 특히 더 그렇다. 빌더는 점층적 생성자보다 클라이언트 코드를 읽고 쓰기가 훨씬 간결하고, 자바빈즈보다 훨씬 안전하다.
-- `private 생성자나 열거 타입으로 싱글턴임을 보장하라.`\
-   `Singleton.java`
-- `인스턴스화를 막으려거든 private 생성자를 사용하라.`
-- `자원을 직접 명시하지 말고 의존 객체 주입을 사용하라.`
+
+- 💦 `private 생성자나 열거 타입으로 싱글턴임을 보장하라.`\
+  - 예제코드 : `Singleton.java`
+
+- 💦`인스턴스화를 막으려거든 private 생성자를 사용하라.`
+
+- 💦 `자원을 직접 명시하지 말고 의존 객체 주입을 사용하라.`
   - 🏷 클래스가 내부적으로 하나 이상의 자원에 의존하고 그 자원이 클래스 동작에 영향을 준다면 싱글턴과 정적 유틸리티 클래스는 사용하지 않는 것이 좋다. 이 자원들을 클래스가 직접 만들게 해서도 안된다. 대신 필요한 자원을 (혹은 그 자원을 만들어주는 팩터리를) 생성자에 (혹은 정적 팩터리나 빌더에) 넘겨주자. 의존 객체 주입이라 하는 이 기법은 클래스의 유연성, 재사용성, 테스트 용이성을 기막히게 개선해준다.
+
 - `불필요한 객체 생성을 피하라.`
+
 - `다 쓴 객체 참조를 해제하라.`
   - 🏷 메모리 누수는 겉으로 잘 드러나지 않아 시스템에 수년간 잠복하는 사례도 있다. 이런 누수는 철저한 코드 리뷰나 힙 프로파일러 같은 디버깅 도구를 동원해야만 발견되기도 한다. 그래서 이런 종류의 문제는 예방법을 익혀두는 것이 매주 중요하다.
   - 💡 WeakHashMap으로 Cache에서 바로 제거하는 방법
+
 - `finalizer와 cleaner 사용을 피하라.`
   - try-with-resources를 적극 사용하라.
   - cleaner는 안전망 역할이나 중요하지 않은 네이티브 자원 회수용으로만 사용하자. 물론 이런 경우라도 불확실성과 성능 저하에 주의해야 한다.\
      `CleanerSample.java`
+
 - `try-finally보다는 try-with-resources를 사용하라.`
 
 ### 3장 모든 객체의 공통 메서드
@@ -37,43 +45,151 @@
     - 입력 객체와 자기 자신의 대응되는 '핵심' 필드들이 모두 일치하는지 하나씩 검사한다.
     - `CleanerSample.java`
   - 🏷 꼭 필요한 경우가 아니면 equals를 재정의하지 말자. 많은 경우에 Object의 euqlas가 여러분이 원하는 비교를 정확히 수행해준다. 재정의해야 할 때는 그 클래스의 핵심 필드 모두를 빠짐없이, 다섯 가지 규약을 확실히 지켜가며 비교해야 한다.
+
 - `equals를 재정의하려거든 hashCode도 재정의하라.`
+  - 🏷 equals를 재정의할 때는 hashCode도 반드시 재정의해야 한다. 그렇지 않으면 프로그램이 제대로 동작하지 않을 것이다. 재정의한 hashCode는 Object의 API 문서에 기술된 일반 규약을 따라야 하며, 서로 다른 인스턴스라면 되도록 해시코드도 서로 다르게 구현해야 한다. 이렇게 구현하기가 어렵지는 않지만 조금 따분한 일이긴하다. AutoValue 프레임워크를 사용하면 멋진 equals와 hashCode를 자동으로 만들어준다. IDE들도 이런 기능을 일부 제공한다.
     <details>
       <summary>예제 코드</summary>
 
-  ```java
-  Map<PhoneNumber, String> m = new HashMap<>();
-  m.put(new PhoneNumber(010, 1111, 2222), "영구");
-  m.get(new PhoneNumber(010, 1111, 2222));  // null 을 반환한다.
+      ```java
+      Map<PhoneNumber, String> m = new HashMap<>();
+      m.put(new PhoneNumber(010, 1111, 2222), "영구");
+      m.get(new PhoneNumber(010, 1111, 2222));  // null 을 반환한다.
 
-  // 안좋은 hashCode
-  @Override
-  public int hashCode() { return 99; }
+      // 안좋은 hashCode
+      @Override
+      public int hashCode() { return 99; }
 
-  // 올바른 hashCode
-  @Override
-  public int hashCode() {
-    int result = Short.hashCode(areaCode);
-    // 31은 홀수이면서 소수
-    result = 31 * result + Short.hashCode(prefix);
-    result = 31 * result + Short.hashCode(lineNum);
-    return result;
-  }
+      // 올바른 hashCode
+      @Override
+      public int hashCode() {
+        int result = Short.hashCode(areaCode);
+        // 31은 홀수이면서 소수
+        result = 31 * result + Short.hashCode(prefix);
+        result = 31 * result + Short.hashCode(lineNum);
+        return result;
+      }
 
-  @Override
-  public int hashCode(){
-    return Objects.hash(lineNum, prefix, areaCode);
-  }
-  ```
+      @Override
+      public int hashCode(){
+        return Objects.hash(lineNum, prefix, areaCode);
+      }
+      ```
 
-  </details>
-
-  - 🏷 equals를 재정의할 때는 hashCode도 반드시 재정의해야 한다. 그렇지 않으면 프로그램이 제대로 동작하지 않을 것이다. 재정의한 hashCode는 Object의 API 문서에 기술된 일반 규약을 따라야 하며, 서로 다른 인스턴스라면 되도록 해시코드도 서로 다르게 구현해야 한다. 이렇게 구현하기가 어렵지는 않지만 조금 따분한 일이긴하다. AutoValue 프레임워크를 사용하면 멋진 equals와 hashCode를 자동으로 만들어준다. IDE들도 이런 기능을 일부 제공한다.
+    </details>
 
 - `toString을 항상 재정의하라.`
   - 🏷 모든 구체 클래스에서 Object의 toString을 재정의하자. 상위 클래스에서 이미 알맞게 재정의한 경우는 예외다. toString을 재정의한 클래스는 사용하기도 즐겁고 그 클래스를 사용한 시스템을 디버깅하기 쉽게 해준다. toString은 해당 객체에 관한 명확하고 유용한 정보를 읽기 좋은 형태로 반환해야 한다.
-- `clone 재정의는 주의해서 진행하라.`
+
+- 💦 `clone 재정의는 주의해서 진행하라.`
+  - 🏷 Cloneable이 몰고 온 모든 문제를 퇴짚어봤을 때, 새로운 인터페이스를 만들 때는 절대 Clonable을 확장해서는 안되며, 새로운 클래스도 이를 구현해서는 안된다. final 클래스라면 Cloneable을 구현해도 위험이 크지 않지만, 성능 최적화 관점에서 검토한 후 별다른 문제가 없을 때만 드물게 허용해야 한다. 기본 원칙은 `복제 기능은 생성자와 팩터리를 이용하는게 최고`라는 것이다. 단, 배열만은 clone 메서드 방식이 가장 ㅈ깔끔한, 이 규칙의 합당한 예외라 할 수 있다.
+  - 📝 clone은 위험하다. `Conversion Constructor`와 `Conversion Factory`를 사용하자.\
+    인스턴스를 인수로 받을 수 있고 HashSet은 TreeSet 타입으로 복제할 수 있다.
+    <details>
+      <summary>예제 코드</summary>
+        
+      ```java
+      public class Yum {
+        // Conversion Constructor
+        public Yum(Yum yum) { ... }
+
+        // Conversion Factory
+        public static Yum newInstance(Yum yum) { ... }
+
+    }
+
+    ```
+    </details>
+
+  - 📝 상속해서 쓰기 위한 클래스는 Cloneable을 사용하지 않는게 좋다. clone 함수를 재정의해서 super.clone()을 사용해도 자바가 공변 반환 타이핑을 지원하기 때문에 에러가 발생하진 얺는다. 하지만 클래스가 배열 변수를 갖는다면 원본 인스턴스와 똑같은 배열을 참조하기 때문에 원본과 복제 인스턴스가 같은 객체를 사용하는 문제가 발생한다.
+    <details>
+      <summary>예제 코드</summary>
+
+      ```java
+      private Object[] elements;
+
+      @Override
+      public CloneableInstance clone() {
+        try{
+            return (CloneableInstance) super.clone();
+        }catch(CloneNotSupportedException e){
+            throw new AssertionError(); // 일어날 수 없는 일이다.
+        }
+      }
+      ```
+
+    </details>
+
+  - 📝 elements 객체를 clone 처리할 수 있지만 element가 final 필드였다면 이 방법도 먹히지 않는다. 이는 `가변 객체를 참조하는 필드는 final로 선언하라.` 라는 일반 용법과 충돌한다.
+    <details>
+      <summary>예제 코드</summary>
+
+      ```java
+      // 배열 변수도 같이 clone 처리해줘야 한다.
+      @Override
+      public CloneableInstance clone() {
+        try {
+          CloneableInstance result = (CloneableInstance) super.clone();
+          result.elements = elements.clone();
+          return result;
+        }catch(CloneNotSupportedException e){
+          throw new AssertionError();
+        }
+      }
+      ```
+
+    <details>
+
+  - 📝 Bucket 배열의 경우엔 elements와 같이 clone을 할 경우, 복제본은 자신만의 배열을 갖지만 그 배열은 원본과 같은 연결 리스트를 참조하여 원본과 복제본 모두 예기치 않게 동작할 수 있다. 이를 해결하기 위해선 각 Bucket을 구성하는 연결 리스트를 복사해야 한다.
+    - `bucket`: _A bucket is one element of HashMap array. It is used to store nodes. Two or more nodes can have the same bucket. In that case link list structure is used to connect the nodes. Buckets are different in capacity. A relation between bucket and capacity is as follows: capacity = number of buckets \* load factor. A single bucket can have more than one nodes, it depends on hashCode() method. The better your hashCode() method is, the better your buckets will be utilized.\
+    ▶️ Reference : https://www.geeksforgeeks.org/internal-working-of-hashmap-java/`_
+    - deepCopy() 메소드를 통해서 적절한 크기의 새로운 버킷을 만들고 버킷을 순회하면서 비어있지 않은 버킷에 대해 깊은 복사를 수행한다.
+      <details>
+        <summary>예제 코드</summary>
+
+      ```java
+      public class HashTable implements Clonable {
+        private Entry[] buckets = ...;
+
+        private static class Entry {
+          final Object key;
+          Object value;
+          Entry next;
+
+          Entry(Object key, Object value, Entry next){
+            this.key = key;
+            this.value = value;
+            this.next = next;
+          }
+
+          // 이 엔트리가 가리키는 연결 리스트를 재귀적으로 복사
+          Entry deepCopy(){
+            return new Entry(key, value, next == null ? null : next.deepCopy());
+          }
+
+          @Override
+          public HashTable clone() {
+            try{
+              HashTable result = (HashTable) super.clone();
+              result.buckets = new Entry[buckets.length];
+              for(int i=0; i<buckets.length; i++)
+                if(buckets[i] != null)
+                  result.buckets[i] = buckets[i].deepCopy();
+              return result;
+            } catch(CloneNotSupportedException e){
+              throw new AssertionError();
+            }
+          }
+        }
+      }
+      ```
+      </details>
 
 ---
 
-🏷 💡
+🏷 💡 📝
+
+<details>
+  <summary>예제 코드</summary>
+      
+<details>

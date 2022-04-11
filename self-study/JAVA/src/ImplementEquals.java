@@ -23,4 +23,12 @@ public class ImplementEquals {
         return ie.lineNum == lineNum && ie.prefix == prefix && ie.areaCode == areaCode;
     }
 
+    @Override
+    public ImplementEquals clone(){
+        try{
+            return (ImplementEquals) super.clone();
+        }catch(CloneNotSupportedException e){
+            throw new AssertionError(); // 일어날 수 없는 일이다.
+        }
+    }
 }
