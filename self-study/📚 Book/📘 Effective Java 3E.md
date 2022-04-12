@@ -82,8 +82,8 @@
   - 🏷 모든 구체 클래스에서 Object의 toString을 재정의하자. 상위 클래스에서 이미 알맞게 재정의한 경우는 예외다. toString을 재정의한 클래스는 사용하기도 즐겁고 그 클래스를 사용한 시스템을 디버깅하기 쉽게 해준다. toString은 해당 객체에 관한 명확하고 유용한 정보를 읽기 좋은 형태로 반환해야 한다.
 
 - 💦 `clone 재정의는 주의해서 진행하라.`
-  - 🏷 Cloneable이 몰고 온 모든 문제를 퇴짚어봤을 때, 새로운 인터페이스를 만들 때는 절대 Clonable을 확장해서는 안되며, 새로운 클래스도 이를 구현해서는 안된다. final 클래스라면 Cloneable을 구현해도 위험이 크지 않지만, 성능 최적화 관점에서 검토한 후 별다른 문제가 없을 때만 드물게 허용해야 한다. 기본 원칙은 `복제 기능은 생성자와 팩터리를 이용하는게 최고`라는 것이다. 단, 배열만은 clone 메서드 방식이 가장 ㅈ깔끔한, 이 규칙의 합당한 예외라 할 수 있다.
-  - 📝 clone은 위험하다. `Conversion Constructor`와 `Conversion Factory`를 사용하자.\
+  - 🏷 Cloneable이 몰고 온 모든 문제를 퇴짚어봤을 때, 새로운 인터페이스를 만들 때는 절대 Clonable을 확장해서는 안되며, 새로운 클래스도 이를 구현해서는 안된다. final 클래스라면 Cloneable을 구현해도 위험이 크지 않지만, 성능 최적화 관점에서 검토한 후 별다른 문제가 없을 때만 드물게 허용해야 한다. 기본 원칙은 `복제 기능은 생성자와 팩터리를 이용하는게 최고`라는 것이다. 단, 배열만은 clone 메서드 방식이 가장 깔끔한, 이 규칙의 합당한 예외라 할 수 있다.
+  - clone은 위험하다. `Conversion Constructor`와 `Conversion Factory`를 사용하자.\
     인스턴스를 인수로 받을 수 있고 HashSet은 TreeSet 타입으로 복제할 수 있다.
     <details>
       <summary>예제 코드</summary>
@@ -101,7 +101,7 @@
     ```
     </details>
 
-  - 📝 상속해서 쓰기 위한 클래스는 Cloneable을 사용하지 않는게 좋다. clone 함수를 재정의해서 super.clone()을 사용해도 자바가 공변 반환 타이핑을 지원하기 때문에 에러가 발생하진 얺는다. 하지만 클래스가 배열 변수를 갖는다면 원본 인스턴스와 똑같은 배열을 참조하기 때문에 원본과 복제 인스턴스가 같은 객체를 사용하는 문제가 발생한다.
+  - 상속해서 쓰기 위한 클래스는 Cloneable을 사용하지 않는게 좋다. clone 함수를 재정의해서 super.clone()을 사용해도 자바가 공변 반환 타이핑을 지원하기 때문에 에러가 발생하진 얺는다. 하지만 클래스가 배열 변수를 갖는다면 원본 인스턴스와 똑같은 배열을 참조하기 때문에 원본과 복제 인스턴스가 같은 객체를 사용하는 문제가 발생한다.
     <details>
       <summary>예제 코드</summary>
 
@@ -120,7 +120,7 @@
 
     </details>
 
-  - 📝 elements 객체를 clone 처리할 수 있지만 element가 final 필드였다면 이 방법도 먹히지 않는다. 이는 `가변 객체를 참조하는 필드는 final로 선언하라.` 라는 일반 용법과 충돌한다.
+  - elements 객체를 clone 처리할 수 있지만 element가 final 필드였다면 이 방법도 먹히지 않는다. 이는 `가변 객체를 참조하는 필드는 final로 선언하라.` 라는 일반 용법과 충돌한다.
     <details>
       <summary>예제 코드</summary>
 
@@ -140,8 +140,8 @@
 
     <details>
 
-  - 📝 Bucket 배열의 경우엔 elements와 같이 clone을 할 경우, 복제본은 자신만의 배열을 갖지만 그 배열은 원본과 같은 연결 리스트를 참조하여 원본과 복제본 모두 예기치 않게 동작할 수 있다. 이를 해결하기 위해선 각 Bucket을 구성하는 연결 리스트를 복사해야 한다.
-    - `bucket`: _A bucket is one element of HashMap array. It is used to store nodes. Two or more nodes can have the same bucket. In that case link list structure is used to connect the nodes. Buckets are different in capacity. A relation between bucket and capacity is as follows: capacity = number of buckets \* load factor. A single bucket can have more than one nodes, it depends on hashCode() method. The better your hashCode() method is, the better your buckets will be utilized.\
+  - Bucket 배열의 경우엔 elements와 같이 clone을 할 경우, 복제본은 자신만의 배열을 갖지만 그 배열은 원본과 같은 연결 리스트를 참조하여 원본과 복제본 모두 예기치 않게 동작할 수 있다. 이를 해결하기 위해선 각 Bucket을 구성하는 연결 리스트를 복사해야 한다.
+    - `bucket`: _A bucket is one element of HashMap array. It is used to store nodes. Two or more nodes can have the same bucket. In that case link list structure is used to connect the nodes. Buckets are different in capacity. A relation between bucket and capacity is as follows: capacity = number of buckets load factor. A single bucket can have more than one nodes, it depends on hashCode() method. The better your hashCode() method is, the better your buckets will be utilized.\
     ▶️ Reference : https://www.geeksforgeeks.org/internal-working-of-hashmap-java/`_
     - deepCopy() 메소드를 통해서 적절한 크기의 새로운 버킷을 만들고 버킷을 순회하면서 비어있지 않은 버킷에 대해 깊은 복사를 수행한다.
       <details>
@@ -184,6 +184,11 @@
       }
       ```
       </details>
+    - 📝 객체를 복사하고 싶을 때 clone 함수를 함부로 사용하면 안된다. 객체 안의 변수가 배열이나 Call by Reference 형태의 변수라면 원본과 복사본이 같은 변수를 수정하여 동작이 올바르지 못할 수 있다. 
+    - 📝 객체를 복사하고 싶을 땐 `Conversion Constructor`와 `Conversion Factory`를 사용하고 배열의 경우만 예외로 처리하면 된다.
+
+  - `Comparable을 구현할지 고려하라.`
+    - 
 
 ---
 
