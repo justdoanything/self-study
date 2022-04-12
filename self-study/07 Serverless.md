@@ -127,8 +127,21 @@
   - Create an IAM user with Administrator Permissions.
     Admin User 생성 (root 계정 사용은 위험)
   - Install AWS CLI
+    - Windows : https://awscli.amazonaws.com/AWSCLIV2.msi
+    - Mac
+      - `curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg"`
+      - `sudo installer -pkg AWSCLIV2.pkg -target /`
+    - `aws --version`
   - Install Docker
   - Install AWS SAM CLI
+    - Windows : https://github.com/aws/aws-sam-cli/releases/latest/download/AWS_SAM_CLI_64_PY3.msi
+    - Mac
+      - `brew tap aws/tap`
+      - `brew install aws-sam-cli`
+      - 설치하다가 에러가 발생 시 아래 폴더 삭제 : `rm -rf /opt/homebrew/Library/Taps/homebrew/homebrew-core`\
+        https://github.com/aws/homebrew-tap/issues/207
+    - `sam --version`
+
     - sam init
       - template.yaml is important
     - sam build
@@ -139,6 +152,11 @@
       - package.json에 localRoot, port(9999), remoteRoot 추가
     - sam validate
 - SAM 구성
+  - `sam init`
+    - 초기 `template.yml` 생성
+    - `template.yml`을 root 경로로 이동
+  - 
+
   - Lambda 함수 이름 지정
   - API Gateway 생성
   - Cloud Watch 활성화
