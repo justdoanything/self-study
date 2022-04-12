@@ -860,34 +860,35 @@ https://subicura.com/2016/06/07/zero-downtime-docker-deployment.html
 - `podman`을 설치해서 사용
 - `brew`가 없다면 설치 : `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
 - `brew`를 최신버전으로 업그레이드 : `brew upgrade`
-```sh
-xcode-select --install
-brew install podman qemu
-xcode-select --install
-brew install autoconf automake gettext glib libffi ninja pixman pkg-config
-git clone https://git.qemu.org/git/qemu.git
-cd qemu
-git checkout 3c93dfa42c394fdd55684f2fbf24cf2f39b97d47
-curl https://patchwork.kernel.org/series/485309/mbox/ | git am
-mkdir build
-cd build
-../configure --target-list=aarch64-softmmu --enable-hvf --enable-cocoa  --disable-gnutls
-sudo make install
-ls -ld qemu-*
-podman machine init
-for f in /usr/local/bin/qemu* do ln -s $f /opt/homebrew/bin done
-podman machine start
-```
+- `podman` 설치
+  ```sh
+  xcode-select --install
+  brew install podman qemu
+  xcode-select --install
+  brew install autoconf automake gettext glib libffi ninja pixman pkg-config
+  git clone https://git.qemu.org/git/qemu.git
+  cd qemu
+  git checkout 3c93dfa42c394fdd55684f2fbf24cf2f39b97d47
+  curl https://patchwork.kernel.org/series/485309/mbox/ | git am
+  mkdir build
+  cd build
+  ../configure --target-list=aarch64-softmmu --enable-hvf --enable-cocoa  --disable-gnutls
+  sudo make install
+  ls -ld qemu-*
+  podman machine init
+  for f in /usr/local/bin/qemu* do ln -s $f /opt/homebrew/bin done
+  podman machine start
+  ```
 - nginx 구동 테스트
-```
-podman pull nginx
-podman container run --name webserver -d -p 8080:80 nginx
-podman ps -a
-podman stop webserver
-podman ps -a
-podman stop 40f9ce7fa737
-podman rm 40f9ce7fa737
-```
+  ```
+  podman pull nginx
+  podman container run --name webserver -d -p 8080:80 nginx
+  podman ps -a
+  podman stop webserver
+  podman ps -a
+  podman stop 40f9ce7fa737
+  podman rm 40f9ce7fa737
+  ```
 
 
 
