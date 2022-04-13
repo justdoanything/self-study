@@ -880,7 +880,7 @@ https://subicura.com/2016/06/07/zero-downtime-docker-deployment.html
   podman machine start
   ```
 - nginx 구동 테스트
-  ```
+  ```sh
   podman pull nginx
   podman container run --name webserver -d -p 8080:80 nginx
   podman ps -a
@@ -890,6 +890,9 @@ https://subicura.com/2016/06/07/zero-downtime-docker-deployment.html
   podman rm 40f9ce7fa737
   ```
 
+- Reference
+  - https://www.cloudassembler.com/post/podman-machine-mac-m1/
+  - https://podman.io/getting-started/network
 
 
 ---
