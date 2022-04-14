@@ -188,8 +188,24 @@
     - 📝 객체를 복사하고 싶을 땐 `Conversion Constructor`와 `Conversion Factory`를 사용하고 배열의 경우만 예외로 처리하면 된다.
 
   - `Comparable을 구현할지 고려하라.`
-    - 
+    - 🏷 순서를 고려해야 하는 값 클래스를 작성한다면 꼭 Comparable 인터페이스를 구현하여 그 인스턴스들을 쉽게 정렬하고 검색하고 비교 기능을 제공하는 컬렉션과 어우러지도록 해야 한다. compareTo 메서드에서 필드의 값을 비교할 때 < 와 > 연산자는 쓰지 말아야 한다. 그 대신 박싱된 기본 타입 클래스가 제공하는 정적 compare 메서드나 Comparator 인터페이스가 제공하는 비교자 생성 메서드를 사용하자.
+    - compareTo와 equals는 비슷하지만 2가지의 차이점이 있다.
+      - compareTo를 구현했다는 것은 그 클래스의 인스턴스들에 `자연적인 순서가 있다는 뜻`이다. 이러한 객체들은 Arrays.sort(a);를 통해 손쉽게 정렬할 수 있다.
+      - 중복을 제거하고 알파벳순으로 출력하는 예제
+        <details>
+          <summary>예제 코드</summary>
 
+          ```java
+          public class WordList {
+            public static void main(String[] args){
+              Set<String> s = new TreeSet<>();
+              Collections.addAlls(s, args);
+              System.out.println(s);
+            }
+          }
+          ```
+        <details>
+      
 ---
 
 🏷 💡 📝
