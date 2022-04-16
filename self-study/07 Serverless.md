@@ -138,15 +138,12 @@
     - Mac
       - `brew tap aws/tap`
       - `brew install aws-sam-cli`
-      - 설치하다가 에러가 발생 시 아래 폴더 삭제 : `rm -rf /opt/homebrew/Library/Taps/homebrew/homebrew-core`\
-        https://github.com/aws/homebrew-tap/issues/207
     - `sam --version`
-
-    - sam init
-      - template.yaml is important
-    - sam build
-    - sam deploy --guided
-    - sam local start-api
+  - SAM Project 설정
+    - `sam init` : SAM 프로젝트 생성
+    - `sam build` : 배포하기 전 build 파일 생성
+    - `sam deploy --guided` : AWS 환경에 배포. --guided 옵션을 통해 배포하기 전에 하나씩 절차를 확인할 수 있다.
+    - `sam local start-api` : local 에서 테스트
     - sam local invoke -d 9999 HellowWorldFunction
       - template.yaml에 Resouces 아래 있는 값이 name
       - package.json에 localRoot, port(9999), remoteRoot 추가
