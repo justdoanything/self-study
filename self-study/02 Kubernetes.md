@@ -1216,7 +1216,8 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
       - 💥 Mac M1 + Docker Desktop 환경에서 접속 불가능한 문제 발생
         - nginx controller 설치 : `kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.2/deploy/static/provider/cloud/deploy.yaml`
         - spec.rules.host 값 변경 : `v1.echo.127.0.0.1.sslip.io`
-        - 그런데도 접속이 안됨! 나중에 다시 확인해봐야함.
+        - Docker driver를 사용중이라면 `minikube service ingress-nginx-controller -n ingress-nginx --url` 명령어를 이용하여 접속 주소를 확인
+        - URL에 표시된 IP/Port로 테스트 : `curl -I http://127.0.0.1:51728/healthz`
 - ### Ingress 생성 흐름
   - `Ingress Controller` 🔃 `API Server` : Ingress 변화가 있는지 확인
   - `Endpoint Controller` ➡ `Nginx, HAProxy, ...` : 변경 된 내용을 Nginx에 설정하고 프로세스 재시작
