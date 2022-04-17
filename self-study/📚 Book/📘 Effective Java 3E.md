@@ -138,7 +138,7 @@
       }
       ```
 
-    <details>
+    </details>
 
   - Bucket 배열의 경우엔 elements와 같이 clone을 할 경우, 복제본은 자신만의 배열을 갖지만 그 배열은 원본과 같은 연결 리스트를 참조하여 원본과 복제본 모두 예기치 않게 동작할 수 있다. 이를 해결하기 위해선 각 Bucket을 구성하는 연결 리스트를 복사해야 한다.
     - `bucket`: _A bucket is one element of HashMap array. It is used to store nodes. Two or more nodes can have the same bucket. In that case link list structure is used to connect the nodes. Buckets are different in capacity. A relation between bucket and capacity is as follows: capacity = number of buckets load factor. A single bucket can have more than one nodes, it depends on hashCode() method. The better your hashCode() method is, the better your buckets will be utilized.\
@@ -204,7 +204,79 @@
             }
           }
           ```
-        <details>
+        </details>
+    - compareTo 규약
+      - 첫번째, 두 객체 참조 순서를 바꿔서 비교해도 예상한 결과가 나와야 한다.
+      - 두번째, A < B, B < C 이면 A < C
+      - 세번째, 크기가 같은 객체들끼리는 어떤 객체와 비교하더라고 항상 같아야 한다.
+    - `equals와 같은 주의사항`
+      - 기존 클래스를 확장한 구체 클래스에서 새로운 값 컴포너트를 추가했다면 compareTo 규악을 지킬 수 없다.
+      - Compareable을 구현한 클래스를 확장해 값 컴포넌트를 추가하고 싶다면 확장하는 대신 독립된 클래스를 만들고 이 클래스에서 원래 클래스의 인스턴스를 가리키는 필드를 둬야 한다.
+    - 클래스에서 핵심 필드를 먼저 비교하고 다른 필드를 비교하자.
+      <details>
+        <summary>PhoneNumber 클래스용 compareTo 예제 코드</summary>
+            
+        ```java
+        public int compareTo(PhoneNumber pn) {
+          int result = Short.compare(areaCode, pn.areaCode);
+          if(result == 0){
+            result = Short.compare(prefix, pn.prefix);
+            if(result == 0){
+              result = Short.compare(lineNum, pn.lineNum);
+            }
+          }
+          return result;
+        }
+        ```
+      </details>
+    - 비교자 생성 메서드를 사용하면 코드는 훨씬 깔끔하지만 성능이 저하된다.
+      <details>
+        <summary>비교자 생서 메서드를 활용한 예제 코드</summary>
+            
+        ```java
+        private static final Comparator<PhoneNumber> COMPARATOR = 
+          comparingInt((PhoneNumber pn) -> pn.areaCode)
+            .thenComparingInt(pn -> pn.prefix)
+            .thenComparingInt(pn -> pn.lineNum);
+        
+        public int compareTo(PhoneNumber pn) {
+          return COMPARATOR.compare(this, pn);
+        }
+        ```
+      </details>
+    - 값의 차이를 기준으로 두 값을 비교할 때 유의해야 한다.
+      <details>
+        <summary>잘못된 코드 - 추이성을 위배</summary>
+            
+        ```java
+        static Comparator<Object> hashCodeOrder = new Comparator<>() {
+          public int compare(Object o1, Object o2) {
+            return o1.hashCode() - o2.hashCode();
+          }
+        }
+        ```
+      </details>
+
+      <details>
+        <summary>정적 compare 메서드를 활용한 비교자</summary>
+            
+        ```java
+        static Comparator<Object> hashCodeOrder = new Comparator<>() {
+          public int compare(Object o1, Object o2) {
+            return Integer.compare(o1.hashCode(), o2.hashCode());
+          }
+        }
+        ```
+      </details>
+
+      <details>
+        <summary>비교자 생성 메서드를 활용한 비교자</summary>
+            
+        ```java
+        static Comparator<Object> hashCodeOrder = 
+          Comparator.comparingInt(o -> o.hashCode());
+        ```
+      </details>
       
 ---
 
@@ -213,4 +285,4 @@
 <details>
   <summary>예제 코드</summary>
       
-<details>
+</details>
