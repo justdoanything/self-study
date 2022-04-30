@@ -310,11 +310,50 @@
         }
       }
       ```
-  - 
+  - 불변으로 만들 수 없는 클래스라도 변경할 수 있는 부분을 최소한으로 줄이고 모든 필드는 private final 이어야 좋다.
+- `상속보다는 컴포지션을 사용하라`
+  - 매서드 호출과 달리 상속은 캡슐화를 깨뜨린다.
+  - 기존 클래스를 확장하는 대신 새로운 클래스를 만들고 private 필드로 기존 클래스의 인스턴스를 참조하게 하는 것처럼 기존 클래스가 새로운 클래스의 구성요소로 쓰인다는 뜻에서 `Composition` 이라고 부른다.
+    ```java
+    public class InstrumentedSet<E> extends ForwardingSet<E> {
+      // 상속 대신 Composition을 사용한 클래스
+      private int addCount = 0;
 
+      public InstrumentedSet(Set<E> s) {
+        super(s);
+      }
+
+      @Override
+      public boolean add(E e) {
+        addCount++;
+        return super.add(e);
+      }
+
+      @Override
+      public boolean addAll(Collection<? extends E> c) {
+        addCount += c.size();
+        return super.addAll(c);
+      }
+
+      public int getAddCount() {
+        return addCount;
+      }
+    }
+
+    public class ForwardingSet<E> implements Set<E> {
+      // 재사용할 수 있는 전달 클래스
+      private final Set<E> s;
+      public ForwardingSet(Set<E> s) { this.s = s; }
+
+      public void clear() { s.clear(); }
+      public boolean contains(Object e) { return s.contains(o); }
+      ...
+    }
+    ```
+  - 💦 다른 Set 인스턴스를 감싸고 있다는 뜻에서 InstrumentedSet 같은 클래스를 래퍼 클래스라고 한다. 다른 Set에 계측 기능을 덧씌운다는 뜻에서 데코레이션 패턴이라고 한다. 컴포지션과 전달의 조합은 넓은 의미로 위임이라고 부른다. 엄밀히 따지면 래퍼 객체가 내부 객체에 자기 자신의 참조를 넘기는 경우만 위임에 해당한다. 래퍼 클래스는 거의 단점이 없다. 한 가지, 래퍼 클래스가 콜백 프로임워크와는 어울리지 않는다는 점만 주의하면 된다. 콜백 프레임워크에서는 자기 자신의 참조를 다른 객체에 넘겨서 다음 호출(콜백)때 사용하도록 한다. 내부 객체는 자신을 감ㅈ싸고 있는 래퍼의 존재를 모르니 대신 자시(this)의 참조를 넘기고 콜백 때는 래퍼가 아닌 내부 객체를 호출하게 된다. 이를 SELF 문제라고 한다.
 ---
 
-🏷 💡 📝
+🏷 💡 📝 💦
 
 <details>
   <summary>예제 코드</summary>
