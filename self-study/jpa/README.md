@@ -268,6 +268,19 @@ Comment comment = byId.orElseThrow(IllegalArgumentException::new);
 
   @Async
   ListenableFuture<List<Comment>> findByComment(String keyword);
+
+  ListenableFuture<List<Comment>> listenFuture = commentRepository.findByComment("테스트 코멘트1");
+  listenFuture.addCallback(new ListenableFutureCallback<List<Comment>>() {
+      @Override
+      public void onFailure(Throwable ex){
+          System.out.println(ex);
+      }
+      @Override
+      public void onSuccess(@Nullable List<Comment> result) {
+          System.out.println("============");
+          result.forEach(System.out::println);
+      }
+  });
   ```
 
 - 비동기 방식을 추천하지 않는 이유
@@ -275,6 +288,8 @@ Comment comment = byId.orElseThrow(IllegalArgumentException::new);
   - 비동기 방식으로 처리할 경우, Main Thread에서 insert해도 실제 Database에 insert를 하지 않고 있기 때문에 다른 Thread(Select 하는 함수)에서 데이터가 검색되지 않는다.
   - 각 Thread는 서로가 어떤 작업을 하고 있는지 모르기 때문이다.
   - CommonRepositoryTest.java 참고
+
+## Custom Repository
 
 ---
 
