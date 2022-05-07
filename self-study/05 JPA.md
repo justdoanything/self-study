@@ -22,15 +22,13 @@
 
 ![image](https://user-images.githubusercontent.com/21374902/148677964-351165d1-d6b6-4485-aefb-86bf63e0efa4.png)
 
-#### JPA 특징
-
+## JPA 특징
 - JPA는 Application과 JDBC 사이에서 동작하면서 개발자는 JPA를 사용하고 직접 JDBC를 사용하진 않는다.
 - Java Entity와 Database Table 사이에 매핑 설정을 통해 SQL을 생성해준다.
 - Entity를 통해 작성할 수 있는 JPQL(Java Persistence Query Language)를 지원
 - SQL 중심 개발에서 Entity 중심으로 개발할 수 있으며 유지보수가 쉽다.
 
-#### JPA Hibernate
-
+## JPA Hibernate
 - JPA 구현체의 한 종류 (EclipseLink, DataNucleus, OpenJPA, ...)
 - HQL(Hibernate Query Language) 제공
   - SQL과 유사하여 추가적인 Convention을 정의할 수 있다.
@@ -189,15 +187,13 @@
 
     - assembler가 올바른 Link가 생성된 것을 볼 수 있다. 기본적으로 Link는 현재 호출된 컨트롤러 메소드를 기반으로 생성이 된다.
 
-#### Persistence Framework
-
+## Persistence Framework
 - Architecture에서 데이터에 영속성을 부여해주는 계층
 - JDBC를 이용해 직접 구현할 수 있지만 대부분 Persistence Framework를 사용한다.
   ![image](https://user-images.githubusercontent.com/21374902/148678370-cbbf194a-5e48-4e60-a9f1-9174058e3cd6.png) - Presentaion Layer : UI 계층 - Application Layer : Service 계층 - Business Logic Layer : Damain 계층 - Data Access Layer : Perstence 계층
 - Persistence Framework는 SQL Mapper와 ORM으로 나눌 수 있다.
 
-#### JPA's Persistence
-
+## JPA's Persistence
 ![image](https://user-images.githubusercontent.com/21374902/148678614-3dd6c12b-1c97-4a86-8366-ded8a9fa7875.png)
 
 - Persistence Context
@@ -209,8 +205,7 @@
 - 이 상태에서 데이터값을 변경하면 Transaction이 끝나는 시점에 해당 테이블에 변경 내용을 반영(Commit)한다.
 - 따라서 Entity의 필드 값을 변경한 후에 update()를 명시하지 않아도 자동으로 DB 내 데이터가 변하게 된다. 이를 `Dirty Checking` 이라고 한다.
 
-### JPA 성능 최적화
-
+## JPA 성능 최적화
 - Buffering
   - 쓰기 지연(Transactional write-behind)
     - commit을 하기 전까지 Query는 메모리에 쌓아둔다.
@@ -273,11 +268,46 @@
         if(m1 == m2 ) // true
 ```
 
+## JPA Entity LifeCycle
+<img width="470" alt="image" src="https://user-images.githubusercontent.com/21374902/167240752-83cf22e1-0416-40fc-bdc6-cbb2b71718ba.png">
+
+- ###### new/transient : 순수한 객체 상태로 `영속성 컨테스트와 관련이 없는 상태`
+  ```java
+  Member member = new Member();
+  ```
+- ###### managed : EntityManager를 통해 엔티티를 영속성 컨테스트에 저장되어 `영속성 컨테스트가 관리`하는 상태
+  ```java
+  em.persist(member); // 객체 저장
+  ```
+- ###### detached : 영속성 컨테스트에 저장되었다가 분리된 상태
+  ```java
+  em.detach(member); // 특정 엔티티를 분리
+  em.close(); // 영속성 컨테스트 닫기
+  em.clear(); // 영속성 컨테스트 초기화
+  ```
+
+  - detach() : 특정 엔티티를 준영속 상태로 만들어준다. 더이상 엔티티를 관리하지 않고 1차 캐시, 쓰기지연 SQL 저장소에서 해당 엔티티를 관리하기 위한 모든 정보가 삭제된다. 직접 사용하는 일은 거의 없다.
+  - clear() : 영속성 컨텍스트를 초기화해 해당 영속성 컨테스트에 존재하ㅡㄴ 모든 엔티티를 준영속 상태로 만든다. 모든 것이 초기화되었기 때문에 새로 만든 영속성 컨테스트 상태와 동일하다. 때문에 같은 엔티티를 조회할 때 SELECT 쿼리가 발생하게 된다. 1차 캐시에 관계 없는 쿼리를 확인하고 싶을 때 사용한다.
+  - close() : 영속성 컨테스트를 종료하고 관리하던 모든 엔티티가 준영속 상태가 된다.
+  - 특징
+    - 거의 비영속 상태와 동일 : 영속성 컨테스트가 관리하지 않기 때문에 제공하는 어떤 기능도 동작하지 않음.
+    - 식별값을 보유 : 비영속 상태는 식별값이 얻을 수 있지만 준영속 상태는 영속상태였기 때문에 반드시 식별자를 보유하고 있다.
+    - 지연 로딩 불가 : 지연 로딩은 실제 객체 대신 프록시 객체를 로딩하고 해당 객체를 실제 사용시 영속성 컨테스트를 통해 데이터를 불러온다. 하지만 더이상 영속성 컨테스트가 관리하지 않기 때문에 징녀 로딩시 문제가 발생한다.
+  - merged() : 준영속 상태의 엔티티를 다시 영속상태로 변환한다. 준영속 상태의 엔티티를 받아 갖고 있는 정보로 새 영속 상태의 엔티티를 반환한다. 병합은 비영속 상태의 엔티티도 영속 상태로 만들 수 있다. 파라미터로 넘어온 엔티티의 식별자 값으로 영속성 컨테스트를 조회하고 찾는 엔티티가 없으면 데이터베이스에서 조회하고 영속 상태로 만든다. 만약 데이터베이스에서도 없으면 새로운 엔티티를 생성한다. 만약 불러온 엔티티와 파라미터로 넘긴 객체와 값이 다를 경우 값을 채우고 병합이 이루어진다. 따라서 병합은 save or update를 수행한다.
+- ###### removed : 엔티티를 영속성 컨테스트와 데이터베이스에서 삭제한 상태
+  ```java
+  em.remove(member);
+  ```
+- 
+
+
+
+
 - Reference
   - [adam2's blog](https://velog.io/@adam2/JPA%EB%8A%94-%EB%8F%84%EB%8D%B0%EC%B2%B4-%EB%AD%98%EA%B9%8C-orm-%EC%98%81%EC%86%8D%EC%84%B1-hibernate-spring-data-jpa)
   - [InfoWorld's article](https://www.infoworld.com/article/3379043/what-is-jpa-introduction-to-the-java-persistence-api.html)
   - [gunju-jo's github](https://gunju-ko.github.io/spring/2018/05/01/Spring-Data-JPA-Paging.html)
-
+  - https://girawhale.tistory.com/122#%EC%A4%80%EC%98%81%EC%86%8D-%EC%83%81%ED%83%9C
 ---
 
 # 스프링 데이터 JPA / 백강선 / 인프런
