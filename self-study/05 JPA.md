@@ -7,18 +7,18 @@
 
 > ＊ORM (Object-relational mapping)\
 > 　객체는 객체대로 설계하고 관계형 데이터베이스는 관계형 데이터베이스대로 설계\
-> 　 ORM 프레임워크가 중간에서 매핑\
+> 　 ORM 프레임워크가 중간에서 매핑
 
 - 기존 EJB에서 제공되던 EntityBean을 대체하는 기술로 ORM 이기 때문에 Java Class와 Database Table을 Mapping 한다. (SQL을 Mapping 하지 않음.)
 
 - Mapper는 필드를 SQL에 매핑하는데 목적이라면 ORM은 DB Table ↔ Java Entity를 매핑하면서 RDB의 관계를 Object 관점에서 반영하는 것이다.
 
-- SQL Mapper : Mybatis, jdbcTemplate, ...
+- SQL Mapper : Mybatis, jdbcTemplate, ...\
   ORM : JPA, Hibernate, ...
 
 - SpringFramework 에서 제공하는 spring-data-JPA는 JPA와 같지 않고 JPA → Hibernate → Spring-data-JPA 순으로 추상화되어 있다고 보면 된다.
   > ＊Spring-data-JPA를 사용하면 좋은 이유\
-  > 　 Spring-data-JPA, MongoDB, Redis 등 findALL(), save() 등을 동일한 인터페이스로 갖고 있기 때문에 저장소 교체에 용이하다.
+  > 　 Spring-data-JPA, MongoDB, Redis 등 findAll(), save() 등을 동일한 인터페이스로 갖고 있기 때문에 저장소 교체에 용이하다.
 
 ![image](https://user-images.githubusercontent.com/21374902/148677964-351165d1-d6b6-4485-aefb-86bf63e0efa4.png)
 
@@ -190,7 +190,12 @@
 ## Persistence Framework
 - Architecture에서 데이터에 영속성을 부여해주는 계층
 - JDBC를 이용해 직접 구현할 수 있지만 대부분 Persistence Framework를 사용한다.
-  ![image](https://user-images.githubusercontent.com/21374902/148678370-cbbf194a-5e48-4e60-a9f1-9174058e3cd6.png) - Presentaion Layer : UI 계층 - Application Layer : Service 계층 - Business Logic Layer : Damain 계층 - Data Access Layer : Perstence 계층
+  ![image](https://user-images.githubusercontent.com/21374902/148678370-cbbf194a-5e48-4e60-a9f1-9174058e3cd6.png) 
+  
+  - Presentaion Layer : UI 계층 
+  - Application Layer : Service 계층 
+  - Business Logic Layer : Damain 계층 
+  - Data Access Layer : Perstence 계층
 - Persistence Framework는 SQL Mapper와 ORM으로 나눌 수 있다.
 
 ## JPA's Persistence
@@ -242,8 +247,8 @@
     - 되도록 지연 로딩을 사용하고 즉시 로딩은 진짜 필요할 때만 사용하는게 좋다.
       한 객체에 연관된 객체가 100개라면 즉시로딩은 101번의 쿼리를 수행할 수 있다.
   - 연관 관계별로 기본값은 아래와 같다.
-    @MonayToOne, @OneToOne : EAGER
-    @ManyToMany, @oneToMany : LAZY
+    - `EAGER` : @MonayToOne, @OneToOne
+    - `LAZY` : @ManyToMany, @oneToMany
 
 ```java
         Member member = memberDAO.find(memberId); // Select 수행
@@ -271,11 +276,11 @@
 ## JPA Entity LifeCycle
 <img width="470" alt="image" src="https://user-images.githubusercontent.com/21374902/167240752-83cf22e1-0416-40fc-bdc6-cbb2b71718ba.png">
 
-- ###### new/transient : 순수한 객체 상태로 `영속성 컨테스트와 관련이 없는 상태`
+- ###### new/transient (영속) : 순수한 객체 상태로 `영속성 컨테스트와 관련이 없는 상태`
   ```java
   Member member = new Member();
   ```
-- ###### managed : EntityManager를 통해 엔티티를 영속성 컨테스트에 저장되어 `영속성 컨테스트가 관리`하는 상태
+- ###### managed (준영속) : EntityManager를 통해 엔티티를 영속성 컨테스트에 저장되어 `영속성 컨테스트가 관리`하는 상태
   ```java
   em.persist(member); // 객체 저장
   ```
@@ -286,19 +291,28 @@
   em.clear(); // 영속성 컨테스트 초기화
   ```
 
-  - detach() : 특정 엔티티를 준영속 상태로 만들어준다. 더이상 엔티티를 관리하지 않고 1차 캐시, 쓰기지연 SQL 저장소에서 해당 엔티티를 관리하기 위한 모든 정보가 삭제된다. 직접 사용하는 일은 거의 없다.
-  - clear() : 영속성 컨텍스트를 초기화해 해당 영속성 컨테스트에 존재하ㅡㄴ 모든 엔티티를 준영속 상태로 만든다. 모든 것이 초기화되었기 때문에 새로 만든 영속성 컨테스트 상태와 동일하다. 때문에 같은 엔티티를 조회할 때 SELECT 쿼리가 발생하게 된다. 1차 캐시에 관계 없는 쿼리를 확인하고 싶을 때 사용한다.
-  - close() : 영속성 컨테스트를 종료하고 관리하던 모든 엔티티가 준영속 상태가 된다.
-  - 특징
-    - 거의 비영속 상태와 동일 : 영속성 컨테스트가 관리하지 않기 때문에 제공하는 어떤 기능도 동작하지 않음.
-    - 식별값을 보유 : 비영속 상태는 식별값이 얻을 수 있지만 준영속 상태는 영속상태였기 때문에 반드시 식별자를 보유하고 있다.
-    - 지연 로딩 불가 : 지연 로딩은 실제 객체 대신 프록시 객체를 로딩하고 해당 객체를 실제 사용시 영속성 컨테스트를 통해 데이터를 불러온다. 하지만 더이상 영속성 컨테스트가 관리하지 않기 때문에 징녀 로딩시 문제가 발생한다.
-  - merged() : 준영속 상태의 엔티티를 다시 영속상태로 변환한다. 준영속 상태의 엔티티를 받아 갖고 있는 정보로 새 영속 상태의 엔티티를 반환한다. 병합은 비영속 상태의 엔티티도 영속 상태로 만들 수 있다. 파라미터로 넘어온 엔티티의 식별자 값으로 영속성 컨테스트를 조회하고 찾는 엔티티가 없으면 데이터베이스에서 조회하고 영속 상태로 만든다. 만약 데이터베이스에서도 없으면 새로운 엔티티를 생성한다. 만약 불러온 엔티티와 파라미터로 넘긴 객체와 값이 다를 경우 값을 채우고 병합이 이루어진다. 따라서 병합은 save or update를 수행한다.
+  - detach()
+    - 특정 엔티티를 준영속 상태로 만들어준다. 더이상 엔티티를 관리하지 않고 1차 캐시, 쓰기지연 SQL 저장소에서 해당 엔티티를 관리하기 위한 모든 정보가 삭제된다.
+    - 직접 사용하는 일은 거의 없다.
+  - clear()
+    - 영속성 컨텍스트를 초기화해 해당 영속성 컨테스트에 존재하는 모든 엔티티를 준영속 상태로 만든다.
+    - 모든 것이 초기화되었기 때문에 새로 만든 영속성 컨테스트 상태와 동일하다. 때문에 같은 엔티티를 조회할 때 SELECT 쿼리가 발생하게 된다.
+    - 1차 캐시에 관계 없는 쿼리를 확인하고 싶을 때 사용한다.
+  - close()
+    - 영속성 컨테스트를 종료하고 관리하던 모든 엔티티가 준영속 상태가 된다.
+  - detach 상태의 특징
+    - `거의 비영속 상태와 동일` : 영속성 컨테스트가 관리하지 않기 때문에 제공하는 어떤 기능도 동작하지 않음.
+    - `식별값을 보유` : 비영속 상태는 식별값이 얻을 수 있지만 준영속 상태는 영속상태였기 때문에 반드시 식별자를 보유하고 있다.
+    - `지연 로딩 불가` : 지연 로딩은 실제 객체 대신 프록시 객체를 로딩하고 해당 객체를 실제 사용시 영속성 컨테스트를 통해 데이터를 불러온다. 하지만 더이상 영속성 컨테스트가 관리하지 않기 때문에 징녀 로딩시 문제가 발생한다.
+  - merged()
+    - 준영속 상태의 엔티티를 다시 영속상태로 변환한다. 준영속 상태의 엔티티를 받아 갖고 있는 정보로 새 영속 상태의 엔티티를 반환한다.
+    - 병합은 비영속 상태의 엔티티도 영속 상태로 만들 수 있다. 파라미터로 넘어온 엔티티의 식별자 값으로 영속성 컨테스트를 조회하고 찾는 엔티티가 없으면 데이터베이스에서 조회하고 영속 상태로 만든다.
+    - 만약 데이터베이스에서도 없으면 새로운 엔티티를 생성한다.
+    - 만약 불러온 엔티티와 파라미터로 넘긴 객체와 값이 다를 경우 값을 채우고 병합이 이루어진다. 따라서 병합은 save or update를 수행한다.
 - ###### removed : 엔티티를 영속성 컨테스트와 데이터베이스에서 삭제한 상태
   ```java
   em.remove(member);
   ```
-- 
 
 
 
