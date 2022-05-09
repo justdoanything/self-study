@@ -290,32 +290,34 @@ Comment comment = byId.orElseThrow(IllegalArgumentException::new);
   - 각 Thread는 서로가 어떤 작업을 하고 있는지 모르기 때문이다.
   - CommonRepositoryTest.java 참고
 
-- Delete 전에 Merge하는 이유
+- JPA에서 remove()를 하기 전에 merge()를 하는 이유
+  - merge()는 Detached 상태를 Persistence(managed) 상태로 되돌리는 것인데 remove를 하기 전에 merge()를 통해서 loading을 하고 remove 상태로 바꾼다. 굳이 loading을 하는 이유는 Entity Manager가 casecade 제약조건으로 엮여 있는 데이터를 고려하거나 여러 부분들을 참고해서 동작하기 때문이다.
+  - remove()를 해도 바로 Database에서 delete를 하는게 아니고 removed 상태로 변경하는 것이다.
 
 ## Custom Repository
 
-@Lob : 255자가 넘을때
+- @Lob : 255자가 넘을때
+- 예제코드
+  ```java
+  public interface PostRepository extends JpaRepositor<Post, Long>, PostCustomRepository<Post> {
 
-```java
-public interface PostRepository extends JpaRepositor<Post, Long>, PostCustomRepository {
-
-}
-
-public interface PostCustomRepository {
-  List<Post> findByPost();
-}
-
-public class PostCustomRepositoryImpl implement PostCustomRepository {
-  @Autowired
-  EntityManager entityManager;
-
-  @Override
-  public List<Post> findByPost() {
-    return entityManager.createQuery("SELECT p FROM Post AS p", Post.class).getResultList();
   }
-}
 
-```
+  public interface PostCustomRepository {
+    List<Post> findByPost();
+  }
+
+  public class PostCustomRepositoryImpl implements PostCustomRepository {
+    @Autowired
+    EntityManager entityManager;
+
+    @Override
+    public List<Post> findByPost() {
+      return entityManager.createQuery("SELECT p FROM Post AS p", Post.class).getResultList();
+    }
+  }
+
+  ```
 
 ## Reference
 
