@@ -19,7 +19,8 @@
   ...
   posts.forEach(System.out::print);
   ```
-
+- JPA Annotation
+  - @Lob : 255자가 넘을때
 ---
 
 ## postgres 설치 및 접속
@@ -295,17 +296,19 @@ Comment comment = byId.orElseThrow(IllegalArgumentException::new);
   - remove()를 해도 바로 Database에서 delete를 하는게 아니고 removed 상태로 변경하는 것이다.
 
 ## Custom Repository
-
-- @Lob : 255자가 넘을때
-- 예제코드
+- Custom Repository 예제코드
   ```java
   public interface PostRepository extends JpaRepositor<Post, Long>, PostCustomRepository<Post> {
 
   }
-
+  
+  // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+  
   public interface PostCustomRepository {
     List<Post> findByPost();
   }
+
+  // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
 
   public class PostCustomRepositoryImpl implements PostCustomRepository {
     @Autowired
@@ -316,8 +319,58 @@ Comment comment = byId.orElseThrow(IllegalArgumentException::new);
       return entityManager.createQuery("SELECT p FROM Post AS p", Post.class).getResultList();
     }
   }
-
   ```
+- 모든 Repository에 추가할 공통을 만드는 예제코드
+  ```java
+  // 중간에 사용되는 Repository는 @NoRepositoryBean 이 필요
+  @NoRepositoryBean
+  public interface MyRepository<T, ID extends Serializable> extends JpaRepository<T, ID> {
+    boolean contains(T entity);
+  }
+
+  // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+
+  public class SimpleMyRepository<T, ID extends Serializable> extends SimpleJpaRepository<T, ID> implements MyRepository<T, ID> {
+    
+    private EntityManager entityManager;
+
+    // 생성자 필요
+    public SimpleMyRepository(JpaEntityInformation<T, ?> entityInformation, EntityManager entityManager) {
+      supuer(entityInformation, entityManager);
+      this.entityManager = entityManager;
+    }
+
+    @Override
+    public boolean contains(T entity) {
+      return entityManager.contains(entity);
+    }
+  }
+
+  // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+
+  // SpringApplication 있는 클래스에 repositoryBaseClass 지정
+  @SpringBootApplication
+  @EnableJpaRepositories(repositoryBaseClass = SimpleRepository.class)
+  public class Application {
+    public static void main(String[] args) { SpringApplication.run(); }
+  }
+
+  // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+
+  // 정의한 Repository 사용
+  public interface PostRepository extends MyRepository<Post, Long> {
+
+  }
+  ```
+
+## Damain Event
+
+## QueryDSL 연동
+
+
+
+
+---
 
 ## Reference
 
