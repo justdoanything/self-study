@@ -364,17 +364,114 @@ Comment comment = byId.orElseThrow(IllegalArgumentException::new);
   ```
 
 ## Damain Event
-ApplicationContext extends ApplicationEventPublisher
-- event
-  - extends ApplicationEvent
-- listener
-  - implements ApplicationListener<E extends ApplicationEvent>
-  - @EventListener
+- ApplicationContext은 EventPublisher를 상속 받고 있다.
+- Event를 Publishing 하는 예제코드
+  ```java
 
-- 스프링 데이터의 도메인 이벤트 Publisher
-  - @DomainEvents
-  - @AfterDomainEventPublication extends AbstractAggregateRoot<E>
-  - 현재는 save() 할 때만 발생 합니다.
+  public class PostPublishedEvent extends ApplicationEvent {
+    
+    private final Post post;
+    
+    public PostPublishedEvent(Object source) {
+      super(source);
+      this.post = source;
+    }
+
+    public Post getPost() {
+      return post;
+    }
+  }
+
+  /*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*/
+
+  public class PostListener implements ApplicationListener<PostPublishedEvent> {
+
+    @Override
+    public void onApplicationEvent(PostPublishedEvent event) {
+      System.out.println(event.getPost().getTitle() + " is published");
+    }
+  }
+
+  /*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*/
+
+  @Configuration
+  public class PostRepositoryConfig {
+    
+    // Bean으로 등록해주기 위한 코드
+    @Bean
+    public PostListener postListener() {
+      return new PostListener();
+    }
+  }
+
+  /*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*/
+
+  // Bean으로 등록한 객체를 사용하기 위한 코드
+  @Import(PostRepositoryConfig.class)
+  public class PostRepository {
+
+    @Autowired
+    ApplicationContext applicationContext;
+    
+    @Test
+    public void event() {
+      Post post = new Post();
+      post.setTitle("event");
+      PostPublishedEvent event = new PostPublishedEvent(post);
+      
+      applicationContext.publishedEvent(event);
+    }
+  }
+  ```
+- save()를 하면 Aggregate에 쌓여있던 이벤트를 모두 발생시킨다.
+  ```java
+
+  @Entity
+  public class Post extends AbstractAggregateRoot<Post> {
+    ...
+
+    @Test
+    public void curd() {
+      Post post = new Post();
+      post.setTitle("event");
+
+      postRepository.save(post.publish());
+    }
+
+    public Post publish() {
+      this.registerEvent(new PostPublishedEvent(this));
+      return this;
+    }    
+  }
+
+  /*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*/
+
+  public class PostListener {
+
+    // ApplicationListener를 인터페이스 받지 않고 구현하는 방법
+    @EventListener
+    public void onApplicationEvent(PostPublishedEvent event) {
+      System.out.println(event.getPost().getTitle() + " is published");
+    }
+  }
+
+  /*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*/
+
+  @Configuration
+  public class PostRepositoryConfig {
+    
+    // 별도의 class를 만들지 않고 처리하는 방법
+    @Bean
+    public ApplicationListener<PostPublishedEvent> postListener() {
+      return new ApplicationListener<PostPublishedEvent>() {
+        @Override
+        public void onApplicationEvent(PostPublishedEvent event) {
+          System.out.println(event.getPost().getTitle() + " is published");
+        }
+      }
+    }
+  }
+  ```
 
 ## QueryDSL 연동
 - findByFirstNameIngoreCaseAndLastNameStartsWithIgnoreCase(String firstName, String lastName) 
