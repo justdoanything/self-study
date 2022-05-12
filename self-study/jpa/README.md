@@ -474,56 +474,72 @@ Comment comment = byId.orElseThrow(IllegalArgumentException::new);
   ```
 
 ## QueryDSL 연동
-- findByFirstNameIngoreCaseAndLastNameStartsWithIgnoreCase(String firstName, String lastName) 
-  - 여러 쿼리 메소드는 대부분 두 가지 중 하나.
-  - Optional<T> findOne(Predicate): 이런 저런 조건으로 무언가 하나를 찾는다.
-  - List<T>|Page<T>|.. findAll(Predicate): 이런 저런 조건으로 무언가 여러개를 찾는다.
-  - QuerydslPredicateExecutor 인터페이스
-
 - QueryDSL (http://www.querydsl.com/)
-  - 타입 세이프한 쿼리 만들 수 있게 도와주는 라이브러리
-  - JPA, SQL, MongoDB, JDO, Lucene, Collection 지원
-  - QueryDSL JPA 연동 가이드
-  - 스프링 데이터 JPA + QueryDSL
-  - 인터페이스: QuerydslPredicateExecutor<T>
-  - 구현체: QuerydslPredicateExecutor<T>
+- 조건문을 표현하는 방법이 type safe 하고 조건을 조합하거나 모아서 관리할 수 있다.
+- 기존에는 조건이 많아질수록 `findByFirstNameIngoreCaseAndLastNameStartsWithIgnoreCase(String firstName, String lastName)`와 같은 메서드를 계속 만들어야 하는 단점이 있었다.
+- 주로 `Optional<T> findOne(Predicate)`, `List<T>|Page<T>|.. findAll(Predicate)` 를 많이 쓴다.
+- QuerydslPredicateExecutor 인터페이스를 사용하면 조건이 있는 쿼리를 짜기 쉽다.
+- 예제코드
+  ```java
+  @Entity
+  public class Account {
+    @Id @GeneratedValue
+    private Long id;
 
-- 연동 방법
-  - 기본 리포지토리 커스터마이징 안 했을 때.
-  - 기본 리포지토리 커스타마이징 했을 때.
-  - 의존성 추가
-    ```xml
-        <dependency>
-            <groupId>com.querydsl</groupId>
-            <artifactId>querydsl-apt</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.querydsl</groupId>
-            <artifactId>querydsl-jpa</artifactId>
-        </dependency>
+    private String username;
+  }
 
+  /*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*/
 
-            <plugin>
-                <groupId>com.mysema.maven</groupId>
-                <artifactId>apt-maven-plugin</artifactId>
-                <version>1.1.3</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>process</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>target/generated-sources/java</outputDirectory>
-                            <processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-    ```
+  public class AccountRepository extends JpaRepository<Account, Long>, QuerydslPredicateExecutor<Account> {
 
-public interface AccountRepository extends JpaRepository<Account, Long>, QuerydslPredicateExecutor<Account> {
-}
+  }
 
+  /*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*/
+
+  public class AccountRepositoryTest {
+    @Autowired
+    AccountRepository accountRepository;
+
+    @Test
+    public void crud() {
+      Predicate predicate = QAccount.account
+                              .firstnName.containsIgnoreCase("yongwoo")
+                              .and(account.lastName.startWith("lee"));
+      Optional<Account> one = accountRepository.findOne(predicate);
+    }
+  }
+  ```
+- 의존성 추가
+  ```xml
+  <dependency>
+      <groupId>com.querydsl</groupId>
+      <artifactId>querydsl-apt</artifactId>
+  </dependency>
+  <dependency>
+      <groupId>com.querydsl</groupId>
+      <artifactId>querydsl-jpa</artifactId>
+  </dependency>
+
+  <plugin>
+      <groupId>com.mysema.maven</groupId>
+      <artifactId>apt-maven-plugin</artifactId>
+      <version>1.1.3</version>
+      <executions>
+          <execution>
+              <goals>
+                  <goal>process</goal>
+              </goals>
+              <configuration>
+                  <outputDirectory>target/generated-sources/java</outputDirectory>
+                  <processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
+              </configuration>
+          </execution>
+      </executions>
+  </plugin>
+  ```
+- maven compile을 실행하면 지정한 경로에 쿼리 랭귀지를 바로 만들어줌.
+- Repository 클래스에 QuerydslPredicateExecutor 추가해주고 Predicate 만들어서 사용하면 된다,
 
 
 
