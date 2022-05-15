@@ -542,6 +542,10 @@ Comment comment = byId.orElseThrow(IllegalArgumentException::new);
 - Repository 클래스에 QuerydslPredicateExecutor 추가해주고 Predicate 만들어서 사용하면 된다,
 
 
+## 웹 기능
+- 도메인 클래스 컨버터
+- @RequestedHeader 메소드에서 Pageable, Sort 매개변수 사용
+- Page 관려 HATEOAS 기능 제공
 
 ---
 
