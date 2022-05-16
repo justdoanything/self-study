@@ -543,9 +543,70 @@ Comment comment = byId.orElseThrow(IllegalArgumentException::new);
 
 
 ## 웹 기능
-- 도메인 클래스 컨버터
-- @RequestedHeader 메소드에서 Pageable, Sort 매개변수 사용
-- Page 관려 HATEOAS 기능 제공
+- DomainClassConverter
+  ```java
+  // 일반
+  @GetMapping("/posts/{id}")
+  public String getPost(@PathVariable Long id) {
+    Optional<Post> byId = postRepository.findById(id);
+    Post post = byId.get();
+    return post.getTitle;
+  }
+
+  /*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*/
+
+  // domain converter (Long -> Post)
+  @GetMapping("/posts/{id}")
+  public String getPost(@PathVariable("id") Post post) {
+    return post.getTitle;
+  }
+  ```
+
+- Pageable, Sort
+  ```java
+  @GetMapping("/posts/{id}")
+  public String getPost(@PathVariable("id") Post post) {
+    return post.getTitle;
+  }
+
+  @GetMapping("/posts/")
+  public Page<Post> getPosts(Pageable pageable) {
+    return postRepository.findAll(pageable);
+  }
+
+  /*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*/
+
+  // 테스트 코드
+  @Test
+  public void getPosts() {
+    Post post = new Post();
+    post.setTitle("jpa");
+    postRepository.save(post);
+
+    mockMvc.perform(get("posts/")
+                      .param("page", "0")
+                      .param("size", "10")
+                      ,param("sort", "created, desc")
+                      ,param("sort", "title"))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content[0].title", is("jpa")));
+  }
+
+  ```
+
+- HATEOAS
+  ```java
+  @GetMapping
+  public pagedResources<Resource<Post>> getPosts(Pageable pageable, PagedResourcesAssembler<Post> assembler) {
+    return assembler.toResource(post.findAll(pageable));
+  }
+  ```
+  - 응답에 "_links" 필드를 보면 페이지 URL이 나온다.
+- ~~Payload Projection (비추천)~~
+  - 요청으로 들어오는 데이터 중 일부만 바인딩하기
+  - @ProjectedPaylaod, @XBRead, @JsonPath
+- ~~QuerySQL을 Predicate로 받아서 사용하기 (비추천)~~
 
 ---
 
