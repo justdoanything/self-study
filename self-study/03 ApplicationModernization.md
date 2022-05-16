@@ -9,7 +9,7 @@
 - [Yarn](#Yarn)
 - [Spring](#Spring)
 - [Flyway](#Flyway)
-- [Test Automation](#Test-Automation)
+- [OAuth 2.0](#OAuth-2.0)
 
 ---
 
@@ -527,4 +527,26 @@ Flyway
 
 ---
 
+OAuth 2.0
+===
+- ### 역할
+  - `Resource Server` : Google, Apple, Facebook과 같이 Resource Owner의 정보를 갖고 있고 OAuth 기반의 서비스를 제공하는 서버
+  - `Authorization Server` : Resource Server에 대한 인증을 담당하는 서버. Resource Server의 한 기능으로 생략되기도 한다.
+  - `Resource Owner` : Resource Server의 계정을 보유하고 있는 사용자(Google, Apple, Facebook 사용자)
+  - `Client` : Google, Apple, Facebook 등에서 OAuth를 통해 제공하는 서비스를 이용하고자하는 서버 (일반적으론 우리가 만드는 서버-클라이언트)
 
+- ### 서비스 등록
+  - Google, Apple, Facebook 등에서 제공하는 서비스를 이용하기 위해선 등록이 되어 있어야 한다.
+  - 필요한 정보로는 Client ID, Client Server, Authorized Redirect URI 등이 있다.
+
+- ### 주요 용어
+  - `Authorization Code` : Access Token과 Refresh Token을 발급받기 위해 필요한 Code. 로그인 인증을 하면 Authorization Server가 사용자 정보와 사용자가 획득한 권한 정보를 저장하고 제공한다.
+  - `Access Token` : Resource Server로부터 Resource Owner의 보호된 자원을 획득할 때 사용되는 만료 기간이 있는 토큰. Access Token은 수명이 짧아 만료되면 Refresh Token을 Authorization Server에 전달해서 새로운 Access Token을 발급 받는다.
+  - `Refresh Token` : 일정 기간 동안 로그인을 하지 않아도 만료된 Access Token을 갱신할 수 있는 토큰. Refresh Token은 외부에 노출되면 안되기 때문에 대부분 DB에 저장해놓고 사용한다.
+  - `Scope (optional)` : Resource Server가 OAuth를 통해 제공하는 서비스나 정보의 범위
+  - `Code Verifier` : PKCE 방식에서 코드 검증에 사용되는 값
+  - `Code Challenge` : PKCE 방식에서 코드 검증에 사용되는 암호화된 값
+
+
+
+---
