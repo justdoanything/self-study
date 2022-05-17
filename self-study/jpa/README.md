@@ -608,6 +608,17 @@ Comment comment = byId.orElseThrow(IllegalArgumentException::new);
   - @ProjectedPaylaod, @XBRead, @JsonPath
 - ~~QuerySQL을 Predicate로 받아서 사용하기 (비추천)~~
 
+
+## Entity 저장하기
+- @Repository를 명시해주면 SQLException, JPA 관련 Exception을 Spring의 DataAccessException으로 변환해준다.
+- 
+
+
+
+
+
+
+
 ---
 
 ## Reference
