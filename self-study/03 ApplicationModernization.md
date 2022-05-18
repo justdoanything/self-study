@@ -547,6 +547,26 @@ OAuth 2.0
   - `Code Verifier` : PKCE 방식에서 코드 검증에 사용되는 값
   - `Code Challenge` : PKCE 방식에서 코드 검증에 사용되는 암호화된 값
 
+- ### Authorization Code 방식
+  - Access Token 발행 전에 Authorization Code 교환을 수행함으로써 효율적으로 사용자(Resource Owner)의 정보를 보호할 수 있다.
+  - Client와 Authorization Server 사이에 backend 채널을 통해 Access Token이 발급되고 교환되기 때문에 공격자가 중간에서 가로채는 것을 막을 수 있다.
+
+<img width="647" alt="image" src="https://user-images.githubusercontent.com/21374902/168973635-12890ba2-a1f3-40b9-9211-82e390c9aaf3.png">
+
+- ### Authorization Code with PKCE
+  - PKCE : Proof Key for Code Exchange
+  - Authorization Code 방식에 PKCE 절차를 추가한 방식
+  - Authorization Code가 탈취되더라도 Access Token을 발급받지 못하도록 막을 수 있다.
+
+<img width="637" alt="image" src="https://user-images.githubusercontent.com/21374902/168975805-1c029125-7da8-4ad0-afc1-03bf765fd7a8.png">
+
+- ### Client의 동작
+  - 로그인 인증 요청
+  - Access Token 발급 요청
+  - Access Token 갱신 요청
+  - 네이버 로그인과 카카오 로그인 예제  
+    - 네이버 로그인 API : https://developers.naver.com/docs/login/api/api.md
+    - 카카오 로그인 API : https://developers.kakao.com/docs/latest/ko/kakaologin/common
 
 
 ---
