@@ -611,7 +611,49 @@ Comment comment = byId.orElseThrow(IllegalArgumentException::new);
 
 ## Entity 저장하기
 - @Repository를 명시해주면 SQLException, JPA 관련 Exception을 Spring의 DataAccessException으로 변환해준다.
-- 
+- save()는 객체가 기존에 존재하는지 아닌지 판단하고 persist()를 하거나 merge()를 한다.
+- Transient : 새로 만들어진 객체로 hibernate나 database에 매핑이 되지 않은 상태. 고유한 id를 갖고 있지 않고 database에 record가 없는 상태.
+- Persistent : PersistContext가 캐싱하고 있는 상태. 관리하고 있는 상태.
+- Detached : 한 번 이라도 database에 Persistent가 됐던 개체
+- JPA가 Transient인지 Detached인지 판단하는 기준
+  - Entity의 @id 값을 찾고 null 이면 Transient 상태, @id가 존재하면 Detached 상태로 판단한다.
+    ```java
+    public void curd() {
+      Post post new Post();
+      post.setTitle("jpa");
+      Post savedPost = postRepository.save(post);  // persist, insert
+
+      /**
+       * save()를 했을 때 persist 상태가 되면서 insert를 하는데
+       * save()가 반환하는 값은 기존에 생성한 값(post)과 완전하게 동일하다.
+       * post와 savedPost는 같은 값이다.
+       */
+      assertThat(entityManager.contains(post)).isTrue();
+      assertThat(entityManager.contains(savedPost)).isTrue();
+      assertThat(savedPost == post);
+
+
+
+      Post postUpdate = new Post();
+      postUpdate.setId(post.getId());
+      postUpdate.setTitle("hibernate");
+      Post updatedPost = postRepository.save(postUpdate);  // merge, update
+
+      /**
+       * 하지만 merge()가 일어나면 기존에 객체(postUpdate)의 복사본을 만들고
+       * 복사본(updatedPost)을 Persist로 만들고 database에 작업하고 return 해주기 때문에 
+       * postUpdate와 updatedPost는 다른 값이다.
+       */
+      assertThat(entityManager.contains(updatedPost)).isTrue(); // 복사된 객체는 영속화되어 있다.
+      assertThat(entityManager.contains(postUpdate)).isfalse(); // 기존 객체는 영속화가 되지 않는다.
+      assertThat(updatedPost != postUpdate);
+
+      /**
+       * 따라서 무조건 return 받은 객체를 사용하는게 안전하다.
+       */
+    }    
+
+    ```
 
 
 
