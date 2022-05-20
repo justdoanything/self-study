@@ -655,7 +655,79 @@ Comment comment = byId.orElseThrow(IllegalArgumentException::new);
 
     ```
 
+## JPA Query Method
+- Keywords
+  - https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#jpa.query-methods.query-creation
+  - And, Or, Is, Equals, LessThan, LessThanEqual, GreaterThan, GreaterThanEqual
+  - After, Before, IsNull, IsNotNull, NotNull, Like, NotLike
+  - StartingWith, EndingWith, COntaining, OrderBy
+  - Not, In, NotIn, True, False, IgnoreCase
 
+- @NamedQuery, @NamedNativeQuery
+  - Class 위에 @Entity 레벨에 적는 Annotation
+    ```java
+    @Entity
+    @NamedQuery(name = "Post.findBytitle", query = "SELECT p FROM post AS p WHERE p.title = ?1")
+    public class Post { ... }
+    ```
+
+- @Query
+  - Class가 아니라 Method 레벨에 적는 Annotation
+    ```java
+    @Entity
+    public class Post{
+      @Query("SELECT p FROM post AS p WHERE p.title = ?1")
+      List<Post> findByTitle(String title);
+    }
+    ```
+
+## Sort
+- Pageable이나 Sort를 매개변수로 사용할 수 있는데 @Query와 같이 사용할 땐 제약사항이 존재한다. Order by 절에서 함수를 호출하면 Sort를 사용하지 못한다.
+- JpaSort.unsafe()를 사용해야 합니다.
+- Sort는 property 또는 alias가 entity에 없는 경우에 예외가 발생한다.
+  ```java
+  @Entity
+  public class Post{
+    @Query("SELECT p FROM post AS p WHERE p.title = ?1")
+    List<Post> findByTitle(String title, Sort sort);
+  }
+
+  postRepository.findByTitle("jpa", Sort.by("title")); // property 니까 가능
+  postRepository.findByTitle("jpa", Sort.by("LENGTH(title)"));  // 함수라서 불가능
+  postRepository.findByTitle("jpa", JpaSort.unsafe("LENGTH(title)"));  // unsafe(로 사용 가능
+  ```
+
+## NamedParameter
+```java
+public interface PostRepository extends JpaRepository<Post, Long> {
+  @Query("SELECT p FROM Post AS p WHERE p.title = :title")
+  List<Post> findBytitle(@Param("title") String keyword, Sort sort);
+}
+```
+
+## SpEL (스프링 표현 언어)
+  - https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions
+  ```java
+  public interface PostRepository extends JpaRepository<Post, Long> {
+    @Query("SELECT p FROM #(#entityName) AS p WHERE p.title = :title")
+    List<Post> findBytitle(@Param("title") String keyword, Sort sort);
+  }
+  ```
+
+## Update Query
+- 객체의 상태에 따라서 JPA가 자동으로 update를 해주기 때문에 우리가 임의로 해줄 필요가 없었다.
+- Update Query를 임의로 정의해서 사용하는 방법
+  ```java
+  public interface PostRepository extends JpaRepository<Post, Long> {
+    @Modifying
+    @Query("UPDATE Post p SET p.title = ?1 WHERE p.id = ?2")
+    int updateTitle(String title, Long id);
+  }
+  ```
+- 위 방법을 추천하지 않는 이유는 update를 해서 실제 database에는 update가 수행됐지만 사용한 객체는 persist 상태여서 update 후에 select을 했을 때 database의 값이 아니라 cache에 있는 값을 가져온다. 즉, update는 cache에 있는 값이 아니라 database에 있는 값만 바꾸기 때문에 select이 발생했을 때 데이터의 일관성이 깨질 수 있다.
+- @Modifying(clearAutomatically = true, flushAutomatically = true) 를 cache를 clear 하거나 flush를 사용해서 처리할 수는 있다.
+
+## EntityGraph
 
 
 
