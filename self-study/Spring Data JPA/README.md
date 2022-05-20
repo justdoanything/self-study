@@ -729,6 +729,16 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
 ## EntityGraph
 
+## Projection
+
+## Specifications
+
+## Query By Example
+
+## Transaction
+
+## Auditing
+
 
 
 
