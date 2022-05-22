@@ -728,10 +728,156 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 - @Modifying(clearAutomatically = true, flushAutomatically = true) 를 cache를 clear 하거나 flush를 사용해서 처리할 수는 있다.
 
 ## EntityGraph
+- fetch 기능을 유연하게 적용시킬 수 있는 방법
+- `@ManyToOne`은 `FetchType.EAGER` 가 기본값이기 때문에 Comment를 가져올 때 Post를 left join으로 같이 가져오게 된다. `FetchType.LAZY`로 설정하면 Comment만 가져온다.
+- `EntityGraph`는 `attributeNodes`로 설정한 속성은 `EAGER`, 나머지는 `LAZY`를 적용한다.
+- 아래 예제코드에서 post는 `LAZY`로 설정했지만 `findById` 함수를 이용하면 `EntityGraph` 설정에 따라 `EAGER`로 데이터를 가져오게 된다.
+- EntityGraph 적용 코드
+  ```java
+  @Entity
+  public class Comment { 
+    ...
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Post post;
+    ...
+  }
 
+  /*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*/
+
+  public interface CommentRepository extends JpaRepository<Comment, Long> {
+    @EntityGraph(attributePaths = {"post"})
+    Optional<Comment> findById(Long id);
+    // post를 EAGER 로 가져온다.
+  }
+  ```
 ## Projection
+- SELECT를 할 때 전체(*)가 아닌 특정 필드만 가져오도록 명시하는 방법
+- Interface 기반 Projection
+  - Nested Projection
+  - Closed Projection
+    - 가져오려고 하는 attritubte를 알고 있기 때문에 Query를 최적화할 수 있다. 
+    - Java 8의 Default Method를 사용해서 연산할 수 있다.
+      ```java
+      public interface CommentSummary {
+        String getComment();
+        int getUp();
+        int getDown();
+
+        default String getVotes(){
+          return getUp() + " " + getDown();
+        }
+      }
+
+      /*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*/
+
+      public interface CommentRepositroy extends JpaRepository<Comment, Long> {
+        List<CommentSummary> findByPost_Id(Long id);
+        // comment, up, down 필드만 select 함
+      }
+      ```
+  - Open Projection
+    - @Value(SpEL)를 사용해서 연산할 수 있다.
+    - Spring Bean의 Method도 호출 가능하다.
+    - SpEL을 Entity 대상으로 사용하기 때문에 Query 최적화는 할 수 없다. 
+      ```java
+      public interface CommentSummary {
+        String getComment();
+        int getUp();
+        int getDown();
+
+        @Value("#{target.up + ' ' + target.down}")
+        String getVotes();
+        // 전체를 다 select 함. 대신 문자열을 만들어서 가져올 수 있음.
+      }
+
+      /*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*/
+
+      public interface CommentRepositroy extends JpaRepository<Comment, Long> {
+        List<CommentSummary> findByPost_Id(Long id);
+      }
+      ```
+- Class 기반 Projection
+  - 선언 방식은 interface와 동일하지만 생성자와 getter, setter를 만들어주고 정의를 다 해줘야하기 때문에 코드가 길어지는 단점이 있다.
+- Dynamic Projection
+  - Projection용 함수 하나만 정의하고 실제 Projection 필드는 타입 인자로 전달받기
+    ```java
+    public interface CommentRepositroy extends JpaRepository<Comment, Long> {
+      // Dynamic Projection
+      <T> List<T> findByPost_Id(Long id, Class<T> type);
+    }
+    
+    /*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*/
+    
+    commentRepository.findByPost_Id(post.getId(), CommentSummary.class).forEach( c -> {
+      System.out.println(c.getVotes());
+    });
+    ```
 
 ## Specifications
+- 에릭 에반스의 책 DDD에서 언급하는 Specification 개념을 차용한 것으로 QueryDSL의 Predicate와 비슷하다.
+- 사전준비
+  - 의존성 추가
+    ```xml
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-jpamodelgen</artifactId>
+    </dependency>
+    ```
+  - 플러그인 설정
+    ```xml
+    <plugin>
+      <groupId>org.bsc.maven</groupId>
+      <artifactId>maven-processor-plugin</artifactId>
+      <version>2.0.5</version>
+      <executions>
+          <execution>
+              <id>process</id>
+              <goals>
+                  <goal>process</goal>
+              </goals>
+              <phase>generate-sources</phase>
+              <configuration>
+                  <processors>
+                      <processor>org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor</processor>
+                  </processors>
+              </configuration>
+          </execution>
+      </executions>
+      <dependencies>
+          <dependency>
+              <groupId>org.hibernate</groupId>
+              <artifactId>hibernate-jpamodelgen</artifactId>
+              <version>${hibernate.version}</version>
+          </dependency>
+      </dependencies>
+    </plugin>
+    ```
+  - IDE에 Annotaion 설정 추가
+    - org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor
+- 예제 코드
+  ```java
+  public class CommentSpecs {
+    public static Specification<Comment> isBest() {
+      return (Specification<Comment>)
+        (root, query, builder) ->
+          builder.isTrue(root.get(Comment_.best));
+    }
+
+    public static Specification<Comment> isGood() {
+      return (Specification<Comment>)
+        (root, query, builder) -> 
+          builder.greaterThanOrEqualTo(root.get(Comment_.up, 10));
+    }
+  }
+
+  /*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*/
+
+  @Test
+  public void specs() {
+    commentRepository.findAll(CommentSpecs.isBest());
+    Page<Comment> page = commentRepository.findAll(isBest().or(isGood()), PageRequest.of(0, 10));
+  }
+  ```
 
 ## Query By Example
 
