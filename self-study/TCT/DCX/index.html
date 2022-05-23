@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <header></header>
+  <body>
+    <div
+      id="title"
+      style="font-weight: bold; font-size: 2em; text-align: center"
+    >
+      음악 차트
+    </div>
+    <div id="currentTime" style="text-align: center"></div>
+
+    <div
+      id="kor"
+      style="
+        font-weight: bold;
+        font-size: 1.5em;
+        float: left;
+        padding: 0px 20px 0px 100px;
+      "
+      onclick="clickLocation('kor')"
+    >
+      국내
+    </div>
+    <div
+      id="eng"
+      style="font-weight: bold; font-size: 1.5em"
+      onclick="clickLocation('eng')"
+    >
+      해외
+    </div>
+
+    <div id="chartList"></div>
+
+    <script type="text/javascript" src="script.js"></script>
+  </body>
+</html>
