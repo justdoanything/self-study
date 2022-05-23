@@ -33,18 +33,10 @@ function clickLocation(lang) {
 
           td +=
             "<tr>" +
-            "<td>" +
-            rank +
-            "</td>" +
-            '<td><img src="' +
-            imageUrl +
-            '" /></td>' +
-            "<td>" +
-            title +
-            "</td>" +
-            '<td style="text-align: right">' +
-            singer +
-            "</td>" +
+              "<td>" + rank + "</td>" +
+              '<td><img src="' + imageUrl + '" /></td>' +
+              '<td style="max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left" onclick="location.href=\'detail.html?id=' + id + "'\">" + title + "</td>" +
+              '<td style="max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right">' + singer + "</td>" +
             "</tr>";
         }
         document.getElementById("chartList").innerHTML = td;
@@ -57,7 +49,7 @@ function clickLocation(lang) {
     fetch("http://localhost:3300/v1/chart/overseas")
       .then((response) => response.json())
       .then((data) => {
-        var td = "<table/>";
+        var td = "<table>";
         for (var index in data.chartList) {
           var id = data.chartList[index].id;
           var imageUrl = "images/" + data.chartList[index].imageUrl;
@@ -67,18 +59,10 @@ function clickLocation(lang) {
 
           td +=
             "<tr>" +
-            "<td>" +
-            rank +
-            "</td>" +
-            '<td><img src="' +
-            imageUrl +
-            '" /></td>' +
-            "<td>" +
-            title +
-            "</td>" +
-            '<td style="text-align: right">' +
-            singer +
-            "</td>" +
+              "<td>" + rank + "</td>" +
+              '<td><img src="' + imageUrl + '" /></td>' +
+              '<td style="text-overflow: ellipsis; text-align: left" onclick="location.href=\'detail.html?id=' + id + "'\">" + title + "</td>" +
+              '<td style="text-overflow: ellipsis; text-align: right">' + singer + "</td>" +
             "</tr>";
         }
         document.getElementById("chartList").innerHTML = td;
