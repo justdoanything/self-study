@@ -880,17 +880,29 @@ public interface PostRepository extends JpaRepository<Post, Long> {
   ```
 
 ## Transaction
-- 스프링 데이터 JPA가 제공하는 Repository의 모든 메소드에는 기본적으로 @Transaction이 적용되어 있습니다.
+- Spring Data JPA가 제공하는 Repository의 모든 메소드에는 기본적으로 @Transaction이 적용되어 있다.
+- RuntimeException, Error가 발생하면 Transaction을 Rollback 시킨다.
+- Class, Interface, Method 에 사용할 수 있으며, 메소드에 가장 가까운 애노테이션이 우선 순위가 높다.
+- Transaction 옵션
+  - `default` : database의 기본값을 따름. 
+  - `read_committed` : 한 트랜잭션이 끝나기 전에 다른 트랜잭션이 그 데이터에 접근할 수 없음. _dirty read_ 를 방지하고 _non-repeatable read_, _phantom read_ 는 발생할 수 있다.
+  - `read_uncommitted`
+  - `repeatable_read` : _dirty read_, _non-repeatable read_ 를 방지하고 _phantom read_ 는 발생할 수 있다.
+  - `serializable` : 3가지 read를 모두 막는다. database에 접근할 수 있는 트랜잭션이 1개만 가능하기 때문에 성능이 좋지 않다.
+- JPA 구현체로 Hibernate를 사용할 때 트랜잭션을 readOnly를 사용하고 Flush 모드를 NEVER로 설정하여, Dirty checking을 하지 않도록 한다.
+  - flush는 commit이나 데이터를 가쟈오기 전에 수행하는데 flush 모드 설정을 통해서 데이터베이스에 Sync를 하는 타이밍을 설정할 수 있다.
 
-스프링 @Transactional
-클래스, 인터페이스, 메소드에 사용할 수 있으며, 메소드에 가장 가까운 애노테이션이 우선 순위가 높다.
-https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/transaction/annotation/Transactional.html (반드시 읽어볼 것, 그래야 뭘 설정해서 쓸 수 있는지 알죠..)
-
-JPA 구현체로 Hibernate를 사용할 때 트랜잭션을 readOnly를 사용하면 좋은 점
-Flush 모드를 NEVER로 설정하여, Dirty checking을 하지 않도록 한다.
 
 ## Auditing
-스프링 데이터 JPA의 Auditing
+- Entity의 변경 시점에 언제, 누가 변경했는지에 대한 정보를 기록하는 기능.
+- `@SpringBootApplication` 아래에 `@EnableJpaAuditing` 추가
+- Auditing 기능을 사용할 Entity에 `@EntityListeners(AuditingEntityListener.class)` 추가
+  ```java
+  @Entity
+  @EntityListeners
+  public class Comment {
+    ...
+
     @CreatedDate
     private Date created;
 
@@ -904,25 +916,47 @@ Flush 모드를 NEVER로 설정하여, Dirty checking을 하지 않도록 한다
     @LastModifiedBy
     @ManyToOne
     private Account updatedBy;
+  }
+  ```
 
+- Account 객체는 Spring이 모르기 때문에 Bean을 `@EnableJpaAuditing`에 설정하고 현재 User는 Spring Security를 사용해서 알아낼 수 있다.
+  ```java
+  @Entity
+  @EnableJpaAuditing(auditorAwareRef="accountAuditAware")
+  // AccountAuditAware의 service bean 이름은 accountAuditAware
+  public class Comment {
+    ...
+  }
+  
+  /*ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ*/
+  
+  @Service
+  public class AccountAuditAware implements AuditorAware<Account> {
+    @Override
+    public Optional<Account> getCurrentAudior(){
+      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-엔티티의 변경 시점에 언제, 누가 변경했는지에 대한 정보를 기록하는 기능.
+      if(authentication == null || !authentication.isAuthenticated()){
+        return null;
+      }
+      return ((Account)authentication.getPrincipal()).getUser();
+    }
+  }
+  ```
 
-아쉽지만 이 기능은 스프링 부트가 자동 설정 해주지 않습니다.
-메인 애플리케이션 위에 @EnableJpaAuditing 추가
-엔티티 클래스 위에 @EntityListeners(AuditingEntityListener.class) 추가
-AuditorAware 구현체 만들기
-@EnableJpaAuditing에 AuditorAware 빈 이름 설정하기.
-
-JPA의 라이프 사이클 이벤트
-https://docs.jboss.org/hibernate/orm/4.0/hem/en-US/html/listeners.html
-@PrePersist
-@PreUpdate
-...
-
-
-
-
+- JPA Callback Life Cycle Event를 활용하는 방법
+  - 객체가 생성, 삭제, 업데이트 전/후로 callBack 이벤트를 설정할 수 있다.
+  - @PreRemove, PostPersist, PostRemove, PreUpdate, PostUpdate, PostLoad
+  - https://docs.jboss.org/hibernate/orm/4.0/hem/en-US/html/listeners.html
+    ```java
+    // entity가 호출되기 전에 수행, callback life cycle event
+    @PrePsersist
+    public void prePersist() {
+      this.created = new Date();
+      this.createdBy = getCurrentAudior();
+      ...
+    }
+    ```
 
 
 ---
