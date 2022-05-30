@@ -1,8 +1,8 @@
 public class Solution {
     public static void main(String[] args) throws Exception {
         
-        int row = 4;
-        int col = 3;
+        int row = 5;
+        int col = 4;
         
         solution(row, col);
     }
@@ -11,7 +11,9 @@ public class Solution {
         int[][] array = new int[row][col];
         int index = 0;
         // 0,0 시작
+        
         // 왼쪽 -> 오른쪽
+        System.out.println("################ 0,0 시작 - 왼쪽->아래");
         index = 1;
         for(int i=0; i<row; i++){           
             for(int j=0; j<col; j++){       
@@ -21,9 +23,10 @@ public class Solution {
         printArray(array);
         
         // 위 -> 아래
+        System.out.println("################ 0,0 시작 - 위->아래");
         index = 1;
-        for(int i=0; i<col; i++){
-            for(int j=0; j<row; j++){
+        for(int i=0; i<col; i++){           // **point
+            for(int j=0; j<row; j++){       // **point
                 array[j][i] = index++;
             }
         }
@@ -31,8 +34,9 @@ public class Solution {
 
         // 왼쪽 -> 오른쪽 (지그재그)
         index = 1;
+        System.out.println("################ 0,0 시작 - 왼쪽->오른쪽(지그재그)");
         for(int i=0; i<row; i++){      
-            if(i % 2 == 0){
+            if(i % 2 == 0){         // **point
                 for(int j=0; j<col; j++){       
                     array[i][j] = index++;
                 }
@@ -46,8 +50,9 @@ public class Solution {
         
         // 위 -> 아래 (지그재그)
         index = 1;
+        System.out.println("################ 0,0 시작 - 위->아래(지그재그)");
         for(int i=0; i<col; i++){
-            if(i % 2 == 0){
+            if(i % 2 == 0){         // **point
                 for(int j=0; j<row; j++){
                     array[j][i] = index++;
                 }
@@ -62,11 +67,80 @@ public class Solution {
 
         // n,n 시작
         // 오른쪽 -> 왼쪽
-        
+        index = 1;
+        System.out.println("################ n,n 시작 - 오른쪽->왼쪽");
+        for(int i=row-1; i>=0; i--){
+            for(int j=col-1; j>=0; j--){
+                array[i][j] = index++;
+            }
+        }
+        printArray(array);
+
+        // 아래 -> 위
+        index = 1;
+        System.out.println("################ n,n 시작 - 아래->위");
+        for(int i=col-1; i>=0; i--){        // **point
+            for(int j=row-1; j>=0; j--){    // **point
+                array[j][i] = index++;
+            }
+        }
+        printArray(array);
 
         // 오른쪽 -> 왼쪽 (지그재그)
-        // 아래 -> 위
+        index = 1;
+        System.out.println("################ n,n 시작 - 오른쪽->왼쪽(지그재그)");
+        for(int i=row-1; i>=0; i--){
+            if(row % 2 == 0){   // **point
+                if(i % 2 == 0){
+                    for(int j=0; j<col; j++){
+                        array[i][j] = index++;
+                    }
+                }else {
+                    for(int j=col-1; j>=0; j--){
+                        array[i][j] = index++;
+                    }
+                }
+            } else{ // **point
+                if(i % 2 == 0){
+                    for(int j=col-1; j>=0; j--){
+                        array[i][j] = index++;
+                    }
+                }else {
+                    for(int j=0; j<col; j++){
+                        array[i][j] = index++;
+                    }
+                }
+            }
+        }
+        printArray(array);
+
         // 아래 -> 위 (지그재그)
+        index = 1;
+        System.out.println("################ n,n 시작 - 아래->위(지그재그)");
+        for(int i=col-1; i>=0; i--){
+            if(col % 2 == 0){   // **point
+                if(i % 2 == 0){
+                    for(int j=0; j<row; j++){
+                        array[j][i] = index++;
+                    }
+                }else {
+                    for(int j=row-1; j>=0; j--){
+                        array[j][i] = index++;
+                    }
+                }
+            } else{ // **point
+                if(i % 2 == 0){
+                    for(int j=row-1; j>=0; j--){
+                        array[j][i] = index++;
+                    }
+                }else {
+                    for(int j=0; j<row; j++){
+                        array[j][i] = index++;
+                    }
+                }
+            }
+        }
+        printArray(array);
     }
     
     private static void printArray(int[][] array) {
