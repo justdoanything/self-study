@@ -1,6 +1,18 @@
 {
   "configurations": [
     {
+      "type": "java",
+      "name": "Launch Solution",
+      "request": "launch",
+      "mainClass": "test.Solution"
+    },
+    {
+      "type": "java",
+      "name": "Launch Solution",
+      "request": "launch",
+      "mainClass": "Solution"
+    },
+    {
       "type": "aws-sam",
       "request": "direct-invoke",
       "name": "lambda-nodejs14.x:HelloWorldFunction (nodejs14.x)",
