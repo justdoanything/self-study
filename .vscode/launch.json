@@ -2,6 +2,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Launch Array",
+      "request": "launch",
+      "mainClass": "Array",
+      "projectName": ""
+    },
+    {
+      "type": "java",
       "name": "Launch Solution",
       "request": "launch",
       "mainClass": "test.Solution"

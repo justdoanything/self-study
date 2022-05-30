@@ -1,4 +1,4 @@
-public class Solution {
+public class Array {
     public static void main(String[] args) throws Exception {
         
         int row = 5;
@@ -137,6 +137,38 @@ public class Solution {
                     for(int j=0; j<row; j++){
                         array[j][i] = index++;
                     }
+                }
+            }
+        }
+        printArray(array);
+
+        // 대각선으로 넣기
+        // 값이 들어가는 위치를 보면 row + col을 더한 값은 0부터 4로 일정하다.
+        index = 1;
+        System.out.println("################ 0, 0 시작 - 대각선 출력");
+        
+        // 전체 탐색을 위한 변수 c , 범위는 row+col
+        for(int c=0; c<= row+col; c++){
+            for(int i=0; i<row; i++){
+                for(int j=0; j<col; j++){
+                    // i와 j의 합이 c와 같은 곳에서만 출력
+                    if(i+j == c)
+                        array[i][j] = index++;
+                }
+            }
+        }
+        printArray(array);
+
+        index = 1;
+        System.out.println("################ 0, 0 시작 - 대각선 출력(반대)");
+        
+        // 전체 탐색을 위한 변수 c , 범위는 row+col
+        for(int c=0; c<= row+col; c++){
+            for(int i=0; i<col; i++){
+                for(int j=0; j<row; j++){
+                    // i와 j의 합이 c와 같은 곳에서만 출력
+                    if(i+j == c)
+                        array[j][i] = index++;
                 }
             }
         }
