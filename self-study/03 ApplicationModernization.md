@@ -10,6 +10,7 @@
 - [Spring](#Spring)
 - [Flyway](#Flyway)
 - [OAuth 2.0](#OAuth-2.0)
+- [REST API](#Restful-API)
 
 ---
 
@@ -567,6 +568,69 @@ OAuth 2.0
   - 네이버 로그인과 카카오 로그인 예제  
     - 네이버 로그인 API : https://developers.naver.com/docs/login/api/api.md
     - 카카오 로그인 API : https://developers.kakao.com/docs/latest/ko/kakaologin/common
+
+
+---
+
+REST API
+===
+- ## REST 란?
+  - REST(`Representational State Transfer`)는 네트워크 기반 아키텍처로 리소트 상태(`Resource State`)의 표현 (`Representation`)을 전송(`Transfer`)하는 방식에 대해 정의한 것이다.
+  - 각 리소스에 대한 URI를 부여하고 해당 리소스에 대한 CRUD 작업을 POST, GET, PUT, DELETE와 같은 HTTP 메소드를 이용해 처리하는 것이다.
+  - Client에게 제공하고자 하는 리소스를 먼저 정의하고 해당 리소스에 대한 CURD 기반의 Operation을 정의한다.
+  - HTTP 메소드 종류
+    값 | 의미  
+    ---|:---:
+    `GET` | 조회
+    `PUT` | 정보 변경
+    `POST` | 정보 생성
+    `DELETE` | 정보 삭제
+  - Customer 예제
+    - URI : `/customers`
+      - GET : Get all customers
+      - PUT : -
+      - POST : Add a new customer
+      - DELETE : - 
+    - URI : `/customers/{id}`
+      - GET : Get details of the customer
+      - PUT : Update the customer
+      - POST : -
+      - DELETE : Delete the customer 
+    - URI : `/customers/{id}/orders`
+      - GET : Get all orders for the customer
+      - PUT : -
+      - POST : Add an order to the customer
+      - DELETE : Cancel all orders for the customer
+- ## REST API 설계 원칙 
+  - #### Uniform Interface
+    - `리소스 기반의 표현` : 각 리소스는 고유의 식별자인 URI를 가져야 한다.
+    - `표준 HTTP 메소드 사용` : CURD 기준으로 POST, GET, PUT, DELETE 메소드를 사용한다.
+    - `자기 서술성(Self-Descriptiveness을 통한 직광성 확보` : 리소스 이름, URI, HTTP 메소드, 데이터 형식만 보고도 직관적으로 무엇을 하는 API인지 이해할 수 있도록 설계해야 한다.
+    - `API와 Client 간의 느슨한 결합(Loosely Coupling)` : 특정 기술, 플랫폼, 개발언어에 종속적이지 않아야 한다.
+  - #### Stateless
+    - HTTP 요청에 대한 상태는 저장하지 않으며 정보는 리소스 자체에만 저장되어야 한다.
+    - API는 별도의 상태 정보를 관리하지 않고 요청 메세지만 사용해서 비지니스 로직을 처리하면 되기 때문에 구현을 단순화할 수 있다.
+  - #### Cache
+    - REST API는 HTTP 기반으로 동작하기 때문에 HTTP에서 제공하는 Cache 기능을 사용할 수 있다.
+    - 조회(GET) 성격의 API를 설계할 때는 Cache 관련 HTTP 헤더를 이용해서 구현하여 사용하는 것을 권장한다.
+    - HTTP/1.1 기반 ETag 헤더를 사용한 Cache
+      - Client → REST API : GET | /customers/1234
+      - Client ← REST API : 200 OK | / ETag : dyddnrhdck
+      - Client → REST API : GET | /customers/1234 | If-None-Match: "dyddnrhdck"
+      - Client ← REST API : 304 Not Modified
+  - #### Client-Server Architecture
+    - Server는 비지니스 로직을 처리할 수 있는 API를 제공한다.
+    - Client는 API를 호출하기 위한 인증 정보, Context 등을 직접 관리한다.
+    - 이러한 구조는 Server와 Client 간의 의존성을 낮출 수 있다.
+  - #### Stratification
+    - Client는 정해진 스펙에 맞게 API를 호출하면 된다. 대상 Server를 직접 호출하는건지 중간 Server를 거치는건지 상관할 필요가 없다.
+    - 반면에 Server는 여러 계층 구조로 아키텍처를 구성할 수 있다.
+    - WAS 앞 단에 인증/인가, 암호화, 공유 캐시, 로드 밸런싱 등의 기능을 제공하는 서버를 추가할 수 있다.
+    - API Gateway와 같은 APIM(API Management) 시스템은 REST API의 계층화 특성을 대표하는 솔루션 중 하나이다.
+- ## Resource 및 URI 설계
+  - 
+
+- ### 다른 네트워크 아키텍처 Graphql
 
 
 ---
