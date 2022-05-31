@@ -2,6 +2,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Launch ArrayRotation",
+      "request": "launch",
+      "mainClass": "ArrayRotation",
+      "projectName": ""
+    },
+    {
+      "type": "java",
       "name": "Launch Array",
       "request": "launch",
       "mainClass": "Array",
