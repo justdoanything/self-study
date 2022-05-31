@@ -576,7 +576,7 @@ REST API
 ===
 - ## REST 란?
   - REST(`Representational State Transfer`)는 네트워크 기반 아키텍처로 리소트 상태(`Resource State`)의 표현 (`Representation`)을 전송(`Transfer`)하는 방식에 대해 정의한 것이다.
-  - 각 리소스에 대한 URI를 부여하고 해당 리소스에 대한 CRUD 작업을 POST, GET, PUT, DELETE와 같은 HTTP 메소드를 이용해 처리하는 것이다.
+  - 각 리소스에 대한 URI를 부여하고 해당 리소스에 대한 CRUD 작업을 `POST`, `GET`, `PUT`, `DELETE`와 같은 HTTP 메소드를 이용해 처리하는 것이다.
   - Client에게 제공하고자 하는 리소스를 먼저 정의하고 해당 리소스에 대한 CURD 기반의 Operation을 정의한다.
   - HTTP 메소드 종류
     값 | 의미  
@@ -613,7 +613,7 @@ REST API
   - #### Cache
     - REST API는 HTTP 기반으로 동작하기 때문에 HTTP에서 제공하는 Cache 기능을 사용할 수 있다.
     - 조회(GET) 성격의 API를 설계할 때는 Cache 관련 HTTP 헤더를 이용해서 구현하여 사용하는 것을 권장한다.
-    - HTTP/1.1 기반 ETag 헤더를 사용한 Cache
+    - HTTP/1.1 기반 `ETag` 헤더를 사용한 Cache
       - Client → REST API : GET | /customers/1234
       - Client ← REST API : 200 OK | / ETag : dyddnrhdck
       - Client → REST API : GET | /customers/1234 | If-None-Match: "dyddnrhdck"
@@ -621,14 +621,73 @@ REST API
   - #### Client-Server Architecture
     - Server는 비지니스 로직을 처리할 수 있는 API를 제공한다.
     - Client는 API를 호출하기 위한 인증 정보, Context 등을 직접 관리한다.
-    - 이러한 구조는 Server와 Client 간의 의존성을 낮출 수 있다.
+    - 이러한 구조는 Server와 Client 간의 `의존성을 낮출 수 있다`.
   - #### Stratification
     - Client는 정해진 스펙에 맞게 API를 호출하면 된다. 대상 Server를 직접 호출하는건지 중간 Server를 거치는건지 상관할 필요가 없다.
     - 반면에 Server는 여러 계층 구조로 아키텍처를 구성할 수 있다.
     - WAS 앞 단에 인증/인가, 암호화, 공유 캐시, 로드 밸런싱 등의 기능을 제공하는 서버를 추가할 수 있다.
-    - API Gateway와 같은 APIM(API Management) 시스템은 REST API의 계층화 특성을 대표하는 솔루션 중 하나이다.
+    - API Gateway와 같은 `APIM(API Management)` 시스템은 REST API의 계층화 특성을 대표하는 솔루션 중 하나이다.
 - ## Resource 및 URI 설계
-  - 
+  - #### Resource 설계
+    - REST API는 리소스 중심으로 설계되며 각 리소스마다 고유하게 식별할 수 있는 URI가 존재해야 한다.
+    - 단일 리소스 : /customers, 상태 정보를 가지며 0개 이상의 서브 리소스를 가짐
+    - 컬렉션 리소스 : /customers/12/phoneNumbers, 동일한 타입의 리소스 목록을 포함하며 컬렉션 내의 특정 리소스 구분자로 {id} 사용
+    - `API를 통해 제공하고자 하는 비즈니스 엔터티에 집중해야 한다.`
+      - 특정 업무 요건에서 제공해야 할 엔터티 및 해당 엔터티에서 수행할 수 있는 작업을 모델링 해야 한다. 
+      - 여기서의 엔터티를 단일 물리적 데이터 항목과 혼돈해선 안된다.
+      - Customer Management라는 리소스는 내부적으로 여러 개의 테이블로 구현되어 있지만 실제 Client에게는 하나의 비지니스 엔터티로 표시해 제공되어야 한다.
+    - `단일 API 요청을 통해 필요한 정보를 검색할 수 있도록 리소스 결합을 고려해야 한다.`
+      - 리소스를 너무 작게 나눌 경우 하나의 비즈니스를 처리하기 위해서 여러 개의 API를 호출해야 한다.
+      - 반면 너무 크게 설계하면 API의 재사용성이 떨어질 수 있다. Client 입장에서 API의 사용성을 고려하는 것이 필요하다.
+  - #### URI 설계
+    - 자기 서술성을 통한 직관성을 확보하고 리소스 모델을 잘 전달할 수 있는 구조로 설계해야 한다.
+    - URI 기본 포맷은 `RFC 3986`에서 정의한 기본 문법을 준수한다.\
+      `URI = scheme "://" authority "/" path [ "?" query ] [ "#" fragment ]`
+      - scheme : URI Instance를 초기화하는데 사용되는 타입 반환
+      - authority : Server의 DNS hostname 또는 IP 주소 및 포트 번호
+      - path : 해당 자원의 위치 경로를 순차적으로 의미
+      - query : 특정 값 전달
+      - fragment : 특정 계층에서 보조 리소스 검색 시 사용
+      - 얘제 : https "://" openapi.naver.com "/" map "?" city=seoul
+- ## 명명 규칙
+  - API 이름은 `명사`를 사용해야하며 API의 목적을 명확하게 나타낼 수 있는 `특화된 이름`을 사용한다.
+  - URI를 구성하는 각 리소스는 `명사`를 사용해야 하며 `Cacel Case`를 사용한다.
+  - Collection 성격의 리소스를 `복수 명사`를 사용한다.
+  - URI 구성 시 CRUD 성격의 메소드 이름 `create`, `retrieve`, `update`, `delete`, `get`, `set` 등의 동사를 포함하면 안된다.
+  - 계층 관계를 나태내기 위해 구분자로 `"/"`를 사용한다. 마지막 문자에 `"/"`는 포함하지 않는다.
+  - URI 가독성을 높이기 위해 특수문자는 사용하지 않고 경우에 따라 `"-"`는 사용해도 된다.
+  - URI 길이 제한은 없지만 `가독성`을 고려해야 하고 5단계를 넘지 않는 것이 좋다.
+- ## CRUD 기반 HTTP 요청 메소드 정의
+  메소드 | 설명 | 응답코드 | 에러코드
+  ---|---|---|---
+  `GET` | _Read Operation_ | 200 OK | 404 Not Found
+  `PUT` | _Create Operation_ | 201 Created | 400 Bad Request
+  `POST` | _Update Operation_ | 200 OK, 204 No-Content | 409 Conflict
+  `DELETE` | _Delete Operation_ | 204 No-Content | 404 Not Found
+  `HEAD` | 응답 헤더를 조회할 때 사용 | 200 OK | 
+  `OPTIONS` | Allow 응답 헤더를 이용해 리소스에서 사용 가능한 메소드를 표기하는 용도 | 200 OK | 
+  - CRUD 성격으로 구분할 수 없는 경우엔 `POST`를 사용한다.
+  - `HEAD`는 GET 요청을 통해 특정 리소스를 조회하기 전에 `결과 데이터 크기를 파악`하고 싶을 때 HEAD 메소드를 사용하면 된다. 응답 헤더의 `Content-Length` 값을 알면 데이터 크기를 알 수 있다.
+- ## 주의사항
+  - #### GET, POST 메소드를 이용한 터널링 금지
+    - GET /customerBillManagement/customerBill?~~method=update~~&id=8297\
+      → 조회성 메소드에서 실제 메소드인 update를 전달하면 안된다.
+    - POST /customerBillManagement/customerBill\
+      { ~~"skill":"getCustomerBill"~~, "id":"8297" }\
+      → 조회 성격의 Operation을 POST로 구현하면 안된다. 
+  - #### POST 메소드를 사용 시 멱등성(Idempotent) 고려
+    - CRUD 성격으로 매핑이 불가능한 Operation의 경우 POST 메소드를 사용하는데 반드시 멱등성(Idempotent)를 고려해야 한다.
+    - 예를들어 DELETE 메소드를 여러번 호출하면 응답코드는 200 OK → 404 Not Found로 변하지만 리소스가 삭제된 결과는 동일하다. GET, PUT, DELETE도 멱등성이 보장되는 메소드이다.
+    - 하지만 조회 수를 1 증가시키는 POST Operation은 멱등성이 보장되지 않는다.
+    - POST 사용 시 프레임워크와 같은 공통 모듈 단에서 멱등성을 보장할 수 있는 별도의 트랜잭션 처리를 고려해야 한다. 예를 들었던 조회수 1을 증가는 Operation은 처리 중 오류가 발생하면 1을 감소시키는 작업을 해줘야 한다.
+
+
+
+
+
+
+
+
 
 - ### 다른 네트워크 아키텍처 Graphql
 
