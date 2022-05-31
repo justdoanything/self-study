@@ -681,6 +681,40 @@ REST API
     - 하지만 조회 수를 1 증가시키는 POST Operation은 멱등성이 보장되지 않는다.
     - POST 사용 시 프레임워크와 같은 공통 모듈 단에서 멱등성을 보장할 수 있는 별도의 트랜잭션 처리를 고려해야 한다. 예를 들었던 조회수 1을 증가는 Operation은 처리 중 오류가 발생하면 1을 감소시키는 작업을 해줘야 한다.
 
+- ## API Versioning
+  - #### Version Format
+    - APIM에 API를 등록한다거나 API 스펙 문서를 관리할 때 버전 정보를 사용한다.
+    - Format : `MAJOR`.`MINOR`.`REVISION`
+      - 기존 버전과 호환이 되지 않게 API가 변경된 경우 `MAJOR` 버전을 올린다.
+      - 기존 버전과 호환이 되면서 새로운 기능이 추가된 경우 `MINOR` 버전을 올린다.
+      - 기존 버전과 호환이 되면서 버그를 수정한 경우 `REVISION` 버전을 올린다.
+  - #### URI Version
+    - URI 상에 버전 정보를 관리할 때 사용한다. Version format에서 `MAJOR` 정보만 이용하며 `접두사 v`를 사용한다.
+    - Format : `{serverRoot}`/`{apiName}`/`{apiVersion}`/`{subResource}`
+      - serverRoot : 호스트명 또는 IP/PORT
+      - apiName : API 이름
+      - apiVersion : API 버전 (v1, v2, ...)
+      - subResource : API에 속해있는 하위 리소스명
+    - 기존 버전과 새로운 버전을 분리해서 여러 버전을 동시에 사용할 수 있다.
+    - API Lifecycle : 특정 시점에 특정 버전을 `사용안함(deprecated)` 상태로 만들었다가 `폐기(retired)`상태로 만들어서 `EOL(End of Life)` 공지 후 `삭제(remove)`
+  - #### 하위 호환성
+    - 버전 변경 시 반드시 하위 호환성을 고려해야 한다. 
+    - 하위 호환성을 유지하면서 API가 변경되는 대표적인 경우
+      - 서비스, 인터페이스, 필드, 메소드 삭제 또는 이름 변경
+      - HTTP 바인딩 변경
+      - URL 포맷 변경
+      - 기 존재하는 요청에 대한 동작 변경
+      - 새롭게 추가된 데이터 객체(또는 객체 내 세부 필드)에 대한 사용 여부 변경
+      - 기존 데이터 필드에서 허용 가능한 값의 크기 증가
+      - 열거 데이터형 사용 시 기존 항목의 유지된 상태에서 새로운 항목 추가, 삭제, 이름 변경
+      - 기존 Operation이 유지된 상태에서 새로운 오퍼레이션 추가
+      - Operation에서 사용하는 파라미터가 기존 것은 그대로 유지된 상태이고 새로 추가
+      
+      
+      
+
+
+    
 
 
 
