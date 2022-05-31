@@ -9,7 +9,6 @@
 - [Yarn](#Yarn)
 - [Spring](#Spring)
 - [Flyway](#Flyway)
-- [OAuth 2.0](#OAuth-2.0)
 - [REST API](#Restful-API)
 
 ---
