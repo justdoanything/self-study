@@ -710,20 +710,38 @@ REST API
       - 기존 Operation이 유지된 상태에서 새로운 오퍼레이션 추가
       - Operation에서 사용하는 파라미터가 기존 것은 그대로 유지된 상태이고 새로 추가
       
-      
-      
+- ## HATEOAS
+  - HATEOAS = Hypermedia As The Engine Of Application State
+  - 하이퍼미디어 특징을 이용하여 HTTP 응답 메세지를 전달할 때 관련 리소스 링크 정보나 다음에 수행할 수 있는 작업 링크 정보를 포함하여 리턴하는 것
+  - 응답 데이터에 대한 가독성이 증대되고 리소스 간의 관계를 일관성 있는 링크 형태로 관리할 수 있드는 장점이 있다.
+  - 응답 데이터가 다른 리소스 URI와 의존성을 갖게 되기 때문에 구현이 다소 까다롭다는 단점이 있다.
+  - HATEOAS 응답 예제
+    ```json
+    {
+      "account_id": 12345,
+      "balance": "350,000",
+      "links": [
+        {
+          "rel": "self",
+          "href": "http://localhost:8080/accounts/1"
+        },
+        {
+          "rel": "withdraw",
+          "href": "http://localhost:8080/accounts/1/withdraw"
+        },
+        {
+          "rel": "transfer",
+          "href": "http://localhost:8080/accounts/1/transfer"
+        }
+      ]
+    }
+    ```
+- ### GraphQL과 RESTful API
 
 
-    
 
-
-
-
-
-
-
-
-- ### 다른 네트워크 아키텍처 Graphql
+- Reference
+  - https://www.holaxprogramming.com/2018/01/20/graphql-vs-restful-api/
 
 
 ---
