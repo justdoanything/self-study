@@ -736,10 +736,29 @@ REST API
       ]
     }
     ```
-- ### GraphQL과 RESTful API
+- ## GraphQL과 REST API
+  - #### GraphQL의 등장 배경
+    - RESTful API 로는 다양한 기종에서 필요한 정보들을 일일히 구현하는 것이 힘들었다.
+    - 예를들어, iOS 와 Android 에서 필요한 정보들이 조금씩 달랐고, 그 다른 부분마다 API 를 구현하는 것이 힘들었다.
+    - 이 때문에 정보를 사용하는 측에서 원하는 대로 정보를 가져올 수 있고, 보다 편하게 정보를 수정할 수 있도록 하는 표준화된 Query language 를 만들게 되었다.
 
-
-
+  - #### GraphQL과 REST의 차이점
+    - REST는 하나의 Resource마다 하나의 Endpoint를 갖고있고 GraphQL은 주로 하나의 Endpoint에 거의 모든 것들를 담고 있다.
+    - REST는 응답 구조가 정해져 있는 방면 GraphQL은 요청할 때 사용한 Query 문에 따라 응답의 구조가 달라진다.
+  
+  - #### GraphQL의 장단점
+    - GraphQL은 HTTP 요청 횟수를 줄일 수 있고 응답 크기를 줄일 수 있다.
+    - GraphQL은 File 전송 등 Text 만으로 하기 힘든 내용들을 처리하기 복잡하다. (물론 GraphQL 에서 File 전송을 할 수 없는 것은 아니나, 일반적인 GraphQL API 에 비해서 복잡해지거나 외부의 Service 에 의존해야하는 등 문제가 발생한다.)
+    - 고정된 요청과 응답만 필요할 경우에는 Query 로 인해 요청의 크기가 RESTful API 의 경우보다 더 커진다.
+    - 재귀적인 Query 가 불가능하다. (결과에 따라 응답의 깊이가 얼마든지 깊어질 수 있는 API 를 만들 수 없다.)
+  - #### GraphQL과 REST 선택기준
+    - ###### GraphQL
+      - 서로 다른 모양의 다양한 요청들에 대해 응답할 수 있어야 할 때
+      - 대부분의 요청이 CRUD(Create-Read-Update-Delete) 에 해당할 때
+    - ###### REST
+      - HTTP 와 HTTPs 에 의한 Caching 을 잘 사용하고 싶을 때
+      - File 전송 등 단순한 Text 로 처리되지 않는 요청들이 있을 때
+      - 요청의 구조가 정해져 있을 때
 - Reference
   - https://www.holaxprogramming.com/2018/01/20/graphql-vs-restful-api/
 
