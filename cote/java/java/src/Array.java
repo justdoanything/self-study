@@ -1,7 +1,29 @@
 public class Array {
+    
+    /** Key Point **/
+
+    // 1. 왼쪽->아래 에서 위->아래로 변경할 때
+    //   row와 col 위치 변경
+    //   i와 j 위치 변경
+
+    // 2. 지그재그 만들때
+    //   row나 col의 짝수/홀수로 구분
+    
+    // 3. 대각선으로 출력
+    // 전체 탐색을 위한 변수 c , 범위는 row+col
+    // for(int c=0; c<= row+col; c++){
+    //     for(int i=0; i<row; i++){
+    //         for(int j=0; j<col; j++){
+    //             // i와 j의 합이 c와 같은 곳에서만 출력
+    //             if(i+j == c)
+    //                 array[i][j] = index++;
+    //         }
+    //     }
+    // }
+    
     public static void main(String[] args) throws Exception {
         
-        int row = 5;
+        int row = 4;
         int col = 4;
         
         solution(row, col);
@@ -166,6 +188,36 @@ public class Array {
         for(int c=0; c<= row+col; c++){
             for(int i=0; i<col; i++){
                 for(int j=0; j<row; j++){
+                    // i와 j의 합이 c와 같은 곳에서만 출력
+                    if(i+j == c)
+                        array[j][i] = index++;
+                }
+            }
+        }
+        printArray(array);
+
+        index = 1;
+        System.out.println("################ n, n 시작 - 대각선 출력");
+        
+        // 전체 탐색을 위한 변수 c , 범위는 row+col
+        for(int c=row+col; c>=0; c--){
+            for(int i=col-1; i>=0; i--){
+                for(int j=row-1; j>=0; j--){
+                    // i와 j의 합이 c와 같은 곳에서만 출력
+                    if(i+j == c)
+                        array[i][j] = index++;
+                }
+            }
+        }
+        printArray(array);
+
+        index = 1;
+        System.out.println("################ n, n 시작 - 대각선 출력 (반대)");
+        
+        // 전체 탐색을 위한 변수 c , 범위는 row+col
+        for(int c=row+col; c>=0; c--){
+            for(int i=row-1; i>=0; i--){
+                for(int j=col-1; j>=0; j--){
                     // i와 j의 합이 c와 같은 곳에서만 출력
                     if(i+j == c)
                         array[j][i] = index++;

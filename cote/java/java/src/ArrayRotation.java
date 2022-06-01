@@ -1,14 +1,16 @@
 public class ArrayRotation {
     
-    // 시계방향 - 상하좌우
+    /** Key Point **/
+    
+    // 1. 시계방향 - 상하좌우
     int[] dx4 = {-1, 1, 0, 0};
     int[] dy4 = {0, 0, -1, 1};
 
-    // 시계방향 - 상하좌우대각선
+    // 2. 시계방향 - 상하좌우대각선
     int[] dx8 = { -1, -1, 0, 1, 1, 1, 0, -1};
     int[] dy8 = { 0, 1, 1, 1, 0, -1, -1, -1};
 
-    // 문자열을 index로 변환
+    // 3. 문자열을 index로 변환
     String posEng = "d4";
     int posEngX = posEng.charAt(0)-'a';
     int posEngY = posEng.charAt(1)-'0';
