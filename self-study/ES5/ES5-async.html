@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>함수형 프로그래밍-ES5</title>
+    <script src="_.js"></script>
+    <script src="partial.js"></script>
+  </head>
+
+  <body>
+    🔰 Reference :
+    <a
+      href="https://www.inflearn.com/course/%ED%95%A8%EC%88%98%ED%98%95-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8D/lecture/6776?tab=curriculum&volume=1.00&speed=1.5"
+      >Inflearn - 자바스크립트로 알아보는 함수형 프로그래밍 (ES5)</a
+    >
+    <script>
+      function square(a) {
+        return new Promise(function (resolve) {
+          setTimeout(function () {
+            resolve(a * a);
+          }, 500);
+        });
+      }
+
+      //function square(a) {
+      //  return a * a;
+      //}
+      /*
+        square(10)
+          .then(square)
+          .then(square)
+          .then(square)
+          .then(console.log);
+        _.go(square(10),
+          square,
+          square,
+          square,
+          console.log);
+        */
+
+      var list = [2, 3, 4];
+
+      new Promise(function (resolve) {
+        (function recur(res) {
+          if (list.length == res.length) return resolve(res);
+          square(list[res.length]).then(function (val) {
+            res.push(val);
+            recur(res);
+          });
+        })([]);
+      }).then(console.log);
+
+      _.go(list, _.map(square), _.map(square), _.map(square), console.log);
+    </script>
+  </body>
+</html>
