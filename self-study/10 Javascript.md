@@ -148,10 +148,16 @@ const v1 = c1 && c2;        // 'abc'
 const v2 = c1 && c2 && 0;   // 0
 const v3 = c1 && 0 && c2;   // 0
 
-const v4 = c1 || c2;        //
-const v5 = '' || c2;        //
+const v4 = c1 || c2;        // 123
+const v5 = '' || c2;        // abc
 
-const v6 = !!(c1 && 0 && c2); //
-const v7 = !!(c1 || c2);      //
-
+const v6 = !!(c1 && 0 && c2); // false
+const v7 = !!(c1 || c2);      // true
 ```
+
+## 기본값
+```js
+const name = person.name ?? 'unknown'; // nullish coalescing
+const name = person.name || 'unknown';
+```
+
