@@ -155,9 +155,130 @@ const v6 = !!(c1 && 0 && c2); // false
 const v7 = !!(c1 || c2);      // true
 ```
 
-## 기본값
+## ??, ?.
+- Nullish Coalescing : `??` 키워드로 null, undefined를 체크
+- Optional Chaining : `?.` 키워드로 null, undefined를 체크
 ```js
-const name = person.name ?? 'unknown'; // nullish coalescing
-const name = person.name || 'unknown';
+// Nullish Coalescing
+const name = person.name ?? 'unknown';  
+// person.name === null || person.name === undefined ? 'unknown' : person.name;
+
+// 빈 문자열('')을 값으로 인정한다면 nullish coalescing을 사용
+// 빈 문자열('')을 값으로 인정안하면 || 연산자 사용
+const person = { name : '' };
+const name = person.name ?? 'unknown'; // ''
+const name = person.name || 'unknown'; // 'unknown'
+
+// Optional Chaining
+const name = person?.name;  
+// person === null || person === undefined ? undefined : person.name;
+const name = person.getName?.();
+const name = person.friend?.[0];
+
+
+const name = person?.friends?.[0]?.mother?.name ?? 'defalt name';
 ```
+
+## Object
+```js
+//const obj = new Object({
+const obj = { 
+    age: 21,
+    name: 'yong'
+}
+
+// Object 관련 주요 함수들
+// 변수명에 서브함수를 사용하지 않고 Object 객체를 활용한다.
+Object.keys(obj);       // [ 'age', 'name' ]
+Object.values(obj);     // [ 21, 'yong' ]
+Object.entries(obj);    // [ [ 'age', 21 ], [ 'name', 'yong' ] ]
+
+for(const [key, value] of Object.entries(obj)){
+    console.log(key, value);
+}
+
+// 객체 값 추가 / 삭제
+obj.city = 'seoul';
+obj.age = 30;
+delete obj.city;
+
+
+// Array Object
+const array = [1, 2, 3];
+Object.values(array); // [ 1, 2, 3 ]
+
+array.map(item => item + 1);    // [ 2, 3, 4 ] 
+array.filter(item => item >= 2);    // [ 2, 3 ]
+array.reduce((acc, item) => acc + item, 0); // 6, 0으로 시작해서 연산을 누적으로 해준다.
+array.some(item => item === 2);     // true, 하나라도 만족하면 true
+array.every(item => item === 2);    // false, 모두 만족해야 true
+array.includes(2);  // true, 2를 포함하는지
+array.find(item => item % 2 === 1); // 1, 조건에 부합하는 첫번째 값
+array.findIndex(item => item % 2 === 1); // 0, 조건에 부합하는 첫번째 값의 인덱스
+
+// 반복문
+array.forEach(item => console.log(item));
+for(const item of array){
+    console.log(item);
+}
+
+// 배열의 값 추가 / 삭제
+array.push(4);
+array.pop();
+
+array.splice(1, 1);             // [ 1, 3 ], 1번 인덱스에서 1개 삭제
+array.splice(1, 0, 10, 20, 30); // [ 1, 10, 20, 30, 3 ],  1번 인덱스에서 0개를 삭제하고 뒤에 있는 아이템 추가
+array.splice(1, 3, 40, 50);     // [ 1, 40, 50, 3 ]
+
+array.sort();   // 오름차순, [ 1, 3, 40, 50 ]
+array.sort((a, b) => ( a % 10) - (b % 10)); // [ 40, 50, 1, 3 ], 함수에서 음수가 나오면 순서 변경 안함, 양수면 순서 변경
+```
+
+## 객체 속성을 간결하게 다루기 위한 함수
+- shorthand property names (단축 속성명): 객체 리터널 코드를 간편하게 작성
+- computed property names (계산된 속성명): 객체의 속성명을 동적으로 결정
+- spread operator : ... 키워드로 객체를 복사해서 사용할 수 있다.
+```js
+
+/*
+ * shorthand property names
+ */
+const obj = {
+    age: 21,
+    name,
+    // 단축 속성명 없이 적용할 때, 
+    // getName : function getName() { return this.name; }
+    getName() { return this.name; }
+};
+
+// 단축속성명 없이 적용할 때, 
+// function person(age, name) { return { age: age, name: name }};
+function person(age, name) { return { age, name }};
+
+
+/*
+ * computed property names
+ */
+// 계산된 속성명 적용 안한 코드
+function person(key, value) {
+    const obj = {}};
+    obj[key] = value;
+    return obj;
+}
+function person(key, value) { 
+    return { [key] : value };
+}
+
+/*
+ * spread operator
+ */
+const numbers = [1, 3, 7, 9];
+Max.max(...numbers);
+
+const array2 = [...array];
+const obj3 = {...obj1, ...obj2};
+const date = new Date(...[2018, 11, 24]);
+const obj4 = {...obj1, name: 'yong2'};
+```
+
 
