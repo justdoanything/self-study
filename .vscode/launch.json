@@ -2,6 +2,19 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Launch LambdaTest",
+      "request": "launch",
+      "mainClass": "LambdaTest",
+      "projectName": ""
+    },
+    {
+      "type": "java",
+      "name": "Launch Lambda",
+      "request": "launch",
+      "mainClass": "Lambda"
+    },
+    {
+      "type": "java",
       "name": "Launch ArrayRotation",
       "request": "launch",
       "mainClass": "ArrayRotation",

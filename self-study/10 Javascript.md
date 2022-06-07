@@ -160,8 +160,7 @@ const v7 = !!(c1 || c2);      // true
 - Optional Chaining : `?.` 키워드로 null, undefined를 체크
 ```js
 // Nullish Coalescing
-const name = person.name ?? 'unknown';  
-// person.name === null || person.name === undefined ? 'unknown' : person.name;
+const name = person.name ?? 'unknown';  // person.name === null || person.name === undefined ? 'unknown' : person.name;
 
 // 빈 문자열('')을 값으로 인정한다면 nullish coalescing을 사용
 // 빈 문자열('')을 값으로 인정안하면 || 연산자 사용
@@ -170,13 +169,11 @@ const name = person.name ?? 'unknown'; // ''
 const name = person.name || 'unknown'; // 'unknown'
 
 // Optional Chaining
-const name = person?.name;  
-// person === null || person === undefined ? undefined : person.name;
+const name = person?.name;  // person === null || person === undefined ? undefined : person.name;
 const name = person.getName?.();
 const name = person.friend?.[0];
-
-
 const name = person?.friends?.[0]?.mother?.name ?? 'defalt name';
+
 ```
 
 ## Object
