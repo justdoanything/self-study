@@ -2,6 +2,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Launch JpaApplication",
+      "request": "launch",
+      "mainClass": "prj.JpaApplication",
+      "projectName": "jpa"
+    },
+    {
+      "type": "java",
       "name": "Launch LambdaTest",
       "request": "launch",
       "mainClass": "LambdaTest",

@@ -12,4 +12,5 @@ public class JpaHealthController {
     public ResponseEntity<String> healthCheck(){
         return new ResponseEntity<>("OK", HttpStatus.OK);
     }
+    
 }
