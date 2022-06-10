@@ -278,4 +278,199 @@ const date = new Date(...[2018, 11, 24]);
 const obj4 = {...obj1, name: 'yong2'};
 ```
 
+## 함수 정의 방식
+```javascript
+// 기본값 설정
+function print(a = 1) {
+    console.log( { a } );
+}
+function print(a = printDefault()){
+    console.log( { a } );
+}
+// 필수값 설정
+function required() {
+    throw new Error("There are no required parameters");
+}
+function print(a = required()){
+    console.log( { a } );
+}
 
+// Rest Parameter
+function print(a, ...rest) {
+    console.log( { a, rest } );
+}
+print(1, 2, 3); // a = 1, rest = [2, 3]
+
+// Named Parameter
+function getValue( { numbers, greaterThan = 0, lessThan = Number.MAX_VALUE }){
+    return numbers.filter(item => greaterThan < item && item < lessThan);
+}
+console.log(getValue( { numbers, greaterThan: 5, lessThan: 25 } ));
+
+// Arrow Function
+const add = (a, b) => a + b;
+const add = a => a + 5;
+const add = (a, b) => ({ result: a + b});
+const add = (a, b) => {
+    return a + b;
+}
+```
+
+## Promise
+```js
+callApi1()
+    .then(data => {
+        console.log(data);
+        return callApi2();
+    })
+    .then(data => {
+        console.log(data);
+    });
+
+const pendingPromise = new Promise((resolve, reject) => {});
+const rejectedPromise = Promise.reject('error message');
+const fulfilledPromise = Promise.resolev(param);
+
+// pending : 대기중
+// settled
+//  fulfilled : 성공, resolve 호출 후 
+//  rejected : 실패, reject 호출 후 
+
+// then은 항상 Promise를 반환함
+// 첫번째 인자는 fullfilled 일 때 빠지는 함수
+// 두번째 인자는 rejected 일 때 빠지는 함수
+
+Promise.resolve(10)
+    .then(data => {
+        return data + 1;    // Promise.resolve(11) 반환
+    })
+    .then(data => {
+        throw new Error('error');   // Promise.reject('error') 반환
+    })
+    .then(null, error => {
+        console.log(error); // Promise.resolve() 반환
+    })
+    .then(data => {
+        console.log(data); // 위에서 Promise.resolve()를 반환했기 때문에 fulfilled 상태가 되고 이 행은 출력된다.
+    })
+
+//4, 5만 출력 됨
+Promise.reject('err')
+    .then(()=>console.log('1'))
+    .then(()=>console.log('2'))
+    .then(
+        () => console.log('3'),
+        () => console.log('4'),
+    )
+    .then(
+        () => console.log('5'),
+        () => console.log('6'),
+    )
+
+// then, catch, finally
+// finally에는 데이터가 안넘어오고 이 전의 Promise 객체를 그대로 반환한다.
+Promise.resolve(10)
+    .then(data => {
+        console.log("In resolve");
+        return data + 10;
+    })
+    .catch(error => {
+        console.log("In catch");
+        return data - 10;
+    })
+    .finally(() => {
+        console.log("In finally");
+    }
+    .then(data => {
+        console.log(data); // 20
+    })
+
+Promise.reject(10)
+    .then(data => {
+        console.log("In resolve");
+        return data + 10;
+    })
+    .catch(error => { 
+        console.log("In catch");
+        return data - 10;
+    })
+    .finally(() => {
+        console.log("In finally");
+    }
+    .then(data => {
+        console.log(data); // 0
+    })
+
+function requestData() {
+    return fetch()
+        .catch(error => {
+            ...
+        })
+        .finally(() => {
+            ...
+        });
+}
+requestData().then(data => console.log(data));
+
+// then을 병렬로 처리하기
+requestData1().then(data => console.log(data));
+requestData2().then(data => console.log(data));
+Promise.all([requestData1(), requestData2()]).then(([data1, data2]) => {
+    console.log(data1, data2);
+});
+
+// 가장 먼저 settled 상태가 된 Promise 반환
+Promise.race([
+    requestData(),
+    new Promise((_, reject) => setTimeout(reject, 3000))
+])
+    .then(data => console.log('fulfilled', data))
+    .catch(error => console.log('rejected'));
+```
+
+## async-awwait
+```js
+async function getData() {
+    new Promise.resolve(10);
+}
+
+function getData() {
+    return asyncFunc1()
+        .then(data1 => Promise.all([data1, asyncFunc2(data2)]))
+        ,then(([data1, data2]) => {
+            return asyncFunc3(data1, data2);
+        });
+}
+// 직렬 처리
+async function getData() {
+    const data1 = await asyncFunc1();
+    const data2 = await asyncFUnc2(data);
+    return asyncFunc3(data, data2);
+}
+//병렬 처리
+async function getData() {
+    const p1 = asyncFunc();
+    const p2 = asyncFunc2();
+    const data1 = await p1;
+    const data2 = await p2;
+    console.log( { data1, data2 });
+}
+async function getData() {
+    const [data1, data2] = await Promise.all([asyncFunc1(), asyncFunc2()]);
+}
+// 예외 처리
+async function getData() {
+    try {
+        await doAsync();
+        return doSync();
+    }catch(error) {
+        // doAsync, doSync 함수에 대한 예외가 모두 여기에서 처리됨
+        return Promise.reject(error);
+    }
+}
+
+
+```
+
+# Reference
+- https://www.inflearn.com/course/%EC%8B%A4%EC%A0%84-%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8
