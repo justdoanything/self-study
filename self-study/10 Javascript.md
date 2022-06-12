@@ -1,5 +1,5 @@
 # Javascript
-
+###### Good to note with https://github.com/justdoanything/self-study/tree/main/self-study/ES5
 ## var
 - var 변수의 scope = function
 - var 키워드를 사용하지 않고 변수를 선언하면 전역 변수가 된다. 이를 방지하기 위해선 'use strict'를 명시해줄 수 있다.
