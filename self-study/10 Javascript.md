@@ -468,9 +468,62 @@ async function getData() {
         return Promise.reject(error);
     }
 }
-
-
 ```
+
+## Prototype
+- 함수의 [[Prototype]]과 prototype 속성은 다르다. [[Prototype]]은 모든 객체가 갖고 있는 값이고 prototype은 해당 함수가 갖고 있는 특별한 속성이다.
+  ```js
+  const person = new Person();
+  Object.getPrototypeOf(Person) !== Person.prototype;
+  
+  Object.getPrototypeOf(person) === Person.prototype;
+  Object.getPrototypeOf(Person.prototype) === Object.prototype
+  Object.getPrototypeOf(Person) === Function.prototype
+  
+  Object.getPrototypeOf(Object) === Function.prototype
+  Object.getPrototypeOf(Function.prototype) === Object.prototype
+  Object.getPrototypeOf(Object.prototype) === null
+  ```
+- 예제코드
+  ```js
+  const person = {
+      name: 'mike'
+  }
+  const programmer = {
+      language: 'javascript'
+  }
+  const prototype = person.getPrototypeOf(person); // 안전한 방법
+  console.log(typeof prototype);  // object
+  console.log(person.__proto__ === prototype);
+
+  Object.setPrototypeOf(programmer, person);
+  console.log(Object.getPrototype(programmer) === person);    // true
+  console.log(programmer.name); // mike, 속성이 없으면 prototype에서 찾는다.
+
+  for(const prop in programmer) {
+      console.log(prop);  // name, language
+      if(programmer.hasOwnProperty(prop)){
+      // Object.keys(programmer)
+          console.log(prop);  // language
+      }
+  }
+
+  // 생성자 함수에서 함수를 정의하면 객체가 생성될때마다 함수가 생성되기 때문에 prototype를 사용하면 1번만 생성해서 사용할 수 있다.
+  function Person(name) {
+    this.name = name;
+    this._salary = 0;
+  }
+  Person.prototype = {
+    setSalary(salary) = {
+      this._salary = Math.max(0, Math.min(1000, salary));
+    },
+    getSalary() {
+      return this._salary;
+    }
+  }
+  ```
+
+## Class
 
 # Reference
 - https://www.inflearn.com/course/%EC%8B%A4%EC%A0%84-%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8
