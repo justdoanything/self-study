@@ -524,6 +524,105 @@ async function getData() {
   ```
 
 ## Class
+```js
+class Person {
+  constructor(name) {
+    this._name = name;
+  }
+  // getter 만 선언하면 read-only 처럼 사용할 수 있다.
+  get name() {
+    return this._name;
+  }
+
+  sayHello() {
+    console.log("hello! " + _name);
+  }
+}
+
+// 상속
+class Programmer extends Person {
+  constructor(name, language){
+    super(name);  // 반드시 호출해야함
+    this.language = language;
+  }
+
+  // 화살표 함수로 정의하면 객체로 인식한다.
+  printName = () => {
+    console.log(this.name);
+  }
+
+  printNameFunc = function() {
+    console.log(this.name);
+  }
+
+  // 부모 클래스에서 클래스 필드로 정의하면 자식에서 super로 호출할 수 없다.
+  // super는 prototype 기반으로 동작하는데 클래스 필드로 정의하면 객체에 추가되기 때문이다.
+  // this 키워드를 사용해서 객체에서 먼저 찾고 없으면 prototype에서 찾기 때문에 부모 함수가 호출된다.
+  // 이런 혼동을 방지하기 위해서 자식에서도 클래스 필드로 정의해야 한다. sayHello = () => { ... } 
+  sayHello() {
+    super.sayHello(); // 에러
+    this.sayHello(); // 부모의 함수가 호출됨.
+  }
+}
+
+setTimeout(programmer.printName, 100);    // 정상 출력
+setTimeout(programmer.printNameFunc, 100);  // undefined 출력
+```
+
+## ESM
+```js
+// CommonJS 형식 (과거)
+exports.sayHello = function(name) { consoel.log(name); }
+//--------
+const moduleB = require('./b.js');
+moduleB.sayHello('yongwoo');
+
+// ESM 형식
+export function sayHello(name) { consoel.log(name); }
+export function sayHelloDefault(name) { consoel.log("default : " + name); }
+//--------
+import sayHelloDefault, {sayHello as ailasSayHello} from './b.js';
+
+sayHelloDefault('yongwoo');
+ailasSayHello('yongwoo');
+
+// 1개의 js 파일(main)에서 여러개의 js(sub)를 import 받고 다른 파일에선 main js만 import 받아서 sub js를 사용할 수 있다.
+
+// import 비동기 처리
+// Promise를 반환한다.
+if(name === 'yongwoo'){
+  import('./b.js').then(({b}) => [
+    console.log(b);
+  ]);
+}else {
+  // import는 Promise를 사용하기 때문에 async-await 사용 가능
+  const { c } = await import('./c.js');
+  console.log(c);
+}
+
+// 순환참조 문제
+// 하나의 파일에서 모든 import를 받고 실행 순서를 정해주면 된다.
+// a가 b에 종속적일서 b를 반드시 먼저 호출해야하는 경우
+
+// util.js
+export * from './b.js';
+export * from './a.js';
+
+// 다른 파일에선 util.js를 import 받아서 사용해야 한다.
+```
+
+## webpack
+- 모듈 방식으로 작성된 코드를 배포하기 좋은 형태로 변환해준다.
+- ESM 방식으로 작성된 코드를 변환해주기 때문에 ESM을 지원하지 않는 오래된 브라우저에서도 실행할 수 있게 해준다.
+
+## babel
+- 코드를 압축하거나 자바스크립트 표준 문법으로 변환해준다.
+- 오래된 브라우저에서도 실행할 수 있는 코드가 된다.
+
+## polyfill
+- babel과 마찬가지로 오래된 브라우저를 지원하는 용도로 사용된다.
+- babel은 컴파일 타임에서 실행, polyfill은 런타임에서 실행된다.
+- babel은 사용자 환경을 모른채 무조건 컴파일 타임에서 변환해주고 polyfill은 런타임에 사용자 환경을 보고 필요할 때만 기능을 주입한다.
 
 # Reference
 - https://www.inflearn.com/course/%EC%8B%A4%EC%A0%84-%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8
