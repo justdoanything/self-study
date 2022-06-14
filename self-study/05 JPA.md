@@ -324,6 +324,6 @@
   - https://girawhale.tistory.com/122#%EC%A4%80%EC%98%81%EC%86%8D-%EC%83%81%ED%83%9C
 ---
 
-# 스프링 데이터 JPA / 백강선 / 인프런
-
-https://github.com/justdoanything/self-study/blob/main/self-study/jpa/README.md
+# 관련 Repository
+- [스프링 데이터 JPA / 백강선 / 인프런](https://github.com/justdoanything/self-study/blob/main/self-study/jpa/README.md)
+- [실전! 스프링 데이터 / 김영한 / 인프런]()

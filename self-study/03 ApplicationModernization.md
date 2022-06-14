@@ -565,10 +565,15 @@ OAuth 2.0
   - 로그인 인증 요청
   - Access Token 발급 요청
   - Access Token 갱신 요청
-  - 네이버 로그인과 카카오 로그인 예제  
+  - 네이버 로그인과 카카오 로그인 예제
     - 네이버 로그인 API : https://developers.naver.com/docs/login/api/api.md
     - 카카오 로그인 API : https://developers.kakao.com/docs/latest/ko/kakaologin/common
 
+- ### Access Token 획득 후 동작
+  - Application은 Resource 서버의 API를 호출하기 위해 인증(로그인) 후에 Access Token을 획득
+  - Client는 발급 받은 Access Token과 Refresh Token을 안전한 공간에 보관
+  - Access Token은 Application의 신원과 권한을 증명하며 API 요청에 Access Token을 담아 Resource Server를 호출
+  - Access Token이 만료되었다는 응답을 받은 경우 Refresh Token을 사용해서 Access Token을 새로 발급받고 저장
 
 ---
 
