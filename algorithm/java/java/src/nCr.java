@@ -1,26 +1,37 @@
-import java.util.LinkedList;
-
 public class nCr {
+
+    private static int count = 0;
+
     public static void main(String[] args) {
         int[] num = {1, 2, 3, 4};
         int n = num.length;
         int r = 2; 
         int start = 0;
 
+        int idx = 0;
+        int target = 0;
+
         // 조합
         int[] temp = new int[2];
-        combination(num, temp, n, r, 0, 0);
+        count = 0;
+        combination(num, temp, n, r, idx, target);
+        System.out.println("==> " + count);
         
         System.out.println("=======================================================");
 
         // 조합 (visit)
         boolean[] visit = new boolean[num.length];
+        count = 0;
         combinationVisit(num, n, r, start, visit);
+        System.out.println("==> " + count);
 
         System.out.println("=======================================================");
 
         // 중복 조합
-        // combinationRepeat(num, n, r, list);
+        temp = new int[2];
+        count = 0;
+        combinationRepeat(num, temp, n, r, idx, target);
+        System.out.println("==> " + count);
     }
 
     private static void combination(int[] num, int[] temp, int n, int r, int idx, int target) {
@@ -29,6 +40,7 @@ public class nCr {
                 System.out.print(i + " ");
             }
             System.out.println();
+            count++;
             return;
         }
 
@@ -46,6 +58,7 @@ public class nCr {
                     System.out.print(num[i] + " ");
             }
             System.out.println();
+            count++;
             return;
         }
         
@@ -57,13 +70,19 @@ public class nCr {
         
     }
 
-    private static void combinationRepeat(int[] num, int n, int r, LinkedList<Integer> list){
-        
-    }
+    private static void combinationRepeat(int[] num, int[] temp, int n, int r, int idx, int target){
+        if(r == 0){
+            for(int i : temp){
+                System.out.print(i + " ");
+            }
+            System.out.println();
+            count++;
+            return;
+        }
 
-    private static void swap(int[] num, int depth, int i){
-        int temp = num[depth];
-        num[depth] = num[i];
-        num[i] = temp;
+        if(target == n) return;
+        temp[idx] = num[target];
+        combinationRepeat(num, temp, n, r-1, idx+1, target);
+        combinationRepeat(num, temp, n, r, idx, target+1);
     }
 }

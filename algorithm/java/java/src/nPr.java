@@ -3,26 +3,33 @@ import java.util.LinkedList;
 // 순열과 조합
 public class nPr {
 
+    private static int count = 0;
     public static void main(String[] args) {
         int[] num = {1, 2, 3, 4, 5};
-        int n = 4;
+        int n = num.length;
         int r = 2; 
         int depth = 0;
 
         // 순열
+        count = 0;
         permutation(num, n, r, depth);
-        
+        System.out.println("==> " + count);
         System.out.println("=======================================================");
 
         // 순열 (visit)
         boolean[] visit = new boolean[num.length];
         LinkedList<Integer> list = new LinkedList<>();
+        count = 0;
         permutationVisit(num, n, r, list, visit);
+        System.out.println("==> " + count);
 
         System.out.println("=======================================================");
 
         // 중복순열
+        list = new LinkedList<>();
+        count = 0;
         permutationRepeat(num, n, r, list);
+        System.out.println("==> " + count);
     }
 
     private static void permutation(int[] num, int n, int r, int depth) {
@@ -31,6 +38,7 @@ public class nPr {
                 System.out.print(num[i] + " ");
             }
             System.out.println();
+            count++;
             return;
         }
 
@@ -57,6 +65,7 @@ public class nPr {
                 System.out.print(i + " ");
             }
             System.err.println();
+            count++;
             return;
         }
 
@@ -72,7 +81,20 @@ public class nPr {
     }
 
     private static void permutationRepeat(int[] num, int n, int r, LinkedList<Integer> list){
-        
+        if(list.size() == r){
+            for(int i: list) {
+                System.out.print(i + " ");
+            }
+            System.err.println();
+            count++;
+            return;
+        }
+
+        for(int i=0; i<n; i++){
+            list.add(num[i]);
+            permutationRepeat(num, n, r, list);
+            list.removeLast();
+        }
     }
 
     private static void swap(int[] num, int depth, int i){
