@@ -562,12 +562,41 @@ OAuth 2.0
 <img width="637" alt="image" src="https://user-images.githubusercontent.com/21374902/168975805-1c029125-7da8-4ad0-afc1-03bf765fd7a8.png">
 
 - ### Client의 동작
+  - 네이버 로그인 API : https://developers.naver.com/docs/login/api/api.md
   - 로그인 인증 요청
+    - 요청 : https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=jyvqXeaVOVmV&redirect_uri=http%3A%2F%2Fservice.redirect.url%2Fredirect&state=hLiDdL2uhPtsftcU
+    - 응답 : http://콜백URL/redirect?code={code값}&state={state값}
   - Access Token 발급 요청
+    - 요청 : https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id=jyvqXeaVOVmV&client_secret=527300A0_COq1_XV33cf&code=EIc5bFrl4RibFls1&state=9kgsGTfH4j7IyAkg
+    - 응답
+      ```json
+      {
+        "access_token":"AAAAQosjWDJieBiQZc3to9YQp6HDLvrmyKC+6+iZ3gq7qrkqf50ljZC+Lgoqrg",
+        "refresh_token":"c8ceMEJisO4Se7uGisHoX0f5JEii7JnipglQipkOn5Zp3tyP7dHQoP0zNKHUq2gY",
+        "token_type":"bearer",
+        "expires_in":"3600"
+      }
+      ```
   - Access Token 갱신 요청
-  - 네이버 로그인과 카카오 로그인 예제
-    - 네이버 로그인 API : https://developers.naver.com/docs/login/api/api.md
-    - 카카오 로그인 API : https://developers.kakao.com/docs/latest/ko/kakaologin/common
+    - 요청 : https://nid.naver.com/oauth2.0/token?grant_type=refresh_token&client_id=jyvqXeaVOVmV&client_secret=527300A0_COq1_XV33cf&refresh_token=c8ceMEJisO4Se7uGCEYKK1p52L93bHXLn
+    - 응답
+      ```json
+      {
+        "access_token":"AAAAQjbRkysCNmMdQ7kmowPrjyRNIRYKG2iGHhbGawP0xfuYwjrE2WTI3p44SNepkFXME/NlxfamcJKPmUU4dSUhz+R2CmUqnN0lGuOcbEw6iexg",
+        "token_type":"bearer",
+        "expires_in":"3600"
+      }
+      ```
+  - Access Token 삭제 요청
+    - 요청 : https://nid.naver.com/oauth2.0/token?grant_type=delete&client_id=jyvqXeaVOVmV&client_secret=527300A0_COq1_XV33cf&access_token=c8ceMEJisO4Se7uGCEYKK1p52L93bHXLnaoETis9YzjfnorlQwEisqemfpKHUq2gY&service_provider=NAVER
+    - 응답
+      ```json
+      {
+        "access_token":"c8ceMEjfnorlQwEisqemfpM1Wzw7aGp7JnipglQipkOn5Zp3tyP7dHQoP0zNKHUq2gY",
+        "result":"success"
+      }
+      ```
+
 
 - ### Access Token 획득 후 동작
   - Application은 Resource 서버의 API를 호출하기 위해 인증(로그인) 후에 Access Token을 획득
