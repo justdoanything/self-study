@@ -2,23 +2,10 @@
   "configurations": [
     {
       "type": "java",
-      "name": "Launch JpaApplication",
+      "name": "Launch nCr",
       "request": "launch",
-      "mainClass": "prj.JpaApplication",
-      "projectName": "jpa"
-    },
-    {
-      "type": "java",
-      "name": "Launch LambdaTest",
-      "request": "launch",
-      "mainClass": "LambdaTest",
+      "mainClass": "nCr",
       "projectName": ""
-    },
-    {
-      "type": "java",
-      "name": "Launch Lambda",
-      "request": "launch",
-      "mainClass": "Lambda"
     },
     {
       "type": "java",
@@ -29,57 +16,10 @@
     },
     {
       "type": "java",
-      "name": "Launch Array",
+      "name": "Launch nPr",
       "request": "launch",
-      "mainClass": "Array",
+      "mainClass": "nPr",
       "projectName": ""
-    },
-    {
-      "type": "java",
-      "name": "Launch Solution",
-      "request": "launch",
-      "mainClass": "test.Solution"
-    },
-    {
-      "type": "java",
-      "name": "Launch Solution",
-      "request": "launch",
-      "mainClass": "Solution"
-    },
-    {
-      "type": "aws-sam",
-      "request": "direct-invoke",
-      "name": "lambda-nodejs14.x:HelloWorldFunction (nodejs14.x)",
-      "invokeTarget": {
-        "target": "template",
-        "templatePath": "${workspaceFolder}/lambda-nodejs14.x/template.yaml",
-        "logicalId": "HelloWorldFunction"
-      },
-      "lambda": {
-        "payload": {},
-        "environmentVariables": {},
-        "runtime": "nodejs14.x"
-      }
-    },
-    {
-      "type": "aws-sam",
-      "request": "direct-invoke",
-      "name": "API lambda-nodejs14.x:HelloWorldFunction (nodejs14.x)",
-      "invokeTarget": {
-        "target": "api",
-        "templatePath": "${workspaceFolder}/lambda-nodejs14.x/template.yaml",
-        "logicalId": "HelloWorldFunction"
-      },
-      "api": {
-        "path": "/hello",
-        "httpMethod": "get",
-        "payload": {
-          "json": {}
-        }
-      },
-      "lambda": {
-        "runtime": "nodejs14.x"
-      }
     }
   ]
 }
