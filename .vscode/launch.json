@@ -2,6 +2,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Launch LambdaTest",
+      "request": "launch",
+      "mainClass": "LambdaTest",
+      "projectName": ""
+    },
+    {
+      "type": "java",
       "name": "Launch nCr",
       "request": "launch",
       "mainClass": "nCr",
