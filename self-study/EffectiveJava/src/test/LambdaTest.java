@@ -38,7 +38,7 @@ public class LambdaTest {
     static List<Apple> filterAppleWeight(List<Apple> list, Predicate<Apple> p){
         List<Apple> result = new ArrayList<>();
         for(Apple apple : list){
-            if(p.test(apple))
+            if(p.test(apple)) 
                 result.add(apple);
         }
         return result;
