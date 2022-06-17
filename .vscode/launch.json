@@ -4,6 +4,13 @@
       "type": "java",
       "name": "Launch ModernJavaPractice",
       "request": "launch",
+      "mainClass": "ModernJavaPractice",
+      "projectName": ""
+    },
+    {
+      "type": "java",
+      "name": "Launch ModernJavaPractice",
+      "request": "launch",
       "mainClass": "modern.ModernJavaPractice"
     },
     {

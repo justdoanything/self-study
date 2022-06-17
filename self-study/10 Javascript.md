@@ -316,6 +316,33 @@ const add = (a, b) => {
 }
 ```
 
+## Arrow Function vs Normal Function
+  - this
+    - Arrow Function : 함수를 선언할 때 this에 바인딩할 객체가 정적으로 결정된다. 화살표 함수의 this는 언제나 상위 scope의 this를 가르킨다. (Lexical this) call, apply, bind 메소드를 사용해서 this를 변경할 수 없다.
+    - Normal Function : 모든 함수는 실행될 때마다 함수 내부에 this라는 객체가 추가된다. 함수를 선언할 때 this에 바인딩할 객체가 정적으로 결정되는 것이 아니고 함수를 호출할 때 함수가 어떻게 호출되었는지에 따라 this에 바인딩할 객체가 동적으로 결정된다. 일반 함수에서 this가 바인딩되는 상황은 아래와 같다.
+      - 함수 실행시에는 전역(window) 객체를 가리킨다.
+      - 메소드 실행시에는 메소드를 소유하고 있는 객체를 가리킨다.
+      - 생성자 실행시에는 새롭게 만들어진 객체를 가리킨다.
+	```js
+	function sample() {
+		this.name = "hi";
+		return {
+			name: "bye",
+			speak: function() {
+				console.log(this.name);
+			}
+		}
+	}
+
+	function arrFunction() {
+		this.name = "hi";
+		return {
+			
+		}
+	}
+	```
+      
+
 ## Promise
 ```js
 callApi1()
@@ -626,3 +653,4 @@ export * from './a.js';
 
 # Reference
 - https://www.inflearn.com/course/%EC%8B%A4%EC%A0%84-%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8
+- https://hhyemi.github.io/2021/06/09/arrow.html
