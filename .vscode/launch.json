@@ -2,6 +2,12 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Launch ModernJavaPractice",
+      "request": "launch",
+      "mainClass": "modern.ModernJavaPractice"
+    },
+    {
+      "type": "java",
       "name": "Launch LambdaTest",
       "request": "launch",
       "mainClass": "LambdaTest",

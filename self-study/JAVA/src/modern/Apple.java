@@ -1,3 +1,4 @@
+
 public class Apple {
     
     public Apple(String name, int weight) {

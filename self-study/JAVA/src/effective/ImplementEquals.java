@@ -1,3 +1,4 @@
+
 public class ImplementEquals {
     private final short areaCode, prefix, lineNum;
     
