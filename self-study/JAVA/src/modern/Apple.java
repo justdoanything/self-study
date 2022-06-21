@@ -5,13 +5,31 @@ public class Apple {
         this.name = name;
         this.weight = weight;
     }
+    public Apple(String name, int weight, int price) {
+        this.name = name;
+        this.weight = weight;
+        this.price = price;
+    }
     private String name;
     private int weight;
+    private int price;
     /**
      * @return the name
      */
     public String getName() {
         return name;
+    }
+    /**
+     * @return the price
+     */
+    public int getPrice() {
+        return price;
+    }
+    /**
+     * @param price the price to set
+     */
+    public void setPrice(int price) {
+        this.price = price;
     }
     /**
      * @param name the name to set

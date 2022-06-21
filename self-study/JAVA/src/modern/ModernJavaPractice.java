@@ -32,8 +32,9 @@ public class ModernJavaPractice {
                                                             .and((Apple a) -> a.getName().equals("3")));
         System.out.println("=======================");
         result.forEach(System.out::println);
-        
 
+        AppleConstructor<String, Integer, Integer, Apple> apple = Apple::new;
+        apple.apply("tomato", 10, 100);
     }
 
     static List<Apple> filterAppleWeight(List<Apple> list, Predicate<Apple> p){
@@ -45,5 +46,8 @@ public class ModernJavaPractice {
         return result;
     };
 
+    public interface AppleConstructor<T, U, V, R> {
+        R apply(T t, U u, V v);
+    }
     
 }
