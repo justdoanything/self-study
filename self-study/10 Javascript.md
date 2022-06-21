@@ -334,13 +334,47 @@ const add = (a, b) => {
 		}
 	}
 
-	function arrFunction() {
+	function arrowFunction() {
 		this.name = "hi";
 		return {
-			
+			name: "bye",
+			speak: () => {
+				console.log(this.name);
+			}
 		}
 	}
+
+	sample.speak(); // bye
+	arrowFunction.speak() // hi
 	```
+	- 생성자 함수로 사용 가능 여부
+	  - 일반 함수는 생성자 함수로 사용할 수 있다.
+	  - 화살표 함수는 prototype property를 갖고 있지 않기 때문에 생성자 함수로 사용할 수 없다. 
+	```js
+	function sample() {
+		this.name = 'yongwoo';
+	}
+
+	const arrowFunction = () => {
+		this.name = 'yongwoo';
+	}
+
+	const sample = new sample();
+	const arrowFunction = new arrowFunction(); // 에러 발생
+	```
+  - Argument 사용 가능 여부
+	  - 일반 함수에서는 함수가 실행될 때 암묵적으로 arguments 변수가 전달되어 사용할 수 있다.
+	  - 화살표 함수에서는 arguments가 변수가 전달되지 않는다.
+    ```js
+    function sample() {
+        console.log(arguments); // Arguments(3) [1, 2, 3]
+    }
+
+    cont arrowFunction = () => {
+        console.log(arguments); // not defined 에러 발생
+    }
+    ```
+	
       
 
 ## Promise
