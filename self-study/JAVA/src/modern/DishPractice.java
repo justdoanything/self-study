@@ -1,6 +1,7 @@
 import java.util.Arrays;
 import java.util.List;
-
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 public class DishPractice {
     
     public static void main(String[] args) {
@@ -16,6 +17,18 @@ public class DishPractice {
             new Dish("salmons", false, 450, Dish.Type.FISH)
         );
 
-        System.out.println(menu);
+        // System.out.println(menu);
+
+        List<String> threeHighCaloricDishNames = menu.stream()
+                                                        .filter(dish -> dish.getCalories() > 300)
+                                                        .map(Dish::getName)
+                                                        .limit(3)
+                                                        .collect(Collectors.toList());
+        threeHighCaloricDishNames.forEach(System.out::println);
+
+        List<String> title = Arrays.asList("java", "8");
+        Stream<String> s = title.stream();
+        s.forEach(System.out::println);
+        s.forEach(System.out::println);
     }
 }
