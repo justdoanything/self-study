@@ -1,16 +1,16 @@
 MSA
 ===
-1. [MSA Architecture 구성](#MSA-Architecture-구성)
-2. [Hystrix](#Circuit-Breaker)
-3. [Spring Cloud](#Spring-Cloud)
-4. [Ribbon Client](#Load-Balancing) 
-5. [Eureka](#Discovery)
-6. [API Gateway](#API-Gateway)
-7. [SAGA](#SAGA)
-8. [Kafka](#Kafka)
-9. [OpenFeign](#OpenFeign)
-10. [API Composition](#API-Composition)
-11. [CQRS](#CQRS)
+1. [MSA Architecture 구성](#msa-architecture-구성)
+2. [Hystrix](#hystrix)
+3. [Spring Cloud](#spring-cloud)
+4. [Ribbon Client](#load-balancing) 
+5. [Eureka](#eureka)
+6. [API Gateway](#api-gateway)
+7. [SAGA](#saga)
+8. [Kafka](#kafka)
+9. [OpenFeign](#openfeign)
+10. [API Composition](#api-composition)
+11. [CQRS](#cqrs)
 12. [부록](#부록)
 
 
@@ -43,6 +43,7 @@ MSA
   - ###### Hystrix
     - MSA로 가장 유명한 Netflix가 Amazon AWS에 MSA System을 구축할 때 개발한 Software기반 Circuit breaker로 Java로 구성되어 동작
     - `Spring Cloud Hystrix`는 Netflix OSS 기반의 Hystrix Library를 Spring Cloud에 적용할 수 있는 Libarary로 변형한 Library
+    - Circuit breaker처럼 중간에 에러가 발생하면 뒤에 있는 로직을 처리하지 않고 앞으로 오는 요청도 막으며 에러 처리를 위한 콜백 동작을 하도록 함.
     - 대표적인 기능들
       - Thread timeout
       - 장애 대응 등을 설정해 장애시 정해진 루트를 따르도록 처리
@@ -541,3 +542,9 @@ MSA
   - West to East 사이에 각 서비스들이 호출하는 룰을 정하는 것이 Serice Mesh 이다.
   - Backing Service : DBMS - Persistence, Cache, Queue
 ---
+
+- ## 프로젝트 구현
+  - https://github.com/justdoanything/PaymentApprovalServer
+  - 결제 승인 서버를 MSA로 구현해보고 Hystrix, Ribbon, Eureka, Kafka 등을 적용해본다.
+  - 배포는 Docker Container 기반으로 되도록 한다.
+  - 프로젝트 구현은 한 번에 모든 기술을 적용하지 않고 Hystrix부터 한개씩 차례대로 적용해보면서 각 기능이 하는 동작과 이점에 대해서 알아본다.
