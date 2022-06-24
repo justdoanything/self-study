@@ -12,6 +12,7 @@ MSA
 10. [API Composition](#api-composition)
 11. [CQRS](#cqrs)
 12. [부록](#부록)
+13. [프로젝트 구현](#프로젝트-구현)
 
 
 ---
@@ -548,3 +549,4 @@ MSA
   - 결제 승인 서버를 MSA로 구현해보고 Hystrix, Ribbon, Eureka, Kafka 등을 적용해본다.
   - 배포는 Docker Container 기반으로 되도록 한다.
   - 프로젝트 구현은 한 번에 모든 기술을 적용하지 않고 Hystrix부터 한개씩 차례대로 적용해보면서 각 기능이 하는 동작과 이점에 대해서 알아본다.
+  - 테스트 자동화 코드까지 적용해본다.
