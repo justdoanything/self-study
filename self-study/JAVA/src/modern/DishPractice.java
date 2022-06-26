@@ -1,4 +1,5 @@
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,6 +30,31 @@ public class DishPractice {
         List<String> title = Arrays.asList("java", "8");
         Stream<String> s = title.stream();
         s.forEach(System.out::println);
-        s.forEach(System.out::println);
+        // s.forEach(System.out::println); // Exception 발생.
+
+
+        // takeWhile, dropWhile
+        System.out.println("================== 1");
+        menu.stream()
+                .sorted(Comparator.comparing(Dish::getCalories))
+                .filter(dish -> dish.getCalories() < 500)
+                .collect(Collectors.toList())
+                .forEach(System.out::println);
+
+        System.out.println("================== 2");
+        menu.stream()
+                .sorted(Comparator.comparing(Dish::getCalories))
+                .dropWhile(dish -> dish.getCalories() < 500)
+                .collect(Collectors.toList())
+                .forEach(System.out::println);
+
+        System.out.println("================== 3");
+        menu.stream()
+                .sorted(Comparator.comparing(Dish::getCalories))
+                .takeWhile(dish -> dish.getCalories() < 500)
+                // .limit(1)
+                // .skip(1)
+                .collect(Collectors.toList())
+                .forEach(System.out::println);
     }
 }
