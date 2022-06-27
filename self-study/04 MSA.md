@@ -20,8 +20,55 @@ MSA
 - ## MSA 구현 Summary
   - [프로젝트 초기 구성 및 Hystrix 구성](https://github.com/justdoanything/PaymentApprovalServer/tree/P01-hystrix)
   - [eureka server-client 구성](https://github.com/justdoanything/PaymentApprovalServer/tree/P02-eureka)
-  - [gateway (ribbon) 구성](https://github.com/justdoanything/PaymentApprovalServer/tree/P03-gateway)
+  - [gateway 구성](https://github.com/justdoanything/PaymentApprovalServer/tree/P03-gateway)
   - [kafka 구성](https://github.com/justdoanything/PaymentApprovalServer/tree/P04-kafka)
+
+- ## 메모
+  - ### Spring Boot 버전과 Spring Spring 버전
+    - Spring Boot 버전과 Spring Cloud의 버전을 맞춰주는게 중요하다. 아래 코드를 사용해서 Spring Cloud 버전을 정의하고 그에 맞는 Spring Boot 버전을 맞춰서 설정하면 된다.
+    - https://spring.io/projects/spring-cloud/
+      ```yml
+      ext {
+        set('springCloudVersion', 'Hoxton.SR12')
+      }
+
+      dependencyManagement {
+        imports {
+          mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        }
+      }
+      ```
+  - ### Eureka Server 적용 후 UI 화면이 안뜨는 경우
+    - 아래 속성을 추가해주면 된다.
+      ```yml
+      spring.freemarker.template-loader-path=classpath:/templates/
+      spring.freemarker.prefer-file-system-access=false
+      ```
+
+  - ### Hystrix를 사용한 보상 트랜잭션
+    - Hystrix를 사용해서 한 서비스 혹은 기능이 Exception이 발생하거나 timeout이 발생했을 때 어떻게 보상 트랜잭션을 처리할건지 명시할 수 있다.
+      ```java
+      @Service
+      public class VanFdkServiceImpl implements VanFdkService{
+        @Override
+        @HystrixCommand(commandKey = "sendApprovalMessageToVanFdk", fallbackMethod ="fallbackSendApprovalMessageToVanFdk")
+        public ResponseEntity<Object> sendApprovalMessageToVanFdk(JsonObject request)throws Exception {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        public ResponseEntity<Object> fallbackSendApprovalMessageToVanFdk(JsonObjectrequest, Throwable throwable){
+            // Gateway를 다시 호출해서 다른 VAN 서비스가 호출되게 해야함.
+            return null;
+        }
+      }
+      ```
+    - ### Gateway가 Eureka Client 매핑하는 방법
+      - Gateway도 다른 서비스와 마찬가지로 Eureka Client로 등록이 된다.
+      - Eureka Server UI 화면에서 볼 수 있듯이 등록된 Eureka Client들은 Application ID를 갖는다.
+      - Application ID은 Client의 `spring.application.name` 값과 동일하다.
+      - Gateway에 routes를 설정할 때 `uri: lb://FDK`을 설정하는데 Eureka에서 Application ID 값과 `lb://` 뒤에 있는 값을 매핑해서 라우팅을 해주게 된다.
+      - 즉, Gateway는 Eureka Client의 Application ID 값을 기준으로 다른 Client들에게 라우팅을 해준다.
 
 ---
 - ## MSA Architecture 구성
@@ -251,6 +298,10 @@ MSA
               predicates:
               - Path= /sample/service2/** #[api gateway 주소 뒤에 올 서비스명]
       ```
+  - Gateway - Client 매핑 방법
+    - Client은 Eureka Server에 client로서 등록되고 Application ID 값을 부여 받는다.
+    - Application ID은 Client의 `spring.application.name` 값과 동일하다.
+    - Gateway에 routes를 설정할 때 `uri: lb://FDK`을 설정하는데 Eureka에서 Application ID 값과 `lb://` 뒤에 있는 값을 매핑해서 라우팅을 해주게 된다.
 
 ---
 
