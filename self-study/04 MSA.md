@@ -19,8 +19,8 @@ MSA
 ---
 - ## MSA 구현 Summary
   - [프로젝트 초기 구성 및 Hystrix 구성](https://github.com/justdoanything/PaymentApprovalServer/tree/P01-hystrix)
-  - [eureka server 구성(Ribbon은 건너뜀)](https://github.com/justdoanything/PaymentApprovalServer/tree/P02-eureka-server)
-  - [gateway 구성](https://github.com/justdoanything/PaymentApprovalServer/tree/P03-gateway)
+  - [eureka server-client 구성](https://github.com/justdoanything/PaymentApprovalServer/tree/P02-eureka)
+  - [gateway (ribbon) 구성](https://github.com/justdoanything/PaymentApprovalServer/tree/P03-gateway)
   - [kafka 구성](https://github.com/justdoanything/PaymentApprovalServer/tree/P04-kafka)
 
 ---
@@ -202,6 +202,9 @@ MSA
             defaultZone: http://127.0.0.1:8761/eureka #Eureka Server 주소 입력
       ```
     - Eureka를 사용하면 Ribbon 의존성과 설정 항목을 삭제해야함.
+    - Eureka Server에 Client를 연결한 화면
+      <img width="1717" alt="image" src="https://user-images.githubusercontent.com/21374902/175874191-0292b9ec-d544-45c3-b515-f1b29cd86d7c.png">
+
 
 ---
 
