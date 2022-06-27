@@ -52,8 +52,9 @@ public class DishPractice {
         menu.stream()
                 .sorted(Comparator.comparing(Dish::getCalories))
                 .takeWhile(dish -> dish.getCalories() < 500)
-                .skip(1)
-                .limit(3)
+                // .skip(1)
+                // .limit(3)
+                .map(dish -> dish.getCalories())
                 .collect(Collectors.toList())
                 .forEach(System.out::println);
     }

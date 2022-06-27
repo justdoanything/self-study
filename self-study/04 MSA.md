@@ -1,22 +1,29 @@
 MSA
 ===
-1. [MSA Architecture 구성](#msa-architecture-구성)
-2. [Hystrix](#hystrix)
-3. [Spring Cloud](#spring-cloud)
-4. [Ribbon Client](#load-balancing) 
-5. [Eureka](#eureka)
-6. [API Gateway](#api-gateway)
-7. [SAGA](#saga)
-8. [Kafka](#kafka)
-9. [OpenFeign](#openfeign)
-10. [API Composition](#api-composition)
-11. [CQRS](#cqrs)
-12. [부록](#부록)
-13. [프로젝트 구현](#프로젝트-구현)
+- [MSA 구현 Summary](#msa-구현-summary)
+- [MSA Architecture 구성](#msa-architecture-구성)
+- [Hystrix](#hystrix)
+- [Spring Cloud](#spring-cloud)
+- [Ribbon Client](#load-balancing) 
+- [Eureka](#eureka)
+- [API Gateway](#api-gateway)
+- [SAGA](#saga)
+- [Kafka](#kafka)
+- [OpenFeign](#openfeign)
+- [API Composition](#api-composition)
+- [CQRS](#cqrs)
+- [부록](#부록)
+- [프로젝트 구현](#프로젝트-구현)
 
 
 ---
+- ## MSA 구현 Summary
+  - [프로젝트 초기 구성 및 Hystrix 구성](https://github.com/justdoanything/PaymentApprovalServer/tree/P01-hystrix)
+  - [eureka server 구성(Ribbon은 건너뜀)](https://github.com/justdoanything/PaymentApprovalServer/tree/P02-eureka-server)
+  - [gateway 구성](https://github.com/justdoanything/PaymentApprovalServer/tree/P03-gateway)
+  - [kafka 구성](https://github.com/justdoanything/PaymentApprovalServer/tree/P04-kafka)
 
+---
 - ## MSA Architecture 구성
     - #### Outer Architecture (= NS구조, North to South)
       - ###### API Gateway (Published APIs)
@@ -45,6 +52,7 @@ MSA
     - MSA로 가장 유명한 Netflix가 Amazon AWS에 MSA System을 구축할 때 개발한 Software기반 Circuit breaker로 Java로 구성되어 동작
     - `Spring Cloud Hystrix`는 Netflix OSS 기반의 Hystrix Library를 Spring Cloud에 적용할 수 있는 Libarary로 변형한 Library
     - Circuit breaker처럼 중간에 에러가 발생하면 뒤에 있는 로직을 처리하지 않고 앞으로 오는 요청도 막으며 에러 처리를 위한 콜백 동작을 하도록 함.
+    - Service 쪽에 @HystrixCommand 을 추가해서 해당 서비스가 실패했을 때 수행할 보상 트랜잭션과 연결한다.
     - 대표적인 기능들
       - Thread timeout
       - 장애 대응 등을 설정해 장애시 정해진 루트를 따르도록 처리
