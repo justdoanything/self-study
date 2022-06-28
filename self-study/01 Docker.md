@@ -38,7 +38,21 @@ Docker
 ===
 ![image](https://user-images.githubusercontent.com/21374902/147321427-6f4f1bf6-e1b0-450e-bf6b-43fef4cde521.png)
 
+- 구시대에 했던 배포 방식
+  - 서버를 준비한다. (서버 장비 구매, OS 설치, 필요한 프로그램 java, tomcat 등 설치, 네트워크 설정)
+  - Project를 build 해서 .jar(.war)를 생성한다.
+  - 생성한 .jar(.war) 파일을 FTP/SFTP를 사용해서 준비된 서버로 옮긴다.
+  - 기존에 구동 중이던 프로그램을 중단하고 새로 업로드한 프로그램을 구동시킨다.
+  - 위의 작업들은 script를 사용해서 자동화해서 사용하기도 했다.
 
+- Docker 기반의 배포 방식
+  - 주로 AWS, GCP 등 클라우드 환경과 같이 사용하며 배포 방식은 여러가지가 있다.
+  - Gitlab runner, AWS ECR, ECS 기반으로 배포하는 형식은 아래와 같다.
+  - Gitlab 설정에 따라 master에 push를 하면 자동으로 Project를 build 한다.
+  - Dockerfile 기준으로 image를 생성하고 docker image를 ECR로 옮긴다.
+  - ECR에 있는 image 목록 중에서 1개를 선택해서 Docker Container를 생성한다. (배포)
+  - ECS, K8S 등을 사용해서 Container를 관리한다.
+  - AWS Blud/Green 배포 정책을 사용하면 Zero-downtime 배포가 가능하고 DevOps가 가능하게 한다.
 
 ---
 2️⃣ Docker  
