@@ -18,12 +18,17 @@ MSA
 
 ---
 - ## MSA 구현 Summary
+  - [Master Branch](https://github.com/justdoanything/PaymentApprovalServer)
   - [프로젝트 초기 구성 및 Hystrix 구성](https://github.com/justdoanything/PaymentApprovalServer/tree/P01-hystrix)
   - [eureka server-client 구성](https://github.com/justdoanything/PaymentApprovalServer/tree/P02-eureka)
   - [gateway 구성](https://github.com/justdoanything/PaymentApprovalServer/tree/P03-gateway)
   - [kafka 구성](https://github.com/justdoanything/PaymentApprovalServer/tree/P04-kafka)
+  - 참고한 모델
 
-- ## 메모
+    ![image](https://user-images.githubusercontent.com/21374902/176366449-68b59fc8-97c7-49e6-b791-6a5e11b28fd0.png)
+
+
+- ## MSA 구현 Note
   - ### Spring Boot 버전과 Spring Spring 버전
     - Spring Boot 버전과 Spring Cloud의 버전을 맞춰주는게 중요하다. 아래 코드를 사용해서 Spring Cloud 버전을 정의하고 그에 맞는 Spring Boot 버전을 맞춰서 설정하면 된다.
     - https://spring.io/projects/spring-cloud/
@@ -69,6 +74,32 @@ MSA
       - Application ID은 Client의 `spring.application.name` 값과 동일하다.
       - Gateway에 routes를 설정할 때 `uri: lb://FDK`을 설정하는데 Eureka에서 Application ID 값과 `lb://` 뒤에 있는 값을 매핑해서 라우팅을 해주게 된다.
       - 즉, Gateway는 Eureka Client의 Application ID 값을 기준으로 다른 Client들에게 라우팅을 해준다.
+    - ### Kafka를 사용해서 Queue를 사용한 보상 트랜잭션 처리
+
+---
+
+- ## 용어 정리
+  - Circuit Breaker
+    - Hystrix
+  - Ribbon Client
+  - Eureka
+  - API Gateway
+  - SAGE
+  - Kafka
+    - Publisher : Producer
+    - Subscriber : Consumer
+    - Zookeeper
+    - RabbitMQ
+  - OpenFeign
+  - API Composition
+  - CQRS
+  - Service Mash
+  - Backing Service
+  - Telemetry
+  - Outer Architecture / Inner Architecture
+  - Choreography
+  - Orchestration
+
 
 ---
 - ## MSA Architecture 구성
