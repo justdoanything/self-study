@@ -124,37 +124,46 @@ Docker
   - `wsl --list --verbose`
   - `wsl --set-version Ubuntu-18.04 2`
   
-- Docker Desktop for Windows10 설치
+- ~~Docker Desktop for Windows10 설치~~ (유료화됨)
   - General > Use the WSL2 based engine 체크
   - Resources > WSL INTEGRATION > Enable integration with my default WSL distro 체크
 - WSL2 (Ubuntu) 환경에서 개발도구 설치
   - Ubuntu Update
     - `sudo apt update`
     - `sudo apt upgrade -y`
+    - `sudo apt install -y unzip tree net-tools build-essential`
     - `sudo apt autoremove -y`
+  - Docker 설치
+    - `cd`
+    - `sudo apt update`
+    - `sudo apt upgrade -y`
+    - `sudo apt install -y docker.io`
+    - `sudo curl -SL https://github.com/docker.compose/releases/download/v2.6.0/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose`
+    - `sudo chmod +x /usr/local/bin/docker/docker-compose`
+    - `sudo usermod -aG docker $USER`
+    - `sudo dockerd`
   - Git
     - `sudo apt install git -y`
   - AWS CLI
     - `sudo apt install python -y`
-    - `sudo apt install python3 -y`
     - `sudo apt install python3-pip -y`
+    - `pip3 install --upgrade pip --trusted-host pypi.org --trusted-host files.pythonhosted.org`
+    - `pip3 install awscli --upgrade --user --trusted-host pypi.org --trusted-host files.pythonhosted.org`
+    - `source ~/.profile`
+    - `aws --version`
+    - `aws-cli/1.24.10 Python/3.6.9 Linux/5.10.16.3-microsoft-standard-WSL2 botocore/1.26.10`
   - SAM CLI
     - `pip3 install aws-sam-cli --user --trusted-host pypi.org --trusted-host files.pythonhosted.org`
-  - NVM 
-    - `curl -o- https://raw.githubsercontent.com/nvm-sh/nvm/v0.36.0/install.sh | bash`
-    - nvm ls-remote
-    - nvm install --lts
-    - nvm ls
-    - nvm use v16.15.1
-    - nvm, node 삭제
-      - rm -rf ./nvm
-      - nvm uninstall v16.15.1
-  - ~~Node.js~~ (NVM으로 대체)
-    - `wget https://nodejs.org/dist/latest-v12.x/node-v12.22.9-linux-x64.tar.gz -P ~/tools/`
-    - `tar xvf ~/tools/node-v12.22.9-linux-x64.tar.gz -C ~/tools/`
-    - `echo "export PATH=\"\$HOME/tools/node-v12.22.9-linux-x64/bin:\$PATH\"" >> ~/.profile`
+  - Node 설치
+    - `cd`
+    - `wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash`
+    - `source ~/.bashrc`
+    - `nvm install 12`
+    - `node --version`
+    - `cd`
     - `source ~/.profile`
-    - `npm install -g yarn`\
+    - `npm config set strict-ssl false -g`
+    - `npm config set registry http://registry.npmjs.org/`
     ![image](https://user-images.githubusercontent.com/21374902/147616035-5bb71b64-74e2-490c-bbc6-bb44fbc06ddd.png)
 
 
@@ -489,7 +498,7 @@ ENV         | Container에서 사용할 환경변수를 지정. -e 옵션을 사
 ---
 1️⃣4️⃣ Docker와 Kubernetes
 ===
-- `Docker` : 한 환경에서 Process 단위로 구분하여 실행\
+- `Docker` : 한 환경에서 Process 단위로 구분하여 실행
 - `Kubernetes` : Container Orchestration Tool\
   (Orchestration Tool : Kubernetes, Docker Swarm, ECS, Normad, ...)
 - Docker는 `기술적인 개념이자 도구`이고\
@@ -890,6 +899,7 @@ https://subicura.com/2016/06/07/zero-downtime-docker-deployment.html
 ---
 
 2️⃣1️⃣ Docker Desktop 없이 사용하기 (Macbook Pro M1)
+===
 - 환경 : Macbook Pro M1 Monterey 12.2.1
 - `podman`을 설치해서 사용
 - `brew`가 없다면 설치 : `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
