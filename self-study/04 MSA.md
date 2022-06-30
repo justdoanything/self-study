@@ -31,7 +31,7 @@ MSA
 
 
 - ## MSA 구현 Note
-  - ### Spring Boot 버전과 Spring Spring 버전
+  - ### Spring Boot 버전과 Spring Cloud 버전
     - Spring Boot 버전과 Spring Cloud의 버전을 맞춰주는게 중요하다. 아래 코드를 사용해서 Spring Cloud 버전을 정의하고 그에 맞는 Spring Boot 버전을 맞춰서 설정하면 된다.
     - https://spring.io/projects/spring-cloud/
       ```yml
