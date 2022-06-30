@@ -106,13 +106,24 @@ Docker
 ---
 6️⃣ Windows 10에 개발환경 세팅 (With WSL)
 ===
+- 윈도우 버전 확인
+  - 윈도우키 + R > winver 실행
+  - windows 버전이 1909 이하일 때, KB4566116 업데이트 설치 해야함.
 - Hyper-V 활성화
-  - 제어판 > 프로그램 및 기능 > Windows 기능 켜기/끄기 > 'Hyper-V 체크'
-- WSL (Windows Services for Linux) 활성화
-  - `dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart` 명령어 실행
+  - `Dism.exe /online /Enable-feature /Featurename:Microsoft-Hyper-V-All /Featurename:Microsoft-Windows-Subsystem-Linux /Featurename:VirtualMachinePlatform /All /Norestart` 명령어 실행
+  - 제어판 > 프로그램 및 기능 > Windows 기능 켜기/끄기 > Hyper-V 하위가 모두 체크되었는지 확인
 - WSL Kernel update package 설치 
-- Ubuntu 설치
+- WSL2을 기본으로 설정
+  - `wsl --set-default-version 2`
+- Ubuntu 18.04 설치
   - https://docs.microsoft.com/ko-kr/windows/wsl/install-manual
+  - Ubuntu를 실행했을 때 `windows subsystem for linux optional component is not enabled.` 에러가 발생할 경우, shell에 `Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux` 명령어 실행
+- WSL2 Linux 커널 업데이트 패키지 설치
+  - https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi
+- WSL2 버전 확인 및 세팅
+  - `wsl --list --verbose`
+  - `wsl --set-version Ubuntu-18.04 2`
+  
 - Docker Desktop for Windows10 설치
   - General > Use the WSL2 based engine 체크
   - Resources > WSL INTEGRATION > Enable integration with my default WSL distro 체크
@@ -129,7 +140,16 @@ Docker
     - `sudo apt install python3-pip -y`
   - SAM CLI
     - `pip3 install aws-sam-cli --user --trusted-host pypi.org --trusted-host files.pythonhosted.org`
-  - Node.js
+  - NVM 
+    - `curl -o- https://raw.githubsercontent.com/nvm-sh/nvm/v0.36.0/install.sh | bash`
+    - nvm ls-remote
+    - nvm install --lts
+    - nvm ls
+    - nvm use v16.15.1
+    - nvm, node 삭제
+      - rm -rf ./nvm
+      - nvm uninstall v16.15.1
+  - ~~Node.js~~ (NVM으로 대체)
     - `wget https://nodejs.org/dist/latest-v12.x/node-v12.22.9-linux-x64.tar.gz -P ~/tools/`
     - `tar xvf ~/tools/node-v12.22.9-linux-x64.tar.gz -C ~/tools/`
     - `echo "export PATH=\"\$HOME/tools/node-v12.22.9-linux-x64/bin:\$PATH\"" >> ~/.profile`
