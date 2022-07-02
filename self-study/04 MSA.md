@@ -81,7 +81,7 @@ MSA
 ---
 
 - ## 용어 정리
-  - `Circuit Breaker` : 회로 차단기를 의미하기도 하며 MSA에서는 1개의 Micro Service의 장애로 인해 다른 Service에도 장애를 일으키는 방지하기 위함이다. 
+  - `Circuit Breaker` : 회로 차단기를 의미하기도 하며 MSA에서는 1개의 Micro Service의 장애로 인해 다른 Service에도 장애를 일으키는 것을 방지하기 위함이다. 
     - `Hystrix` : Spring Cloud Nexflix에서 제공하는 기능 중에 하나이며 Exception, Timeout 등 설정값에 따라 장애가 발생하면 동작할 Callback 함수를 정의하고 사용한다.
   - `Ribbon Client` : Spring Cloud Nexflix에서 제공하는 기능 중에 하나이며 L7 Layer에서 Client Side Load Balancing을 수행한다. Round Robbin 방식을 사용한다.
   - `Eureka` : Spring Cloud Nexflix에서 제공하는 기능 중에 하나이며 MSA를 구성하는 다수의 서비스들과 위치(IP, PORT)가 동적으로 변하는 환경에서 서비스들을 관리하기 위한 Service Discovery이며 Server, Client로 나눠서 구성한다.
@@ -90,8 +90,8 @@ MSA
     - `Choreography` : 결자해지 방식으로 에러가 발생한 서비스가 Rollback 처리 등을 수행하며 다른 서비스에게 에러를 전파한다. 에러를 전달받은 각 서비스들은 보상처리를 수행한다.
     - `Orchestration` : 3자 위임 방식으로 Event Sourcing 방식이다. 제 3자가 존재하며 여러 서비스들의 동작을 제 3자가 기록하며 에러가 발생했을 때 제 3자가 각 서비스들에 대한 보상처리를 수행한다. Kafka가 이에 해당한다.
   - `Kafka` : Apache Kafka는 분산 스트리밍 플랫폼이며 데이터 파이프 라인을 만들 떄 주로 사용하는 오픈소스 솔루션이다. 데이터 큐를 중간에 두고 서로 간 독립적으로 데이터를 생산하고 소비하는 모델이다. 단일 송신자가 단일 수신자에게 데이터를 전송하는 방식으로 수신자는 한 번만 읽을 수 있으며 읽혀진 메세지는 큐에서 지워진다. Event-Driven 방식에 적합한 모델이다.
-    - `Publisher(Producer)` : 정보를 제공한다.. 데이터 큐에 데이터를 넣는 객체 (송신자)
-    - `Subscriber(Consumer)` : 정보를 제공받아서 사용한다. 데이터 큐에 있는 데이터를 읽어서 처리한다. (수신자))
+    - `Publisher(Producer)` : 정보를 제공한다. 데이터 큐에 데이터를 넣는 객체 (송신자). Publisher는 Kafka에 메세지를 보내기만 한다.
+    - `Subscriber(Consumer)` : 정보를 제공받아서 사용한다. 데이터 큐에 있는 데이터를 읽어서 처리한다. (수신자). Subscriber는 Kafka를 구독하며 보상처리가 필요하면 FeignClient를 사용해서 보상 트랜잭션을 발생 시킨다.
     - `Zookeeper` : Kafka 앞단에서 브로커를 관리하면서 클러스터링을 해준다.
     - `RabbitMQ` : 주로 Kafka와 비교되고 RabbitMQ는 메세지 브로커로 Message를 메모리에 저장해준다. Kafka는 pub/sub 방식이다. Kafka는 대용량 실시간 처리에 특화되어 있고 대량이 Batch Job을 일괄처리하는데 적합한 반면 RabbitMQ는 장시간 실행되는 작업, 안정적인 백그라운드 작업에 많이 쓰인다. Kafka보다 비교적 가벼우며 데이터 처리보단 관리적 측면에서 사용된다.
   - `OpenFeign` : Srping Cloud Nexflix에서 제공하는 기능 중에 하나이며 Circuit Breaker는 Hystrix + RestTemplate로 구현하는데 OpenFeign은 좀더 단축해서 구현할 수 있다. 동기방식이다.
