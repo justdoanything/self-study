@@ -361,138 +361,148 @@ MSA
 ---
 
 - ## Kafka
-    - Apache Kafka는 분산 스트리밍 플랫폼이며 데이터 파이프 라인을 만들 때 주로 사용하는 오픈소스 솔루션
-    - Kafka는 대용량의 실시간 로그 처리에 특화되어 있는 솔루션이며 데이터를 유실 없이 안전하게 전달하는 것이 주목적인 메세지 시스템에서 fault-tolerant한 안정적인 아키텍쳐와 빠른 퍼포먼스로 데이터를 처리하는 용도로 사용
-    - Apache Kafka
-      - Publisher/Subscriber Model
-        - 데이터 큐를 중간에 두고 서로 간 독립적으로 데이터를 생산하고 소비하는 모델.
-        - 이런 느슨한 결합을 통해 Publisher나 Subscriber가 변경이나 장애시에도 서로 간에 의존성이 없으므로 안정적인 데이터 처리 가능.
-        - Pub/Sub가 죽어도 메모리에 메세지는 남아있다.
-      - 고가용성(High Availability) 및 확장성 (Scalability) 보장
-        - Kafka는 클러스터로 작동하기 때문에 fault-tolerant한 고가용성 서비스를 제공할 수 있고 분산 처리를 통해 빠른 데이터 처리를 가능하게 합니다. 또한 서버를 수평적으로 늘려 안정성 및 성능을 향상시키는 Scale-out이 가능
-      - 디스크 순차 저장 및 처리(Sequential Store and Process in Disk)
-        - 메세지를 메모리 큐에 적재하는 기존 메세지 시스템과 다르게 카프카는 메세지를 디스크에 순차적으로 저장
-        - 서버에 장애가 나도 메세지가 디스크에 저장되어 있으므로 데이터 유실이 상대적으로 적음
-        - 디스크가 순차적으로 저장되어 있으므로 디스크 I/O가 줄어들어 성능이 향상됨
-      - 분산처리 (Distributed Procssing)
-        - Kafka는 Partition 이란 개념을 도입하여 여러 개의 Partition을 서버들에 분산시켜 나누어 처리할 수 있음. 이로서 메세지를 상황에 맞추어 빠르게 처리할 수 있음.
-      - `Zookeeper`는 Kafka 앞단에서 클러스터링을 해주는 솔류션인데 Kafka와 같이 쓰인다.
-      - `RabbitMQ`는 Message를 메모리에 저장해서 전달해준다.
-    - Kafka Publisher 적용 방법
-      - Dependency 적용\
-        `org.springframework.kafka:spring-kafka`
-      - application.properties에 BootStrapAddress 추가(kafka 서버주소)\
-        ```yml
-        #kafka
-        kafka.bootstrapAddress=localhost:9092
-        ```
-      - KafkaProducerConfig 구현
-        ```java
-        @Configuration
-        public class KafkaProducerConfig {
-            @Value(value = "${kafka.bootstrapAddress}")
-            private String bootstrapAddress;
+  - Apache Kafka는 분산 스트리밍 플랫폼이며 데이터 파이프 라인을 만들 때 주로 사용하는 오픈소스 솔루션
+  - Kafka는 대용량의 실시간 로그 처리에 특화되어 있는 솔루션이며 데이터를 유실 없이 안전하게 전달하는 것이주목적인 메세지 시스템에서 fault-tolerant한 안정적인 아키텍쳐와 빠른 퍼포먼스로 데이터를 처리하는용도로 사용
+  - Apache Kafka
+    - Publisher/Subscriber Model
+      - 데이터 큐를 중간에 두고 서로 간 독립적으로 데이터를 생산하고 소비하는 모델.
+      - 이런 느슨한 결합을 통해 Publisher나 Subscriber가 변경이나 장애시에도 서로 간에 의존성이 없으므로 안정적인 데이터 처리 가능.
+      - Pub/Sub가 죽어도 메모리에 메세지는 남아있다.
+    - 고가용성(High Availability) 및 확장성 (Scalability) 보장
+      - Kafka는 클러스터로 작동하기 때문에 fault-tolerant한 고가용성 서비스를 제공할 수 있고 분산 처리를 통해 빠른 데이터 처리를 가능하게 합니다. 또한 서버를 수평적으로 늘려 안정성 및 성능을 향상시키는 Scale-out이 가능
+    - 디스크 순차 저장 및 처리(Sequential Store and Process in Disk)
+      - 메세지를 메모리 큐에 적재하는 기존 메세지 시스템과 다르게 카프카는 메세지를 디스크에 순차적으로 저장
+      - 서버에 장애가 나도 메세지가 디스크에 저장되어 있으므로 데이터 유실이 상대적으로 적음
+      - 디스크가 순차적으로 저장되어 있으므로 디스크 I/O가 줄어들어 성능이 향상됨
+    - 분산처리 (Distributed Procssing)
+      - Kafka는 Partition 이란 개념을 도입하여 여러 개의 Partition을 서버들에 분산시켜 나누어 처리할 수 있음. 이로서 메세지를 상황에 맞추어 빠르게 처리할 수 있음.
+    - `Zookeeper`는 Kafka 앞단에서 클러스터링을 해주는 솔류션인데 Kafka와 같이 쓰인다.
+    - `RabbitMQ`는 Message를 메모리에 저장해서 전달해준다.
+  - Kafka 실행
+    - Zookeeper 실행 : `bin/zookeeper-server-start.sh -daemon config/zookeeper.properties`
+    - Kafka 실행 : `bin/kafka-server-start.sh -daemon config/server.properties`
+    - Zookeeper&Kafka 실행 확인 : `netstat -an | grep 2181`
+    - Kafka topic 생성 : `bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic test`
+    - Kafka topic 생성 확인 : `bin/kafka-topics.sh --list --bootstrap-server localhost:9092`
+    - Kafka 메세지 발행 : `bin/kafka-console-producer.sh --bootstrap-server localhost:9092 --topic test`
+    - Kafka 메세지 소비 : `bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test --from-beginning`
+    - Reference : https://developer-youngjun.tistory.com/13
+    
+  - Kafka Publisher 적용 방법
+    - Dependency 적용\
+      `org.springframework.kafka:spring-kafka`
+    - application.properties에 BootStrapAddress 추가(kafka 서버주소)\
+      ```yml
+      #kafka
+      kafka.bootstrapAddress=localhost:9092
+      ```
+    - KafkaProducerConfig 구현
+      ```java
+      @Configuration
+      public class KafkaProducerConfig {
+          @Value(value = "${kafka.bootstrapAddress}")
+          private String bootstrapAddress;
 
-            @Bean
-            public ProducerFactory<String, TransferHistory> transferProducerFactory() {
-                Map<String, Object> configProps = new HashMap<>();
-                configProps.put(ProducerConfig.BOOTSTRAP.SERVERS_CONFIG, bootstrapAddress);
-                configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-                configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-                return new DefaultKafkaProducerFactory<>(configProps);
-            }
+          @Bean
+          public ProducerFactory<String, TransferHistory> transferProducerFactory() {
+              Map<String, Object> configProps = new HashMap<>();
+              configProps.put(ProducerConfig.BOOTSTRAP.SERVERS_CONFIG, bootstrapAddress);
+              configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+              configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+              return new DefaultKafkaProducerFactory<>(configProps);
+          }
 
-            @Bean
-            public Kafka Template<String, TeransferHistory> transferKafkaTemplate() {
-                return new KafkaTemplate<>(transferProducerFactory());
-            }
-        }
+          @Bean
+          public Kafka Template<String, TeransferHistory> transferKafkaTemplate() {
+              return new KafkaTemplate<>(transferProducerFactory());
+          }
+      }
 
-        // Prodcuer Class 구현
-        @Autowired
-        private KafkaTemplate<String, TransferHistory> transferKafkaTemplate;
+      // Prodcuer Class 구현
+      @Autowired
+      private KafkaTemplate<String, TransferHistory> transferKafkaTemplate;
 
-        @Value(value = "${b2b.transfer.topic.name}")
-        private String b2bTransferTopicName;
+      @Value(value = "${b2b.transfer.topic.name}")
+      private String b2bTransferTopicName;
 
-        public void sendB2BTransferMessage(TransferHistory transfer) {
-            ListenableFuture<SendResult<String, TransferHistory>> future = transferKafkaTemplate.send(b2bTransferTopicName, transfer);
+      public void sendB2BTransferMessage(TransferHistory transfer) {
+          ListenableFuture<SendResult<String, TransferHistory>> future = transferKafkaTemplate.send(b2bTransferTopicName, transfer);
 
-            future.addCallback(new ListenableFutureCallback<SendResult<String, TransferHistory>>() {
-                @Override
-                public void onSuccess(SendResult<String, TransferHistory> result) {
-                    TransferHistory g = result.getProducerRecord().value();
-                    LOGGER.info("Send message=[" + g.getCstmId() + "] with offset = [" + result.getRecordMetadata().offset() + "]");
-                }
+          future.addCallback(new ListenableFutureCallback<SendResult<String, TransferHistory>>() {
+              @Override
+              public void onSuccess(SendResult<String, TransferHistory> result) {
+                  TransferHistory g = result.getProducerRecord().value();
+                  LOGGER.info("Send message=[" + g.getCstmId() + "] with offset = [" + result.getRecordMetadata().offset() + "]");
+              }
 
-                @Override
-                public void onFailure(Throwable ex){
-                    // needed to do compensation transaction.
-                    LOGGER.error("Unable to send message=[" + transfer.getCstmId() + "] due to : " + ex.getMessage());
-                    throw new SystemException("Kafka 데이터 전송 에러");
-                }
-            })
-        }
-        ```
-    - Kafka Consumer 적용 방법
-      - Dependency 추가\
-        `org.springframework.kafka:spring-kafka`
-      - application.properties 에 BootStrapAddress 추가(Kafka 서버 주소)
-        ```properties
-        #kafka
-        kafka.bootstrapAddress=localhopst:9092
-        ```
-      - KafkaConsumerConfig 구현
-        ```java
-        @EnableKafka
-        @Configuration
-        public class KafkaConsumerConfig {
-            @Value(value="${kafka.bootstrapAddress}");
-            private String bootstrapAddress;
+              @Override
+              public void onFailure(Throwable ex){
+                  // needed to do compensation transaction.
+                  LOGGER.error("Unable to send message=[" + transfer.getCstmId() + "] due to : " + ex.getMessage());
+                  throw new SystemException("Kafka 데이터 전송 에러");
+              }
+          })
+      }
+      ```
+  - Kafka Consumer 적용 방법
+    - Dependency 추가\
+      `org.springframework.kafka:spring-kafka`
+    - application.properties 에 BootStrapAddress 추가(Kafka 서버 주소)
+      ```properties
+      #kafka
+      kafka.bootstrapAddress=localhopst:9092
+      ```
+    - KafkaConsumerConfig 구현
+      ```java
+      @EnableKafka
+      @Configuration
+      public class KafkaConsumerConfig {
+          @Value(value="${kafka.bootstrapAddress}");
+          private String bootstrapAddress;
 
-            public ConsumerFactory<String, TransferHistory> b2bTransferResultConsumerFactory() {
-                Map<String, Object> props = new HashMap<>();
-                props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFOIG, bootstrapAddress);
-                props.put(ConsumerConfig.GROUP_ID_CONFIG, "b2btransfer");
-                props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-                props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-                props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
+          public ConsumerFactory<String, TransferHistory> b2bTransferResultConsumerFactory() {
+              Map<String, Object> props = new HashMap<>();
+              props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFOIG, bootstrapAddress);
+              props.put(ConsumerConfig.GROUP_ID_CONFIG, "b2btransfer");
+              props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+              props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+              props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
 
-                return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(TransferHistory.class, false));
-            }
+              return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(TransferHistory.class, false));
+          }
 
-            @Autowired
-            TransferProducer transferProducer;
+          @Autowired
+          TransferProducer transferProducer;
 
-            @KafkaListener(topics = "${b2b.transfer.result.topic.name}", containerFactory = "b2bTransferResultKafkaListenerContainerFactory")
-            public void b2bTransferResultListener(TransferHistory transferResult, Acknowledgment ack) throws Exception {
-                LOGGER.info("Received B2B transfer result message : " + transferResult.getWthdAcntNo());
+          @KafkaListener(topics = "${b2b.transfer.result.topic.name}", containerFactory = "b2bTransferResultKafkaListenerContainerFactory")
+          public void b2bTransferResultListener(TransferHistory transferResult, Acknowledgment ack) throws Exception {
+              LOGGER.info("Received B2B transfer result message : " + transferResult.getWthdAcntNo());
 
-                String statusCode = transferResult.getStsCd();
-                // ...
+              String statusCode = transferResult.getStsCd();
+              // ...
 
-                transferService.createTransferHistory(transferResult);
-                // CQRS
-                transferProducer.sendCQRSTransferMessage(transferResult);
+              transferService.createTransferHistory(transferResult);
+              // CQRS
+              transferProducer.sendCQRSTransferMessage(transferResult);
 
-                ack.acknowledge(); // 모든 CRUD 작업이 완료되어야만 kafka의 read off-set 값을 변경하도록 한다.
-            } catch(Exception e){
-                String msg = "Error";
-                LOGGER.error(msg, e);
-                throw new SystemException(msg);
-            }
+              ack.acknowledge(); // 모든 CRUD 작업이 완료되어야만 kafka의 read off-set 값을 변경하도록 한다.
+          } catch(Exception e){
+              String msg = "Error";
+              LOGGER.error(msg, e);
+              throw new SystemException(msg);
+          }
 
-            @Bean
-            public ConcurrentKafkaListenerContainerFactory<String, TransferHistory> b2bTransferResultKafkaListenerContainerFactory() {
-                ConcurrentKafkaListenerContainerFactory<String, TransferHistory> factory = new ConcurrentKafkaListenerContainerFacotry<>();
-                factory.setConsumerFactory(b2bTransferResultConsumerFactory());
-                factory.setContainerProperties().setAckMode(AckMode.MANUAL_IMMEDIATE);
-                factory.setErrorHandler(new SeekToCurrentErrorHandler());
+          @Bean
+          public ConcurrentKafkaListenerContainerFactory<String, TransferHistory> b2bTransferResultKafkaListenerContainerFactory() {
+              ConcurrentKafkaListenerContainerFactory<String, TransferHistory> factory = new ConcurrentKafkaListenerContainerFacotry<>();
+              factory.setConsumerFactory(b2bTransferResultConsumerFactory());
+              factory.setContainerProperties().setAckMode(AckMode.MANUAL_IMMEDIATE);
+              factory.setErrorHandler(new SeekToCurrentErrorHandler());
 
-                return factory;
-            }
-        }
-        ```
+              return factory;
+          }
+      }
+      ```
 
 ---
 
