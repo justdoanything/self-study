@@ -702,9 +702,32 @@ Comment comment = byId.orElseThrow(IllegalArgumentException::new);
 public interface PostRepository extends JpaRepository<Post, Long> {
   @Query("SELECT p FROM Post AS p WHERE p.title = :title")
   List<Post> findBytitle(@Param("title") String keyword, Sort sort);
+
+  @Query("SELECT m FROM Member m WHERE m.username = :username and m.age = :age")
+  List<Member> findUser(@Param("username") String username, @Param("age") int age);
 }
 ```
 
+## DTO 객체로 조회하기
+```java
+@Query("select new study.datajpa.dto.MemberDto(m.id, m.username, t.name) from Member m join m.team t")
+List<MemberDto> findMemberDto();
+```
+
+## Parameter Binding
+```java
+// 위치 기반 - 비추천!!
+@Query("UPDATE Post p SET p.title = ?1 WHERE p.id = ?2")
+int updateTitle(String title, Long id);
+
+// 이름 기반
+@Query("SELECT m FROM Member m WHERE m.username = :username and m.age = :age")
+List<Member> findUser(@Param("username") String username, @Param("age") int age);
+
+// 이름 기반
+@Query("SELECT m FROM Member m WHERE m.username in :names")
+List<Member> findByNames(@Param("names") Collection<String> names);
+```
 ## SpEL (스프링 표현 언어)
   - https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions
   ```java
@@ -964,3 +987,4 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 ## Reference
 
 - [스프링 데이터 JPA / 백기선 / 인프런](https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81-%EB%8D%B0%EC%9D%B4%ED%84%B0-jpa/dashboard)
+- [실전! 스프링 데이터 JPA / 김영한 / 인프런](https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81-%EB%8D%B0%EC%9D%B4%ED%84%B0-JPA-%EC%8B%A4%EC%A0%84)

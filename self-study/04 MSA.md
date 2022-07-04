@@ -27,9 +27,11 @@ MSA
   - [kafka 구성](https://github.com/justdoanything/PaymentApprovalServer/tree/P04-kafka)
   - 참고한 모델
 
-    ![image](https://user-images.githubusercontent.com/21374902/176366449-68b59fc8-97c7-49e6-b791-6a5e11b28fd0.png)
+![image](https://user-images.githubusercontent.com/21374902/176366449-68b59fc8-97c7-49e6-b791-6a5e11b28fd0.png)
 
+  - 구현 모델
 
+![image](https://user-images.githubusercontent.com/21374902/152474692-b7a595bf-89eb-4e34-b93a-c5c912da3194.png)
 - ## MSA 구현 Note
   - ### Spring Boot 버전과 Spring Cloud 버전
     - Spring Boot 버전과 Spring Cloud의 버전을 맞춰주는게 중요하다. 아래 코드를 사용해서 Spring Cloud 버전을 정의하고 그에 맞는 Spring Boot 버전을 맞춰서 설정하면 된다.
