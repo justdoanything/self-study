@@ -1,4 +1,4 @@
-package prj.test;
+package prj.test.bks;
 
 import java.util.List;
 

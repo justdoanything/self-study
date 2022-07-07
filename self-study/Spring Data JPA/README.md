@@ -705,6 +705,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
   @Query("SELECT m FROM Member m WHERE m.username = :username and m.age = :age")
   List<Member> findUser(@Param("username") String username, @Param("age") int age);
+
+  @Query("select m from Member m where m.name in :names")
+    List<Member> findByNames(@Param("names") Collection<String> names);
 }
 ```
 
