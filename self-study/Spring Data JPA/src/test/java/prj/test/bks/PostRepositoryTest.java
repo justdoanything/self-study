@@ -10,8 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.annotation.Rollback;
 
-import prj.jpa.basic.Post;
-import prj.jpa.springJPA.PostRepository;
+import prj.jpa.bks.entity.Post;
+import prj.jpa.bks.repository.PostRepository;
 
 @DataJpaTest
 public class PostRepositoryTest {

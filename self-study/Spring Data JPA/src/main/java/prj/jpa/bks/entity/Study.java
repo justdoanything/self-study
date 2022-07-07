@@ -1,4 +1,4 @@
-package prj.jpa.basic;
+package prj.jpa.bks.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,16 +11,12 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class Comment {
-    
+public class Study {
     @Id @GeneratedValue
     private Long id;
-    private String comment;
-    @ManyToOne
-    private Post post;
+    private String userName;
+    private String userPassword;
 
-    @Override
-    public String toString(){
-        return "{\"comment\":" + this.comment + "\"}";
-    }
+    @ManyToOne
+    private Account owner;
 }

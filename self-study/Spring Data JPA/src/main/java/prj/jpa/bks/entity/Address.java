@@ -1,4 +1,4 @@
-package prj.jpa.basic;
+package prj.jpa.bks.entity;
 
 import javax.persistence.Embeddable;
 

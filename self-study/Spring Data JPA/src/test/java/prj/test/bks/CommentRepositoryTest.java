@@ -1,4 +1,4 @@
-package prj.test;
+package prj.test.bks;
 
 import java.util.List;
 
@@ -10,8 +10,8 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
-import prj.jpa.basic.Comment;
-import prj.jpa.springJPA.CommentRepository;
+import prj.jpa.bks.entity.Comment;
+import prj.jpa.bks.repository.CommentRepository;
 
 @DataJpaTest
 public class CommentRepositoryTest {

@@ -1,4 +1,4 @@
-package prj.jpa;
+package prj.jpa.bks;
 
 import java.util.List;
 
@@ -12,8 +12,9 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import prj.jpa.basic.Post;
-import prj.jpa.springJPA.PostRepository;
+import prj.jpa.bks.entity.Post;
+import prj.jpa.bks.repository.PostRepository;
+
 
 @Component
 @Transactional

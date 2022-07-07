@@ -1,4 +1,4 @@
-package prj.jpa.springJPA;
+package prj.jpa.bks.repository;
 
 import java.io.Serializable;
 import java.util.List;

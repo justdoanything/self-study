@@ -1,4 +1,4 @@
-package prj.jpa.basic;
+package prj.jpa.bks.entity;
 
 import java.util.HashSet;
 import java.util.Set;
