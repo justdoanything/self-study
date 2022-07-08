@@ -31,6 +31,151 @@
 
 ---
 
+## Quick Guide
+- Entity를 API 결과값으로 반환하는 것은 매우 위험하기 때문에 별도의 DTO를 만들어서 사용해야 한다.
+  ```java
+  Page<MemberDto> dtoPage = page.map(member -> new MemberDto(member.getId(), member.getName(), member.getCity()));
+  ```
+- Entity
+```java
+@Entity
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class Member {
+    @Id @GeneratedValue
+    private Long id;
+    private String name;
+    private String sex;
+    private Integer age;
+    private String city;
+}
+```
+- Repository
+```java
+public interface MemberRepository extends JpaRepository<Member, Long> {
+
+    // Query Builder
+    List<Member> findByNameAndAgeGreaterThan(String name, Integer age);
+
+    // @Query
+    @Query("select m from Member m where m.name = :name and m.age = :age")
+    Optional<Member> findUser(@Param("name") String name, @Param("age") Integer age);
+
+    @Query("select m from Member m where m.name in :names")
+    List<Member> findByNames(@Param("names") Collection<String> names);
+
+    @Query("select m.name from Member m")
+    List<String> findNames();
+
+    // @Query + DTO
+    @Query("select new prj.jpa.kyh.dto.MemberDto(m.id, m.name, m.city) from Member m")
+    List<MemberDto> findMemberDtos();
+
+    // Paging, Slice, Sort
+    Page<Member> findByAgeGreaterThan(Integer age, Pageable pageable);
+}
+```
+- Test
+```java
+@DataJpaTest
+@Transactional
+@Rollback(false)
+public class MemberRepositoryTest {
+
+	@Autowired
+	MemberRepository memberRepository;
+
+	// @Test
+	public void memberRepositoryTest() {
+		Member m1 = new Member().builder()
+				.name("첫번째")
+				.sex("남자")
+				.age(30)
+				.city("서울")
+				.build();
+		Member m2 = new Member().builder()
+				.name("두번째")
+				.sex("여자")
+				.age(20)
+				.city("경기")
+				.build();
+		Member m3 = new Member().builder()
+				.name("1")
+				.sex("남자")
+				.age(10)
+				.city("부산")
+				.build();
+
+		Member savedMember1 = memberRepository.save(m1);
+		Member savedMember2 = memberRepository.save(m2);
+		Member savedMember3 = memberRepository.save(m3);
+
+		Member findMember = memberRepository.findById(savedMember2.getId()).get();
+
+		// init
+		assertThat(memberRepository.count()).isEqualTo(3);
+		assertThat(findMember.getName()).isEqualTo(savedMember2.getName());
+		assertThat(findMember).isEqualTo(savedMember2);
+
+		// delete
+		memberRepository.delete(savedMember2);
+		memberRepository.delete(findMember);
+		assertThat(memberRepository.count()).isEqualTo(2);
+
+		// Query Builder
+		assertThat(memberRepository.findByNameAndAgeGreaterThan("첫번째", 20).get(0)).isEqualTo(m1);
+		assertThat(memberRepository.findByNameAndAgeGreaterThan("두번째", 20)).isNullOrEmpty();
+
+		// @Query
+		assertEquals(memberRepository.findUser("첫번째", 30).get(), savedMember1);
+		assertEquals(memberRepository.findByNames(Arrays.asList("첫번째", "두번째")).size(), 1);
+
+		// @Query + DTO
+		List<MemberDto> members = memberRepository.findMemberDtos();
+		members.forEach(System.out::println);
+	}
+
+	@Test
+	public void pageAndSortTest() {
+		memberRepository.save(new Member().builder().name("1").sex("남자").age(18).city("서울").build());
+		memberRepository.save(new Member().builder().name("2").sex("남자").age(19).city("경기").build());
+		memberRepository.save(new Member().builder().name("3").sex("남자").age(20).city("부산").build());
+		memberRepository.save(new Member().builder().name("4").sex("여자").age(21).city("대구").build());
+		memberRepository.save(new Member().builder().name("5").sex("여자").age(22).city("광주").build());
+		memberRepository.save(new Member().builder().name("6").sex("남자").age(23).city("대전").build());
+		memberRepository.save(new Member().builder().name("7").sex("남자").age(24).city("서울").build());
+		memberRepository.save(new Member().builder().name("8").sex("남자").age(25).city("서울").build());
+		memberRepository.save(new Member().builder().name("9").sex("여자").age(26).city("경기").build());
+		memberRepository.save(new Member().builder().name("10").sex("여자").age(27).city("서울").build());
+		memberRepository.save(new Member().builder().name("11").sex("남자").age(28).city("서울").build());
+		memberRepository.save(new Member().builder().name("12").sex("남자").age(29).city("포항").build());
+		memberRepository.save(new Member().builder().name("13").sex("여자").age(30).city("서울").build());
+		memberRepository.save(new Member().builder().name("14").sex("여자").age(31).city("서울").build());
+		memberRepository.save(new Member().builder().name("15").sex("여자").age(32).city("부산").build());
+
+		assertEquals(memberRepository.count(), 15);
+
+		int age = 25;
+		PageRequest pageRequest = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "name"));
+
+		// 반환 타입이 page 이면 count 쿼리를 자동으로 날린다.
+		Page<Member> page = memberRepository.findByAgeGreaterThan(age, pageRequest);
+		page.forEach(System.out::println);
+		assertEquals(page.getTotalElements(), 7);
+		assertEquals(page.isFirst(), true);
+		assertEquals(page.hasNext(), Boolean.TRUE);
+
+		List<Member> content = page.getContent();
+		content.forEach(System.out::println);
+		assertEquals(content.size(), 3);
+	}
+}
+```
+
+---
+
 ## @Value
 
 - @Entity 안에 한 Column으로 Class를 갖기 위해선 @Embeddable, @Embedded 을 사용해준다.
