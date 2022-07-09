@@ -20,7 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import prj.jpa.kyh.dto.MemberDto;
 import prj.jpa.kyh.entity.Member;
+import prj.jpa.kyh.entity.Team;
 import prj.jpa.kyh.repository.MemberRepository;
+import prj.jpa.kyh.repository.TeamRepository;
 
 @DataJpaTest
 @Transactional
@@ -29,6 +31,9 @@ public class MemberRepositoryTest {
 
 	@Autowired
 	MemberRepository memberRepository;
+
+	@Autowired
+	TeamRepository teamRepository;
 
 	@PersistenceContext
 	EntityManager em;
@@ -83,7 +88,7 @@ public class MemberRepositoryTest {
 		members.forEach(System.out::println);
 	}
 
-	@Test
+	// @Test
 	public void pageAndSortTest() {
 		memberRepository.save(new Member().builder().name("1").sex("남자").age(18).city("서울").build());
 		memberRepository.save(new Member().builder().name("2").sex("남자").age(19).city("경기").build());
@@ -132,5 +137,41 @@ public class MemberRepositoryTest {
 		// em.clear();
 		assertEquals(memberRepository.findByName("15").getAge(), 33);
 
+	}
+
+	@Test
+	public void entityGraphTest() {
+		Team teamA = new Team("teamA");
+		Team teamB = new Team("teamB");
+
+		teamRepository.save(teamA);
+		teamRepository.save(teamB);
+
+		memberRepository.save(new Member("1", "남자", 18, "서울", teamA));
+		memberRepository.save(new Member("2", "남자", 19, "경기", teamA));
+		memberRepository.save(new Member("3", "여자", 20, "부산", teamB));
+		memberRepository.save(new Member("4", "여자", 21, "울산", teamB));
+		memberRepository.save(new Member("5", "남자", 22, "포항", teamA));
+		memberRepository.save(new Member("6", "여자", 23, "전주", teamA));
+
+		Member selectedMember = memberRepository.findByName("4");
+		assertEquals(selectedMember.getTeam(), teamB);
+
+		teamB.getMembers().forEach(System.out::println);
+		assertThat(teamB.getMembers().contains(selectedMember)).isTrue();
+
+		em.flush();
+		em.clear();
+
+		// LAZY 이기 때문에 Member를 조회할 때 Team을 조회하지는 않는다.
+		// 첫번째 teamA 를 만났을 때 Team을 조회하고
+		// 첫번째 teamB 를 만났을 떄 Team을 조회한다.
+		// 그 이후로는 Team은 조회하지 않는다.
+		List<Member> members = memberRepository.findAll();
+			members.forEach((m) -> {
+				System.out.println("==> member name = " + m.getName());
+				System.out.println("==> member age = " + m.getAge());
+				System.out.println("==> member team = " + m.getTeam().getName());
+			});
 	}
 }
