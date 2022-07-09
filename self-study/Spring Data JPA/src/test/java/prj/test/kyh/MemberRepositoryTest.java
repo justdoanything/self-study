@@ -167,11 +167,12 @@ public class MemberRepositoryTest {
 		// 첫번째 teamA 를 만났을 때 Team을 조회하고
 		// 첫번째 teamB 를 만났을 떄 Team을 조회한다.
 		// 그 이후로는 Team은 조회하지 않는다.
-		List<Member> members = memberRepository.findAll();
-			members.forEach((m) -> {
-				System.out.println("==> member name = " + m.getName());
-				System.out.println("==> member age = " + m.getAge());
-				System.out.println("==> member team = " + m.getTeam().getName());
-			});
+		// List<Member> members = memberRepository.findAll();
+		List<Member> members = memberRepository.findMemberFetchJoin();
+		members.forEach((m) -> {
+			System.out.println("==> member name = " + m.getName());
+			System.out.println("==> member age = " + m.getAge());
+			System.out.println("==> member team = " + m.getTeam().getName());
+		});
 	}
 }
