@@ -20,7 +20,7 @@ import org.springframework.data.repository.query.Param;
 import prj.jpa.kyh.dto.MemberDto;
 import prj.jpa.kyh.entity.Member;
 
-public interface MemberRepository extends JpaRepository<Member, Long> {
+public interface MemberRepository extends JpaRepository<Member, Long>, CustomRepository {
 
     /*
      * Query Builder 

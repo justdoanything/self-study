@@ -139,7 +139,7 @@ public class MemberRepositoryTest {
 
 	}
 
-	@Test
+	// @Test
 	public void entityGraphTest() {
 		Team teamA = new Team("teamA");
 		Team teamB = new Team("teamB");
@@ -175,4 +175,12 @@ public class MemberRepositoryTest {
 			System.out.println("==> member team = " + m.getTeam().getName());
 		});
 	}
+
+	@Test
+	public void customRepositoryTest() {
+        memberRepository.save(new Member().builder().name("1").sex("남자").age(18).city("서울").build());
+		memberRepository.save(new Member().builder().name("2").sex("남자").age(19).city("경기").build());
+		memberRepository.save(new Member().builder().name("3").sex("남자").age(20).city("부산").build());
+        memberRepository.findMemberCustom();
+    }
 }

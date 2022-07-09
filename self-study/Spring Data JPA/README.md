@@ -32,12 +32,12 @@
 ---
 
 ## Quick Guide
-- 차례대로 정리한 내용은 `prj.jpa.kyh` 하위의 파일들을 참조하면 된다.
-- Entity를 API 결과값으로 반환하는 것은 매우 위험하기 때문에 별도의 DTO를 만들어서 사용해야 한다.
+- ###### 차례대로 정리한 내용은 `prj.jpa.kyh` 하위의 파일들을 참조하면 된다.
+- ###### Entity를 API 결과값으로 반환하는 것은 매우 위험하기 때문에 별도의 DTO를 만들어서 사용해야 한다.
   ```java
   Page<MemberDto> dtoPage = page.map(member -> new MemberDto(member.getId(), membergetName(), member.getCity()));
   ```
-- N + 1 문제
+- ###### N + 1 문제
   - FetchType.LAZY로 되어 있으면 Member를 조회할 때 Team 객체를 바로 조회하지 않고 Proxy 객체를 조회한다.
   - 실제로 getTeam()을 했을 때 Team 객체를 조회하는데 이 때 teamA, teamB를 따로 조회하게 된다. 아래 예제에선 조회 쿼리는 3번 날아가게 된다. => member 조회 쿼리, teamA 조회 쿼리, teamB 조회 쿼리
     ```java
@@ -58,6 +58,12 @@
       System.out.println("==> member team = " + m.getTeam().getName());
     });
     ```
+- ###### CustomerRepository를 구현할 때 Naming 규칙을 지켜줘야 한다. 
+  - 지키지 않으면 Failed to load ApplicationContext 에러가 발생한다.
+  - Naming 규칙 : `Repository Interface Name` + `Impl` 혹은 `Custom Interface Name` + `Impl`
+  - `interface: CustomRepository` -> `class: CustomRepositoryImpl` -> `class: MemberRepository`
+  - Naming 규칙을 변경하는 방법
+    - `@EnableJpaRepositories(basePackages = "prj.jpa.kyh.repository", repositoryImplementationPostfix = "Impl")`
 
 ---
 
