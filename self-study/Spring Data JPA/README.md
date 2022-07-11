@@ -32,7 +32,7 @@
 ---
 
 ## Quick Guide
-- ###### 차례대로 정리한 내용은 `prj.jpa.kyh` 하위의 파일들을 참조하면 된다.
+- ###### 차례대로 정리한 내용은 [Package : prj.jpa.kyh](https://github.com/justdoanything/self-study/tree/main/self-study/Spring%20Data%20JPA/src/main/java/prj/jpa/kyh) 와 [MemberRepositoryTest.java](https://github.com/justdoanything/self-study/blob/main/self-study/Spring%20Data%20JPA/src/test/java/prj/test/kyh/MemberRepositoryTest.java) 의 TC를 참조하면 됩니다.
 - ###### Entity를 API 결과값으로 반환하는 것은 매우 위험하기 때문에 별도의 DTO를 만들어서 사용해야 한다.
   ```java
   Page<MemberDto> dtoPage = page.map(member -> new MemberDto(member.getId(), membergetName(), member.getCity()));
