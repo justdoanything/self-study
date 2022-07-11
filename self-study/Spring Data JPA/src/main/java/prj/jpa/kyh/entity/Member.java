@@ -20,7 +20,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor // @NoArgsConstructor AccessLevel.PROTECTED: 기본 생성자 막고 싶은데, JPA 스팩상 PROTECTED로 열어두어야 함
 @ToString(of = { "id", "name", "sex", "age", "city" }) // @ToString은 가급적 내부 필드만(연관관계 없는 필드만)
-public class Member {
+public class Member extends BaseEntity {
     @Id@GeneratedValue
     @Column(name = "member_id")
     private Long id;
@@ -32,17 +32,8 @@ public class Member {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
     private Team team;
-
-    /**
-     * @param id
-     * @param name
-     * @param sex
-     * @param age
-     * @param city
-     * @param team
-     */
     
-     public Member(String name, String sex, Integer age, String city, Team team) {
+    public Member(String name, String sex, Integer age, String city, Team team) {
         this.name = name;
         this.sex = sex;
         this.age = age;

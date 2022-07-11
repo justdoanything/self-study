@@ -65,6 +65,24 @@
   - Naming 규칙을 변경하는 방법
     - `@EnableJpaRepositories(basePackages = "prj.jpa.kyh.repository", repositoryImplementationPostfix = "Impl")`
 
+- ###### Auditing
+  - BaseEntity.java, BaseTimeEntity.java 참고
+  - SpringApplication.java
+    ```java
+    @EnableJpaAuditing
+    ...
+    public class JpaApplication {
+      ...
+      @Bean
+      public AuditorAware<String> auditorProvider() {
+        return () -> Optional.of(UUID.randomUUID().toString());
+      }
+    }
+    ```
+- ###### Web 확장
+  - `prj.jpa.kyh.controller.MemberController.java` 참고
+
+
 ---
 
 ## @Value
