@@ -91,6 +91,30 @@
   )
   ```
 
+- 새로운 Entity 기준 정의
+  ```java
+  @Entity
+  @EntityListener(AuditingEntityListener.class)
+  @Data
+  public class Item implements Persistable<String> {
+    @Id
+    private String id;
+
+    @CreatedDate
+    private LocalDateTime createdDate;
+
+    @Override
+    public String getId() {
+      return id;
+    }
+
+    @Override
+    public boolean isNew() {
+      return createdDate == null;
+    }
+  }
+  ```
+
 ---
 
 ## @Value
