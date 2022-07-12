@@ -1,6 +1,6 @@
 목차
 ===
-- [ECS와 EC2](#AWS-ECS-and-EC2)
+- [ECS와 EC2](#aws-ecs-and-ec2)
 
 ---
 

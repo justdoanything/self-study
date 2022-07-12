@@ -3,29 +3,29 @@ Docker
 목차
 ---
 0. [목표](#0️⃣-목표)
-1. [물리 머신 vs 가상 머신 vs 도커 컨테이너](#물리-머신-vs-가상-머신-vs-도커-컨테이너)
-2. [Docker](#2️⃣-Docker)
-3. [Docker Image](#3️⃣-Docker-Image)
-4. [Docker Layer](#4️⃣-Docker-Layer)
-5. [Dockerfile](#5️⃣-Dockerfile)
-6. [Windows 10에 개발환경 세팅 (With WSL)](#6️⃣-Windows-10에-개발환경-세팅-(With-WSL))
-7. [무작정 Docker 따라하기](#7️⃣-무작정-Docker-따라하기)
-8. [Container Update](#8️⃣-Container-Update)
-9. [Docker Compose](#9️⃣-Docker-Compose)
-10. [Docker Image 생성](#1️⃣0️⃣-Docker-Image-생성)
-11. [Dockerfile 명령어](#1️⃣1️⃣-Dockerfile-명령어)
-12. [Docker Build Log 분석](#1️⃣2️⃣-Docker-Build-Log-분석)
-13. [Dockerfile Build](#1️⃣3️⃣-Dockerfile-Build)
-14. [Docker와 Kubernetes](#1️⃣4️⃣-Docker와-Kubernetes)
-15. [Docker Registry](#1️⃣5️⃣-Docker-Registry)
-16. [Docker Hub](#1️⃣6️⃣-Docker-Hub)
-17. [Docker Deploy](#1️⃣7️⃣-Docker-Deploy)
-18. [gitlab-ci.yml 예제](#1️⃣8️⃣-gitlab-ci.yml-예제)
-19. [Gitlab에 maven build 및 docker build 로그 분석](#1️⃣9️⃣-Gitlab에-maven-build-및-docker-build-로그-분석)
-20. [Docker Desktop 없이 사용하기 (Windows10)](#2️⃣0️⃣-Docker-Desktop-없이-사용하기-(Windows10))
-21. [Docker Network](#2️⃣1️⃣-Docker-Network)
-22. [Docker Desktop 없이 사용하기 (Macbook Pro M1)](#2️⃣2️⃣-Docker-Desktop-없이-사용하기-(Macbook-Pro-M1))
-23. [참고자료](#*️⃣-참고자료)
+1. [물리 머신 vs 가상 머신 vs 도커 컨테이너](#1️⃣-물리-머신-vs-가상-머신-vs-도커-컨테이너)
+2. [Docker](#2️⃣-docker)
+3. [Docker Image](#3️⃣-docker-image)
+4. [Docker Layer](#4️⃣-docker-layer)
+5. [Dockerfile](#5️⃣-dockerfile)
+6. [Windows 10에 개발환경 세팅 (With WSL)](#6️⃣-windows-10에-개발환경-세팅-with-wsl)
+7. [무작정 Docker 따라하기](#7️⃣-무작정-docker-따라하기)
+8. [Container Update](#8️⃣-container-update)
+9. [Docker Compose](#9️⃣-docker-compose)
+10. [Docker Image 생성](#1️⃣0️⃣-docker-image-생성)
+11. [Dockerfile 명령어](#1️⃣1️⃣-dockerfile-명령어)
+12. [Docker Build Log 분석](#1️⃣2️⃣-docker-build-log-분석)
+13. [Dockerfile Build](#1️⃣3️⃣-dockerfile-build)
+14. [Docker와 Kubernetes](#1️⃣4️⃣-docker와-kubernetes)
+15. [Docker Registry](#1️⃣5️⃣-docker-registry)
+16. [Docker Hub](#1️⃣6️⃣-docker-hub)
+17. [Docker Deploy](#1️⃣7️⃣-docker-deploy)
+18. [gitlab-ci.yml 예제](#1️⃣8️⃣-gitlab-ciyml-예제)
+19. [Gitlab에 maven build 및 docker build 로그 분석](#1️⃣9️⃣-gitlab에-maven-build-및-docker-build-로그-분석)
+20. [Docker Network](#2️⃣0️⃣-docker-network)
+21. [Docker Desktop 없이 사용하기 (Windows10)](#2️⃣1️⃣-docker-desktop-없이-사용하기-windows10)
+22. [Docker Desktop 없이 사용하기 (Macbook Pro M1)](#2️⃣2️⃣-docker-desktop-없이-사용하기-macbook-pro-m1)
+23. [참고자료](#️⃣-참고자료)
 
 ---
 0️⃣ 목표
@@ -802,8 +802,42 @@ https://subicura.com/2016/06/07/zero-downtime-docker-deployment.html
 ---
 
 
+2️⃣0️⃣ Docker Network
+===
+- Docker Container는 격리된 환경에서 구동되기 때문에 기본적으로 Container 간의 통신이 불가능하지만 `Docker Network`로 연결하면 통신이 가능합니다.
+- Docker Network Driver 종류
+  - bridge
+    - 기본값으로 하나의 호스트 컴퓨터 내에서 다른 Container와 통신할 때 사용
+  - host
+    - Standalone Container에서 주로 쓰이며 Container와 Docker host와의 연결은 제거하고 호스트의 네트워크를 직접적으로 사용
+  - overlay
+    - 여러개의 Docker Daemon을 연결하고 Swarm service들이 서로 통신할 수 있게 연결해줍니다.
+    - 여러 호스트에 분산되어 있는 Container 간에 통신을 가능하게 해줍니다.
+    - Container 간에 OS 수준의 routing을 안해도 됩니다.
+  - ipvlan
+    - IPv4, IPv6 주소에 대한 제어를 유저에게 부여합니다.
+    - Layer 2 VLAN의 통합을 할 수 있다는데 네트워크 전문가용인 것 같습니다.
+  - macvlan
+    - Container에 MAC 주소를 할당해서 네트워크에 물리적 장치로 사용할 수 있습니다.
+    - Docker Daemon은 트래픽을 Container의 MAC 주소로 라우팅합니다.
+    - Docker host의 네트워크가 아니라 물리적인 네트워크에 지정해서 바로 연결하고 싶은 Legacy Application를 다룰 때 유용한 드라이버일 수 있습니다.
+  - none
+    - 모든 네트워킹을 비활성화합니다. 주로 사용자가 정의한 네트워크 드라이버와 같이 사용됩니다.
+    - Swarm Service는 이 옵션을 사용하지 못합니다.
+- Docker Network 명령어
+  - 생성 : `docker network create {network name}`
+  - 상세 정보 확인 : `docker network inspect {network name}`
+  - 연결 : \
+    `docker network connect {network name} {container name}` \
+    `docker run -itd --name {container name} --network {network name} busybox`
+  - 연결 해제 : `docker network disconnect {network driver} {container}`
+  - 제거 : `docker network rm {network name}`
+- Reference : https://docs.docker.com/network/
 
-2️⃣0️⃣ Docker Desktop 없이 사용하기 (Windows10)
+---
+
+
+2️⃣1️⃣ Docker Desktop 없이 사용하기 (Windows10)
 ===
 1. ###### Docker Desktop 삭제
 2. ###### WSL에 docker 설치
@@ -864,79 +898,53 @@ https://subicura.com/2016/06/07/zero-downtime-docker-deployment.html
 
 
 
-2️⃣1️⃣ Docker Network
-===
-- Docker Container는 격리된 환경에서 구동되기 때문에 기본적으로 Container 간의 통신이 불가능하지만 `Docker Network`로 연결하면 통신이 가능합니다.
-- Docker Network Driver 종류
-  - bridge
-    - 기본값으로 하나의 호스트 컴퓨터 내에서 다른 Container와 통신할 때 사용
-  - host
-    - Standalone Container에서 주로 쓰이며 Container와 Docker host와의 연결은 제거하고 호스트의 네트워크를 직접적으로 사용
-  - overlay
-    - 여러개의 Docker Daemon을 연결하고 Swarm service들이 서로 통신할 수 있게 연결해줍니다.
-    - 여러 호스트에 분산되어 있는 Container 간에 통신을 가능하게 해줍니다.
-    - Container 간에 OS 수준의 routing을 안해도 됩니다.
-  - ipvlan
-    - IPv4, IPv6 주소에 대한 제어를 유저에게 부여합니다.
-    - Layer 2 VLAN의 통합을 할 수 있다는데 네트워크 전문가용인 것 같습니다.
-  - macvlan
-    - Container에 MAC 주소를 할당해서 네트워크에 물리적 장치로 사용할 수 있습니다.
-    - Docker Daemon은 트래픽을 Container의 MAC 주소로 라우팅합니다.
-    - Docker host의 네트워크가 아니라 물리적인 네트워크에 지정해서 바로 연결하고 싶은 Legacy Application를 다룰 때 유용한 드라이버일 수 있습니다.
-  - none
-    - 모든 네트워킹을 비활성화합니다. 주로 사용자가 정의한 네트워크 드라이버와 같이 사용됩니다.
-    - Swarm Service는 이 옵션을 사용하지 못합니다.
-- Docker Network 명령어
-  - 생성 : `docker network create {network name}`
-  - 상세 정보 확인 : `docker network inspect {network name}`
-  - 연결 : \
-    `docker network connect {network name} {container name}` \
-    `docker run -itd --name {container name} --network {network name} busybox`
-  - 연결 해제 : `docker network disconnect {network driver} {container}`
-  - 제거 : `docker network rm {network name}`
-- Reference : https://docs.docker.com/network/
 
----
 
-2️⃣1️⃣ Docker Desktop 없이 사용하기 (Macbook Pro M1)
+2️⃣2️⃣ Docker Desktop 없이 사용하기 (Macbook Pro M1)
 ===
 - 환경 : Macbook Pro M1 Monterey 12.2.1
+- `Rancher Desktop` 사용 (⭐️추천⭐️)
+  - trouble shooting
+    - /var/run/docker.socket not permission
+      - 👉 Rancher Desktop에 설정에서 Admin 권한 주고 Macbook 환경설정에서 모든 폴더에 접근 권한 부여하기
+    - Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running? and Shared network is not available.
+      - 👉 `sudo ln -s ~$USER/.rd/docker.sock /var/run/docker.sock`
 - `podman`을 설치해서 사용
-- `brew`가 없다면 설치 : `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
-- `brew`를 최신버전으로 업그레이드 : `brew upgrade`
-- `podman` 설치
-  ```sh
-  xcode-select --install
-  brew install podman qemu
-  xcode-select --install
-  brew install autoconf automake gettext glib libffi ninja pixman pkg-config
-  git clone https://git.qemu.org/git/qemu.git
-  cd qemu
-  git checkout 3c93dfa42c394fdd55684f2fbf24cf2f39b97d47
-  curl https://patchwork.kernel.org/series/485309/mbox/ | git am
-  mkdir build
-  cd build
-  ../configure --target-list=aarch64-softmmu --enable-hvf --enable-cocoa  --disable-gnutls
-  sudo make install
-  ls -ld qemu-*
-  podman machine init
-  for f in /usr/local/bin/qemu* do ln -s $f /opt/homebrew/bin done
-  podman machine start
-  ```
-- nginx 구동 테스트
-  ```sh
-  podman pull nginx
-  podman container run --name webserver -d -p 8080:80 nginx
-  podman ps -a
-  podman stop webserver
-  podman ps -a
-  podman stop 40f9ce7fa737
-  podman rm 40f9ce7fa737
-  ```
+  - `brew`가 없다면 설치 : `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
+  - `brew`를 최신버전으로 업그레이드 : `brew upgrade`
+  - `podman` 설치
+    ```sh
+    xcode-select --install
+    brew install podman qemu
+    xcode-select --install
+    brew install autoconf automake gettext glib libffi ninja pixman pkg-config
+    git clone https://git.qemu.org/git/qemu.git
+    cd qemu
+    git checkout 3c93dfa42c394fdd55684f2fbf24cf2f39b97d47
+    curl https://patchwork.kernel.org/series/485309/mbox/ | git am
+    mkdir build
+    cd build
+    ../configure --target-list=aarch64-softmmu --enable-hvf --enable-cocoa  --disable-gnutls
+    sudo make install
+    ls -ld qemu-*
+    podman machine init
+    for f in /usr/local/bin/qemu* do ln -s $f /opt/homebrew/bin done
+    podman machine start
+    ```
+  - nginx 구동 테스트
+    ```sh
+    podman pull nginx
+    podman container run --name webserver -d -p 8080:80 nginx
+    podman ps -a
+    podman stop webserver
+    podman ps -a
+    podman stop 40f9ce7fa737
+    podman rm 40f9ce7fa737
+    ```
 
-- Reference
-  - https://www.cloudassembler.com/post/podman-machine-mac-m1/
-  - https://podman.io/getting-started/network
+  - Reference
+    - https://www.cloudassembler.com/post/podman-machine-mac-m1/
+    - https://podman.io/getting-started/network
 
 
 ---

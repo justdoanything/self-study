@@ -1,16 +1,16 @@
 목차
 ===
-- [Web Server와 WAS](#Web-Server-And-WAS)
-- [NGINX](#NGINX)
-- [Redis](#Redis)
-- [Middleware](#Middleware)
-- [Apache와 NGINX](#Apache-and-NGINX)
-- [WAF](#WAF-(Web-Application-Firewall))
-- [Yarn](#Yarn)
-- [Spring](#Spring)
-- [Flyway](#Flyway)
+- [Web Server와 WAS](#web-server-and-was)
+- [NGINX](#nginx)
+- [Redis](#redis)
+- [Middleware](#middleware)
+- [Apache와 NGINX](#apache-and-nginx)
+- [WAF](#waf-web-application-firewall)
+- [Yarn](#yarn)
+- [Spring](#spring)
+- [Flyway](#flyway)
 - [OAuth 2.0](#oauth-20)
-- [REST API](#REST-API)
+- [REST API](#rest-api)
 
 ---
 
