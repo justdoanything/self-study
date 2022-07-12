@@ -5,55 +5,8 @@
       "name": "Launch JpaApplication",
       "request": "launch",
       "mainClass": "prj.JpaApplication",
-      "projectName": "jpa"
-    },
-    {
-      "type": "java",
-      "name": "Launch DishPractice",
-      "request": "launch",
-      "mainClass": "DishPractice",
-      "projectName": ""
-    },
-    {
-      "type": "java",
-      "name": "Launch ModernJavaPractice",
-      "request": "launch",
-      "mainClass": "ModernJavaPractice",
-      "projectName": ""
-    },
-    {
-      "type": "java",
-      "name": "Launch ModernJavaPractice",
-      "request": "launch",
-      "mainClass": "modern.ModernJavaPractice"
-    },
-    {
-      "type": "java",
-      "name": "Launch LambdaTest",
-      "request": "launch",
-      "mainClass": "LambdaTest",
-      "projectName": ""
-    },
-    {
-      "type": "java",
-      "name": "Launch nCr",
-      "request": "launch",
-      "mainClass": "nCr",
-      "projectName": ""
-    },
-    {
-      "type": "java",
-      "name": "Launch ArrayRotation",
-      "request": "launch",
-      "mainClass": "ArrayRotation",
-      "projectName": ""
-    },
-    {
-      "type": "java",
-      "name": "Launch nPr",
-      "request": "launch",
-      "mainClass": "nPr",
-      "projectName": ""
+      "projectName": "jpa",
+      "args": "--spring.profiles.active=local"
     }
   ]
 }

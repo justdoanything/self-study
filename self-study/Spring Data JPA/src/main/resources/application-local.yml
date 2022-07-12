@@ -6,9 +6,9 @@ spring:
     livereload:
       enabled: true
   datasource:
-    url: jdbc:postgresql://localhost:5432/springdata
-    username: yongwoo
-    password: yongwoo
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: admin
   jpa:
     hibernate:
       ddl-auto: create

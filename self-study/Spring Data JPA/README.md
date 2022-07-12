@@ -82,6 +82,14 @@
 - ###### Web 확장
   - `prj.jpa.kyh.controller.MemberController.java` 참고
 
+- ###### @Qualifier
+  ```java
+  // /members?member_page=0&order_page=1
+  public String list (
+    @Qualifier("member") Pageable memberPageable,
+    @Qualifier("order") Pageable orderPageable,
+  )
+  ```
 
 ---
 
