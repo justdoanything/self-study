@@ -91,7 +91,7 @@
   )
   ```
 
-- 새로운 Entity 기준 정의
+- ###### 새로운 Entity 기준 정의
   ```java
   @Entity
   @EntityListener(AuditingEntityListener.class)
@@ -115,6 +115,56 @@
   }
   ```
 
+- ###### Projections
+  - 전체 Entity가 아니고 DTO로 조회하는 방법
+  ```java
+  // Interface 방식
+  public interface MemberProjectionNameOnlyInterface {
+    // select 절에 name 필드만 존재
+    String getName();
+
+    // select 절에서 전체 필드를 조회하고 결과를 조합
+    @Value("#{target.name + ' ' + target.age}")
+    String getNameAndAge();
+  }
+
+  // ----------------------------------------
+
+  // Class 방식
+  public class MemberProjectionNameOnlyClass {
+    private final String name;
+
+    public MemberProjectionNameOnlyClass(String name) {
+      this.name = name;
+    }
+  }
+
+  // ----------------------------------------
+
+  List<MemberNameOnly> findProjectionsByName(@Param("name") String name);
+  ```
+
+- ###### Native Query
+  - 제약사항
+    - Sort 파라미터를 통한 정렬이 정상 동작하지 않을 수 있음
+    - JPQL처럼 Application Loading 시점에 문법 오류 확인 불가능
+    - 동적 쿼리 불가능 
+    - Native SQL을 DTO로 조회할땐 JdbcTemplate, myBatis 추천
+
+- ###### 메모
+  - JPA만 독단적으로 사용하지 않고 JdbcTemplate, myBatis, jooq와 같이 사용한다. hibernate를 사용하는 방법도 익혀두는게 좋을 것 같다.
+    ```java
+    // hibernate 사용
+    String sql = "select m.name as name from member m";
+
+    List<MemberDto> result = em.createNativeQuery(sql)
+                                    .setFirstResult(0)
+                                    .setMaxResults(10)
+                                    .unwrap(NativeQuery.class)
+                                    .addScalar("name")
+                                    .setResultTransformer(Transformers.aliasToBean(MemberDto.class))
+                                    .getResultList();
+    ```
 ---
 
 ## @Value

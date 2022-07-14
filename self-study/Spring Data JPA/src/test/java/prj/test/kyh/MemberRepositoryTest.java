@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import prj.jpa.kyh.dto.MemberDto;
 import prj.jpa.kyh.entity.Member;
+import prj.jpa.kyh.entity.MemberProjection;
 import prj.jpa.kyh.entity.Team;
 import prj.jpa.kyh.repository.MemberRepository;
 import prj.jpa.kyh.repository.TeamRepository;
@@ -185,7 +186,32 @@ public class MemberRepositoryTest {
     }
 
 	@Test
-	public void auditingTest() {
-		
+	public void nativeQuery() {
+		Team teamA = new Team("teamA");
+		Team teamB = new Team("teamB");
+
+		teamRepository.save(teamA);
+		teamRepository.save(teamB);
+
+		memberRepository.save(new Member("1", "남자", 18, "서울", teamA));
+		memberRepository.save(new Member("2", "남자", 19, "경기", teamA));
+		memberRepository.save(new Member("3", "여자", 20, "부산", teamB));
+		memberRepository.save(new Member("4", "여자", 21, "울산", teamB));
+		memberRepository.save(new Member("5", "남자", 22, "포항", teamA));
+		memberRepository.save(new Member("6", "여자", 23, "전주", teamA));
+
+        Member selectedMember = memberRepository.findNativeQueryByName("2");
+		assertThat(selectedMember.getName()).isEqualTo("2");
+
+		Page<MemberProjection> page = memberRepository.findByProjection(PageRequest.of(0, 20)); 
+		List<MemberProjection> content = page.getContent();
+		System.out.println("===============================");
+		teamRepository.findAll().forEach(System.out::println);
+		System.out.println("===============================");
+		memberRepository.findAll().forEach(System.out::println);
+		System.out.println("===============================");
+		for(MemberProjection mp : content){
+			System.out.println("[ id = " + mp.getId() + ", name = " + mp.getName() + ", teamName = " + mp.getTeamName() + "]");
+		}
 	}
 }

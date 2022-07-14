@@ -19,6 +19,7 @@ import org.springframework.data.repository.query.Param;
 
 import prj.jpa.kyh.dto.MemberDto;
 import prj.jpa.kyh.entity.Member;
+import prj.jpa.kyh.entity.MemberProjection;
 
 public interface MemberRepository extends JpaRepository<Member, Long>, CustomRepository {
 
@@ -81,4 +82,15 @@ public interface MemberRepository extends JpaRepository<Member, Long>, CustomRep
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     List<Member> findLockByName(String name);
+
+    /*
+     * Native Query
+     */
+    @Query(value = "select * from member where name = ?", nativeQuery = true)
+    Member findNativeQueryByName(String name);
+
+    @Query(value = "select m.member_id as id, m.name as name, t.name as teamName from member m left join team t", nativeQuery = true, countQuery = "select count(*) from member")
+    Page<MemberProjection> findByProjection(Pageable pageable);
+
+    
 }
