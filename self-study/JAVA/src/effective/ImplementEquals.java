@@ -1,3 +1,4 @@
+package src.effective;
 
 public class ImplementEquals {
     private final short areaCode, prefix, lineNum;

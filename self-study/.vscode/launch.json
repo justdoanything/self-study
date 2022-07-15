@@ -12,6 +12,12 @@
       "projectName": "jpa",
       "args": "--spring.profiles.active=local",
       "vmArgs": ["-Dspring.profiles.active=local"]
+    },
+    {
+      "type": "java",
+      "name": "Launch Current File",
+      "request": "launch",
+      "mainClass": "${file}"
     }
   ]
 }

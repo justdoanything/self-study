@@ -1,3 +1,5 @@
+package src.effective;
+
 import java.lang.ref.Cleaner;
 
 /**
