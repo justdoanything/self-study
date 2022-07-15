@@ -20,8 +20,9 @@ public class DishPractice {
             new Dish("salmons", false, 450, Dish.Type.FISH)
         );
 
-        // System.out.println(menu);
-
+        /*
+         * Stream은 1번만 소비된다.
+         */
         List<String> threeHighCaloricDishNames = menu.stream()
                                                         .filter(dish -> dish.getCalories() > 300)
                                                         .map(Dish::getName)
@@ -35,7 +36,9 @@ public class DishPractice {
         // s.forEach(System.out::println); // Exception 발생.
 
 
-        // takeWhile, dropWhile
+        /*
+         * takeWhile, dropWhile
+         */ 
         System.out.println("================== ALL ");
         menu.stream()
                 .sorted(Comparator.comparing(Dish::getCalories))
@@ -59,5 +62,43 @@ public class DishPractice {
                 // .map(dish -> dish.getCalories())
                 .collect(Collectors.toList())
                 .forEach(System.out::println);
+
+        /*
+         * flatMap : Stream 평면화
+         */ 
+        List<String> words = Arrays.asList("Hello", "World");
+        
+        // 1. 객체가 string[] 라서 문제 
+        System.out.println("=================== 1");
+        List<String[]> listStringArray = words.stream()
+                .map(w -> w.split("")) // string[] 을 전달함
+                .distinct()
+                .collect(Collectors.toList());
+        for(String[] item : listStringArray){
+            Arrays.asList(item).forEach(System.out::print);
+            System.out.println();
+        }
+
+        // 2. 각 배열을 별도의 스트림으로 생성
+        System.out.println("=================== 2");
+        List<Stream<String>> listStreamString = words.stream()
+                .map(w -> w.split("")) // string[] 을 전달함
+                .map(Arrays::stream) // 각 배열을 stream으로 생성
+                .distinct()
+                .collect(Collectors.toList());
+        listStreamString.stream()
+            .forEach(stream -> {
+                stream.forEach(System.out::print);
+                System.out.println();
+            });
+
+        // 3. flatMap 사용
+        System.out.println("=================== 3");
+        words.stream()
+                .map(w -> w.split("")) // string[] 을 전달함
+                .flatMap(Arrays::stream) // 생성 된 stream을 하나의 stream으로 평면화
+                .distinct()
+                .collect(Collectors.toList()) // List<String>
+                .forEach(System.out::print);
     }
 }
