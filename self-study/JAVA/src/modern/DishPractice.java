@@ -3,6 +3,7 @@ package src.modern;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,7 +43,7 @@ public class DishPractice {
         System.out.println("================== ALL ");
         menu.stream()
                 .sorted(Comparator.comparing(Dish::getCalories))
-                .filter(dish -> dish.getCalories() < 500)
+                // .filter(dish -> dish.getCalories() < 500)
                 .collect(Collectors.toList())
                 .forEach(System.out::println);
 
@@ -100,5 +101,47 @@ public class DishPractice {
                 .distinct()
                 .collect(Collectors.toList()) // List<String>
                 .forEach(System.out::print);
+        System.out.println();
+    
+        /*
+         * 검색과 매칭
+         * anyMatch, allMatch, noneMatch
+         * short circuit 평가 방식을 사용함
+         */ 
+        if(menu.stream().anyMatch(Dish::isVegetarian)){
+            System.out.println("This group has more than one vegetarian menu.");
+        }
+        if(!menu.stream().allMatch(Dish::isVegetarian)){
+            System.out.println("This group has no vegetarian menu.");
+        }
+        if(menu.stream().allMatch(d -> d.getCalories() < 1000))
+            System.out.println("All of menus is under 1000 calories.");
+
+        if(menu.stream().noneMatch(d -> d.getCalories() >= 1000))
+            System.out.println("All of menus is under 1000 calories.");
+
+        /*
+         * findAny, findFirst
+         * 병렬 실행에선 findAny를 사용한다.
+         * Optional -> isPresent, ifPresent
+         */
+        Optional<Dish> dish = menu.stream()
+                                    .filter(d -> d.getCalories() > 1000)
+                                    .findAny();
+        System.out.println(dish);
+
+        menu.stream()
+                .filter(d -> d.getCalories() > 1000)
+                .findAny()
+                .ifPresent(System.out::println); // 값이 없으면 수행하지 않음.
+
+        List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+        numbers.stream()
+                    .map(n -> n * n)
+                    .filter(n -> n % 3 == 0)
+                    .findFirst()
+                    .ifPresent(System.out::println);
+
+        
     }
 }
