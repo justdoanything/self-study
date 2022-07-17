@@ -2,6 +2,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Launch iiii_FilePractive",
+      "request": "launch",
+      "mainClass": "src.modern.practice.iiii_FilePractive",
+      "projectName": "self-study_8fb7738a"
+    },
+    {
+      "type": "java",
       "name": "Launch iiii_NumberStreamPractive",
       "request": "launch",
       "mainClass": "src.modern.practice.iiii_NumberStreamPractive",
