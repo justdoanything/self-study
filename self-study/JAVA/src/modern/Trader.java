@@ -31,4 +31,7 @@ public class Trader {
     public String toString() {
         return "Trader [city=" + city + ", name=" + name + "]";
     }
+    public Trader getTrader() {
+        return null;
+    }
 }

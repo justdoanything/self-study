@@ -2,6 +2,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Launch TransactionPractice",
+      "request": "launch",
+      "mainClass": "src.modern.TransactionPractice",
+      "projectName": "self-study_8fb7738a"
+    },
+    {
+      "type": "java",
       "name": "Launch Effective",
       "request": "launch",
       "mainClass": "effective.Effective",
