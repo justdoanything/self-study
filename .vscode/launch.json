@@ -2,6 +2,20 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Launch ii_DishPractice",
+      "request": "launch",
+      "mainClass": "src.modern.practice.ii_DishPractice",
+      "projectName": "self-study_8fb7738a"
+    },
+    {
+      "type": "java",
+      "name": "Launch TransactionPractice",
+      "request": "launch",
+      "mainClass": "src.modern.practice.TransactionPractice",
+      "projectName": "self-study_8fb7738a"
+    },
+    {
+      "type": "java",
       "name": "Launch TransactionPractice",
       "request": "launch",
       "mainClass": "src.modern.TransactionPractice",

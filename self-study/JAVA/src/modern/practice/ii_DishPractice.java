@@ -9,8 +9,8 @@ import java.util.stream.Stream;
 
 import src.modern.Dish;
 
-public class DishPractice {
-    
+public class ii_DishPractice {
+
     public static void main(String[] args) {
         List<Dish> menu = Arrays.asList(
             new Dish("pork", false, 800, Dish.Type.MEAT),

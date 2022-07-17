@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 import src.modern.Apple;
 
-public class ModernJavaPractice {
+public class a_ModernJavaPractice {
     
     public static void main(String[] args) {
         List<Apple> inventory = new ArrayList<>();

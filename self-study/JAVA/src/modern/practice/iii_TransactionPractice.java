@@ -1,10 +1,13 @@
-package src.modern;
+package src.modern.practice;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-public class TransactionPractice {
+import src.modern.Trader;
+import src.modern.Transaction;
+
+public class iii_TransactionPractice {
     public static void main(String[] args) {
         Trader raoul = new Trader("Raoul", "Cambridge");
         Trader mario = new Trader("Mario", "Milan");
