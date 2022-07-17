@@ -205,11 +205,11 @@ public class MemberRepositoryTest {
 
 		Page<MemberProjection> page = memberRepository.findByProjection(PageRequest.of(0, 20)); 
 		List<MemberProjection> content = page.getContent();
-		System.out.println("===============================");
+		System.out.println("=============================== 팀전체");
 		teamRepository.findAll().forEach(System.out::println);
-		System.out.println("===============================");
+		System.out.println("=============================== 멤버전체");
 		memberRepository.findAll().forEach(System.out::println);
-		System.out.println("===============================");
+		System.out.println("=============================== join전체");
 		for(MemberProjection mp : content){
 			System.out.println("[ id = " + mp.getId() + ", name = " + mp.getName() + ", teamName = " + mp.getTeamName() + "]");
 		}

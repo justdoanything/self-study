@@ -89,7 +89,7 @@ public interface MemberRepository extends JpaRepository<Member, Long>, CustomRep
     @Query(value = "select * from member where name = ?", nativeQuery = true)
     Member findNativeQueryByName(String name);
 
-    @Query(value = "select m.member_id as id, m.name as name, t.name as teamName from member m left join team t", nativeQuery = true, countQuery = "select count(*) from member")
+    @Query(value = "select m.member_id as id, m.name as name, t.name as teamName from member m left join team t where m.team_id = t.team_id", nativeQuery = true, countQuery = "select count(*) from member")
     Page<MemberProjection> findByProjection(Pageable pageable);
 
     
