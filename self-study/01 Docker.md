@@ -436,6 +436,8 @@ WORKDIR     | RUN, CMD, ADD, COPY 등이 실행된 기본 Directory를 지정. �
 EXPOSE      | Docker Container가 실행되었을 때 요청을 기다리고 있는 포트(Listen Port)를 지정.
 VOLUME      | Container 외부에 file system을 mount 할 때 사용. 필수는 아니지만 설정해주는 것이 좋음.
 ENV         | Container에서 사용할 환경변수를 지정. -e 옵션을 사용하면 기존값을 Overriding하여 사용함.
+- `EXPOSE`와 docker run `-p` 명령어의 차이점
+  - `EXPOSE`는 해당 이미지가 외부로 오픈할 포트를 지정하는 것이고 `-p` 옵션은 Host OS에서 해당 컨테이너를 실행할 때 OS와 매핑시키는 용도이다.
 - RUN, CMD, ENTRYPOINT 의 차이점
   - RUN
     - 새롭게 생성된 Layer 위에서 실행
