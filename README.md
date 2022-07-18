@@ -1,5 +1,6 @@
 # 📚 self-study
-- ## Daily Study CS knowledge, New Tech, Tool and everything of IT by my self.
+### 📂 algorithm
+### 📂 WIS (What I Studied)
   - 📂 Book
     - 📕 토비의 스프링 3.1 Vol 1
     - 📕 토비의 스프링 3.1 Vol 2
@@ -24,5 +25,3 @@
   - 📄 React
   - 📄 Javascript
   - 📄 Testing
-
-## Practice Algorithm by Python and Java
