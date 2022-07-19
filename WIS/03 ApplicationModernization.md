@@ -825,6 +825,7 @@ Category|Native App | Progressive Web App | Hybrid App | Mobile Web App
 특징 |  |  | 
 - https://www.hanl.tech/blog/native-vs-hybrid-vs-pwa/
 
+--- 
 ### BFF (Backend for Frontend)
 - `versus API 구조`
   - MSA 환경에서 API 엔트포인트가 분리될 때 팔로업 이슈
@@ -841,7 +842,7 @@ Category|Native App | Progressive Web App | Hybrid App | Mobile Web App
 - MSA 처럼 전체 화면을 동작할 수 있는 단위로 나누어 개발한 후 서로 조립하는 방식이다.
 - Micro Frontent를 어떻게 통합할지 고려해야 한다.
 - Backend 호출 구성은 BFF를 사용한다.
-
+--- 
 ### State Pattern
 - react의 state를 생각하면 된다.
 - 객체가 직접 상태를 체크하여 상태에 따라 행위를 호출하는게 아니라 상태를 객체화하여 상태가 행동을 할 수 있도록 위임하는 디자이 패턴이다.
@@ -905,7 +906,7 @@ public class Client {
 - reference : https://victorydntmd.tistory.com/294
 
 
-
+--- 
 ### SSR vs CSR
 - `relate SPA and MPA`
 - SSR
@@ -926,9 +927,13 @@ public class Client {
 - MPA
   - 전통적인 탐색(검색)이 가능함
 
+--- 
 ### Lazy Loading
 
+--- 
 ### CORS(Cross-Origin Resource Sharing)
+
+--- 
 ### SOLID (객체지향 설계) 원칙
 - `S`ingle Responsibility Principle (단일 책임 원칙) : 한 클래스는 하나의 책임만 가져야 한다.
 - `O`pen/Closed Principle (개방 폐쇠 원칙) : 소프트웨어 요소는 확장에는 열려 있으나 변경에는 닫혀 있어야 한다.
