@@ -798,8 +798,9 @@ REST API
 
 ---
 
-PWA (Progressive Web Apps)
-- Web과 Native App의 기능을 모두 갖춘 Web-Apps으로 설치가 가능하고 오프라인에서도 동작한다.
+### PWA (Progressive Web App)
+- `versus Native App`
+- Web과 Native App의 기능을 모두 갖춘 Web-App으로 설치가 가능하고 오프라인에서도 동작한다.
 - 웹앱의 완성도를 측정해주는 [lighthouse](https://developer.chrome.com/docs/lighthouse/overview/)
 - PWA 핵심 원칙
   - 발견 가능 : 검색 엔진을 통해서 컨텐츠를 찾을 수 있다.
@@ -814,13 +815,133 @@ PWA (Progressive Web Apps)
   - Service Workers를 사용한 캐싱 덕분에 로딩 시간과 데이터를 절약할 수 있다.
   - 업데이트가 있을 때 변경된 컨텐츠만 업데이트할 수 있다. (네이티브 앱은 어플리케이션 전체를 업데이트 해야함.)
   - 시스템 알림 및 푸시 메세지를 통해 사용자의 재참여를 이끌어 낼 수 있다.
-
 - reference : https://developer.mozilla.org/ko/docs/Web/Progressive_web_apps/Introduction
-BFF
-State Pattern
-SSR vs CSR
-SPA vs MPA
-Lazy Loading
-CORS
-SOLID 원칙
-Micro Frontend
+
+### Web App 비교
+Category|Native App | Progressive Web App | Hybrid App | Mobile Web App
+---|---|---|---|---
+장점 | 성능이 제일 좋고 네이티브 API로 플랫폼에 최적화할 수 있다. | Service Wroker를 사용해서 오프라인이나 느린 네트워크에서도 동작한다. HTTPS를 통해서 제공되서 보안성이 좋다. 플랫폼에 한정받지 않는다. 네이티브 웹보다 저렴하고 빠르게 개발할 수 있다. 설치할 필요가 없고 검색 엔진에서 검색기 가능하다. | 네이티브 API와 브라우저 API를 모두 사용가능하다. 여러 플랫폼에 대응할 수 있다. | 비용이 저렴하고 업데이트가 쉽다. 설치가 필요 없고 모든 기기와 브라우저에서 접근 가능하다.
+단점 | 플랫폼에 한정적이다. 설치를 해야한다. | 오래된 브라우저는 PWA를 지원하지 않는다. 배터리 전력 소모가 비교적 크다. | 웹뷰에서 실행하는 경우엔 브라우저 성능이 중요하다. 성능이 안나올때가 많다. UI/UX를 처리하기 어렵다. | 플랫폼 API는 사용하지 못하고 브라우저 API만 사용 가능하다.
+특징 |  |  | 
+- https://www.hanl.tech/blog/native-vs-hybrid-vs-pwa/
+
+### BFF (Backend for Frontend)
+- `versus API 구조`
+  - MSA 환경에서 API 엔트포인트가 분리될 때 팔로업 이슈
+  - CORS 이슈
+  - API 입장에서 여러 플랫폼과 스펙을 맞출 때의 커뮤니케이션 비용
+  - 플랫폼별로 다를 수 밖에 없는 인증 방식을 통합하려는 무리한 시도
+  - 클라이언트의 꿈인 '화면에 필요한 데이터만 받는' Partial response를 하기 어려운 이슈
+- 이를 해결하고자 프론트엔드를 위한 중간 서버 역할을 하는 BFF가 등장
+- 하나의 Frontend에 하나의 BFF가 존재해야 요구사항에 맞게 구현할 수 있다.
+- reference : https://fe-developers.kakaoent.com/2022/220310-kakaopage-bff/
+
+### Micro Frontend
+- `relate BFF`
+- MSA 처럼 전체 화면을 동작할 수 있는 단위로 나누어 개발한 후 서로 조립하는 방식이다.
+- Micro Frontent를 어떻게 통합할지 고려해야 한다.
+- Backend 호출 구성은 BFF를 사용한다.
+
+### State Pattern
+- react의 state를 생각하면 된다.
+- 객체가 직접 상태를 체크하여 상태에 따라 행위를 호출하는게 아니라 상태를 객체화하여 상태가 행동을 할 수 있도록 위임하는 디자이 패턴이다.
+```java
+public interface PowerState {
+  public void powerPush();
+}
+
+public class On implements PowerState {
+  public void powerPush() {
+    // 전원 Off
+    System.out.println("전원 off");
+  }
+}
+
+public class On implements PowerState {
+  public void powerPush() {
+    // 전원 On
+    System.out.println("전원 on");
+  }
+}
+
+public class Saving implements PowerState {
+  public void powerPush() {
+    // 절전 모드
+    System.out.println("전원 절전 모드");
+  }
+}
+
+/***************************************************/
+
+public class Laptop {
+  private PowerState powerState;
+
+  public Laptop() { this.powerState = new Off(); }
+
+  public void setPowerState(PowerState powerState) { this.powerState = powerState; }
+  public void powerPush() { powerState.powerPush(); }
+}
+
+/***************************************************/
+
+public class Client {
+  public static void main(String[] agrs) {
+    Laptop laptop = new Laptop();
+    On on = new On();
+    Off off = new Off();
+    Saving saving = new Saving();
+
+    laptop.powerPush();
+    laptop.setPowerState(on);
+    laptop.powerPush();
+    laptop.setPowerState(saving);
+    laptop.powerPush();
+    laptop.setPowerState(off);
+    laptop.powerPush();
+    laptop.setPowerState(on);
+  }
+}
+```
+- reference : https://victorydntmd.tistory.com/294
+
+
+
+### SSR vs CSR
+- `relate SPA and MPA`
+- SSR
+  - 초기 로딩 속도가 빠르다.
+  - 서버와 통신이 많기 때문에 서버 사용량이 많다.
+  - HTML에 대한 정보가 처음에 포함되어 데이터를 수집할 수 있다. (SEO)
+- CSR
+  - 초기 로딩 속도가 느리다.
+  - 서버와 통신이 적어서 서버 사용량이 적다.
+  - 처음에 HTML 정보가 비어있어서 크롤러가 데이터를 수집할 수 없다.
+### SPA vs MPA
+- `relate SSR and CSR`
+- SPA
+  - 초기 접속 속도 느리다
+  - 동적 컨텐츠 로드
+  - 검색 엔진 노출을 원하면 MPA
+  - 페이지 전환이 빠르고 깜빡거리지 않음
+- MPA
+  - 전통적인 탐색(검색)이 가능함
+
+### Lazy Loading
+
+### CORS(Cross-Origin Resource Sharing)
+### SOLID (객체지향 설계) 원칙
+- `S`ingle Responsibility Principle (단일 책임 원칙) : 한 클래스는 하나의 책임만 가져야 한다.
+- `O`pen/Closed Principle (개방 폐쇠 원칙) : 소프트웨어 요소는 확장에는 열려 있으나 변경에는 닫혀 있어야 한다.
+- `L`iskov substitution Principle (리스코프 치환 원칙) : 프로그램의 객체는 프로그램의 정확성을 깨드리지 않으면서 하위 타입의 인스턴스로 바꿀 수 있어야 한다. 
+- `I`nterface Segregration Pringciple (인터페이스 분리 원칙) : 특정 클라이언트를 위한 인터페이스 여러 개가 범용 인터페이스 하나보다 낫다.
+- `D`ependency Inversion Principle (의존관계 역전 원칙) : 프로그래머는 추상화에 의존해야지 구체화에 의존하면 안된다.
+- reference : https://ko.wikipedia.org/wiki/SOLID_(%EA%B0%9D%EC%B2%B4_%EC%A7%80%ED%96%A5_%EC%84%A4%EA%B3%84)
+
+### 캡슐화
+- 객체의 속성과 행위를 하나로 묶는다
+- 실제 구현 내용은 내부에 감추어 은닉한다.
+
+### 응집도와 결합도
+- `높은` 응집도 : 모듈에 포함된 내부 요소들이 하나의 책임/목적을 위해 연결되어 있는지에 대한 정도
+- `낮은` 결합도 : 다른 모듈과의 의존성을 나타내는 정도
+
