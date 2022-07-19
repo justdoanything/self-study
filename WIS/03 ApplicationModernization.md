@@ -796,5 +796,31 @@ REST API
 - Reference
   - https://www.holaxprogramming.com/2018/01/20/graphql-vs-restful-api/
 
-
 ---
+
+PWA (Progressive Web Apps)
+- Web과 Native App의 기능을 모두 갖춘 Web-Apps으로 설치가 가능하고 오프라인에서도 동작한다.
+- 웹앱의 완성도를 측정해주는 [lighthouse](https://developer.chrome.com/docs/lighthouse/overview/)
+- PWA 핵심 원칙
+  - 발견 가능 : 검색 엔진을 통해서 컨텐츠를 찾을 수 있다.
+  - 설치 가능 : 기기의 홈 화면에 설치해서 사용할 수 있다.
+  - 연결 가능 : URL을 전송해서 공유할 수 있다.
+  - 네트워크 독립적 : 오프라인 환경에서 동작한다.
+  - 점진적 : 브라우저의 기본 기능을 사용할 수 있다. (최신 브라우저 기능은 제약될 수 있음)
+  - 재참여 가능 : 새 컨텐츠가 사용 가능할 때마다 알림을 보낼 수 있다.
+  - 반응형 : 모든 기기의 화면이나 브라우저에서 사용할 수 있다.
+  - 안전 : 제 3자로부터 안전하다.
+- 장점
+  - Service Workers를 사용한 캐싱 덕분에 로딩 시간과 데이터를 절약할 수 있다.
+  - 업데이트가 있을 때 변경된 컨텐츠만 업데이트할 수 있다. (네이티브 앱은 어플리케이션 전체를 업데이트 해야함.)
+  - 시스템 알림 및 푸시 메세지를 통해 사용자의 재참여를 이끌어 낼 수 있다.
+
+- reference : https://developer.mozilla.org/ko/docs/Web/Progressive_web_apps/Introduction
+BFF
+State Pattern
+SSR vs CSR
+SPA vs MPA
+Lazy Loading
+CORS
+SOLID 원칙
+Micro Frontend
