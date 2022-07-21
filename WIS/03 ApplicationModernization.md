@@ -843,9 +843,9 @@ Category|Native App | Progressive Web App | Hybrid App | Mobile Web App
 - Micro Frontent를 어떻게 통합할지 고려해야 한다.
 - Backend 호출 구성은 BFF를 사용한다.
 --- 
-### State Pattern
+### State Design Pattern
 - react의 state를 생각하면 된다.
-- 객체가 직접 상태를 체크하여 상태에 따라 행위를 호출하는게 아니라 상태를 객체화하여 상태가 행동을 할 수 있도록 위임하는 디자이 패턴이다.
+- 객체가 직접 상태를 체크하여 상태에 따라 행위를 호출하는게 아니라 상태를 객체화하여 상태가 행동을 할 수 있도록 위임하는 디자인 패턴이다.
 ```java
 public interface PowerState {
   public void powerPush();
@@ -905,7 +905,8 @@ public class Client {
 ```
 - reference : https://victorydntmd.tistory.com/294
 
-
+---
+### Flux Design Pattern
 --- 
 ### SSR vs CSR
 - `relate SPA and MPA`
