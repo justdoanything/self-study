@@ -7,11 +7,14 @@ public class gcd {
         System.out.println("최소공배수 : " + lcm(a,b)); 
 
         // 같은 수로 담아서 최대 몇봉지 만들 수 있어?
-        int[] input = {66, 4398};
+        int[] input = {12, 6, 24, 36};
         System.out.println(solution(input)); 
-        
+
+
+        System.err.println(lcm(21,23));        
     }
     
+    // 최대공약수
     private static int gcd(int a, int b){
         while(b != 0){
             int r = a%b;
@@ -21,6 +24,7 @@ public class gcd {
         return a;
     }
 
+    // 최소공배수
     public static int lcm(int a, int b){
         return a*b/gcd(a,b);
     }
@@ -39,6 +43,7 @@ public class gcd {
                 tmp = gcd(tmp, array[i]);
             }
             
+            System.out.println(min + " / " + tmp);
             return min / tmp;
         }
     }

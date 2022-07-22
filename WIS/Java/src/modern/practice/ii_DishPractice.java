@@ -1,4 +1,4 @@
-package src.modern.practice;
+package modern.practice;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import src.modern.Dish;
+import modern.Dish;
 
 public class ii_DishPractice {
 

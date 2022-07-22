@@ -1,4 +1,4 @@
-package src.effective;
+package effective;
 
 public class BuilderPattern {
     private final String name;

@@ -1,4 +1,4 @@
-package src.effective;
+package effective;
 
 import java.lang.ref.Cleaner;
 

@@ -1,4 +1,4 @@
-package src.effective;
+package effective;
 
 public class App {
     public static void main(String[] args) throws Exception {

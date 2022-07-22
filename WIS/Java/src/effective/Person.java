@@ -1,4 +1,4 @@
-package src.effective;
+package effective;
 
 public class Person {
     private final String name;

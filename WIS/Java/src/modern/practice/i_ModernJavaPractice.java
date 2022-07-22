@@ -1,4 +1,4 @@
-package src.modern.practice;
+package modern.practice;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import src.modern.Apple;
+import modern.Apple;
 
 public class i_ModernJavaPractice {
     

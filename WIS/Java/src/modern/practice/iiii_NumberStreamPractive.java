@@ -1,4 +1,4 @@
-package src.modern.practice;
+package modern.practice;
 
 import java.util.Arrays;
 import java.util.List;
@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import src.modern.Dish;
+import modern.Dish;
 
 public class iiii_NumberStreamPractive {
     public static void main(String[] args) {
@@ -95,6 +95,7 @@ public class iiii_NumberStreamPractive {
 
         int[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
         System.out.println(Arrays.stream(numbers).sum());
-        
+
+        Arrays.stream(numbers).forEach(System.out::println);
     }   
 }

@@ -1,4 +1,4 @@
-package src.modern;
+package modern;
 
 public class Transaction {
     private final Trader trader;

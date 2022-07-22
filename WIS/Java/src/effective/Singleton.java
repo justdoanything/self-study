@@ -1,4 +1,4 @@
-package src.effective;
+package effective;
 
 // public static final 방식
 public class Singleton {
