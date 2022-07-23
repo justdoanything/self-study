@@ -4,8 +4,8 @@
 - `mapToInt` : Stream 👉 IntStream
 - IntStream의 `max()`, `min()`, `sum()`, `average()`
   ```java
-	private intStream() {
-		transactions.stream()
+  private intStream() {
+    transactions.stream()
 						.mapToInt(Transaction::getValue)
 						.min()
 						.ifPresent(System.out::println);
@@ -13,7 +13,7 @@
 	```
 	
 - `sort()` and `sorted()`
-  ```java
+	```java
 	private listSort() {
 		inventory.sort((a1, a2) -> a1.getWeight().compareTo(a2.getWeight()));
 		inventory.sort(Comparator.comparing(Apple::getWeight)
@@ -29,7 +29,7 @@
 		});
 	}
 	```
-  ```java
+	```java
 	private streamSorted() {
 		// 2011년에 일어난 모든 트랜잭션을 찾아 값을 오름차순으로 정리하시오.
 		System.out.println("2011년에 일어난 모든 트랜잭션을 찾아 값을 오름차순으로 정리하시오.");
