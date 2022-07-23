@@ -1,4 +1,4 @@
-package src;
+package src.grammer.array;
 
 public class ArrayRotation {
     
@@ -13,27 +13,35 @@ public class ArrayRotation {
     int[] dy8 = { 0, 1, 1, 1, 0, -1, -1, -1};
 
     // 3. 문자열을 index로 변환
-    String posEng = "d4";
-    int posEngX = posEng.charAt(0)-'a';
-    int posEngY = posEng.charAt(1)-'0';
-    
+    static String posEng = "d4"; // (3, 4)
+    static int posEngX = posEng.charAt(0)-'a'; // a(0), b(1), c(2), d(3)
+    static int posEngY = posEng.charAt(1)-'0'; // 0, 1, 2, 3, 4 
+
     public static void main(String[] args){
         int N = 7;
         int[][]  map = new int[N][N];
         int posX = 3;
         int posY = 3;
-        int num = 1;
+        int num = 3;
 
         map[posX][posY] = 1;
         System.out.println("================ START");
         Array.printArray(map);
 
-        // move4Ways(map, posX, posY, num, N);
+        map = new int[N][N];
+        map[posX][posY] = 1;
+        move4Ways(map, posX, posY, num, N);
 
-        // move8Ways(map, posX, posY, num, N);
+        map = new int[N][N];
+        map[posX][posY] = 1;
+        move8Ways(map, posX, posY, num, N);
 
-        //move4WaysDirectly(map, posX, posY, num, N);
+        map = new int[N][N];
+        map[posX][posY] = 1;
+        move4WaysDirectly(map, posX, posY, num, N);
 
+        map = new int[N][N];
+        map[posX][posY] = 1;
         move8WaysDirectly(map, posX, posY, num, N);
         
     }
@@ -91,9 +99,9 @@ public class ArrayRotation {
                     nextX = nextX + dx[i]*d;
                     nextY = nextY + dy[i]*d;
                 }
-                Array.printArray(map);
             }
         }
+        Array.printArray(map);
     }
 
     private static void move8WaysDirectly(int[][] map, int posX, int posY, int num, int N){
@@ -111,8 +119,8 @@ public class ArrayRotation {
                     nextX = nextX + dx[i]*d;
                     nextY = nextY + dy[i]*d;
                 }
-                Array.printArray(map);
             }
         }
+        Array.printArray(map);
     }
 }

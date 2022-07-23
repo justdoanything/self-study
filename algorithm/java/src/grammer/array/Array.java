@@ -1,4 +1,4 @@
-package src;
+package src.grammer.array;
 
 public class Array {
     

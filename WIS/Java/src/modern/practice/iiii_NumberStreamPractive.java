@@ -87,15 +87,21 @@ public class iiii_NumberStreamPractive {
         
         /*
          * 값으로 Stream 생성
+         * Stream.of( ... )
+         * Arrays.stream( ... )
          */
-        Stream<String> strStream = Stream.of("Hello", "World", "In", "Java");
-        strStream.map(String::toUpperCase).forEach(System.out::println);
-        strStream = Stream.empty();
-        strStream.forEach(System.out::println);
-
+        String[] strings = {"Hello", "World", "In", "Java"};
         int[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        
+        // Stream.of
+        Stream<String> strStream = Stream.of(strings);
+        Stream<Integer> intStream = Stream.of(1,2,3,4,5,6);
+        strStream.map(String::toUpperCase).forEach(System.out::println);
+        intStream.forEach(System.out::println);
+        
+        // Arrays.stream
+        System.out.println(Arrays.stream(numbers).average());
+        Arrays.stream(strings).forEach(System.out::print);
         System.out.println(Arrays.stream(numbers).sum());
-
-        Arrays.stream(numbers).forEach(System.out::println);
     }   
 }

@@ -90,5 +90,9 @@ public class iii_TransactionPractice {
                         .map(Transaction::getValue)
                         .reduce((t1, t2) -> t1 < t2 ? t1 : t2)
                         .ifPresent(System.out::println);
+        transactions.stream()
+                        .mapToInt(Transaction::getValue)
+                        .min()
+                        .ifPresent(System.out::println);
     }
 }

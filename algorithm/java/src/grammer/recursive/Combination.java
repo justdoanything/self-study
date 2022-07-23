@@ -1,6 +1,6 @@
-package src;
+package src.grammer.recursive;
 
-public class nCr {
+public class Combination {
 
     private static int count = 0;
 
