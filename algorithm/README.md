@@ -57,8 +57,8 @@
 	}
 	```
 ## 소소한 공식
-- 배열 탐색
-  - 지그재그는 if(i%2==0) 분기분 사용
+- ### 메모
+  - 지그재그(ㄹ자) 탐색은 if(i%2==0) 분기분 사용
   - 영어 좌표 👉 숫자 좌표
     ```java
     String posEng = "d4";
@@ -83,6 +83,9 @@
     }
     ```
 
+---
+
+- ### 정방향 탐색
 ```java
 index = 1;
 System.out.println("################ n,n 시작 - 오른쪽->왼쪽");
@@ -92,6 +95,7 @@ for(int i=row-1; i>=0; i--){
     }
 }
 ```
+- ### ㄹ자 탐색
 ```java
 index = 1;
 System.out.println("################ n,n 시작 - 오른쪽->왼쪽(지그재그)");
@@ -119,6 +123,7 @@ for(int i=row-1; i>=0; i--){
     }
 }
 ```
+- ### 대각선 탐색
 ```java
 // 전체 탐색을 위한 변수 c , 범위는 row+col
 index = 1;
@@ -133,12 +138,11 @@ for(int c=row+col; c>=0; c--){
     }
 }
 ```
-```java
-// 문자열을 index로 변환
-String posEng = "d4";
-int posEngX = posEng.charAt(0)-'a';
-int posEngY = posEng.charAt(1)-'0';
 
+---
+
+- ### 4방향 탐색
+```java
 // 4방향 탐색
 private static void move4Ways(int[][] map, int posX, int posY, int num, int N){
     int[] dx = {-1, 1, 0, 0};
@@ -156,7 +160,9 @@ private static void move4Ways(int[][] map, int posX, int posY, int num, int N){
     }
     Array.printArray(map);
 }
-
+```
+- ### 8방향 탐색
+```java
 // 8방향 탐색
 private static void move8Ways(int[][] map, int posX, int posY, int num, int N){
     int[] dx = { -1, -1, 0, 1, 1, 1, 0, -1};
@@ -176,107 +182,101 @@ private static void move8Ways(int[][] map, int posX, int posY, int num, int N){
 }
 ```
 
-- 최대공약수(gcd) / 최대공배수(lcm)
-  ```java
-  // 최대공약수(gcd)
-  private static int gcd(int a, int b){
-    while(b != 0){
-      int r = a%b;
-      a = b;
-      b = r;
-    }
-    return a;
+---
+
+- ### 최대공약수(gcd) / 최대공배수(lcm)
+```java
+// 최대공약수(gcd)
+private static int gcd(int a, int b){
+  while(b != 0){
+    int r = a%b;
+    a = b;
+    b = r;
   }
+  return a;
+}
+// 최소공배수(lcm)
+public static int lcm(int a, int b){
+  return a*b/gcd(a,b);
+}
+```
 
-  // 최소공배수(lcm)
-  public static int lcm(int a, int b){
-    return a*b/gcd(a,b);
-  }
-	```
+---
 
-- 팩토리얼(!) / 순열(nPr) / 조합(nCr)
-  ```java
-  // 팩토리얼(!)
-  private static int factorial(int n) {
-		if( n == 1)
-    	return 1;
-    else
-      return n * factorial(n - 1);
-  }
+- ### 팩토리얼(!) / 순열(nPr) / 조합(nCr)
+```java
+// 팩토리얼(!)
+private static int factorial(int n) {
+	if( n == 1)
+  	return 1;
+  else
+    return n * factorial(n - 1);
+}
+// 순열(nPr)
+private static int permutation(int n, int r) {
+  if(r == 1)
+      return n;
+  else
+      return n * permutation(n - 1, r - 1);
+}
+// 조합(nCr)
+private static int combination(int n, int r) {
+  return permutation(n, r) / factorial(r);
+}
+```
 
-  // 순열(nPr)
-  private static int permutation(int n, int r) {
-    if(r == 1)
-        return n;
-    else
-        return n * permutation(n - 1, r - 1);
-  }
+---
 
-  // 조합(nCr)
-  private static int combination(int n, int r) {
-    return permutation(n, r) / factorial(r);
-  }
-  ```
-- BFS, DFS
-	```java
-	public static void bfs(int[][] graph, int start, boolean[] visited){
-		Queue<Integer> queue = new LinkedList<>();
-		queue.add(start);
-
-		visited[start] = true;
-
-		while(!queue.isEmpty()){
-			int v = queue.poll();
-			System.out.print(v + " ");
-
-			for(int i : graph[v]){
-				if(visited[i] == false){
-					queue.add(i);
-					visited[i] = true;
-				}
-			}
-		}
-  }
-
-  public static void bfs(int[][] graph, int start, boolean[] visited, int n){
-		Queue<Integer> queue = new LinkedList<>();
-		queue.add(start);
-
-		visited[start] = true;
-
-		while(!queue.isEmpty()){
-			int v = queue.poll();
-			System.out.print(v + " ");
-
-			for(int i=1; i<=n; i++){
-				if(graph[v][i] == 1 && visited[i] == false){
-					queue.add(i);
-					visited[i] = true;
-				}
-			}
-		}
-  }
-	```
-	```java
-	public static void dfs(int[][] graph, int v, boolean[] visited){
-		visited[v] = true;
+- ### BFS, DFS
+```java
+public static void bfs(int[][] graph, int start, boolean[] visited){
+	Queue<Integer> queue = new LinkedList<>();
+	queue.add(start);
+	visited[start] = true;
+	while(!queue.isEmpty()){
+		int v = queue.poll();
 		System.out.print(v + " ");
-
 		for(int i : graph[v]){
 			if(visited[i] == false){
-				dfs(graph, i, visited);
-			}
-		}
-  }
-
-  public static void dfs(int[][] graph, int v, boolean[] visited, int n){
-		visited[v] = true;
-		System.out.print(v + " ");
-
-		for(int i=1; i<=n; i++){
-			if(graph[v][i] == 1 && visited[i] == false){
-				dfs(graph, i, visited, n);
+				queue.add(i);
+				visited[i] = true;
 			}
 		}
 	}
-	```
+}
+public static void bfs(int[][] graph, int start, boolean[] visited, int n){
+	Queue<Integer> queue = new LinkedList<>();
+	queue.add(start);
+	visited[start] = true;
+	while(!queue.isEmpty()){
+		int v = queue.poll();
+		System.out.print(v + " ");
+		for(int i=1; i<=n; i++){
+			if(graph[v][i] == 1 && visited[i] == false){
+				queue.add(i);
+				visited[i] = true;
+			}
+		}
+	}
+}
+```
+```java
+public static void dfs(int[][] graph, int v, boolean[] visited){
+	visited[v] = true;
+	System.out.print(v + " ");
+	for(int i : graph[v]){
+		if(visited[i] == false){
+			dfs(graph, i, visited);
+		}
+	}
+}
+public static void dfs(int[][] graph, int v, boolean[] visited, int n){
+	visited[v] = true;
+	System.out.print(v + " ");
+	for(int i=1; i<=n; i++){
+		if(graph[v][i] == 1 && visited[i] == false){
+			dfs(graph, i, visited, n);
+		}
+	}
+}
+```
