@@ -1,4 +1,4 @@
-package src.grammer.recursive;
+package src.grammer.recursion;
 
 public class Factorial {
 
