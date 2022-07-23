@@ -95,6 +95,7 @@ public class iiii_NumberStreamPractive {
         
         // Stream.of
         Stream<String> strStream = Stream.of(strings);
+        // Stream<Integer> intStream2 = Stream.of(numbers); // Stream<int[]> 형 반환
         Stream<Integer> intStream = Stream.of(1,2,3,4,5,6);
         strStream.map(String::toUpperCase).forEach(System.out::println);
         intStream.forEach(System.out::println);

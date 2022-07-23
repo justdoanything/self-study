@@ -2,6 +2,13 @@
 - `Arrays.stream( ... )` : Array 👉 Stream
 - `Stream.of ( ... )` : Array 👉 Stream
 - `mapToInt` : Stream 👉 IntStream
+- `boxed()`
+  ```java
+  List<Integer> list2 = Arrays.stream(array)
+                                .boxed()
+                                .collect(Collectors.toList());
+  ```
+
 - IntStream의 `max()`, `min()`, `sum()`, `average()`
   ```java
   private intStream() {
