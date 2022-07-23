@@ -1,7 +1,7 @@
-package src.grammer.gcd;
+package src.grammer.euclid;
 
 // 최대공약수와 최소공배수
-public class gcd {
+public class Euclid {
     public static void main(String[] args) {
         int a = 36;
         int b = 16;
@@ -12,7 +12,7 @@ public class gcd {
         int[] input = {12, 6, 24, 36};
         System.out.println(solution(input)); 
 
-
+        System.err.println(gcd(21,23));        
         System.err.println(lcm(21,23));        
     }
     
