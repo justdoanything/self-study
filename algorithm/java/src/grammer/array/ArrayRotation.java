@@ -20,29 +20,29 @@ public class ArrayRotation {
     public static void main(String[] args){
         int N = 7;
         int[][]  map = new int[N][N];
-        int posX = 3;
-        int posY = 3;
-        int num = 3;
+        int posX = 0;
+        int posY = 0;
+        int num = 1;
 
         map[posX][posY] = 1;
         System.out.println("================ START");
         Array.printArray(map);
 
-        map = new int[N][N];
-        map[posX][posY] = 1;
-        move4Ways(map, posX, posY, num, N);
+        // map = new int[N][N];
+        // map[posX][posY] = 1;
+        // move4Ways(map, posX, posY, num, N);
 
         map = new int[N][N];
         map[posX][posY] = 1;
         move8Ways(map, posX, posY, num, N);
 
-        map = new int[N][N];
-        map[posX][posY] = 1;
-        move4WaysDirectly(map, posX, posY, num, N);
+        // map = new int[N][N];
+        // map[posX][posY] = 1;
+        // move4WaysDirectly(map, posX, posY, num, N);
 
-        map = new int[N][N];
-        map[posX][posY] = 1;
-        move8WaysDirectly(map, posX, posY, num, N);
+        // map = new int[N][N];
+        // map[posX][posY] = 1;
+        // move8WaysDirectly(map, posX, posY, num, N);
         
     }
 

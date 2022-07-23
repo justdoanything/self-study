@@ -60,9 +60,28 @@
 - 배열 탐색
   - 지그재그는 if(i%2==0) 분기분 사용
   - 영어 좌표 👉 숫자 좌표
-    - String posEng = "d4";
-    - int posEngX = posEng.charAt(0)-'a';
-    - int posEngY = posEng.charAt(1)-'0';
+    ```java
+    String posEng = "d4";
+    int posEngX = posEng.charAt(0)-'a';
+    int posEngY = posEng.charAt(1)-'0';
+    ```
+  - 대각선 검사 (N Queen 문제)
+    ```java
+    boolean isPossible(int c) {
+        //이전 열들을 탐색하면서 유망한 노드인지 확인
+        for(int i=1; i<c; i++)P{
+            // 상위 노드에서 같은 행에 퀸이 있는지 확인
+            if(col[i] == col[c]){
+                return false;
+            }
+            // 대각선 검사 : 상위 노드의 퀸과 현재 노드의 퀸이 가로/세로 거리가 같은지 검사
+            if(Math.abs(col[i] - col[c]) == Math.abs(i - c)){
+                return false;
+            }
+        }
+        return true;
+    }
+    ```
 
 ```java
 index = 1;
