@@ -1,3 +1,5 @@
+package src;
+
 public class nCr {
 
     private static int count = 0;

@@ -1,3 +1,5 @@
+package src;
+
 import java.util.LinkedList;
 
 // 순열과 조합
