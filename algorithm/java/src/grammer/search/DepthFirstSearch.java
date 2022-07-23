@@ -18,7 +18,7 @@ public class DepthFirstSearch {
         dfs(graph, 1, visited);
 
         System.out.println();
-        
+
         int n = 8;
         int[][] vertex = {
             {1,2,}
@@ -43,7 +43,7 @@ public class DepthFirstSearch {
         dfs(graph, 1, visited, n);
     }
 
-    private static void dfs(int[][] graph, int v, boolean[] visited){
+    public static void dfs(int[][] graph, int v, boolean[] visited){
         visited[v] = true;
         System.out.print(v + " ");
 
@@ -54,13 +54,14 @@ public class DepthFirstSearch {
         }
     }
 
-    private static void dfs(int[][] graph, int v, boolean[] visited, int n){
+    public static void dfs(int[][] graph, int v, boolean[] visited, int n){
         visited[v] = true;
         System.out.print(v + " ");
 
         for(int i=1; i<=n; i++){
-            if(graph[v][i] == 1 && visited[i] == false)
-            dfs(graph, i, visited, n);
+            if(graph[v][i] == 1 && visited[i] == false){
+                dfs(graph, i, visited, n);
+            }
         }
     }
 }

@@ -198,3 +198,66 @@ private static void move8Ways(int[][] map, int posX, int posY, int num, int N){
     return permutation(n, r) / factorial(r);
   }
   ```
+- BFS, DFS
+	```java
+	public static void bfs(int[][] graph, int start, boolean[] visited){
+		Queue<Integer> queue = new LinkedList<>();
+		queue.add(start);
+
+		visited[start] = true;
+
+		while(!queue.isEmpty()){
+			int v = queue.poll();
+			System.out.print(v + " ");
+
+			for(int i : graph[v]){
+				if(visited[i] == false){
+					queue.add(i);
+					visited[i] = true;
+				}
+			}
+		}
+  }
+
+  public static void bfs(int[][] graph, int start, boolean[] visited, int n){
+		Queue<Integer> queue = new LinkedList<>();
+		queue.add(start);
+
+		visited[start] = true;
+
+		while(!queue.isEmpty()){
+			int v = queue.poll();
+			System.out.print(v + " ");
+
+			for(int i=1; i<=n; i++){
+				if(graph[v][i] == 1 && visited[i] == false){
+					queue.add(i);
+					visited[i] = true;
+				}
+			}
+		}
+  }
+	```
+	```java
+	public static void dfs(int[][] graph, int v, boolean[] visited){
+		visited[v] = true;
+		System.out.print(v + " ");
+
+		for(int i : graph[v]){
+			if(visited[i] == false){
+				dfs(graph, i, visited);
+			}
+		}
+  }
+
+  public static void dfs(int[][] graph, int v, boolean[] visited, int n){
+		visited[v] = true;
+		System.out.print(v + " ");
+
+		for(int i=1; i<=n; i++){
+			if(graph[v][i] == 1 && visited[i] == false){
+				dfs(graph, i, visited, n);
+			}
+		}
+	}
+	```

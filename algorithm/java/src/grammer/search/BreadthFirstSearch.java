@@ -45,7 +45,7 @@ public class BreadthFirstSearch {
         bfs(graph, 1, visited, n);
     }
 
-    private static void bfs(int[][] graph, int start, boolean[] visited){
+    public static void bfs(int[][] graph, int start, boolean[] visited){
         Queue<Integer> queue = new LinkedList<>();
         queue.add(start);
 
@@ -64,7 +64,7 @@ public class BreadthFirstSearch {
         }
     }
 
-    private static void bfs(int[][] graph, int start, boolean[] visited, int n){
+    public static void bfs(int[][] graph, int start, boolean[] visited, int n){
         Queue<Integer> queue = new LinkedList<>();
         queue.add(start);
 
