@@ -1,6 +1,6 @@
 package src.solution.array;
 
-public class P02 {
+public class A02 {
     // 2차원 행렬이 있을 때, 원본 배열이랑 원본 배열을 왼쪽으로 180도 회전한 배열을 합치고 각 인덱스의 합을 10으로 나눈 배열을 생성하고 그 배열을 지그재그(왼쪽->오른쪽, 오른쪽->왼쪽)로 읽으면서 값들을 이어붙인 String을 반환해라.
     public static void main(String[] agrs) {
       int[][] data = {
