@@ -58,10 +58,12 @@ public class iv_CollectPractice {
         // joining
         System.out.println(menu.stream().map(Dish::getName).collect(Collectors.joining("/")));
 
-        // reduce를 이용한 값 비교
+        // reducing를 이용한 값 비교
         System.out.println(menu.stream().collect(Collectors.reducing((d1, d2) -> d1.getCalories() > d2.getCalories() ? d1 : d2)));
         System.out.println(menu.stream().reduce((d1, d2) -> d1.getCalories() > d2.getCalories() ? d1 : d2));
-        
-        
+
+        System.out.println(menu.stream().collect(Collectors.reducing(0, Dish::getCalories, Integer::sum)));
+
+        System.out.println(menu.stream().collect(Collectors.reducing(0, Dish::getCalories, Integer::sum)));
     }
 }
