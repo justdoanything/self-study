@@ -95,14 +95,21 @@ public class iiii_NumberStreamPractive {
         
         // Stream.of
         Stream<String> strStream = Stream.of(strings);
-        // Stream<Integer> intStream2 = Stream.of(numbers); // Stream<int[]> 형 반환
         Stream<Integer> intStream = Stream.of(1,2,3,4,5,6);
         strStream.map(String::toUpperCase).forEach(System.out::println);
         intStream.forEach(System.out::println);
         
         // Arrays.stream
-        System.out.println(Arrays.stream(numbers).average());
         Arrays.stream(strings).forEach(System.out::print);
+        System.out.println(Arrays.stream(numbers).average());
         System.out.println(Arrays.stream(numbers).sum());
+
+
+        Stream<int[]> exam1 = Stream.of(numbers); // Stream<int[]> 형 반환
+        Stream<Integer> exam2 = IntStream.of(numbers).boxed();
+        Stream<Integer> exam3 = Arrays.stream(numbers).boxed();
+        Stream.of(numbers).map(Arrays::stream).forEach(System.out::println);
+
+
     }   
 }
