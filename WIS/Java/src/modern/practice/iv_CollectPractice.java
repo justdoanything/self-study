@@ -42,11 +42,26 @@ public class iv_CollectPractice {
         // counting
         System.out.println(menu.stream().collect(Collectors.counting()));
         
+        // summingInt
+        System.out.println(menu.stream().collect(Collectors.summingInt(Dish::getCalories)));
+
+        // summarizingInt
+        System.out.println(menu.stream().collect(Collectors.summarizingInt(Dish::getCalories)));
+        System.out.println(menu.stream().collect(Collectors.summarizingInt(Dish::getCalories)).getSum());
+        System.out.println(menu.stream().collect(Collectors.summarizingInt(Dish::getCalories)).getMax());
+        System.out.println(menu.stream().collect(Collectors.summarizingInt(Dish::getCalories)).getAverage());
+
         // average
         System.out.println(menu.stream().collect(Collectors.averagingInt(Dish::getCalories)));
         System.out.println(menu.stream().collect(Collectors.averagingDouble(Dish::getCalories)));
         
         // joining
         System.out.println(menu.stream().map(Dish::getName).collect(Collectors.joining("/")));
+
+        // reduce를 이용한 값 비교
+        System.out.println(menu.stream().collect(Collectors.reducing((d1, d2) -> d1.getCalories() > d2.getCalories() ? d1 : d2)));
+        System.out.println(menu.stream().reduce((d1, d2) -> d1.getCalories() > d2.getCalories() ? d1 : d2));
+        
+        
     }
 }
