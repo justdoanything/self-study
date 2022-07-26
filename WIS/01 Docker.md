@@ -57,7 +57,7 @@ Docker
   - ECS, K8S 등을 사용해서 Container를 관리한다.
   - AWS Blud/Green 배포 정책을 사용하면 Zero-downtime 배포가 가능하고 DevOps가 가능하게 한다.
 
-<img width="716" alt="image" src="https://user-images.githubusercontent.com/21374902/180953952-b798c6f4-3202-45fa-88c5-523a1e0cf2cd.png">
+<img width="670" alt="image" src="https://user-images.githubusercontent.com/21374902/180954290-0cd4eb7c-40f7-423a-905c-22ef9e1690ca.png">
 
 ---
 2️⃣ Docker  
