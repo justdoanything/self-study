@@ -45,14 +45,19 @@ Docker
   - 기존에 구동 중이던 프로그램을 중단하고 새로 업로드한 프로그램을 구동시킨다.
   - 위의 작업들은 script를 사용해서 자동화해서 사용하기도 했다.
 
+<img width="593" alt="image" src="https://user-images.githubusercontent.com/21374902/180953820-2d3c50e1-1f52-4de5-87b8-4253d9860b04.png">
+
+
 - Docker 기반의 배포 방식
   - 주로 AWS, GCP 등 클라우드 환경과 같이 사용하며 배포 방식은 여러가지가 있다.
   - Gitlab runner, AWS ECR, ECS 기반으로 배포하는 형식은 아래와 같다.
-  - Gitlab 설정에 따라 master에 push를 하면 자동으로 Project를 build 한다.
+  - Gitlab 설정(gitlab-ci.yml)에 따라 master에 push를 하면 자동으로 Project를 build 한다.
   - Dockerfile 기준으로 image를 생성하고 docker image를 ECR로 옮긴다.
   - ECR에 있는 image 목록 중에서 1개를 선택해서 Docker Container를 생성한다. (배포)
   - ECS, K8S 등을 사용해서 Container를 관리한다.
   - AWS Blud/Green 배포 정책을 사용하면 Zero-downtime 배포가 가능하고 DevOps가 가능하게 한다.
+
+<img width="716" alt="image" src="https://user-images.githubusercontent.com/21374902/180953952-b798c6f4-3202-45fa-88c5-523a1e0cf2cd.png">
 
 ---
 2️⃣ Docker  
