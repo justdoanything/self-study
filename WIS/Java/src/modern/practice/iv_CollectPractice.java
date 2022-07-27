@@ -62,8 +62,8 @@ public class iv_CollectPractice {
         System.out.println(menu.stream().collect(Collectors.reducing((d1, d2) -> d1.getCalories() > d2.getCalories() ? d1 : d2)));
         System.out.println(menu.stream().reduce((d1, d2) -> d1.getCalories() > d2.getCalories() ? d1 : d2));
 
-        System.out.println(menu.stream().collect(Collectors.reducing(0, Dish::getCalories, Integer::sum)));
-
-        System.out.println(menu.stream().collect(Collectors.reducing(0, Dish::getCalories, Integer::sum)));
+        menu.stream().map(Dish::getCalories).reduce(Integer::sum).get();
+        menu.stream().mapToInt(Dish::getCalories).sum();
+        menu.stream().collect(Collectors.reducing(0, Dish::getCalories, Integer::sum));
     }
 }
