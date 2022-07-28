@@ -3,7 +3,10 @@
 - [ECS와 EC2](#aws-ecs-and-ec2)
 
 ---
+### 📖 AWS Certified Solutions Architect - Associate를 공부하면서 정리한 내용입니다.
+Reference : https://github.com/serithemage/AWSCertifiedSolutionsArchitectUnofficialStudyGuide
 
+---
 
 AWS ECS and EC2
 ===

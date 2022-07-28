@@ -193,6 +193,16 @@ private static void move8Ways(int[][] map, int posX, int posY, int num, int N){
 
 - ### 최대공약수(gcd) / 최대공배수(lcm)
 ```java
+// gcd
+BigInteger bigA = BigInteger.valueOf(a);
+BigInteger bigB = BigInteger.valueOf(b);
+        
+int gcd = bigA.gcd(bigB).intValue();
+
+// lcm
+int lcm = a*b / gcd;
+```
+```java
 // 최대공약수(gcd)
 private static int gcd(int a, int b){
   while(b != 0){
