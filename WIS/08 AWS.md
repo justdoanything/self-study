@@ -7,7 +7,121 @@
 Reference : https://github.com/serithemage/AWSCertifiedSolutionsArchitectUnofficialStudyGuide
 
 ---
+# 아키텍처에 따른 고려사항
+- ### `복원력`을 갖춘 아키텍처
+  - 멀티 티어 아키텍처
+  - 고가용성 및 내결함성 아키텍처
+  - AWS 서비스를 사용하여 결합 해제 메커니즘
+  - 적절한 복원력을 갖춘 스토리지 선택
+- ### `고성능` 아키텍처
+  - 워크로드를 위한 탄력적이고 확장 가능한 컴퓨팅 솔루션
+  - 워크로드를 위한 확장 가능한 고성능 스토리지 솔루션
+  - 워크로드를 위한 고성능 네트워킹 솔루션
+  - 워크로드를 위한 고성능 데이터베이스 솔루션
+- ### `안전한` 아키텍처
+  - AWS 리소스에 대한 보안 액세스 설계
+  - 보안 어플리케이션 계층 설계
+  - 적절한 데이터 보안 옵션 선택
+- ### `비용`에 최적화된 아키텍처
+  - 비용 효율적인 스토리지 솔루션
+  - 비용 효율적인 컴퓨팅 및 데이터베이스 솔루션
+  - 비용에 최적화된 네트워크 솔루션
 
+# AWS Keywords
+<details>
+
+  <summary>click to collapse</summary>
+  
+  ### AWS 기본 기능
+  - 컴퓨팅
+  - 비용 관리
+  - 데이터베이스
+  - 재해 복구
+  - 고가용성
+  - 관리 및 거버넌스
+  - 마이크로서비스 및 구성 요소 결합 해제
+  - 마이그레이션 및 데이터 전송
+  - 네트워킹, 연결 및 콘텐츠 전송
+  - 보안
+  - 서버리스 설계 원칙
+  - 스토리지
+  ### AWS 서비스 및 기능
+  - ##### 분석
+    - Amazon Athena
+    - Amazon ES(Amazon Elasticsearch Service)
+    - Amazon EMR
+    - AWS Glue
+    - Amazon Kinesis
+    - Amazon QuickSight
+  - ##### AWS 결제 및 비용 관리:
+    - AWS Budgets
+    - Cost Explorer
+  - ##### 애플리케이션 통합
+    - Amazon SNS(Amazon Simple Notification Service)
+    - Amazon SQS(Amazon Simple Queue Service)
+  - ##### 컴퓨팅
+    - Amazon EC2
+    - AWS Elastic Beanstalk
+    - Amazon ECS(Amazon Elastic Container Service)
+    - Amazon EKS(Amazon Elastic Kubernetes Service)
+    - Elastic Load Balancing
+    - AWS Fargate
+    - AWS Lambda
+  - ##### 데이터베이스
+    - Amazon Aurora
+    - Amazon DynamoDB
+    - Amazon ElastiCache
+    - Amazon RDS
+    - Amazon Redshift
+  - ##### 관리 및 거버넌스
+    - AWS Auto Scaling
+    - AWS Backup
+    - AWS CloudFormation
+    - AWS CloudTrail
+    - Amazon CloudWatch
+    - AWS Config
+    - Amazon EventBridge(Amazon CloudWatch Events)
+    - AWS Organizations
+    - AWS Resource Access ManagerAWS Systems Manager
+    - AWS Trusted Advisor
+  - ##### 마이그레이션 및 전송
+    - AWS DMS(AWS Database Migration Service)
+    - AWS DataSync
+    - AWS Migration Hub
+    - AWS SMS(AWS Server Migration Service)
+    - AWS Snowball
+    - AWS Transfer Family
+  - ##### 네트워킹 및 콘텐츠 전송
+    - Amazon API Gateway
+    - Amazon CloudFront
+    - AWS Direct Connect
+    - AWS Global Accelerator
+    - Amazon Route 53
+    - AWS Transit Gateway
+    - Amazon VPC(및 관련 기능)
+  - #### 보안, 자격 증명 및 규정 준수
+    - ACM(AWS Certificate Manager)
+    - AWS Directory Service
+    - Amazon GuardDuty
+    - AWS IAM(Identity and Access Management)
+    - Amazon Inspector
+    - AWS KMS(AWS Key Management Service)
+    - Amazon Macie
+    - AWS Secrets Manager
+    - AWS Shield
+    - AWS Single Sign-On
+    - AWS WAF
+  - #### 스토리지
+    - Amazon EBS(Amazon Elastic Block Store)
+    - Amazon EFS(Amazon Elastic File System)
+    - Amazon FSx
+    - Amazon S3
+    - Amazon S3 Glacier
+    - AWS Storage Gateway
+</details>
+
+
+---
 AWS ECS and EC2
 ===
 - #### ECS (Elastic Container Service)
@@ -39,4 +153,5 @@ AWS ECS and EC2
 - Reference
   - https://docs.aws.amazon.com/ko_kr/AmazonECS/latest/developerguide/Welcome.html
   - https://docs.aws.amazon.com/ko_kr/AWSEC2/latest/UserGuide/concepts.html
+  - https://d1.awsstatic.com/training-and-certification/docs-sa-assoc/AWS-Certified-Solutions-Architect-Associate_Exam-Guide.pdf
 ---
