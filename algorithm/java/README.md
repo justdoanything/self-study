@@ -2,7 +2,7 @@
 - `Arrays.stream( ... )` : Array 👉 Stream
 - `Stream.of ( ... )` : Array 👉 Stream
 - `mapToInt` : Stream 👉 IntStream
-- `boxed()`
+- `boxed()` : IntStream 👉 Stream<Integer>
   ```java
   List<Integer> list2 = Arrays.stream(array)
                                 .boxed()
@@ -69,8 +69,8 @@
   - 영어 좌표 👉 숫자 좌표
     ```java
     String posEng = "d4";
-    int posEngX = posEng.charAt(0)-'a';
-    int posEngY = posEng.charAt(1)-'0';
+    int posEngX = posEng.charAt(0)-'a';  // 3
+    int posEngY = posEng.charAt(1)-'0';  // 4
     ```
   - 대각선 검사 (N Queen 문제)
     ```java
