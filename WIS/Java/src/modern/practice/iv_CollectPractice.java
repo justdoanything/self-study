@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import modern.Dish;
@@ -92,5 +93,11 @@ public class iv_CollectPractice {
         System.out.println("====================분할 함수");
         menu.stream().collect(Collectors.partitioningBy(Dish::isVegetarian)).forEach((key, value)-> System.out.println(key + " : " + value));
         
+        // partitioningBy - filter를 사용한 비슷한 결과
+        menu.stream().filter(Dish::isVegetarian).collect(Collectors.toList()).forEach(dish -> System.out.println(dish.getName()));
+
+        // partitioningBy - collectingAndThen
+        menu.stream().collect(Collectors.partitioningBy(Dish::isVegetarian, Collectors.collectingAndThen(Collectors.maxBy(Comparator.comparingInt(Dish::getCalories)), Optional::get))).forEach((key, value) -> System.out.println(key + " : " + value.getName()));
+
     }
 }
