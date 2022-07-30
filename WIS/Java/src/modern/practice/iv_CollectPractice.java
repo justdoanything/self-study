@@ -1,6 +1,7 @@
 package modern.practice;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -65,5 +66,18 @@ public class iv_CollectPractice {
         menu.stream().map(Dish::getCalories).reduce(Integer::sum).get();
         menu.stream().mapToInt(Dish::getCalories).sum();
         menu.stream().collect(Collectors.reducing(0, Dish::getCalories, Integer::sum));
+
+        // groupby
+        menu.stream().collect(
+            Collectors.groupingBy(dish -> {
+                if(dish.getCalories() <= 400) return "DIET";
+                else if(dish.getCalories() <= 700) return "NORMAL";
+                else return "FAT";
+            })
+        ).forEach((key, value) -> System.out.println(key + " : " + value));
+
+        System.out.println(menu.stream().collect(Collectors.groupingBy(Dish::getType, Collectors.counting())));
+        menu.stream().collect(Collectors.groupingBy(Dish::getType, Collectors.maxBy(Comparator.comparingInt(Dish::getCalories)))).forEach((key, value)-> System.out.println(key + " : " + value.get().getName() + " -> " + value.get().getCalories()));
+        
     }
 }
