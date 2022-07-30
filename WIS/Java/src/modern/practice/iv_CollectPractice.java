@@ -2,6 +2,7 @@ package modern.practice;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -67,7 +68,7 @@ public class iv_CollectPractice {
         menu.stream().mapToInt(Dish::getCalories).sum();
         menu.stream().collect(Collectors.reducing(0, Dish::getCalories, Integer::sum));
 
-        // groupby
+        // groupingBy
         menu.stream().collect(
             Collectors.groupingBy(dish -> {
                 if(dish.getCalories() <= 400) return "DIET";
@@ -76,8 +77,20 @@ public class iv_CollectPractice {
             })
         ).forEach((key, value) -> System.out.println(key + " : " + value));
 
+        // groupingBy - counting
         System.out.println(menu.stream().collect(Collectors.groupingBy(Dish::getType, Collectors.counting())));
+        
+        // groupingBy - toCollection
         menu.stream().collect(Collectors.groupingBy(Dish::getType, Collectors.maxBy(Comparator.comparingInt(Dish::getCalories)))).forEach((key, value)-> System.out.println(key + " : " + value.get().getName() + " -> " + value.get().getCalories()));
+        menu.stream().collect(Collectors.groupingBy(Dish::getType, Collectors.mapping(dish -> {
+            if(dish.getCalories() <= 480) return "DIET";
+            else if(dish.getCalories() <= 700) return "NORMAL";
+            else return "FAT";
+        }, Collectors.toCollection(HashSet::new)))).forEach((key, value)-> System.out.println(key + " : " + value));
+
+        // partitioningBy - 분할 함수
+        System.out.println("====================분할 함수");
+        menu.stream().collect(Collectors.partitioningBy(Dish::isVegetarian)).forEach((key, value)-> System.out.println(key + " : " + value));
         
     }
 }
