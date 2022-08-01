@@ -98,6 +98,5 @@ public class iv_CollectPractice {
 
         // partitioningBy - collectingAndThen
         menu.stream().collect(Collectors.partitioningBy(Dish::isVegetarian, Collectors.collectingAndThen(Collectors.maxBy(Comparator.comparingInt(Dish::getCalories)), Optional::get))).forEach((key, value) -> System.out.println(key + " : " + value.getName()));
-
     }
 }
