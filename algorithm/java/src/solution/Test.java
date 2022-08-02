@@ -1,6 +1,8 @@
 package src.solution;
 
-public class P01 {
+import java.util.stream.Stream;
+
+public class Test {
     public static void main(String[] agrs) {
         String posEng = "d4";
         int posEngX = posEng.charAt(0)-'a';
@@ -17,5 +19,13 @@ public class P01 {
             }
         }).forEach(System.out::println);
 
+        int num = 8;
+        String[] array = String.format("%05d", Integer.parseInt(Integer.toBinaryString(num))).split("");
+        
+        Stream.of(array).forEach(System.out::print);
+
+        System.out.println(Math.abs(-4));
+        System.out.println(Math.sqrt(25));
+        System.out.println(Math.sqrt(-25));
     }
 }
