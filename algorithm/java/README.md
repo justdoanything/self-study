@@ -1,4 +1,8 @@
 ## 소소한 문법
+- `Math`
+  ```java
+  Math.pow(2, 2); // 제곱
+  ```
 - `Arrays.stream( ... )` : Array 👉 Stream
 - `Stream.of ( ... )` : Array 👉 Stream
 - `mapToInt` : Stream 👉 IntStream
