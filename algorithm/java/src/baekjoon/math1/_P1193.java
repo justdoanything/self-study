@@ -2,7 +2,7 @@ package src.baekjoon.math1;
 
 import java.util.Scanner;
 
-public class P1193 {
+public class _P1193 {
     
     public static void main(String[] args){
         Scanner scanner = new Scanner(System.in);
