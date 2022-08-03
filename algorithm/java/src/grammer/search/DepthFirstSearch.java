@@ -1,8 +1,12 @@
 package src.grammer.search;
 
+import src.grammer.array.Array;
+
 public class DepthFirstSearch {
     
     public static void main(String[] args) {
+        
+        int start = 2;
         int[][] graph = {
             {}
             ,{2,7}
@@ -15,13 +19,13 @@ public class DepthFirstSearch {
             ,{2,6,7}
         };
         boolean[] visited = new boolean[graph.length];
-        dfs(graph, 1, visited);
+        dfs(graph, start, visited);
 
         System.out.println();
 
         int n = 8;
         int[][] vertex = {
-            {1,2,}
+            {1,2}
             ,{1,7}
             ,{2,8}
             ,{7,8}
@@ -40,7 +44,8 @@ public class DepthFirstSearch {
             graph[vertex[i][0]][vertex[i][1]] = 1;
             graph[vertex[i][1]][vertex[i][0]] = 1;
         }
-        dfs(graph, 1, visited, n);
+        Array.printArray(graph);
+        dfs(graph, start, visited, n);
     }
 
     public static void dfs(int[][] graph, int v, boolean[] visited){

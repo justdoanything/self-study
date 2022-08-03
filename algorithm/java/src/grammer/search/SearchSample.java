@@ -1,6 +1,6 @@
 package src.grammer.search;
 
-public class Search {
+public class SearchSample {
     
     public static void main(String[] args){
         int[][] graph = {{},{2,7},{1,8},{4,5,7},{4,6},{3,6,7},{4,5,8},{1,3,5,8},{2,6,7}};
