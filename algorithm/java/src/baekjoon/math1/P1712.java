@@ -15,10 +15,9 @@ public class P1712 {
         B = Integer.parseInt(input[1]);
         C = Integer.parseInt(input[2]);
 
-        if(B>C)
+        if(B>C || C==B)
             System.out.println("-1");
-        else{
+        else
             System.out.println((A / (C-B)) + 1);
-        }
     }
 }
