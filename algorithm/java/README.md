@@ -1,11 +1,16 @@
 ## 소소한 문법
-- `Math`
+- ### 기본
+  - 아스키코드
+	```java
+	(int)input.charAt(0);
+	```
+  - `Math`
   ```java
   Math.pow(2, 2); // 제곱
   Math.abs(-4);   // 절대값
   Math.sqrt(25);  // 제곱근
   ```
-- 2진법
+  - 2진법
   ```java
   String b1 = Integer.toBinaryString(8); // 10진수 -> 2진수
   String b2 = Integer.toOctalString(8); // 10진수 -> 8진수
@@ -15,77 +20,77 @@
   int t2 = Integer.parseInt(a2, 8);  // 8진수 -> 10진수
   int t3 = Integer.parseInt(a3, 16); // 16진수 -> 10진수
   ```
-- 영어 좌표 👉 숫자 좌표
-    ```java
-    String posEng = "d4";
-    int posEngX = posEng.charAt(0)-'a';  // 3
-    int posEngY = posEng.charAt(1)-'0';  // 4
-    ```
+  - 영어 좌표 👉 숫자 좌표
+  ```java
+  String posEng = "d4";
+  int posEngX = posEng.charAt(0)-'a';  // 3
+  int posEngY = posEng.charAt(1)-'0';  // 4
+  ```
 - ### Stream
-    - `Arrays.stream( ... )` : Array 👉 Stream
-    - `Stream.of ( ... )` : Array 👉 Stream
-    - `mapToInt` : Stream 👉 IntStream
-    - `boxed()` : IntStream 👉 Stream<Integer>
-    ```java
-    List<Integer> list2 = Arrays.stream(array)
-                                    .boxed()
-                                    .collect(Collectors.toList());
-    ```
+  - `Arrays.stream( ... )` : Array 👉 Stream
+  - `Stream.of ( ... )` : Array 👉 Stream
+  - `mapToInt` : Stream 👉 IntStream
+  - `boxed()` : IntStream 👉 Stream<Integer>
+  ```java
+  List<Integer> list2 = Arrays.stream(array)
+                                  .boxed()
+                                  .collect(Collectors.toList());
+  ```
 
-    - IntStream의 `max()`, `min()`, `sum()`, `average()`
-    ```java
-    private intStream() {
-        transactions.stream()
-                            .mapToInt(Transaction::getValue)
-                            .min()
-                            .ifPresent(System.out::println);
-        }
-        ```
-        
-    - `sort()` and `sorted()`
-        ```java
-        private listSort() {
-            inventory.sort((a1, a2) -> a1.getWeight().compareTo(a2.getWeight()));
-            inventory.sort(Comparator.comparing(Apple::getWeight)
-                                                        .reversed()
-                                                        .thenComparing(Apple::getCountry));
-            stringList.sort((String str1, String str2) -> {
-                if(str2.contains("Bad") || str2.contains("Awful"))
-                    return 1;
-                else if(!str1.contains("Bad") && !str1.contains("Awful") && !str2.contains("Bad") && !str2.contains("Awful"))
-                    return 0;
-                else
-                    return -1;
-            });
-        }
-        ```
-        ```java
-        private streamSorted() {
-            // 2011년에 일어난 모든 트랜잭션을 찾아 값을 오름차순으로 정리하시오.
-            System.out.println("2011년에 일어난 모든 트랜잭션을 찾아 값을 오름차순으로 정리하시오.");
-            transactions.stream()
-                            .filter(t -> t.getYear() == 2011)
-                            .sorted(Comparator.comparing(Transaction::getValue))
-                            .forEach(System.out::println);
-            
-            // 케임브리지에서 근무하는 모든 거래자를 찾아서 이름순으로 정렬하시오.
-            System.out.println("\n케임브리지에서 근무하는 모든 거래자를 찾아서 이름순으로 정렬하시오.");
-            transactions.stream()
-                            .map(Transaction::getTrader)
-                            .filter(t -> t.getCity().equals("Cambridge"))
-                            .distinct()
-                            .sorted(Comparator.comparing(Trader::getName))
-                            .forEach(System.out::println);
+  - IntStream의 `max()`, `min()`, `sum()`, `average()`
+  ```java
+  private intStream() {
+      transactions.stream()
+                          .mapToInt(Transaction::getValue)
+                          .min()
+                          .ifPresent(System.out::println);
+      }
+  ```
+      
+  - `sort()` and `sorted()`
+  ```java
+  private listSort() {
+      inventory.sort((a1, a2) -> a1.getWeight().compareTo(a2.getWeight()));
+      inventory.sort(Comparator.comparing(Apple::getWeight)
+                                                  .reversed()
+                                                  .thenComparing(Apple::getCountry));
+      stringList.sort((String str1, String str2) -> {
+          if(str2.contains("Bad") || str2.contains("Awful"))
+              return 1;
+          else if(!str1.contains("Bad") && !str1.contains("Awful") && !str2.contains("Bad") && !str2.contains("Awful"))
+              return 0;
+          else
+              return -1;
+      });
+  }
+  ```
+  ```java
+  private streamSorted() {
+      // 2011년에 일어난 모든 트랜잭션을 찾아 값을 오름차순으로 정리하시오.
+      System.out.println("2011년에 일어난 모든 트랜잭션을 찾아 값을 오름차순으로 정리하시오.");
+      transactions.stream()
+                      .filter(t -> t.getYear() == 2011)
+                      .sorted(Comparator.comparing(Transaction::getValue))
+                      .forEach(System.out::println);
+      
+      // 케임브리지에서 근무하는 모든 거래자를 찾아서 이름순으로 정렬하시오.
+      System.out.println("\n케임브리지에서 근무하는 모든 거래자를 찾아서 이름순으로 정렬하시오.");
+      transactions.stream()
+                      .map(Transaction::getTrader)
+                      .filter(t -> t.getCity().equals("Cambridge"))
+                      .distinct()
+                      .sorted(Comparator.comparing(Trader::getName))
+                      .forEach(System.out::println);
 
-            // 모든 거래자의 이름을 알파뱃순으로 정렬해서 반환하시오.
-            System.out.println("\n모든 거래자의 이름을 알파뱃순으로 정렬해서 반환하시오.");
-            transactions.stream()
-                            .map(t -> t.getTrader().getName())
-                            .sorted(Comparator.reverseOrder())
-                            .distinct()
-                            .forEach(System.out::println);
-        }
-        ```
+      // 모든 거래자의 이름을 알파뱃순으로 정렬해서 반환하시오.
+      System.out.println("\n모든 거래자의 이름을 알파뱃순으로 정렬해서 반환하시오.");
+      transactions.stream()
+                      .map(t -> t.getTrader().getName())
+                      .sorted(Comparator.reverseOrder())
+                      .distinct()
+                      .forEach(System.out::println);
+  }
+  ```
 ## 소소한 공식
 - ### 메모
   - 지그재그(ㄹ자) 탐색은 if(i%2==0) 분기분 사용

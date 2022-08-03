@@ -6,6 +6,62 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Launch P1193",
+      "request": "launch",
+      "mainClass": "src.baekjoon.math1.P1193",
+      "projectName": "self-study_8fb7738a"
+    },
+    {
+      "type": "java",
+      "name": "Launch P2292",
+      "request": "launch",
+      "mainClass": "src.baekjoon.math1.P2292",
+      "projectName": "self-study_8fb7738a"
+    },
+    {
+      "type": "java",
+      "name": "Launch P1712",
+      "request": "launch",
+      "mainClass": "src.baekjoon.math1.P1712",
+      "projectName": "self-study_8fb7738a"
+    },
+    {
+      "type": "java",
+      "name": "Launch P2675",
+      "request": "launch",
+      "mainClass": "src.baekjoon.P2675",
+      "projectName": "self-study_8fb7738a"
+    },
+    {
+      "type": "java",
+      "name": "Launch P10809",
+      "request": "launch",
+      "mainClass": "src.baekjoon.P10809",
+      "projectName": "self-study_8fb7738a"
+    },
+    {
+      "type": "java",
+      "name": "Launch P11720",
+      "request": "launch",
+      "mainClass": "src.baekjoon.P11720",
+      "projectName": "self-study_8fb7738a"
+    },
+    {
+      "type": "java",
+      "name": "Launch P11654",
+      "request": "launch",
+      "mainClass": "src.baekjoon.P11654",
+      "projectName": "self-study_8fb7738a"
+    },
+    {
+      "type": "java",
+      "name": "Launch P1157",
+      "request": "launch",
+      "mainClass": "src.baekjoon.P1157",
+      "projectName": "self-study_8fb7738a"
+    },
+    {
+      "type": "java",
       "name": "Launch P1316",
       "request": "launch",
       "mainClass": "src.baekjoon.P1316",
