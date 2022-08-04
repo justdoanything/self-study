@@ -27,5 +27,9 @@ public class Test {
         System.out.println(Math.abs(-4));
         System.out.println(Math.sqrt(25));
         System.out.println(Math.sqrt(-25));
+
+        System.out.println(Math.floor(2.4));
+        System.out.println(Math.ceil(2.4));
+        System.out.println(Math.round(2.4));
     }
 }

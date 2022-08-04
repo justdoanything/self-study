@@ -6,6 +6,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Launch P2869",
+      "request": "launch",
+      "mainClass": "src.baekjoon.math1.P2869",
+      "projectName": "self-study_8fb7738a"
+    },
+    {
+      "type": "java",
       "name": "Launch P1193",
       "request": "launch",
       "mainClass": "src.baekjoon.math1.P1193",

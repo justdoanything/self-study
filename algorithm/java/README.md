@@ -9,6 +9,10 @@
   Math.pow(2, 2); // 제곱
   Math.abs(-4);   // 절대값
   Math.sqrt(25);  // 제곱근
+
+  Math.floor(2.4); // 버림
+  Math.ceil(2.4);  // 올림
+  Math.round(2.4); // 반올림
   ```
   - 2진법
   ```java
@@ -25,6 +29,35 @@
   String posEng = "d4";
   int posEngX = posEng.charAt(0)-'a';  // 3
   int posEngY = posEng.charAt(1)-'0';  // 4
+  ```
+
+  - 4방향, 8방향 탐색
+  ```java
+  int[] dx = {-1, 1, 0, 0};
+  int[] dy = {0, 0, -1, 1};
+  for(int depth=1; depth<=num; depth++){
+    for(int i=0; i<4; i++){
+      int nextX = posX + dx[i]*depth;
+      int nextY = posY + dy[i]*depth;
+      if(nextX >= 0 && nextX < N && nextY >= 0 && nextY < N){
+        map[nextX][nextY] = 1;
+      }
+    }
+  }
+  ```
+  ```java
+  int[] dx = { -1, -1, 0, 1, 1, 1, 0, -1};
+  int[] dy = { 0, 1, 1, 1, 0, -1, -1, -1};
+  System.out.println("================ 상하좌우대각선");
+  for(int depth=1; depth<=num; depth++){
+    for(int i=0; i<8; i++){
+      int nextX = posX + dx[i]*depth;
+      int nextY = posY + dy[i]*depth;
+      if(nextX >= 0 && nextX < N && nextY >= 0 && nextY < N){
+        map[nextX][nextY] = 1;
+      }
+    }
+  }
   ```
 - ### Stream
   - `Arrays.stream( ... )` : Array 👉 Stream
