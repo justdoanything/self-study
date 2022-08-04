@@ -6,6 +6,27 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Launch P10757",
+      "request": "launch",
+      "mainClass": "src.baekjoon.math1.P10757",
+      "projectName": "self-study_8fb7738a"
+    },
+    {
+      "type": "java",
+      "name": "Launch P2839",
+      "request": "launch",
+      "mainClass": "src.baekjoon.math1.P2839",
+      "projectName": "self-study_8fb7738a"
+    },
+    {
+      "type": "java",
+      "name": "Launch P2775",
+      "request": "launch",
+      "mainClass": "src.baekjoon.math1.P2775",
+      "projectName": "self-study_8fb7738a"
+    },
+    {
+      "type": "java",
       "name": "Launch _P10250",
       "request": "launch",
       "mainClass": "src.baekjoon.math1._P10250",
