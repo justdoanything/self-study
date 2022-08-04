@@ -6,6 +6,41 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Launch _P10250",
+      "request": "launch",
+      "mainClass": "src.baekjoon.math1._P10250",
+      "projectName": "self-study_8fb7738a"
+    },
+    {
+      "type": "java",
+      "name": "Launch P2675",
+      "request": "launch",
+      "mainClass": "src.baekjoon.string.P2675",
+      "projectName": "self-study_8fb7738a"
+    },
+    {
+      "type": "java",
+      "name": "Launch P1316",
+      "request": "launch",
+      "mainClass": "src.baekjoon.string.P1316",
+      "projectName": "self-study_8fb7738a"
+    },
+    {
+      "type": "java",
+      "name": "Launch P10250",
+      "request": "launch",
+      "mainClass": "src.baekjoon.math1.P10250",
+      "projectName": "self-study_8fb7738a"
+    },
+    {
+      "type": "java",
+      "name": "Launch Main",
+      "request": "launch",
+      "mainClass": "src.baekjoon.math1.Main",
+      "projectName": "self-study_8fb7738a"
+    },
+    {
+      "type": "java",
       "name": "Launch P2869",
       "request": "launch",
       "mainClass": "src.baekjoon.math1.P2869",

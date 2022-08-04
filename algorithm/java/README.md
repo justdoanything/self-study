@@ -1,9 +1,15 @@
 ## 소소한 문법
+- `Scanner` 대신 `BufferedReader`를 사용하자
+  ```java
+  BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+  String input = br.readLine();
+  ```
+
 - ### 기본
   - 아스키코드
-	```java
+  ```java
 	(int)input.charAt(0);
-	```
+  ```
   - `Math`
   ```java
   Math.pow(2, 2); // 제곱
