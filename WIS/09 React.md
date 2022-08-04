@@ -458,7 +458,7 @@ fetch("https://url", {
 
 ### Practice Code
 
-- [Repository : self-study/self-study/do-react](https://github.com/justdoanything/self-study/tree/main/self-study/do-react)
+- [Repository : self-study/self-study/do-react](https://github.com/justdoanything/self-study/tree/main/WIS/do-react)
 
 ---
 
