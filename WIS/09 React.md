@@ -508,14 +508,58 @@ export default function RequestModal({
   }, [data]);
 
   return (
-
+    ...
+    <TextField
+      variant="outlined"
+      id="description"
+      margin="normal"
+      error={!isVaild}
+      helperText={isValid ? '' : errorMessage}
+      fullWidth
+      autoFocus
+      value={userInput}
+      onChange={(e) => {
+        setUserInput(e.target.value);
+        checkUserInput(e.target.value);
+      }}
+    />
+    ...
   )
 
 }
 ```
 
-# AutoComplete
+# Autocomplete
 ```js
+...
+const filter = createFilterOptions<Team>();
+
+return (
+  ...
+  <Autocomplete
+    id="combobox"
+    options={data.team}
+    getOptionLabel={(option)=>option.name || ''}
+    value={data.team.filter((team) => team === member.team?.name) || ''}
+    renderInput={(params) => <TextField { ...params} label="팀" />}
+    sx={{width: 300}}
+    disabled={isTeam ? true : false}
+    filterOptions={(options, params) => {
+      const filtered = filter(options, params);
+
+      if(params.inputValue !== '' && !data.team.map((team) => team.name).includes(params.inputValue)){
+        filtered.push({
+          // new Team props
+          name: `Add "${params.inputValue}"`,
+          avtivated: true,
+        });
+      }
+      return filtered;
+    }}
+  />
+
+  ...
+)
 
 ```
 
