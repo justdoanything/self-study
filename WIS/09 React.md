@@ -456,6 +456,70 @@ fetch("https://url", {
   }
   ```
 
+# Component 제어
+- Modal을 호출하는 Main Component에서 데이터값 뿐만 아니라 state 함수를 같이 넘겨서 사용한다.
+- Modal은 부모의 state를 사용해서 부모에서 선언해놓은 snackbar component를 제어하고 사용한다.
+```js
+import RequestModal from './RequestModal';
+
+return(
+  ...
+  <RequestModal 
+    isModelOpen={isModelOpen}
+    handleModelClose={handleModelClose}
+    data={data}
+    setSnackBarMessage={setSnackBarMessage}
+  />
+  ...
+)
+```
+```js
+interface RequestModalProps {
+  isModelOpen: boolean;
+  handleModelClose: () => void;
+  data: string[];
+  setSnackBarMessage: (isSuccess: boolean, message: string) => void;
+}
+
+export default function RequestModal({
+  isModelOpen,
+  handleModelClose,
+  data,
+  setSnackBarMessage
+}: RequestModalProps): React.ReactElement {
+  const style = {
+    position: 'absolute' as const,
+    overflow: 'scroll',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '80%',
+    maxWidth: 500,
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 4,
+  };
+
+  const [userInput, setUserInput] = userState<string>('');
+  ...
+
+  userEffect(()=>{
+    setUserInput(data[0]);
+  }, [data]);
+
+  return (
+
+  )
+
+}
+```
+
+# AutoComplete
+```js
+
+```
+
+
 ### Practice Code
 
 - [Repository : self-study/self-study/do-react](https://github.com/justdoanything/self-study/tree/main/WIS/do-react)
