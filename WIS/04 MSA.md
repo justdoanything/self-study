@@ -284,6 +284,14 @@ MSA
           service-url:
             defaultZone: http://127.0.0.1:8761/eureka #Eureka Server 주소 입력
       ```
+    - ⭐️ Eureka Client에서 `server.port = 0` 이면 사용 가능한 port를 랜덤하게 지정할 수 있다.
+      - 하지만 Eureka Server는 Client를 `{host}`:`{서비스이름}`:`{포트}`로 구분하기 1개의 서비스만 보이게됨
+      - 이를 방지하기 위해서 아래 코드를 사용하면 된다.
+        ```yaml
+        eureka:
+          instance:
+            instanceId: ${spring.cloud.client.hostname}:${spring.application.instance_id:${random.value}}
+        ```
     - Eureka를 사용하면 Ribbon 의존성과 설정 항목을 삭제해야함.
     - Eureka Server에 Client를 연결한 화면
       <img width="1717" alt="image" src="https://user-images.githubusercontent.com/21374902/175874191-0292b9ec-d544-45c3-b515-f1b29cd86d7c.png">
