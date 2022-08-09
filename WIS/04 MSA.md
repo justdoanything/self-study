@@ -347,6 +347,17 @@ MSA
     - Client은 Eureka Server에 client로서 등록되고 Application ID 값을 부여 받는다.
     - Application ID은 Client의 `spring.application.name` 값과 동일하다.
     - Gateway에 routes를 설정할 때 `uri: lb://FDK`을 설정하는데 Eureka에서 Application ID 값과 `lb://` 뒤에 있는 값을 매핑해서 라우팅을 해주게 된다.
+  - Gateway를 통해서 Micro Service로 연결될 때 service name을 통해서 연결되게 되는데 실제 Micro Service의 URL과는 다르기 때문에 404 에러가 발생한다.
+    - `RewritePath`를 추가해서 사용해야 한다.
+    ```yml
+    - id: sample-service        #routing에 사용할 ID
+      url: lb://sample-service  #[load balancing]://[eureka에 등록한 서비스]
+      predicates:
+        - Path= /sample/service/** #[api gateway 주소 뒤에 올 서비스명]
+      filters:
+        - RemoveRequestHeader=Cookie
+        - RewritePath=/user-service/(?<segment>.*),/$\{segment}
+    ```
 
 ---
 
