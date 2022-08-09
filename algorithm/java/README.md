@@ -30,6 +30,13 @@
   int t2 = Integer.parseInt(a2, 8);  // 8진수 -> 10진수
   int t3 = Integer.parseInt(a3, 16); // 16진수 -> 10진수
   ```
+  - 소수 반별
+  ```java
+  private static boolean isPrime(int value){
+    int root = (int)Math.sqrt((double) value);
+    return IntStream.rangeClosed(2, root).noneMatch(i -> value % i == 0);
+  }
+  ```
   - 영어 좌표 👉 숫자 좌표
   ```java
   String posEng = "d4";

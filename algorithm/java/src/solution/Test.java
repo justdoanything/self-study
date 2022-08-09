@@ -1,5 +1,6 @@
 package src.solution;
 
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 public class Test {
@@ -11,7 +12,7 @@ public class Test {
         System.out.println(posEngX);
         System.out.println(posEngY);
 
-        posEng.lines().map(i -> {
+        Arrays.stream(posEng.split("")).map(i -> {
             if(i instanceof String){
                 return i.charAt(0)-'a';
             }else{
