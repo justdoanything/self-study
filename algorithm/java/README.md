@@ -6,9 +6,11 @@
   ```
 
 - ### 기본
-  - 아스키코드
+  - String.charAt
   ```java
-	(int)input.charAt(0);
+	(int)input.charAt(0);   // 아스키코드
+    input.charAt(0) >= 'a' && input.charAt(0) <= 'z'
+    input.charAt(0) >= 'A' && input.charAt(0) <= 'Z'
   ```
   - `Math`
   ```java
@@ -46,28 +48,37 @@
 
   - 4방향, 8방향 탐색
   ```java
-  int[] dx = {-1, 1, 0, 0};
-  int[] dy = {0, 0, -1, 1};
-  for(int depth=1; depth<=num; depth++){
-    for(int i=0; i<4; i++){
-      int nextX = posX + dx[i]*depth;
-      int nextY = posY + dy[i]*depth;
-      if(nextX >= 0 && nextX < N && nextY >= 0 && nextY < N){
-        map[nextX][nextY] = 1;
+  private static void move4Ways(int[][] map, int x, int y, int depth){
+    int[] dx = {-1, 1, 0, 0};
+    int[] dy = {0, 0, -1, 1};
+
+    map[x][y] = 1;
+    for(int d=1; d<=depth; d++){
+      for(int i=0; i<4; i++){
+        int nextX = x + dx[i]*d;
+        int nextY = y + dy[i]*d;
+
+        if(nextX >=0 && nextX < map.length && nextY >= 0 && nextY < map[0].length){
+          map[nextX][nextY] = 1;
+        }
       }
     }
   }
   ```
   ```java
-  int[] dx = { -1, -1, 0, 1, 1, 1, 0, -1};
-  int[] dy = { 0, 1, 1, 1, 0, -1, -1, -1};
-  System.out.println("================ 상하좌우대각선");
-  for(int depth=1; depth<=num; depth++){
-    for(int i=0; i<8; i++){
-      int nextX = posX + dx[i]*depth;
-      int nextY = posY + dy[i]*depth;
-      if(nextX >= 0 && nextX < N && nextY >= 0 && nextY < N){
-        map[nextX][nextY] = 1;
+  private static void move8Ways(int[][] map, int x, int y, int depth) {
+    int[] dx = {-1, -1, 0, 1, 1, 1, 0, -1};
+    int[] dy = {0, 1, 1, 1, 0, -1, -1, -1};
+
+    map[x][y] = 1;
+    for(int d=1; d<=depth; d++){
+      for(int i=0; i<8; i++){
+        int nextX = x + dx[i]*d;
+        int nextY = y + dy[i]*d;
+
+        if(nextX >=0 && nextX < map.length && nextY >= 0 && nextY < map[0].length){
+          map[nextX][nextY] = 1;
+        }
       }
     }
   }
