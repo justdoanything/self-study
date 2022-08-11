@@ -157,7 +157,7 @@
         //이전 열들을 탐색하면서 유망한 노드인지 확인
         for(int i=1; i<c; i++)P{
             // 상위 노드에서 같은 행에 퀸이 있는지 확인
-            if(col[i] == col[c]){
+            if(col[i] == col[c]){ㅌ
                 return false;
             }
             // 대각선 검사 : 상위 노드의 퀸과 현재 노드의 퀸이 가로/세로 거리가 같은지 검사
@@ -318,6 +318,44 @@ private static int permutation(int n, int r) {
 // 조합(nCr)
 private static int combination(int n, int r) {
   return permutation(n, r) / factorial(r);
+}
+```
+  - 순열(nPr)
+```java
+private static void permutation(int[] num, int n, int r, int depth) {
+  if(depth == r){
+      for(int i=0; i<r; i++){
+          System.out.print(num[i] + " ");
+      }
+      System.out.println();
+      count++;
+      return;
+  }
+  for(int i=depth; i<n; i++){
+      swap(num, depth, i);
+      permutation(num, n, r, depth+1);
+      swap(num, depth, i);
+  }
+}
+```
+  - 조합(nCr)
+```java
+private static void combinationVisit(int[] num, int n, int r, int start, boolean[] visit){
+    if(r == 0) {
+        for(int i=0; i<num.length; i++){
+            if(visit[i])
+                System.out.print(num[i] + " ");
+        }
+        System.out.println();
+        count++;
+        return;
+    }
+    
+    for(int i=start; i<num.length; i++){
+        visit[i] = true;
+        combinationVisit(num, n, r-1, i+1, visit);
+        visit[i] = false;
+    }
 }
 ```
 
