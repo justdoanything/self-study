@@ -11,7 +11,8 @@
 - [Flyway](#flyway)
 - [OAuth 2.0](#oauth-20)
 - [REST API](#rest-api)
-
+- [TCP / UDP / HTTP](#tcp--udp--http)
+- [기타](#기타)
 ---
 
 
@@ -744,6 +745,16 @@ REST API
       - 기존 Operation이 유지된 상태에서 새로운 오퍼레이션 추가
       - Operation에서 사용하는 파라미터가 기존 것은 그대로 유지된 상태이고 새로 추가
       
+---
+TCP / UDP / HTTP
+===
+
+https://velog.io/@shitaikoto/CS-IP-TCP-UDP-HTTP
+
+---
+
+기타
+===
 - ## HATEOAS
   - HATEOAS = Hypermedia As The Engine Of Application State
   - 하이퍼미디어 특징을 이용하여 HTTP 응답 메세지를 전달할 때 관련 리소스 링크 정보나 다음에 수행할 수 있는 작업 링크 정보를 포함하여 리턴하는 것
