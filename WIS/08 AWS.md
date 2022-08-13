@@ -120,6 +120,15 @@ Reference : https://github.com/serithemage/AWSCertifiedSolutionsArchitectUnoffic
     - AWS Storage Gateway
 </details>
 
+---
+
+- Global Infra
+  - Region : 
+  - Aavailable Zone : 
+  - Local Zones : 짧은 대기 시간을 요구하는 Application을 최종 사용자와 더 가까운 위치에서 제공.
+  - Wave Length : 5G 네트워크에서 AWS 컴퓨팅 및 스토리지 서비스를 포함하여 매우 낮은 대기 시간의 애플리케이션을 개발하고 배포하며 확장하기 위한 모바일 엣지 컴퓨팅 인프라를 제공.
+  - Outposts Family : 하이브리드 환경을 위해 거의 모든 온프레미스 또는 엣지 로케이션에 AWS 인프라 및 서비스를 제공하는 완전관리형 솔루션 패밀리.
+
 
 ---
 AWS ECS and EC2
