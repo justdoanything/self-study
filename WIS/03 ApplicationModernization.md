@@ -771,7 +771,7 @@ TCP / UDP / HTTP
   - 신뢰성이 낮고 순서를 보증하지 않지만 빠른 속도를 보장합니다.
   - 비 연결지향이고 데이터 수신 여부를 확인하지 않습니다.
 
-- ### HTTP
+- ### HTTP (HyperText Transfer Protocol)
   - HTTP는 Server-Client 구조를 갖습니다.
   - 서버가 클라이언트의 상태를 보존하지 않는 무상태(Stateless) Protocol 입니다. 따라서 서버 확장이 용이합니다.
   - HTTP는 비연결성을 유지하기 때문에 최소한의 자원으로 서버 유지가 가능합니다.
