@@ -748,8 +748,37 @@ REST API
 ---
 TCP / UDP / HTTP
 ===
+- ### IP (Internet Protocol)
+  - IP 패킷은 우체국 송장처럼 전송 데이터를 무사히 목적지까지 전송하기 위해 출발지 IP, 목적지 IP와 같은 정보가 포함되어 있습니다.
+  - 한계점
+    - 비연결성 : 패킷을 받을 대상이 없거나 서비스 불능 상태여도 패킷을 전송
+    - 비신뢰성 : 전송 과정에서 패킷이 사라질 수 있고 순서를 보장하지 않음
 
-https://velog.io/@shitaikoto/CS-IP-TCP-UDP-HTTP
+- ### TCP (Transmission Control Protocol)
+  - 네트워크에서 데이터를 송수신할 수 있도록 IP 패킷을 사용하기 전에, TCP 데이터를 소켓에 담기고 그 데이터가 IP 패킷에 담겨 전송됩니다.
+  - TCP Segment에는 IP 패킷의 출발지 IP/PORT, 목적지 IP/PORT, 전송 제어, 순서 등의 정보를 포함하고 있습니다.
+  - IP 의 한계였던 데이터 전달과 순서를 보증 및 보장하고, TCP 3 way Handshake를 통한 연결 지향적 프로토콜로, 신뢰성 있는 프로토콜입니다
+  - TCP 3 Ways Handshake
+    - 클라이언트는 서버에 접속을 요청하는 SYN(Syncronize) 패킷을 보냅니다.
+    - 서버는 SYN 패킷을 받고, 클라이언트에게 접속 요청을 수락한다는 ACK(Acknowledgment)와 SYN가 설정된 패킷을 발송합니다.
+    - 클라이언트가 서버에게 ACK 요청을 보냅니다. 이후로 클라이언트와 서버간의 연결이 성립됩니다.
+    - 데이터를 전송합니다.
+
+<img width="763" alt="image" src="https://user-images.githubusercontent.com/21374902/184526572-79632bbe-7a80-4620-8b35-b973f9134499.png">
+
+- ### UDP(User Datagram Protocol)
+  - IP에 PORT, 체크섬 필드 정보만 추가된 TCP 보다 단순한 프로토콜입니다.
+  - 신뢰성이 낮고 순서를 보증하지 않지만 빠른 속도를 보장합니다.
+  - 비 연결지향이고 데이터 수신 여부를 확인하지 않습니다.
+
+- ### HTTP
+  - HTTP는 Server-Client 구조를 갖습니다.
+  - 서버가 클라이언트의 상태를 보존하지 않는 무상태(Stateless) Protocol 입니다. 따라서 서버 확장이 용이합니다.
+  - HTTP는 비연결성을 유지하기 때문에 최소한의 자원으로 서버 유지가 가능합니다.
+
+- Reference
+  - https://velog.io/@shitaikoto/CS-IP-TCP-UDP-HTTP
+
 
 ---
 
