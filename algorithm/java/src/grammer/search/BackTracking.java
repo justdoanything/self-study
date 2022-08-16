@@ -1,4 +1,4 @@
-package src.grammer.search;
+package grammer.search;
 
 import java.util.Arrays;
 

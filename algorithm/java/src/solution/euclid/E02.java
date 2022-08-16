@@ -1,4 +1,4 @@
-package src.solution.euclid;
+package solution.euclid;
 
 import java.math.BigInteger;
 

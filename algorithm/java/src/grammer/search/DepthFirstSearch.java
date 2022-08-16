@@ -1,6 +1,6 @@
-package src.grammer.search;
+package grammer.search;
 
-import src.grammer.array.Array;
+import grammer.array.Array;
 
 public class DepthFirstSearch {
     

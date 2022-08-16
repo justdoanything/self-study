@@ -1,4 +1,4 @@
-package src.solution.search;
+package solution.search;
 
 public class S01 {
 

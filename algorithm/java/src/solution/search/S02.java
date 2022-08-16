@@ -1,4 +1,4 @@
-package src.solution.search;
+package solution.search;
 
 public class S02 {
     // [0,0]에서 [n,n]까지 갈 수 있는 최단거리를 구하라.

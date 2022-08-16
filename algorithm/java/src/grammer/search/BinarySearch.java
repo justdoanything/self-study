@@ -1,4 +1,4 @@
-package src.grammer.search;
+package grammer.search;
 
 public class BinarySearch {
   
@@ -28,8 +28,8 @@ public class BinarySearch {
     if (arr[mid] == target)
         return mid;
     else if (arr[mid] > target)
-        return BSearchRecursive(arr, target, low, mid-1);
+        return BinarySearchRecursive(arr, target, low, mid-1);
     else
-        return BSearchRecursive(arr, target, mid+1, high);
+        return BinarySearchRecursive(arr, target, mid+1, high);
 }
 }

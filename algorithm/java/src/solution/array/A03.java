@@ -1,4 +1,4 @@
-package src.solution.array;
+package solution.array;
 
 public class A03 {
 

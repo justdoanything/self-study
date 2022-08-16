@@ -1,4 +1,4 @@
-package src.grammer.array;
+package grammer.array;
 
 public class ArrayRotation {
     

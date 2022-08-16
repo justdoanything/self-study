@@ -1,4 +1,4 @@
-package src.grammer.recursion;
+package grammer.recursion;
 
 public class Combination {
 

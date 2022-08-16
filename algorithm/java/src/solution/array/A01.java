@@ -1,4 +1,4 @@
-package src.solution.array;
+package solution.array;
 
 public class A01 {
     // 2차원 행렬이 있을 때, 중간 기준 180도 회전한 배열과 대각선 기준으로 180도 회전한 배열을 합치고 각 인덱스의 합을 10으로 나눈 배열을 생성하라.

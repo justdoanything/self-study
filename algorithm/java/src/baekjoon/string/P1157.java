@@ -1,4 +1,4 @@
-package src.baekjoon.string;
+package baekjoon.string;
 
 import java.util.HashMap;
 import java.util.Map;
