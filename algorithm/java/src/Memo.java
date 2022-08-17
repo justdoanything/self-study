@@ -54,6 +54,11 @@ public class Memo {
     System.err.println(binarySearch(intArray, 7));
     
     String temp = "z";
+
+    String b1 = Integer.toBinaryString(8);
+    System.out.println(String.format("%08d", Integer.parseInt(b1)));
+    
+    System.out.printf("%08d", Integer.parseInt(b1));
   }
 
   private static int binarySearch(int[] array, int target){
