@@ -8,6 +8,7 @@
 - [WAF](#waf-web-application-firewall)
 - [Yarn](#yarn)
 - [Spring](#spring)
+- [Spring MVC](#spring-mvc)
 - [Flyway](#flyway)
 - [OAuth 2.0](#oauth-20)
 - [REST API](#rest-api)
@@ -405,6 +406,33 @@ Spring
   - https://m.blog.naver.com/sillllver/220593543939
   - https://hoon93.tistory.com/56
   - https://engkimbs.tistory.com/746
+
+---
+
+Spring MVC
+===
+### ⚠️ 스프링 MVC 1편 - 백엔드 웹 개발 핵심 기술 / 김영한 / 인프런 강의를 보고 Spring MVC를 만드는 과정에 대해서 그림만 참조하고 내용은 스스로 작성해본다.
+
+- ### Version 1
+
+<img width="739" alt="image" src="https://user-images.githubusercontent.com/21374902/185026509-31e85ef2-5fba-4475-acec-ed8c03f1df69.png">
+
+- ### Version 2
+
+<img width="731" alt="image" src="https://user-images.githubusercontent.com/21374902/185026560-793006a8-fb2c-4fbe-ba6c-deada2084513.png">
+
+- ### Version 3
+
+<img width="733" alt="image" src="https://user-images.githubusercontent.com/21374902/185026603-584998d3-ca27-45ea-bd41-d5ec48415a0d.png">
+
+- ### Version 4
+
+<img width="731" alt="image" src="https://user-images.githubusercontent.com/21374902/185026651-7be6d556-4eaf-4201-8ce9-c1d2b6bec828.png">
+
+- ### Version 5
+
+<img width="735" alt="image" src="https://user-images.githubusercontent.com/21374902/185026703-70fd24d0-e9fb-45f1-bab7-d87734a265d3.png">
+
 
 ---
 Flyway

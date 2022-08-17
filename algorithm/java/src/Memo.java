@@ -39,6 +39,7 @@ public class Memo {
     for(int i=0; i<intArray.length; i++)
       System.out.println(intArray[i]);
     
+    
     System.out.println("=====================nPr");
     nPr(intArray, 9, 2, 0);
     System.out.println(count);
@@ -52,7 +53,7 @@ public class Memo {
     System.out.println();
     System.err.println(binarySearch(intArray, 7));
     
-    
+    String temp = "z";
   }
 
   private static int binarySearch(int[] array, int target){
