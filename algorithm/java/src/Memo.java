@@ -24,10 +24,15 @@ public class Memo {
     stringList.add("y");
     stringList.add("l");
 
+    stringList.sort((str1, str2) -> {
+      return  0;
+    });
+
     
-    // System.out.println(stringList.stream().sorted((o1, o2) -> o1.compareTo(o2) ).toList());
-    // stringList.sort((str1, str2) -> str1.compareTo(str2));
-    // System.err.println(stringList);
+    
+    System.out.println(stringList.stream().sorted((o1, o2) -> o1.compareTo(o2) ).toList());
+    stringList.sort((str1, str2) -> str1.compareTo(str2));
+    System.err.println(stringList);
 
     stringList.sort(Comparator.naturalOrder());
     System.out.println(stringList);
@@ -59,6 +64,11 @@ public class Memo {
     System.out.println(String.format("%08d", Integer.parseInt(b1)));
     
     System.out.printf("%08d", Integer.parseInt(b1));
+
+    String str1 = "A";
+    String str2 = "C";
+    System.out.println();
+    System.out.println(str1.compareTo(str2));
   }
 
   private static int binarySearch(int[] array, int target){

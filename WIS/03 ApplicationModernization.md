@@ -413,25 +413,102 @@ Spring MVC
 ===
 ### ⚠️ 스프링 MVC 1편 - 백엔드 웹 개발 핵심 기술 / 김영한 / 인프런 강의를 보고 Spring MVC를 만드는 과정에 대해서 그림만 참조하고 내용은 스스로 작성해본다.
 
-- ### Version 1
+- ### Version 0
+  - `Servlet`은 HTTP Protocol에 맞는 request, response를 자동으로 만들어준다.
+  - 개발자가 직접 IP/PORT에 들어온 Request를 파싱하거나 처리할 필요 없이 `HttpServletRequest`,`HttpServletResponse` 객체에서 데이터를 빼서 쓰거나 넣어주면 된다.
+  - Content-Type, Content-Length 등 Servlet이 HTTP 규격에 맞게 다 세팅 및 변환을 해주기 때문에 개발자는 원하는 항목만 다루면 된다.
+  - `HttpServlet`의 `service` 함수를 override 받아서 사용한다.
+  <img width="531" alt="image" src="https://user-images.githubusercontent.com/21374902/185284956-2d692cbf-7833-4795-97e0-25ed2d7b84c2.png">
 
-<img width="739" alt="image" src="https://user-images.githubusercontent.com/21374902/185026509-31e85ef2-5fba-4475-acec-ed8c03f1df69.png">
+- ### Version 1
+  - 기존에는 각 도메인 별로 HttpServlet의 service를 구현했었는데 `Front Controller`와 `Controller`를 만들어서 HttpServlet은 Front Controller에서만 상속받고 들어온 request, response를 조건에 맞는 Controller로 전달해준다.
+  - Front Controller가 HttpServlet의 serivce 함수를 구현하고 있고 여러 Controller의 `Mapping 정보`도 갖고 있어야 한다.
+  - Front Controller는 1개의 Controller를 찾고 비지니스 로직을 담고 있는 `process` 함수를 호출한다.
+  - Controller에선 `process` 함수를 구현하고 `RequestDispatcher`를 사용해서 Model을 담아서 View로 forwarding 해준다.
+    ```java
+    // Controller
+    request.setAttribute("member", member);
+    String viewPath = "/WEB-INF/views/save-result.jsp";
+    RequestDispatcher dispatcher = request.getRequestDispatcher(viewPath);
+    dispatcher.forward(request, response);
+    ```
+    <img width="739" alt="image" src="https://user-images.githubusercontent.com/21374902/185026509-31e85ef2-5fba-4475-acec-ed8c03f1df69.png">
 
 - ### Version 2
+  - Controller에 불필요한 공통 코드들이 많기 때문에 제거하고 공통 View를 만들어서 처리한다.
+  - 기존 Front Controller에선 하나의 Controller를 선택하고 로직 수행(`process`)만 하고 
+  Controller에서 데이터 바인딩 후 View를 forwarding 했다면,
+  - Version 2에선 공통 View가 view(jsp) 선택하고 forward(`render`) 하고 Front Controller는 `process` 이후에 `render`를 호출한다. Controller는 데이터 바인딩 후 view(jsp) 선택만 수행한다. 
+    ```java
+    // Front Controller
+    process(request, response);
 
-<img width="731" alt="image" src="https://user-images.githubusercontent.com/21374902/185026560-793006a8-fb2c-4fbe-ba6c-deada2084513.png">
+    👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇
+    
+    CommonView view = controller.process(request, response);
+    view.render(request, response;)
+    ```
+    ```java
+    // Controller
+    request.setAttribute("member", member);
+    String viewPath = "/WEB-INF/views/save-result.jsp";
+    RequestDispatcher dispatcher = request.getRequestDispatcher(viewPath);
+    dispatcher.forward(request, response);
+    
+    👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇
+    
+    return new CommonView("/WEB-INF/views/save-result.jsp");
+    ```
+    <img width="731" alt="image" src="https://user-images.githubusercontent.com/21374902/185026560-793006a8-fb2c-4fbe-ba6c-deada2084513.png">
 
 - ### Version 3
+  - `Servlet 종속성 제거`
+    - Controller에서 직접 request, response 제어하는 부분을 제거한다.
+    - Front Controller에서 HttpServletRequest가 제공하는 Parameter를 공통으로 정리해서 Controller에게 넘겨준다.
+  - `View 선택 중복 제거`
+    - Controller에서 jsp의 경로 전체를 지정해서 반환하는 부분을 제거한다.
+    - Controller에서 view(jsp)의 전체 경로를 반환하지 않고 논리적인 view 이름만 반환하도록 수정한다.
+    - ModelAndView를 추가해서 view(jsp)에 넘겨줘야하는 attribute와 view 이름을 갖고 있도록 한다.
+    - Controller는 ModelAndView에 request attribute와 view 이름을 지정해준다.
+    - Front Controller는 ModelAndView를 사용해서 view(jsp)에 request attribute를 설정해주고 지정된 view로 forward 한다.
+    ```java
+    // Controller
+    return new CommonView("/WEB-INF/views/new-form.jsp");
 
-<img width="733" alt="image" src="https://user-images.githubusercontent.com/21374902/185026603-584998d3-ca27-45ea-bd41-d5ec48415a0d.png">
+    👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇
+    
+    ModelAndView mv = new ModelAndView("save-result"); // view 이름
+    mv.getModel().put("member", member);  // attribute 세팅
+    return mv;
+    ```
+    ```java
+    // Front Controller
+    public CommonView process(HttpServletRequest request, HttpServletResponsresponse);
+
+    👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇
+
+    public ModelAndView process(Map<String, Object> parameters);
+    
+    // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+    
+    ModelAndView mv = controller.process(parameters);
+    CommonView view = this.viewResolver(mv.getViewName());
+    view.render(mv.getModel(), request, response);
+
+    // viewResolver 함수
+    private MyView viewResolver(String viewName) {
+        return new MyView("/WEB-INF/views/" + viewName + ".jsp");
+    }
+    ```
+    <img width="733" alt="image" src="https://user-images.githubusercontent.com/21374902/185026603-584998d3-ca27-45ea-bd41-d5ec48415a0d.png">
 
 - ### Version 4
 
-<img width="731" alt="image" src="https://user-images.githubusercontent.com/21374902/185026651-7be6d556-4eaf-4201-8ce9-c1d2b6bec828.png">
+  <img width="731" alt="image" src="https://user-images.githubusercontent.com/21374902/185026651-7be6d556-4eaf-4201-8ce9-c1d2b6bec828.png">
 
 - ### Version 5
 
-<img width="735" alt="image" src="https://user-images.githubusercontent.com/21374902/185026703-70fd24d0-e9fb-45f1-bab7-d87734a265d3.png">
+  <img width="735" alt="image" src="https://user-images.githubusercontent.com/21374902/185026703-70fd24d0-e9fb-45f1-bab7-d87734a265d3.png">
 
 - Reference
   - [스프링 MVC 1편 / 김영한 / 인프런](https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81-mvc-1)
