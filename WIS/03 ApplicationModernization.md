@@ -487,10 +487,10 @@ Spring MVC
 
     👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇
 
-    public ModelAndView process(Map<String, Object> parameters);
+    public ModelAndView process(Map<String, String> parameters);
     
     // ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
-    
+
     ModelAndView mv = controller.process(parameters);
     CommonView view = this.viewResolver(mv.getViewName());
     view.render(mv.getModel(), request, response);
@@ -503,13 +503,95 @@ Spring MVC
     <img width="733" alt="image" src="https://user-images.githubusercontent.com/21374902/185026603-584998d3-ca27-45ea-bd41-d5ec48415a0d.png">
 
 - ### Version 4
+  - Controller에서 ModelAndView와 CommonView를 매번 생성하고 반환하는 부분이 번거롭기 때문에 제거한다.
+  - 
+    ```java
+    // Controller
+    public ModelAndView process(Map<String, String> parameters){
+      ModelAndView mv = new ModelAndView("save-result"); // view 이름
+      mv.getModel().put("member", member);  // attribute 세팅
+      return mv;
+    }
+    
+    👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇
 
-  <img width="731" alt="image" src="https://user-images.githubusercontent.com/21374902/185026651-7be6d556-4eaf-4201-8ce9-c1d2b6bec828.png">
+    public String process(Map<String, String> parameters, Map<String, Object> model){
+      model.put("member", member);
+      return "save-result";
+    }
+    ```
+    ```java
+    // Front Controller
+    ModelAndView mv = controller.process(parameters);
+    CommonView view = this.viewResolver(mv.getViewName());
+    view.render(mv.getModel(), request, response);
+
+    👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇👇
+    
+    String viewName = controller.process(paramMap, model);
+    CommonView view = viewResolver(viewName);
+    view.render(model, request, response);
+    ```
+    <img width="731" alt="image" src="https://user-images.githubusercontent.com/21374902/185026651-7be6d556-4eaf-4201-8ce9-c1d2b6bec828.png">
 
 - ### Version 5
+  - 여러 개의 Controller를 조금 더 능동적으로 사용하기 위해서 HandlerAdapter를 추가한다.
+  - Controller가 여러개 있다고 해보자. Front Controller는 `handlerMappingMap`과 `handlerAdapters`를 갖고 있다.
+  - `Map<String, Object> handlerMappingMap`는 URI와 Controller 객체를 갖고 있다.
+  - `List<CommonHandlerAdapter> handlerAdapters`는 Adapter 객체를 갖고 있다.
+  - Front Controller의 `service` 함수에서 아래와 같이 동작한다.
+    - URI로 Controller를 찾는다 : `handlerMappingMap`
+    - 찾은 Controller로 Adapter를 찾는다 : `handlerAdapters`
+    - 찾은 Adapter의 `handle` 함수는 Controller의 `process` 함수를 실행한다.
+    - process 함수에서 ModelAndView를 반환받아서 view를 `render` 한다.
+    ```java
+    // Front Controller
+    handlerMappingMap.put("/v1/members/new-form", new MemberControllerV1());
+    handlerMappingMap.put("/v2/members/new-form", new MemberControllerV2());
+    handlerMappingMap.put("/v3/members/new-form", new MemberControllerV3());
 
-  <img width="735" alt="image" src="https://user-images.githubusercontent.com/21374902/185026703-70fd24d0-e9fb-45f1-bab7-d87734a265d3.png">
+    handlerAdapters.add(new ControllerV1HandlerAdapter());
+    handlerAdapters.add(new ControllerV2HandlerAdapter());
+    handlerAdapters.add(new ControllerV3HandlerAdapter());
 
+    //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+
+    @Override
+    protected void service(HttpServletRequest request, HttpServletResponseresponse) {
+      Object handler = handlerMappingMap.get(request.getRequestURI);
+      CommonHandlerAdapter adapter = {
+        for(CommonHandlerAdapter adapter : handlerAdapters) {
+          if(adapter.support(handler))
+            return adapter;
+        }
+        throw new IllegalArgumentException("handler adapter를 찾을 수 없습니다. handler=" + handler);
+      };
+
+      ModelAndView mv = adapter.handle(request, response, handler);
+      CommonView view = this.viewResolver(mv.getViewName());
+      view.render(mv.getModel(), request, response);
+    }
+    ```
+    ```java
+    // CommonHandlerAdapter (V1)
+    public boolean supports(Object handler) {
+      return (handler instanceof MemberControllerV1);
+    }
+
+    public ModelAndView handle(HttpServletRequest request, HttpServletResponseresponse, Object handler) {
+      MemberControllerV1 controller = (MemberControllerV1) handler;
+      ...
+      String viewName = controller.process(paramMap, model);
+      ModelAndView mv = new ModelAndView(viewName);
+      mv.setModel(model);
+      return mv;
+    }
+    ```
+    <img width="735" alt="image" src="https://user-images.githubusercontent.com/21374902/185026703-70fd24d0-e9fb-45f1-bab7-d87734a265d3.png">
+  
+  - ### 부록
+    - Annotation Pattern을 사용해서 Spring이 시작될 때, handlerMappingMap, handlerAdapters을 만들어주면 자동으로 등록이 된다.
+    
 - Reference
   - [스프링 MVC 1편 / 김영한 / 인프런](https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81-mvc-1)
 
