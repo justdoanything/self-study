@@ -30,7 +30,7 @@ Reference : https://github.com/serithemage/AWSCertifiedSolutionsArchitectUnoffic
 # AWS Keywords
 <details>
 
-  <summary>click to collapse</summary>
+  <summary>펼치기</summary>
   
   ### AWS 기본 기능
   - 컴퓨팅
@@ -122,7 +122,7 @@ Reference : https://github.com/serithemage/AWSCertifiedSolutionsArchitectUnoffic
 
 ---
 
-- ### AWS 글로벌 인프라의 이해
+## AWS 글로벌 인프라의 이해
 
 Keyword | 개념 | 사용하는 시기와 상황
 ---|---|---
@@ -133,7 +133,7 @@ Wave Length | 5G 네트워크에서 AWS 컴퓨팅 및 스토리지 서비스를 
 Outposts | 하이브리드 환경을 위해 거의 모든 온프레미스 또는 엣지 로케이션에 AWS 인프라 및 서비스를 제공하는 완전관리형 솔루션 패밀리 | 대기 시간 요구 사항으로 인해 온프레미스에 유지해야 하는 워크로드를 위해 설계되었습니다. 그러나 이 경우에도 고객은 온프레미스 워크로드가 AWS 워크로드와 원활하게 실행되길 원합니다. AWS Outposts는 AWS에서 설계한 하드웨어로 제작된 구성 가능한 완전관리형 컴퓨팅 및 스토리지 랙으로, 이를 통해 고객은 컴퓨팅 및 스토리지를 온프레미스에서 실행하는 동시에 AWS의 광범위한 클라우드 서비스에 원활하게 연결할 수 있습니다
 - Amazon CloudFront와 Edge Network
 
-- ### 클라우드 서비스를 설계하는 방법
+## 클라우드 서비스를 설계하는 방법
 Storage | Data
 ---|---
 Amazon RDS | Structure Data
@@ -145,15 +145,25 @@ Ephemeral EC2 Storage | Temp Files
 Amazon S3 | Static Assets
 Amazon Glacier | Back-Ups
 
-- ### 느슨한 결합을 구현하기 위한 서비스들
-  - Elastic Load Balancing
-    Elastic Load Balancing | 용도
-    ---|---
-    Application Load Balancer | HTTP 요청을 로드 밸런싱
-    Network Load Balancer | 네트워크/전송 프로토콜(4계층 - TCP, UDP) 로드 밸런싱의 경우와 고도의 성능이 요구되거나 대기 시간이 낮아야 하는 애플리케이션
-    Gateway Load Balancer | Amazon Elastic Compute Cloud(Amazon EC2) Classic 네트워크 안에 구축된 경우
-    Classic Load Balancer | 서드 파티 가상 어플라이언스를 배포하고 실행해야 하는 경우
-
+## 느슨한 결합을 구현하기 위한 서비스들
+- ELB (Elastic Load Balancing)
+  Elastic Load Balancing | 용도
+  ---|---
+  Application Load Balancer | HTTP 요청을 로드 밸런싱
+  Network Load Balancer | 네트워크/전송 프로토콜(4계층 - TCP, UDP) 로드 밸런싱의 경우와 고도의 성능이 요구되거나 대기 시간이 낮아야 하는 애플리케이션
+  Gateway Load Balancer | Amazon Elastic Compute Cloud(Amazon EC2) Classic 네트워크 안에 구축된 경우
+  Classic Load Balancer | 서드 파티 가상 어플라이언스를 배포하고 실행해야 하는 경우
+- `SQS (Simple Queue Service)`
+  - `SNS (Simple Notification Service)`와 다른 점
+    - `SNS`는 Application에서 정기적으로 update를 확인하거나 polling할 필요 없이 push만 하면 구독자에게 메세지를 보낼 수 있다. `SQS`는 분산 Application에서 Polling 모델을 통해 메세지를 교환하는데 사용되고 송신 요소와 수신 요소를 분리해서 사용할 수 있다.
+  - `Amazon MQ`와 다른 점
+    - 기존에 사용 중인 Messaging Application을 Cloud로 이동할 때 `Amazon MQ`를 사용하는게 유리하다. 업계 표준 API와 Protocol을 지원하기 때문에 다른 Message Brocker에서 Amazon MQ로 전환할 수 있다. Cloud에 새로운 Application을 구성한다면 `SQS`, `SNS`를 사용하는 것이 좋습니다.
+  - `AKS (Amazon Kinesis Streams)`와 다른 점
+    - `SQS`는 MSA와 같은 분산 Application에서 유용하며 배달 못한 편지 대기열과 포이즌 필(poison-pill) 관리 같은 일반적 미들웨어 구성체를 제공하고 웹 서비스 API도 제공합니다.
+    - `AKS`는 빅 데이터 스트리밍을 실시간으로 처리하고 주어진 파티션 키에 대한 모든 레코드를 동일한 레코드 프로세서에 제공하므로 스트림 데이터를 읽는 여러 개의 Application를 구축할 때 용이합니다.
+  - SQS는 FIFO 대기열을 사용하기 때문에 메세지 순서를 보장한다.
+  - 표준 대기열의 각 메세지는 최소 1회 전달을 보장한다.
+  - 
 
 
 ---
