@@ -146,14 +146,14 @@ Amazon S3 | Static Assets
 Amazon Glacier | Back-Ups
 
 ## 느슨한 결합을 구현하기 위한 서비스들
-- ELB (Elastic Load Balancing)
+- ### ELB (Elastic Load Balancing)
   Elastic Load Balancing | 용도
   ---|---
   Application Load Balancer | HTTP 요청을 로드 밸런싱
   Network Load Balancer | 네트워크/전송 프로토콜(4계층 - TCP, UDP) 로드 밸런싱의 경우와 고도의 성능이 요구되거나 대기 시간이 낮아야 하는 애플리케이션
   Gateway Load Balancer | Amazon Elastic Compute Cloud(Amazon EC2) Classic 네트워크 안에 구축된 경우
   Classic Load Balancer | 서드 파티 가상 어플라이언스를 배포하고 실행해야 하는 경우
-- `SQS (Simple Queue Service)`
+- ### `SQS (Simple Queue Service)` & `SNS (Simple Notification Service)`
   - `SNS (Simple Notification Service)`와 다른 점
     - `SNS`는 Application에서 정기적으로 update를 확인하거나 polling할 필요 없이 push만 하면 구독자에게 메세지를 보낼 수 있다. `SQS`는 분산 Application에서 Polling 모델을 통해 메세지를 교환하는데 사용되고 송신 요소와 수신 요소를 분리해서 사용할 수 있다.
   - `Amazon MQ`와 다른 점
@@ -163,9 +163,11 @@ Amazon Glacier | Back-Ups
     - `AKS`는 빅 데이터 스트리밍을 실시간으로 처리하고 주어진 파티션 키에 대한 모든 레코드를 동일한 레코드 프로세서에 제공하므로 스트림 데이터를 읽는 여러 개의 Application를 구축할 때 용이합니다.
   - SQS는 FIFO 대기열을 사용하기 때문에 메세지 순서를 보장한다.
   - 표준 대기열의 각 메세지는 최소 1회 전달을 보장한다.
-  - 
+  - ReceiveMessage, DeleteMessage 작업이 별도로 존재한다. 사용자가 실제로 메세지를 수신했는지 상관없이 해당 메세지를 대기열에 그대로 보관한다. 사용자의 요청에 따라 메세지를 삭제할 수 있다.
+  - SQS는 SSE(Server Side Encrpyt)를 지원합니다.
 
-
+## 안정적이고 복원력을 갖춘 스토리지 선택하기
+- Keyword : EC2, EBS, EFS, Galcier, Storage Gateway
 ---
 
 AWS ECS and EC2
