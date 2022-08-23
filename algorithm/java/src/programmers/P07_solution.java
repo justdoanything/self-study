@@ -28,8 +28,24 @@ public class P07_solution {
 
   public static void nPr(int[] arr, int n, int r, int depth, int A, int B){
       if(depth == r){
-        checkArray(arr, A, B);
-        return;
+        // 순열 조합 완성
+        if(isExist(arr)){
+          return;
+        }
+        
+        up = 0;
+        down = 0;
+        for(int i=0; i<arr.length-1;i++){
+          if(arr[i] == arr[i+1])
+            continue;
+          if(arr[i] < arr[i+1])
+            up++;
+          else if(arr[i] > arr[i+1])
+            down++;
+        }
+    
+        if(up == A && down == B)
+          count++;
     }
 
     for(int i=depth; i<n; i++){
@@ -39,43 +55,13 @@ public class P07_solution {
     }
   }
 
-  public static void checkArray(int[] arr, int A, int B){
-    if(jungbok(arr)){
-      return;
-    }
-    
-    up = 0;
-    down = 0;
-    for(int i=0; i<arr.length-1;i++){
-      if(arr[i] < arr[i+1]){
-        up++;
-      } 
-      if(arr[i] > arr[i+1]){
-        down++;
-      }
-    }
-
-    if(up == A && down == B){
-      print(arr, up, down);
-      count++;
-    }
-  }
-
   private static void swap(int[] num, int depth, int i){
     int temp = num[depth];
     num[depth] = num[i];
     num[i] = temp;
   }
 
-  public static void print(int[] arr, int up, int down){
-    for(int i=0; i<arr.length; i++){
-      System.out.print(arr[i] + " ") ;
-    }
-    System.out.println( " ---- " + up + " / " + down);
-  }
-
-  public static boolean jungbok(int[] arr){
-    
+  public static boolean isExist(int[] arr){
     String temp = "";
     for(int i=0; i<arr.length; i++){
       temp += arr[i];
