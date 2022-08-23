@@ -5,16 +5,16 @@ public class Combination {
     private static int count = 0;
 
     public static void main(String[] args) {
-        int[] num = {1, 2, 3, 4};
+        int[] num = {2, 2, 3, 3};
         int n = num.length;
-        int r = 2; 
+        int r = 4; 
         int start = 0;
 
         int idx = 0;
         int target = 0;
 
         // 조합
-        int[] temp = new int[2];
+        int[] temp = new int[num.length];
         count = 0;
         combination(num, temp, n, r, idx, target);
         System.out.println("==> " + count);
@@ -30,7 +30,7 @@ public class Combination {
         System.out.println("=======================================================");
 
         // 중복 조합
-        temp = new int[2];
+        temp = new int[num.length];
         count = 0;
         combinationRepeat(num, temp, n, r, idx, target);
         System.out.println("==> " + count);

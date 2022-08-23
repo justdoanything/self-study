@@ -7,9 +7,9 @@ public class Permutation {
 
     private static int count = 0;
     public static void main(String[] args) {
-        int[] num = {1, 2, 3, 4, 5};
+        int[] num = {2, 2, 2, 3, 3};
         int n = num.length;
-        int r = 2; 
+        int r = 5; 
         int depth = 0;
 
         // 순열

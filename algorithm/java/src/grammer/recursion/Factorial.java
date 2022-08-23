@@ -3,8 +3,8 @@ package grammer.recursion;
 public class Factorial {
 
     public static void main(String[] args) {
-        int n = 5;
-        int r = 3;
+        int n = 6;
+        int r = 6;
 
         System.out.println(factorial(n));
         System.out.println(permutation(n, r));
