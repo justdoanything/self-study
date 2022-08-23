@@ -34,7 +34,7 @@ public class P08_solution {
       
       if(arr[0].length() >= 1 && arr[0].length() <= 10 && arr[1].length() > 0 && arr[1].length()<=5){
         for(int i=0; i<ID.length(); i++){
-          if((ID.charAt(i) >= 'a' && ID.charAt(i) <= 'z') || (ID.charAt(i) >= 'A' && ID.charAt(i) <= 'Z') || ID.charAt(i) == '.'r){
+          if((ID.charAt(i) >= 'a' && ID.charAt(i) <= 'z') || (ID.charAt(i) >= 'A' && ID.charAt(i) <= 'Z') || ID.charAt(i) == '.'){
           
           }else {
             return false;
