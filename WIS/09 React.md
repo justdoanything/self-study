@@ -1,6 +1,14 @@
 # React
+- [실제 프로젝트에서 경험했던 기술과 고민](#실제-프로젝트에서-경험했던-기술과-고민)
+- [React 시작지점](#react의-시작지점-파악해보기)
+- [React 기존지식](#react-기본지식)
+- [My React Library](#my-react-library)
+  - [i18n 언어팩 적용](#i18n-언어팩-적용)
+  - [Sub Component 제어](#sub-component-제어)
+  - [Autocomplete](#autocomplete)
+---
 
-## 실제 프로젝트에서 경험했던 내용들
+# 실제 프로젝트에서 경험했던 기술과 고민
 - React 상태 관리 : Redux, Mobx
 - Store를 사용하지 않고 Props로만 관리하는 것의 차이
 	- React 컴포넌트에서 받아야 하는 Props가 너무 많아짐.
@@ -36,14 +44,47 @@
     - 최종적으로 A에 대한 수정된 내용을 비교할 때 initial value는 이미 변경됐기 때문에 form에서 변경된 값으로 인지를 못했다. (변경된 값이 initial value가 됐기 때문에 Redux는 A가 변하지 않은 값으로 판단한다.)
     - SPA에선 변경된 값을 감지하는게 중요한대 (그래야 부분적으로 렌더링을 할 수 있으니까) props로 값들을 넘길때 얕은 복사가 이뤄지면서 데이터의 보존이 어려워졌다.
 
-## 기존 방식과 React 방식의 차이점
+--- 
+# React의 시작지점 파악해보기
+- 프로젝트를 처음 install 후 무작정 실행해보면 아래 파일들이 실행된다.
+  - 1️⃣ public/index.html
+    - There is `<div id="root"></div>`
+  - 2️⃣ src/index.js
+    - `import './index.css';`
+    - Rendering `<App />`
+  - 3️⃣ src/App.js 
+    - `import './App.css';`
+    - return `<div>` code
+    - it should be shown
 
+- 시작 파일이 index.html 이라는건 어디에 명시되있을까? 이 파일 이름을 바꾸고 싶으면 어떻게 해야할까?
+  - index.html 파일 이름을 변경하면 public/index.html 파일을 찾을 수 없다는 에러 발생
+  > Error: Child compilation failed: Module not found: Error: Can't resolve 'D:\Dev\Yongwoo\self-study\self-study\do-react\public\index.html' in 'D:\Dev\Yongwoo\self-study\self-study\do-react' ModuleNotFoundError: Module not found: Error: Can't resolve 'D:\Dev\Yongwoo\self-study\self-study\do-react\public\index.html' in 'D:\Dev\Yongwoo\self-study\self-study\do-react' at D:\Dev\Yongwoo\self-study\self-study\do-react\node_modules\webpack\lib\Compilation.js:2011:28 at D:\Dev\Yongwoo\self-study\self-study\do-react\node_modules\webpack\lib\NormalModuleFactory.js:795:13 at eval (eval at create (D:\Dev\Yongwoo\self-study\self-study\do-react\node_modules\tapable\lib\HookCodeFactory.js:33:10), <anonymous>:10:1) at D:\Dev\Yongwoo\self-study\self-study\do-react\node_modules\webpack\lib\NormalModuleFactory.js:275:22 at eval (eval at create (D:\Dev\Yongwoo\self-study\self-study\do-react\node_modules\tapable\lib\HookCodeFactory.js:33:10), <anonymous>:9:1) at D:\Dev\Yongwoo\self-study\self-study\do-react\node_modules\webpack\lib\NormalModuleFactory.js:431:22 at D:\Dev\Yongwoo\self-study\self-study\do-react\node_modules\webpack\lib\NormalModuleFactory.js:124:11 at D:\Dev\Yongwoo\self-study\self-study\do-react\node_modules\webpack\lib\NormalModuleFactory.js:667:25 at D:\Dev\Yongwoo\self-study\self-study\do-react\node_modules\webpack\lib\NormalModuleFactory.js:852:8 at D:\Dev\Yongwoo\self-study\self-study\do-react\node_modules\webpack\lib\NormalModuleFactory.js:972:5
+  - node_modules\webpack\lib\NormalModuleFactory.js 에 대한 정보 검색
+    - https://webpack.js.org/api/normalmodulefactory-hooks/
+    - Error line을 추적하다보면 `if (err) return callback(err);` 함수로 들어가서 에러는 반환하고 있음.
+    - node_modules\tapable\lib\HookCodeFactory.js
+      - `create(options)` 함수에 `switch (this.options.type) { case "async"` 로 연결
+      - `this.hooks.factorize.callAsync(resolveData, (err, module) => {...}`
+    - node_modules\webpack\lib\Compilation.js
+      - `_factorizeModule(` → `factory.create(` → `if (err) { const notFoundError = new ModuleNotFoundError( return callback(notFoundError, factoryResult ? result : undefined);`
+  - #### NormalModuleFactory Hooks
+    >_The NormalModuleFactory module is used by the Compiler to generate modules. Starting with entry points, it resolves each request, parses the content to find further requests, and keeps crawling through files by resolving all and parsing any new files. At last stage, each dependency becomes a Module instance._\
+    \
+    _factorize AsyncSeriesBailHook\
+    Called before initiating resolve. It should return undefined to proceed.\
+    Callback Parameters: resolveData
+  - #### Compiler Hooks
+    >_The Compiler module is the main engine that creates a compilation instance with all the options passed through the CLI or Node API. It extends the Tapable class in order to register and call plugins. Most user-facing plugins are first registered on the Compiler. When developing a plugin for webpack, you might want to know where each hook is called. To learn this, search for hooks.<hook name>.call across the webpack source._
+  - #### 최종결론
+    > NormalModuleFactory.js 에서 context 기준으로 Resource를 가져오고 factory를 create 하는데 index.html 이라는 파일이 정해진 경로에 없어서 callback 함수에서 notFoundError 에러를 반환하면서 해당 에러가 발생했다. context에 public/index.html은 고정적으로 들어가있는 것으로 보이며 가시적으로 어떤 index.html 이라는 값을 확인할 수 없었고 변경도 어려운 것으로 보인다.
+
+---
+# React 기본지식
 - 기존 방식 : JS에서 HTML에 있는 요소를 가져오고 → JS에서 값을 변경하고 → 다시 HTML을 업데이트 해주는 방식 (시작이 HTML)
 - React 방식 : JS에서 HTML 요소를 선택해서 바로 업데이트 해주는 방식 (시작이 JS)
-- babel : jsx를 html 코드로 변환
-
+  - babel : jsx를 html 코드로 변환
 #### jsx
-
 ```html
 <!-- React -->
 <script src="https://unpkg.com/react@17.0.2/umd/react.production.min.js"></script>
@@ -200,10 +241,7 @@
   }
 </script>
 ```
-
----
-
-# useState & useEffect
+#### useState & useEffect
 
 - useState[state, setState]
   - document : https://ko.reactjs.org/docs/hooks-reference.html#usestate
@@ -221,10 +259,7 @@
     }, [keyword]);
     ```
 
----
-
-# Cleanup
-
+#### Cleanup
 - Component가 삭제됐을 때 실행되는 함수
 
   ```js
@@ -249,20 +284,14 @@
   }
   ```
 
----
-
-# Array of useState
-
+#### Array of useState
 - Array에 Array를 더하는 방법
   ```js
   const arraySample = [1,2,3];
   const useState[value, setValue] = useState([]);
   setValue((currentArray) => [value, ...currentArray]);
   ```
-
----
-
-# fetch
+#### fetch
 
 ```js
 fetch("https://url", {
@@ -291,8 +320,10 @@ fetch("https://url", {
 });
 ```
 
-# i18n 언어팩 적용
+---
 
+# My React Library
+### i18n 언어팩 적용
 - `package.json` 에 i18next 관련 dependency 추가
   ```json
   {
@@ -455,8 +486,8 @@ fetch("https://url", {
     }
   }
   ```
-
-# Component 제어
+---
+### Sub Component 제어
 - Modal을 호출하는 Main Component에서 데이터값 뿐만 아니라 state 함수를 같이 넘겨서 사용한다.
 - Modal은 부모의 state를 사용해서 부모에서 선언해놓은 snackbar component를 제어하고 사용한다.
 ```js
@@ -529,7 +560,9 @@ export default function RequestModal({
 }
 ```
 
-# Autocomplete
+---
+
+### Autocomplete
 ```js
 ...
 const filter = createFilterOptions<Team>();
@@ -560,16 +593,8 @@ return (
 
   ...
 )
-
 ```
-
-
-### Practice Code
-
-- [Repository : self-study/self-study/do-react](https://github.com/justdoanything/self-study/tree/main/WIS/do-react)
-
 ---
 
 ### Reference
-
 - [Nomadcoder's ReactJS로 영화 웹 서비스 만들기](https://nomadcoders.co/react-for-beginners/lobby)
