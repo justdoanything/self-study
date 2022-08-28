@@ -201,7 +201,15 @@ Amazon Glacier | Back-Ups
     - EC2 Instance는 버퍼 캐시, 스풀링 디렉터리와 같은 임시 저장소가 필요할 떄 사용해야 하고 인스턴스가 중단되면 사라지기 때문에 영구적인 데이터가 필요하면 EBS를 사용해야 한다.
   - EFS vs FSx
     - 주요 차이점은 FSx는 Windows 환경과 통합된다는 것
-    - 
+    - EFS는 Linux 및 Mac EC2 인스턴스와 온프레미스 컴퓨팅 리소스에 탑재할 수 있는 확장 가능한 완전 관리형 NFS 파일 시스템
+    - EFS는 앱 중단 없이 페타바이트 규모의 데이터에 도달할 수 있는 탄력적이고 확장 가능한 스토리지를 제공합니다. 이 서비스는 일관되게 짧은 지연 시간으로 수천 개의 Amazon EC2 인스턴스와 함께 작동합니다.
+    - EFS를 사용하면 공유 파일 시스템을 클라우드와 호환할 수 있으며 코드를 크게 변경하지 않고도 간단하게 통합할 수 있다.
+    - EFS의 단점으론 파일 기반 스토리지가 IOPS(Input/Output Per Second) 기준으로 블록 스토리지와 동일한 성능 수준을 제공하지 않는다는 것입니다. 또한 NTFS 및 NFS와 같은 표준 프로토콜에서만 작동하기 때문에 Windows와 호환되지는 않습니다.
+    - FSx는 Windows Server 메시지 블록 서비스를 실행하는 관리되는 Windows Server 환경을 제공한다.
+  - Windws Server 요구사항에 최적화 하려면 `FSx`
+  - 개별 EC2 instance에 대해 짧은 지연 시간과 고속 데이터 액세스가 필요하면 `EBS`
+  - File System 기반의 시스템을 사용하고 여러 EC2 instance나 Linux, MacOS instance에 연결하면 `EFS`
+  - 이 외에는 `S3`를 사용한다. 
   - Reference : [ebs-efs-fsx-s3-how-these-storage-options-differ](https://pilotcoresystems.com/insights/ebs-efs-fsx-s3-how-these-storage-options-differ/)
 ## 아키텍처적 트레이드오프(고가용성과 비용 간 트레이드오프, Amazon Relational Database Service(RDS)를 사용하는 것과 Amazon Elastic Compute Cloud(EC2)에 자체 데이터베이스를 설치하는 것 간의 트레이드오프)
 - Amazon RDS (Relational Database Service)
