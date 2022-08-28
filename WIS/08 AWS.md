@@ -168,7 +168,7 @@ Amazon Glacier | Back-Ups
 
 ## 안정적이고 복원력을 갖춘 스토리지 선택하기
 - Keyword : EC2, EBS, EFS, Galcier, Storage Gateway
-- `Amazon EBS`
+- `Amazon EBS (Elastic Block Store)`
   - 내구성이 있는 블록 수준 스토리지 볼륨을 제공하고 실행 중인 인스턴스에 연결하는 것이 가능
   - 세분화된 업데이트를 자주 수행하는 데이터
   - 인스턴스에서 데이터베이스를 실행할 때 권장
@@ -178,19 +178,31 @@ Amazon Glacier | Back-Ups
     - SSD : 트랜잭션 워크로드를 위한 SSD 지원 스토리지(주로 IOPS, 지연 시간 및 내구성이 성능을 좌우)
     - HDD : 처리량 워크로드를 위한 HDD 지원 스토리지(주로 MB/초로 측정한 처리량이 성능을 좌우)
     - 단일 구성 요소의 장애로 인한 데이터 손실을 방지하기 위해 가용 영역의 여러 서버에 복제되며, 이에 따른 추가 요금도 없음
-    - 
+- `Amazon S3 (Simple Storage Service)`
+  - 저렴한 비용
+  - 데이터 및 애플리케이션의 백업 복사본을 저장
+  - EBS 스냅샷과 인스턴스 스토어 지원 AMI를 저장
 - `Amazon EC2 Instance Store`
   - 여러 인스턴스는 호스트 컴퓨터에 물리적으로 연결된 디스크 스토리지에 액세스할 수 있는데 이러한 스토리지를 인스턴스 스토어 라고 한다.
   - 인스턴스 스토어는 연관 인스턴스 수명기간에만 유지되고 인스턴스를 중단하거나 최대 절전 모드가 되면 데이터가 손실된다.
   - 버퍼, 캐시, scratch 데이터 및 기타 임시 콘텐츠와 같이 자주 변경되는 정보의 임시 스토리지나 로드가 분산된 웹 서버 풀과 같은 여러 인스턴스상에서 복제되는 데이터에 가장 적합
-- `Amazon EFS (File System)`
+- `Amazon EFS (Elastic File System)`
   - Amazon EC2에서 시용할 수 있는 확장 가능한 File Storage
   - 여러 인스턴스에서 실행하는 Application에 대한 공통 데이터 소스로 사용 가능
-- `Amazon S3`
-  - 저렴한 비용
-  - 데이터 및 애플리케이션의 백업 복사본을 저장
-  - EBS 스냅샷과 인스턴스 스토어 지원 AMI를 저장
-
+- S3 vs EBS & EFS vs FSx
+  - S3 vs EBS
+    - `S3`는 data를 bucket에 저장하고 metadata를 포함하고 있기 때문에 여러 인스턴스에서 참조하거나 사용하기 용이하다. 하지만 `EBS`는 metadat를 포함하고 있지 않고 큰 데이터에 대한 속도와 안정성을 보장하기 때문에 계층 정보 등 큰 용량의 데이터를 다룰 때 사용한다.
+  - `EBS`는 EC2에서 실행되는 어떤 OS 시스템이 구동될 떄 필요한 볼륨을 제공한다. 높은 확장성(transaction-heavy workloads)을 요구되는 인스턴스들을 위해 제공한다. 아주 큰 Enterprise급 App에서 빅데이터 분석과 같은 작업을 빠른 시간으로 처리해야할 때 적합하다. 
+    - `Block 단위로 저장한다는 의미`는 각 블록은 유일한 식별자를 갖고 있으며 블록 끼리는 metadata과 같은 연관 관계 정보는 갖고 있지 않다. 블록은 가장 효율적인 곳에 저장되기 때문에 하나의 서버/운영체제에 상주할 필요가 없고 분리되어 있기 때문에 매우 빠르고 안정적이며 효율적인 데이터 액세스를 제공한다.
+    - 데이터베이스 서버와 같은 많은 IO 작업을 짧은 대기 시간으로 처리해야하는 앱에 이상적입니다. 
+  - EC2 Instance Store vs EBS
+    - EC2 Instance Store는 EC2를 hosting 하고 있는 물리적 서버에 위치한 SSD Storage 이다.
+    - EC2 인스턴스를 위한 임시 블록 수준 저장소이다.
+    - EC2 Instance는 버퍼 캐시, 스풀링 디렉터리와 같은 임시 저장소가 필요할 떄 사용해야 하고 인스턴스가 중단되면 사라지기 때문에 영구적인 데이터가 필요하면 EBS를 사용해야 한다.
+  - EFS vs FSx
+    - 주요 차이점은 FSx는 Windows 환경과 통합된다는 것
+    - 
+  - Reference : [ebs-efs-fsx-s3-how-these-storage-options-differ](https://pilotcoresystems.com/insights/ebs-efs-fsx-s3-how-these-storage-options-differ/)
 ## 아키텍처적 트레이드오프(고가용성과 비용 간 트레이드오프, Amazon Relational Database Service(RDS)를 사용하는 것과 Amazon Elastic Compute Cloud(EC2)에 자체 데이터베이스를 설치하는 것 간의 트레이드오프)
 - Amazon RDS (Relational Database Service)
 ---
