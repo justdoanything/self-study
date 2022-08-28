@@ -177,6 +177,8 @@ Amazon Glacier | Back-Ups
     - 7가지의 볼륨 유형을 제공하고 2개의 큰 카데고리로 분류할 수 있다. 
     - SSD : 트랜잭션 워크로드를 위한 SSD 지원 스토리지(주로 IOPS, 지연 시간 및 내구성이 성능을 좌우)
     - HDD : 처리량 워크로드를 위한 HDD 지원 스토리지(주로 MB/초로 측정한 처리량이 성능을 좌우)
+    - 단일 구성 요소의 장애로 인한 데이터 손실을 방지하기 위해 가용 영역의 여러 서버에 복제되며, 이에 따른 추가 요금도 없음
+    - 
 - `Amazon EC2 Instance Store`
   - 여러 인스턴스는 호스트 컴퓨터에 물리적으로 연결된 디스크 스토리지에 액세스할 수 있는데 이러한 스토리지를 인스턴스 스토어 라고 한다.
   - 인스턴스 스토어는 연관 인스턴스 수명기간에만 유지되고 인스턴스를 중단하거나 최대 절전 모드가 되면 데이터가 손실된다.
@@ -188,6 +190,9 @@ Amazon Glacier | Back-Ups
   - 저렴한 비용
   - 데이터 및 애플리케이션의 백업 복사본을 저장
   - EBS 스냅샷과 인스턴스 스토어 지원 AMI를 저장
+
+## 아키텍처적 트레이드오프(고가용성과 비용 간 트레이드오프, Amazon Relational Database Service(RDS)를 사용하는 것과 Amazon Elastic Compute Cloud(EC2)에 자체 데이터베이스를 설치하는 것 간의 트레이드오프)
+- Amazon RDS (Relational Database Service)
 ---
 
 AWS ECS and EC2
