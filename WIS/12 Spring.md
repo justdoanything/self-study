@@ -1,10 +1,10 @@
-Spring
+목차
 ===
 - [Spring](#spring)
 - [Spring MVC](#spring-mvc)
-- [Spring Cloud](#spring-Cloud)
-- [Spring Boot](#spring-Boot)
-- [Spring Batch](#spring-Batch)
+- [Spring Cloud](#spring-cloud)
+- [Spring Boot](#spring-boot)
+- [Spring Batch](#spring-batch)
 
 ---
 
@@ -226,3 +226,39 @@ Spring MVC
     
 - Reference
   - [스프링 MVC 1편 / 김영한 / 인프런](https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81-mvc-1)
+
+---
+Spring Cloud
+===
+
+
+---
+
+Spring Boot
+===
+
+---
+
+Spring Batch
+===
+
+- ### Listener
+
+<img width="844" alt="image" src="https://user-images.githubusercontent.com/21374902/187106588-6d6b9f4e-eee8-4c11-aa80-35049ac53b63.png">
+
+종류 | 실행 시점
+---|---
+JobExecutionListener | Job 실행 전/후
+StepExecutionListener | Step 실행 전/후
+ChunkListener | Chunk 실행 전후(Tasklet 실행 전후), 오류 시점
+ItemReaderListener | ItemReader 실행 전후, 오류 시점, (단, item이 null일 경우에는 호출 X)
+ItemProcessorListener | ItemProcessor 실행 전후, 오류 시점, (단, item이 null일 경우에는 호출 X)
+ItemWriterListener | ItemWriter 실행 전후, 오류 시점, (단, item이 null일 경우에는 호출 X)
+SkipListener | item 처리가 Skip 될 경우 Skip된 item을 추적
+RetryListener | Retry 시작, 종료, 에러 시점
+
+  - 사용 방법
+    - 별도의 Listener 클래스를 선언해서 StepBuilderFactory에 주입해서 사용한다.
+    - 별도로 정의한 Listener 클래스에 위의 표를 참고해서 필요한 Listener 클래스를 구현하는 방법
+    - @BeforeChunk, @AfterRead, @OnWriteError 처럼 Annotation을 사용하는 방법
+    - Annotation을 사용할 땐 Return Type/Parameter Type을 확인하고 사용해야 한다.
