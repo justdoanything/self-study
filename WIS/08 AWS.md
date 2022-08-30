@@ -1,13 +1,17 @@
 목차
 ===
+- [무작정 정리해보는 AWS](#무작정-정리해보는-aws)
+- [기출 문제 풀이](#기출-문제-풀이)
+- [Quick Dictionary](#quick-dictionary)
 - [ECS와 EC2](#aws-ecs-and-ec2)
 
+
 ---
+# 무작정 정리해보는 AWS
 ### 📖 AWS Certified Solutions Architect - Associate를 공부하면서 정리한 내용입니다.
 Reference : https://github.com/serithemage/AWSCertifiedSolutionsArchitectUnofficialStudyGuide
 
----
-# 아키텍처에 따른 고려사항
+### 아키텍처에 따른 고려사항
 - ### `복원력`을 갖춘 아키텍처
   - 멀티 티어 아키텍처
   - 고가용성 및 내결함성 아키텍처
@@ -27,7 +31,7 @@ Reference : https://github.com/serithemage/AWSCertifiedSolutionsArchitectUnoffic
   - 비용 효율적인 컴퓨팅 및 데이터베이스 솔루션
   - 비용에 최적화된 네트워크 솔루션
 
-# AWS Keywords
+### AWS Keywords
 <details>
 
   <summary>펼치기</summary>
@@ -122,7 +126,7 @@ Reference : https://github.com/serithemage/AWSCertifiedSolutionsArchitectUnoffic
 
 ---
 
-## AWS 글로벌 인프라의 이해
+### AWS 글로벌 인프라의 이해
 
 Keyword | 개념 | 사용하는 시기와 상황
 ---|---|---
@@ -133,7 +137,7 @@ Wave Length | 5G 네트워크에서 AWS 컴퓨팅 및 스토리지 서비스를 
 Outposts | 하이브리드 환경을 위해 거의 모든 온프레미스 또는 엣지 로케이션에 AWS 인프라 및 서비스를 제공하는 완전관리형 솔루션 패밀리 | 대기 시간 요구 사항으로 인해 온프레미스에 유지해야 하는 워크로드를 위해 설계되었습니다. 그러나 이 경우에도 고객은 온프레미스 워크로드가 AWS 워크로드와 원활하게 실행되길 원합니다. AWS Outposts는 AWS에서 설계한 하드웨어로 제작된 구성 가능한 완전관리형 컴퓨팅 및 스토리지 랙으로, 이를 통해 고객은 컴퓨팅 및 스토리지를 온프레미스에서 실행하는 동시에 AWS의 광범위한 클라우드 서비스에 원활하게 연결할 수 있습니다
 - Amazon CloudFront와 Edge Network
 
-## 클라우드 서비스를 설계하는 방법
+### 클라우드 서비스를 설계하는 방법
 Storage | Data
 ---|---
 Amazon RDS | Structure Data
@@ -145,7 +149,7 @@ Ephemeral EC2 Storage | Temp Files
 Amazon S3 | Static Assets
 Amazon Glacier | Back-Ups
 
-## 느슨한 결합을 구현하기 위한 서비스들
+### 느슨한 결합을 구현하기 위한 서비스들
 - ### ELB (Elastic Load Balancing)
   Elastic Load Balancing | 용도
   ---|---
@@ -166,7 +170,7 @@ Amazon Glacier | Back-Ups
   - ReceiveMessage, DeleteMessage 작업이 별도로 존재한다. 사용자가 실제로 메세지를 수신했는지 상관없이 해당 메세지를 대기열에 그대로 보관한다. 사용자의 요청에 따라 메세지를 삭제할 수 있다.
   - SQS는 SSE(Server Side Encrpyt)를 지원합니다.
 
-## 안정적이고 복원력을 갖춘 스토리지 선택하기
+### 안정적이고 복원력을 갖춘 스토리지 선택하기
 - Keyword : EC2, EBS, EFS, Galcier, Storage Gateway
 - `Amazon EBS (Elastic Block Store)`
   - 내구성이 있는 블록 수준 스토리지 볼륨을 제공하고 실행 중인 인스턴스에 연결하는 것이 가능
@@ -213,21 +217,30 @@ Amazon Glacier | Back-Ups
   - Reference : [ebs-efs-fsx-s3-how-these-storage-options-differ](https://pilotcoresystems.com/insights/ebs-efs-fsx-s3-how-these-storage-options-differ/)
 ## 아키텍처적 트레이드오프(고가용성과 비용 간 트레이드오프, Amazon Relational Database Service(RDS)를 사용하는 것과 Amazon Elastic Compute Cloud(EC2)에 자체 데이터베이스를 설치하는 것 간의 트레이드오프)
 - Amazon RDS (Relational Database Service)
----
+
+
+⚠️⚠️⚠️ 개념을 공부하는 것보단 기출문제와 FAQ 위주로 봐야할 것 같다!
+
 
 ---
 # 기출 문제 풀이
-❓ 솔루션 설계자는 기본 웹 사이트를 사용할 수 없는 경우 사용자가 백업 정적 오류 페이지로 연결되는 솔루션을 설계하고 있습니다. 기본 웹사이트의 DNS 레코드는 도메인이 ALB(Application Load Balancer)를 가리키는 Amazon Route 53에서 호스팅됩니다. 솔루션 설계자는 변경 및 인프라 오버헤드를 최소화하면서 회사의 요구 사항을 충족하기 위해 어떤 구성을 사용해야 합니까?
+순번| 문제 | 답안
+---|---|---
+1 | 웹사이트의 DNS 레코드가 Route 53에 호스트되어 있고 도메인이 ALB를 바라보고 있을때 정적인 에러 페이지를 보여주려면 ? | Route 53 active-passive failover configuration을 설정해서 ALB가 바라보는 end-point가 비정상이면 S3에 있는 정적인 에러 페이지를 보여준다.
+2 | HPC workload, EC2 인스턴스끼리 연결이 필요하고 빠른 네트워크 응답속도와 많은 연결을 견디려면 ? | 하나에 AZ에 하나의 cluster placement group으로 EC2 인스턴스를 구동하면 된다.
+3 | 유저들은 전세계에서 다른 region에서 접근하고 GB 이상의 데이터를 올리고 다운받는다. 대기 시간 최소화, 성능 최대 활용, 효율적인 비용을 구현하려면 ? | EC2의 Auto Scaling을 사용하고 CloudFront를 어플리케이션에 호스팅한다.
+4 | 온프로미스에서 AWS로 데이터 마이그레이션한다. DFSR은 쓰는 Windows 파일 서버 팜에 파일을 저장하고 파일 서버 팜을 교체해야한다면 ? | Amazon FSx 사용
+5 | 두 부분으로 나눠서 동작하고 두번째가 더 오래 걸린다. EC2에 2개의 마이크로 서비스를 올리려고 하는데 두 서비스를 어떻게 통합 ? | 마이크로서비스1이 SQS 대기열로 데이터를 보내고 마이크로서비스2가 처리
+6 | 여러 웹사이트의 click stream data를 일괄 처리한다. 실시간으로 처리, 적은 자원 소모로 streaming data 처리해야 한다. 어떤 조합으로 ? | AWS Lambda, Amazon Kinesis Data Firehouse
+7 | 
+#### Quick Dictionary
+- `Route 53 active-passive failover configuration`: Route 53의 상태를 확인해서 활성/비활성화(장애) 상태일 때의 조치 사항을 정의할 수 있다.
+- `CloudFront` : 콘텐츠 전송 네트워크(CDN) 서비스
+- `Kinesis Data Firehose` : 스트리밍 데이터를 캡쳐, 변환, 저장, 분석 서비스로 전달 (로그 및 데이터 수집, 실시간 분석)
+- `Kinesis Data Streams` : 확장 가능하고 내구성이 좋은 실시간 데이터 스트리밍 서비스(클릭 스트림 분석, 로그 분석, 보안 모니터링)
+- `Kinesis Data Analytics` : Apache Flink를 사용해서 스트리밍 데이터를 실시간으로 분석(스트리밍 ETL, 실시간 분석)
 
-💡 Route 53 활성-수동 장애 조치 구성을 설정합니다. Route 53 상태 확인에서 ALB 엔드포인트가 비정상임을 확인하면 Amazon S3 버킷 내에서 호스팅되는 정적 오류 페이지로 트래픽을 보냅니다.
 
-❓ 솔루션 설계자는 Amazon EC2에서 고성능 컴퓨팅(HPC) 워크로드를 설계하고 있습니다. EC2 인스턴스는 서로 자주 통신해야 하며 지연 시간이 짧고 처리량이 높은 네트워크 성능이 필요합니다. 이러한 요구 사항을 충족하는 EC2 구성은 무엇입니까?
-
-💡 하나의 가용 영역에 있는 클러스터 배치 그룹에서 EC2 인스턴스를 시작합니다.
-
-❓ 회사에서 AWS에서 확장 가능한 웹 애플리케이션을 호스팅하려고 합니다. 이 응용 프로그램은 전 세계 여러 지역의 사용자가 액세스할 수 있습니다. 애플리케이션 사용자는 최대 기가바이트 크기의 고유한 데이터를 다운로드하고 업로드할 수 있습니다. 개발 팀은 업로드 및 다운로드 대기 시간을 최소화하고 성능을 최대화하는 비용 효율적인 솔루션을 원합니다. 솔루션 설계자는 이를 달성하기 위해 무엇을 해야 합니까?
-
-Au💡 to Scaling 및 Amazon CloudFront와 함께 Amazon EC2를 사용하여 애플리케이션을 호스팅합니다.
 
 ---
 
