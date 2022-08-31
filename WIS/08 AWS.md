@@ -226,20 +226,25 @@ Amazon Glacier | Back-Ups
 # 기출 문제 풀이
 순번| 문제 | 답안
 ---|---|---
-1 | 웹사이트의 DNS 레코드가 Route 53에 호스트되어 있고 도메인이 ALB를 바라보고 있을때 정적인 에러 페이지를 보여주려면 ? | Route 53 active-passive failover configuration을 설정해서 ALB가 바라보는 end-point가 비정상이면 S3에 있는 정적인 에러 페이지를 보여준다.
+1 | 웹사이트의 DNS 레코드가 Route 53에 호스트되어 있고 도메인이 ALB를 바라보고 있을때 정적인 에러 페이지를 보여주려면 ? | `Route 53 active-passive failover configuration`을 설정해서 ALB가 바라보는 end-point가 비정상이면 S3에 있는 정적인 에러 페이지를 보여준다.
 2 | HPC workload, EC2 인스턴스끼리 연결이 필요하고 빠른 네트워크 응답속도와 많은 연결을 견디려면 ? | 하나에 AZ에 하나의 cluster placement group으로 EC2 인스턴스를 구동하면 된다.
 3 | 유저들은 전세계에서 다른 region에서 접근하고 GB 이상의 데이터를 올리고 다운받는다. 대기 시간 최소화, 성능 최대 활용, 효율적인 비용을 구현하려면 ? | EC2의 Auto Scaling을 사용하고 CloudFront를 어플리케이션에 호스팅한다.
 4 | 온프로미스에서 AWS로 데이터 마이그레이션한다. DFSR은 쓰는 Windows 파일 서버 팜에 파일을 저장하고 파일 서버 팜을 교체해야한다면 ? | Amazon FSx 사용
 5 | 두 부분으로 나눠서 동작하고 두번째가 더 오래 걸린다. EC2에 2개의 마이크로 서비스를 올리려고 하는데 두 서비스를 어떻게 통합 ? | 마이크로서비스1이 SQS 대기열로 데이터를 보내고 마이크로서비스2가 처리
-6 | 여러 웹사이트의 click stream data를 일괄 처리한다. 실시간으로 처리, 적은 자원 소모로 streaming data 처리해야 한다. 어떤 조합으로 ? | AWS Lambda, Amazon Kinesis Data Firehouse
-7 | 
+6 | 여러 웹사이트의 click stream data를 일괄 처리한다. 실시간으로 처리, 적은 자원 소모로 streaming data 처리해야 한다. 어떤 조합으로 ? | AWS Lambda, `Amazon Kinesis Data Firehouse`
+7 | ALB, EC2, Auto Scaling Group에서 동작하는 Application이 있다. 매월 1일 자정에 일괄 처리 작업 때문에 CPU 사용률이 100%가 되는데 어떤 조합으로 해결할까 ? | 일정에 맞게 EC2의 Auto Scaling을 스케쥴해서 사용하면 된다.
+8 | ALB 뒤에 EC2, EC2 Auto Scaling Group, Auroa DB를 사용하는 Application이 있다. 요청 속도가 증가함에 따른 탄력성을 높인 설계에 필요한 것은 ? | `AWS Global Accelerator`, ALB 앞에 Amazon CloudFront 배포
+9 | 데이터베이스 읽기가 높은 I/O를 유발하고 데이터베이스에 대한 쓰기 요청에 대기 시간을 추가한다는 것을 발견했습니다. 기 요청과 쓰기 요청을 분리하기 위해 무엇을 해야 할까? | 읽기 전용 replica를 만들고 적절한 엔드포인트를 사용하도록 애플리케이션을 수정합니다. 
+10 | 데이터를 Migration 해야한다. 보안 네트워크 연결이 필요하고 일회성 데이터 Migration과 지속적인 데이터 Migration이 필요한 상황이다. | 초기 전송엔 `Snowball`, 지속적인 연결엔 `Direct Connect`
+
+
 #### Quick Dictionary
 - `Route 53 active-passive failover configuration`: Route 53의 상태를 확인해서 활성/비활성화(장애) 상태일 때의 조치 사항을 정의할 수 있다.
 - `CloudFront` : 콘텐츠 전송 네트워크(CDN) 서비스
 - `Kinesis Data Firehose` : 스트리밍 데이터를 캡쳐, 변환, 저장, 분석 서비스로 전달 (로그 및 데이터 수집, 실시간 분석)
 - `Kinesis Data Streams` : 확장 가능하고 내구성이 좋은 실시간 데이터 스트리밍 서비스(클릭 스트림 분석, 로그 분석, 보안 모니터링)
 - `Kinesis Data Analytics` : Apache Flink를 사용해서 스트리밍 데이터를 실시간으로 분석(스트리밍 ETL, 실시간 분석)
-
+- `Global Accelerator` : 사용자와 가장 가까운 위치의 사용 가능한 정상 엔드포인트로 트래픽을 자동으로 재라우팅하여 엔드포인트 장애를 완화하고 자동 라우팅 최적화 기능은 인터넷이 혼잡할 때 패킷 손실, 지터 및 지연 시간을 일관적으로 낮게 유지
 
 
 ---
