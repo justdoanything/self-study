@@ -262,3 +262,34 @@ RetryListener | Retry 시작, 종료, 에러 시점
     - 별도로 정의한 Listener 클래스에 위의 표를 참고해서 필요한 Listener 클래스를 구현하는 방법
     - @BeforeChunk, @AfterRead, @OnWriteError 처럼 Annotation을 사용하는 방법
     - Annotation을 사용할 땐 Return Type/Parameter Type을 확인하고 사용해야 한다.
+  - 종류
+    ```java
+    /* Job */
+    @BeforeJob public void beforeJob(JobExecution jobExecution);
+    @AfterJob  public void afterJob(JobExecution jobExecution);
+    
+    /* Step */
+    @BeforeStep public void beforeStep(StepExecution stepExecution);
+    @AfterStep public ExitStatus afterStep(StepExecution stepExecution);
+
+    /* Chunk */
+    @BeforeChunk public void beforeChunk(ChunkContext context);
+    @AfterChunk public void afterChunk(ChunkContext context);
+    @AfterChunkError public void afterChunkError(ChunkContext context);
+
+    /* Read */
+    @BeforeRead public void beforeRead();
+    @AfterRead public void afterRead(Object obj);
+    @OnReadError public void onReadError(Exception ex);
+
+    /* Process */
+    @BeforeProcess public void beforeProcess(Object obj);
+    @AfterProcess public void afterProcess(Object obj1, Object2 obj2);
+    @OnProcessError public void onProcessError(Object obj, Exception e);
+
+    /* Write */
+    @BeforeWrite public void beforeWrite(List<? extends Object> objs);
+    @AfterWrite public void afterWrite(List<? extends Object> objs);
+    @OnWriteError public void onWriteError(Exception exception, List<? extends Object> objs);
+    ```
+    
