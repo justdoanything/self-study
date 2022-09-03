@@ -3,6 +3,9 @@
 - [무작정 정리해보는 AWS](#무작정-정리해보는-aws)
 - [기출 문제 풀이](#기출-문제-풀이)
 - [Quick Dictionary](#quick-dictionary)
+  - [Storage Service](#storage-service)
+  - [Global Infra](#global-infra)
+  - [ELB](#elastic-load-balancing)
 - [ECS와 EC2](#aws-ecs-and-ec2)
 
 
@@ -215,9 +218,6 @@ Amazon Glacier | Back-Ups
   - File System 기반의 시스템을 사용하고 여러 EC2 instance나 Linux, MacOS instance에 연결하면 `EFS`
   - 이 외에는 `S3`를 사용한다. 
   - Reference : [ebs-efs-fsx-s3-how-these-storage-options-differ](https://pilotcoresystems.com/insights/ebs-efs-fsx-s3-how-these-storage-options-differ/)
-## 아키텍처적 트레이드오프(고가용성과 비용 간 트레이드오프, Amazon Relational Database Service(RDS)를 사용하는 것과 Amazon Elastic Compute Cloud(EC2)에 자체 데이터베이스를 설치하는 것 간의 트레이드오프)
-- Amazon RDS (Relational Database Service)
-
 
 ⚠️⚠️⚠️ 개념을 공부하는 것보단 기출문제와 FAQ 위주로 봐야할 것 같다!
 
@@ -236,6 +236,16 @@ Amazon Glacier | Back-Ups
 8 | ALB 뒤에 EC2, EC2 Auto Scaling Group, Auroa DB를 사용하는 Application이 있다. 요청 속도가 증가함에 따른 탄력성을 높인 설계에 필요한 것은 ? | `AWS Global Accelerator`, ALB 앞에 Amazon CloudFront 배포
 9 | 데이터베이스 읽기가 높은 I/O를 유발하고 데이터베이스에 대한 쓰기 요청에 대기 시간을 추가한다는 것을 발견했습니다. 기 요청과 쓰기 요청을 분리하기 위해 무엇을 해야 할까? | 읽기 전용 replica를 만들고 적절한 엔드포인트를 사용하도록 애플리케이션을 수정합니다. 
 10 | 데이터를 Migration 해야한다. 보안 네트워크 연결이 필요하고 일회성 데이터 Migration과 지속적인 데이터 Migration이 필요한 상황이다. | 초기 전송엔 `Snowball`, 지속적인 연결엔 `Direct Connect`
+11 | ALB 뒤에 여러개의 EC2가 있다. 최근 저작권 제한이 변경되어 CIO(최고 정보 책임자)가 특정 국가에 대한 액세스를 차단하려고 합니다. | Amazon CloudFront를 사용하여 애플리케이션을 제공하고 차단된 국가에 대한 액세스를 거부합니다.
+12 | 많은 데이터를 저장하는 App. 여러 AZ에 배포된 EC2 Linux에서 매시간 분석 및 수정된다. 6개월 동안 용량이 계속 증가될 것 이라고 예측된다. | EFS에 저장하고 파일 시스템을 App에 마운트한다.
+13 | 3계층 App을 AWS로 Migration. App은 Mysql 필요. 기존에 App은 다양한 실시간 보고서를 만들어서 성능이 좋지 않았다. 이를 위한 솔루션은? | Aurora Mysql를 다중 AZ DB 클러스터에 생성하고 실시간 보고서를 위한 multi reads replicas를 만든다. App이 여러 reader endpoint를 사용하도록 설정한다.
+14 | 여러 EC2에 분산 DB를 배포. 초당 수백만 건의 트랜잭션을 위한 짧은 대기시간과 처리량이 있는 block storage가 필요하다. 이를 위한 솔루션은 ? | Amazon EC2 instance store
+15 | 정적 HTML로 온라인에 게시. 수백만의 조회수가 예상됨. 정적 파일은 S3에 있을 때 어떻 조치를 해야할까? | S3 버킷을 origin으로 CloudFront와 사용한다.
+16 | 트랜잭션은 예상할 수 없고 초당 0~500개 이상이 될 수 있다. Back-end DB에 유지해야할 데이터는 1GB 미만이고 key-value 요청을 사용한다고 했을때 필요한 서비스는 ? | Lambda, DynamoDB
+17 | App은 ALB + EC2 조합이고 us-east-1에 존재. us-west-1이 증가함에 따라 대기 시간이 짧고 가용성이 좋은 솔루션은 ? | us-west-1에 EC2를 프로비져닝하고 ALB를 설정한다. Global Accelerator에 두 리전의 ELB를 포함하는 Group을 사용하는 accelerator 생성
+18 | 사용자는 커스텀 이미지를 제출할 수 있다. 이를 위한 매개변수는 API Gateway API로 전송되는 모든 요청에 있고 사용자 커스텀 이미지는 요청 시 생성되며 이를 보거나 다운로드할 수 있는 링크를 제공받는다. 이를 위한 솔루션은? | Lambda를 사용해서 사용자의 요청으로 원본 이미지를 조작한다. 원본 이미지와 커스텀된 이미지를 S3에 저장하고 S3 버킷의 오리진으로 CloudFront에 설정한다.
+19 | 회사에 중요한 데이터를 S3로 Migration. 현재는 단일 리전(us-east-1)에 단일 S3 버킷을 사용한다. 재해 복구 정책에 따르면 데이터는 여러 리전에 있어야 한다. 이를 위한 S3 솔루션은 ? | 다른 리전에서 버전 관리를 사용하여 추가 S3 버킷을 생성하고 리전 간 복제를 구성합니다.
+20 | App은 VPC 안에서 EC2 위에서 동작한다. App은 하나의 S3 API를 호출해서 객체를 저장하고 읽어야 한다. 보안 정책은 App의 인터넷 바인딩을 제한한다. 보안을 유지하면서 수정해야할 사항은 ? | `S3 Gateway Enpoint`을 설정한다.
 
 
 #### Quick Dictionary
@@ -244,9 +254,41 @@ Amazon Glacier | Back-Ups
 - `Kinesis Data Firehose` : 스트리밍 데이터를 캡쳐, 변환, 저장, 분석 서비스로 전달 (로그 및 데이터 수집, 실시간 분석)
 - `Kinesis Data Streams` : 확장 가능하고 내구성이 좋은 실시간 데이터 스트리밍 서비스(클릭 스트림 분석, 로그 분석, 보안 모니터링)
 - `Kinesis Data Analytics` : Apache Flink를 사용해서 스트리밍 데이터를 실시간으로 분석(스트리밍 ETL, 실시간 분석)
+- `Route 53 ` : DNS 서비스로 최종 사용자를 인터넷 애플리케이션으로 라우팅할 수 있는 매우 안정적이고 비용 효율적인 방법. 최적의 방법으로 route 해주는건 아닌 것 같다. 
 - `Global Accelerator` : 사용자와 가장 가까운 위치의 사용 가능한 정상 엔드포인트로 트래픽을 자동으로 재라우팅하여 엔드포인트 장애를 완화하고 자동 라우팅 최적화 기능은 인터넷이 혼잡할 때 패킷 손실, 지터 및 지연 시간을 일관적으로 낮게 유지
 - `snowball` : 페타바이트 규모의 데이터를 AWS로 마이그레이션할 수 있습니다. 여러 디바이스가 필요한 작업의 경우 Snow의 대규모 데이터 마이그레이션 관리자를 통해 디바이스의 단계를 추적할 수 있습니다. 물리적 스토리지 디바이스를 사용하여 Amazon S3 (Amazon S3) 와 온사이트 데이터 스토리지 위치 간에 대량 데이터를 전송합니다.
 - `Direct Connect` : AWS 리소스에 대한 최단 경로입니다. 전송하는 동안 네트워크 트래픽은 AWS 글로벌 네트워크에 남아있으며 퍼블릭 인터넷에 닿지 않습니다. 프라이빗 네트워크 연결을 생성할 수 있습니다.
+- `EFS` : Windows나 Linux 시스템은 EFS를 사용하면 된다. 탄력적인 용량 증설이 가능하다.
+- `S3 Gateway Enpoint` : S3 and Dynamo DB 만을 위해 사용 가능하다.
+
+
+
+- ###### Storage Service
+  Storage | Data
+  ---|---
+  Amazon RDS | Structure Data
+  Amazon CloudSearch | Search Indices
+  DynamoDB | Meta Data
+  Amazon Kinesis | Event Logs
+  Amazon EBS | FS Blocks
+  Ephemeral EC2 Storage | Temp Files
+  Amazon S3 | Static Assets
+  Amazon Glacier | Back-Ups
+- ###### Global Infra
+  Keyword | 개념 | 사용하는 시기와 상황
+  ---|---|---
+  Region | AWS 서버가 존재하는 위치
+  Aavailable Zone | 각 Region은 여러개의 가용영역으로 나눠져 있고 가용영역은 서로 분리되어 있다.
+  Local Zones | 짧은 대기 시간을 요구하는 Application을 최종 사용자와 더 가까운 위치에서 제공 | 동영상 렌더링 및 그래픽 집약적인 가상 데스크톱 애플리케이션 등 한 자릿수 밀리초 단위의 대기 시간이 요구되는 워크로드를 더 많은 위치에서 실행하도록 고안된 새로운 유형의 AWS 인프라입니다. 어떤 고객은 고유한 온프레미스 데이터 센터를 운영하길 원하지만 로컬 데이터 센터를 완전히 없애길 원하는 고객도 있을 수 있습니다. AWS Local Zones를 사용하는 고객은 자체 데이터 센터 인프라를 보유 및 운영할 필요 없이 컴퓨팅 및 스토리지 리소스를 최종 사용자에게 더 가까이에 두는 이점을 누릴 수 있습니다.
+  Wave Length | 5G 네트워크에서 AWS 컴퓨팅 및 스토리지 서비스를 포함하여 매우 낮은 대기 시간의 애플리케이션을 개발하고 배포하며 확장하기 위한 모바일 엣지 컴퓨팅 인프라를 제공 | AWS 인프라, 서비스 API 및 도구를 5G 네트워크로 확장하여 지연 시간이 짧은 애플리케이션을 5G 디바이스에 제공하도록 설계되었습니다. Wavelength는 스토리지 및 컴퓨팅 서비스를 이동 통신 사업자의 5G 네트워크 내에 포함하여 개발자가 IoT 디바이스, 게임 스트리밍, 자율 주행 차량, 라이브 미디어 제작 등 10밀리초 미만의 지연 시간이 요구되는 새로운 5G 최종 사용자를 위한 애플리케이션을 손쉽게 제작할 수 있게 합니다.
+  Outposts | 하이브리드 환경을 위해 거의 모든 온프레미스 또는 엣지 로케이션에 AWS 인프라 및 서비스를 제공하는 완전관리형 솔루션 패밀리 | 대기 시간 요구 사항으로 인해 온프레미스에 유지해야 하는 워크로드를 위해 설계되었습니다. 그러나 이 경우에도 고객은 온프레미스 워크로드가 AWS 워크로드와 원활하게 실행되길 원합니다. AWS Outposts는 AWS에서 설계한 하드웨어로 제작된 구성 가능한 완전관리형 컴퓨팅 및 스토리지 랙으로, 이를 통해 고객은 컴퓨팅 및 스토리지를 온프레미스에서 실행하는 동시에 AWS의 광범위한 클라우드 서비스에 원활하게 연결할 수 있습니다
+- ###### Elastic Load Balancing
+  Elastic Load Balancing | 용도
+  ---|---
+  Application Load Balancer | HTTP 요청을 로드 밸런싱
+  Network Load Balancer | 네트워크/전송 프로토콜(4계층 - TCP, UDP) 로드 밸런싱의 경우와 고도의 성능이 요구되거나 대기 시간이 낮아야 하는 애플리케이션
+  Gateway Load Balancer | Amazon Elastic Compute Cloud(Amazon EC2) Classic 네트워크 안에 구축된 경우
+  Classic Load Balancer | 서드 파티 가상 어플라이언스를 배포하고 실행해야 하는 경우
 
 
 ---
