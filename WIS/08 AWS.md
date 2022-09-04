@@ -246,6 +246,11 @@ Amazon Glacier | Back-Ups
 18 | 사용자는 커스텀 이미지를 제출할 수 있다. 이를 위한 매개변수는 API Gateway API로 전송되는 모든 요청에 있고 사용자 커스텀 이미지는 요청 시 생성되며 이를 보거나 다운로드할 수 있는 링크를 제공받는다. 이를 위한 솔루션은? | Lambda를 사용해서 사용자의 요청으로 원본 이미지를 조작한다. 원본 이미지와 커스텀된 이미지를 S3에 저장하고 S3 버킷의 오리진으로 CloudFront에 설정한다.
 19 | 회사에 중요한 데이터를 S3로 Migration. 현재는 단일 리전(us-east-1)에 단일 S3 버킷을 사용한다. 재해 복구 정책에 따르면 데이터는 여러 리전에 있어야 한다. 이를 위한 S3 솔루션은 ? | 다른 리전에서 버전 관리를 사용하여 추가 S3 버킷을 생성하고 리전 간 복제를 구성합니다.
 20 | App은 VPC 안에서 EC2 위에서 동작한다. App은 하나의 S3 API를 호출해서 객체를 저장하고 읽어야 한다. 보안 정책은 App의 인터넷 바인딩을 제한한다. 보안을 유지하면서 수정해야할 사항은 ? | `S3 Gateway Enpoint`을 설정한다.
+21 | PostgreSQL DB를 사용하는 App. 매월 초 결산 때 대규모 쿼리를 수행함. App에 미치는 영향을 줄이고자 한다. 무엇을 해야할까 ? | Read Replica를 만들고 그 Replica로 트래픽을 보내면 된다.
+22 | HPC App과 데이터를 AWS로 Migration. App이 구동되는 동안은 고성능 병렬 스토리지와 계층 스토리지를 쓰고 있다. 구동되지 않을 때는 데이터를 저장하기 위해서 cold 스토리지를 사용하고 있다.| S3의 `cold data storage`, FSx의 `Lustre for high-performance parallel storage`
+23 | 단일 리전 EC2 인스턴스 App. 재해 발생 시 두번째 리전에 배포할 수 있는지 확인해야 한다. | 두번째 리전에서 `AMI`으로 새로운 EC2 인스턴스를 구동해야 한다. EC2에 AMI를 복사하고 대상에 맞는 두번째 리전을 지정한다.
+24 | VPC의 EC2 인스턴스에서 DynamoDB에 대한 API 호출이 인터넷을 통과하지 않도록 해야 합니다. | api endpoint에 대한 라우트 테이블을 만들고 DynamoDB를 위한 gateway endpoint를 만들어야 한다.
+25 | 기존 App은 암호화가 되어 있지 않은 Amazon RDS Mysql을 사용한다. 모든 데이터를 암호화하기 위해선 ? | RDS 인스턴스의 스냅샷을 만들고 그 스냅샷의 암호화된 복사본을 만든다. 그리고 암호화된 스냅샷에서 RDS 인스턴스를 복원한다.
 
 
 #### Quick Dictionary
@@ -260,6 +265,9 @@ Amazon Glacier | Back-Ups
 - `Direct Connect` : AWS 리소스에 대한 최단 경로입니다. 전송하는 동안 네트워크 트래픽은 AWS 글로벌 네트워크에 남아있으며 퍼블릭 인터넷에 닿지 않습니다. 프라이빗 네트워크 연결을 생성할 수 있습니다.
 - `EFS` : Windows나 Linux 시스템은 EFS를 사용하면 된다. 탄력적인 용량 증설이 가능하다.
 - `S3 Gateway Enpoint` : S3 and Dynamo DB 만을 위해 사용 가능하다.
+- `Cold Data Storage` : 
+- `Parallel Storage` : 
+- `Amazon Machine Image(AMI)` :
 
 
 
