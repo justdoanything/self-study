@@ -251,10 +251,17 @@ Amazon Glacier | Back-Ups
 23 | 단일 리전 EC2 인스턴스 App. 재해 발생 시 두번째 리전에 배포할 수 있는지 확인해야 한다. | 두번째 리전에서 `AMI`으로 새로운 EC2 인스턴스를 구동해야 한다. EC2에 AMI를 복사하고 대상에 맞는 두번째 리전을 지정한다.
 24 | VPC의 EC2 인스턴스에서 DynamoDB에 대한 API 호출이 인터넷을 통과하지 않도록 해야 합니다. | api endpoint에 대한 라우트 테이블을 만들고 DynamoDB를 위한 gateway endpoint를 만들어야 한다.
 25 | 기존 App은 암호화가 되어 있지 않은 Amazon RDS Mysql을 사용한다. 모든 데이터를 암호화하기 위해선 ? | RDS 인스턴스의 스냅샷을 만들고 그 스냅샷의 암호화된 복사본을 만든다. 그리고 암호화된 스냅샷에서 RDS 인스턴스를 복원한다.
+26 | IoT 센서가 수천개 있고 AWS로 데이터를 보내야한다. App은 순서대로 이벤트를 수신하고 나중에 추가로 처리하기 위한 데이터 저장 솔루션이 필요하다. | 각 센서에 있는 하나의 대기열을 SQS 표준 대기열을 사용해서 실시간으로 처리하고 SQS 대기열에서 AWS Lambda 함수를 트리거하여 S3에 데이터를 저장
+27 | ALB 뒤에 EC2. 동적/정적 컨텐츠가 복합적으로 있고 전 세계 사용자들이 속도가 너무 느리다고 한다. | CloudFront를 생성헤서 ALB를 오리진으로 설정한다. `Route 53`이 CloudFront를 라우팅하도록 설정합니다.
+28 | RDS 인스턴스에 분석 데이터 저장, API를 사용하여 접근, App은 비활성 될 수 있지만 몇초 안에 엄청난 트래픽을 받을 수 있다. | API Gateway와 Lambda 사용
+29 | 매월 1일 20개의 EC2를 실행하고 7일동안 실행됩니다. 7일동안 중단할 수 없다고 했을 때 비용 절감을 위한 것은 ? | `Scheduled Reserved Instances`
+30 | 4 계층에서 사용자와 통신하는 게임을 위해 단일 AZ에 EC2를 보유하고 있다. 고가용성 및 비용 효율성을 위해 할 것은 ? | EC2 인스턴스 앞단에 Network Load Balancer를 구성하고 Auto Scaling Group를 사용해서 여러 AZ에서 인스턴스를 자동으로 추가하고 삭제하도록 합니다.
+
 
 
 #### Quick Dictionary
 - `Route 53 active-passive failover configuration`: Route 53의 상태를 확인해서 활성/비활성화(장애) 상태일 때의 조치 사항을 정의할 수 있다.
+- `Route 53` : 
 - `CloudFront` : 콘텐츠 전송 네트워크(CDN) 서비스
 - `Kinesis Data Firehose` : 스트리밍 데이터를 캡쳐, 변환, 저장, 분석 서비스로 전달 (로그 및 데이터 수집, 실시간 분석)
 - `Kinesis Data Streams` : 확장 가능하고 내구성이 좋은 실시간 데이터 스트리밍 서비스(클릭 스트림 분석, 로그 분석, 보안 모니터링)
@@ -268,7 +275,10 @@ Amazon Glacier | Back-Ups
 - `Cold Data Storage` : 
 - `Parallel Storage` : 
 - `Amazon Machine Image(AMI)` :
-
+- Reserved Instances
+- Spot Block Instances
+- On-Demand Instances
+- Scheduled Reserved Instances
 
 
 - ###### Storage Service
