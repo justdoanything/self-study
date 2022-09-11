@@ -674,6 +674,24 @@ MSA
     ```
   - West to East 사이에 각 서비스들이 호출하는 룰을 정하는 것이 Serice Mesh 이다.
   - Backing Service : DBMS - Persistence, Cache, Queue
+- Spring Cloud MSA 강의를 들으면서 메모
+  ---
+  - ### 12 factors of Cloud Native Application
+    - Base Code : 여러 Micro Service Code의 통일적인 관리되어야 한다.
+    - Dependency Isolation : Micro Service는 자체 종속성을 갖고 packaging 되어 있어서 전체 시스템에 영향을 주지 않는 상태에서 변경할 수 있어야 한다.
+    - Configurations : 내부의 Hard Code가 아니라 Code 외부에서 구성관리 도구를 통해서 Micro Service를 제어해야 한다.
+    - Linkable Backing Services : 보조 서비스(DB, Caching, Messaging)를 이용해서 Micro Service가 추가로 가져야할 기능을 구현할 수 있어야 한다.
+    - Stages of Creation : Build, Release, Run의 환경을 분리해야 한다.
+    - Stateless Processes : 각 Micro Service는 다른 Service와 분리되어서 독립적으로 동작하고 필요한 자원이 있으면 DB, Caching 등을 사용해야 한다.
+    - Port Binding : 각 micro Service는 고유의 Port에서 노출되는 기능이 있어야 한다.
+    - Concurrency : 동일한 Service가 여러 Instance에 나눠서 동작하기 때문에 동시성을 갖고 있어야 한다.
+    - Disposability : Service Instance가 삭제가 가능해야 하고 정상적으로 종료되어야 한다.
+    - Development & Production Parity : 개발 환경과 운영 환경을 분리해야 한다.
+    - Logs : Micro Service로 생성된 로그들을 Application과 분리되게 Event Streaming Service로 처리해야 한다.
+    - Admin Processes for Eventual Processes : 현재 사용되고 있는 모든 Micro Service의 상태와 리소스를 확인할 수 있어야 한다.
+    - API First : API 형태로 서비스가 제공될 때 사용자 측면에서 어떻게 API를 사용할지 고려해서 개발해야 한다.
+    - Telemetry : 모든 지표를 시각화되서 관리되어야 한다.
+    - Authentication and Authorization : 인증/인가를 해야 한다.
 ---
 
 - ## 프로젝트 구현
