@@ -260,6 +260,12 @@ Amazon Glacier | Back-Ups
 32 | 멀티 ALB에 웹싸이트 호스팅. 나라마다 다른 컨텐츠 배포권이 있고 유저에 맞는 컨텐츠를 전달해야 한다. | Route 53에 `a geolocation policy`를 설정한다.
 33 | 새로 만든 AWS 계정에 root 계정 접근을 막아야 한다. | 루트 유저가 강력한 비밀번호를 사용하고 있는지 확인. 루트 유저가 multi-factor를 사용하는지 확인.
 34 | 로그를 S3에 저장. 얼마나/어떤 로그에 접근하는지 예측할 수 없다. 효율적인 비용을 고려했을 때 어떤 S3를 선택해야할까 ? | `S3 Intelligent-Tiering`
+35 | EC2 Instance. Auto Scaling in ALB. ALB는 CloudFront 배포를 위한 Origin. SQL Injection 방얼르 위해 WAF 사용. 외부 악성 IP가 감지됨. 어떻게 방어해야할까? | WAF에 악성 IP 주소를 막는 조건을 추가한다.
+36 | 첫번째 App은 동기이면서 빠르게 응답해야함. 두번째는 시간이 오래 걸려서 여러 컴포넌트로 나눠지는걸 고려해야함. 주문은 한번에 처리되야하고 받은 순서대로 처리해야 한다. | SNS topic을 생성하고 SQS FIFO가 구독하도록한다. 
+37 | App은 AWS Cloud에 배포됨. Web Layer와 Database Layer로 two-tier 구조를 가져야함. XSS에 취약한 상태이다. | ALB를 만들고 ALB 뒤에 App를 구성하고 WAF를 활성화한다.
+38 | RDS Mysql, Multi-AZ 사용. 외부 시스템이 DB에서 데이터를 가져갈 때 속도가 느려진다. 웹싸이트의 응답 속도가 느려지는 원인이 됨. | RDS DB instance에 read replica를 추가하고 외부 시스템이 read replica에서 데이터를 가져가도록 한다.
+39 | EC2, Multi-AZ. Auto Scaling in ALB. CPU 가동률이 40%일 때 가장 잘 구동한다. 이를 지키기 위해 어떻게 해야할까? | `target tracking policy`를 사용해서 Auto Scaling 그룹을 동적으로 확장한다.
+40 | EC2, Multi-AZ. Auto Scaling in ALB. work hour엔 20 intances, 밤에 scale 내려가면 2 instances. 아침에 App이 느리다는 불만이 있다. | 아침에 20 으로 설정하는 스케쥴 액션을 설정한다.
 
 
 
@@ -295,6 +301,11 @@ Amazon Glacier | Back-Ups
   - `Multivalue answer` : DNS 쿼리에 무작위로 선택된 최대 8개의 정상 레코드
   - `Weighted` : 용자가 지정하는 비율에 따라
 - `S3 Intelligent-Tiering` : 데이터 액세스 패턴이 변경될 때 성능에 대한 영향이나 운영 오버헤드 없이 스토리지 비용을 자동으로 최적화하려는 고객을 위해 설계된 신규 Amazon S3 스토리지 클래스
+- `EC2 Auto Scaling Policy`
+  - `target tracking policy` : Amazon CloudWatch 지표와 애플리케이션의 이상적인 평균 사용률 또는 처리량(throughput) 수준을 나타내는 목표 값을 지정해서 Auto Scaling.
+  - `simple scaling policy` :
+  - `cheduled scaling actions` :
+
 
 - ###### Storage Service
   Storage | Data
