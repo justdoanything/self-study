@@ -256,6 +256,10 @@ Amazon Glacier | Back-Ups
 28 | RDS 인스턴스에 분석 데이터 저장, API를 사용하여 접근, App은 비활성 될 수 있지만 몇초 안에 엄청난 트래픽을 받을 수 있다. | API Gateway와 Lambda 사용
 29 | 매월 1일 20개의 EC2를 실행하고 7일동안 실행됩니다. 7일동안 중단할 수 없다고 했을 때 비용 절감을 위한 것은 ? | `Scheduled Reserved Instances`
 30 | 4 계층에서 사용자와 통신하는 게임을 위해 단일 AZ에 EC2를 보유하고 있다. 고가용성 및 비용 효율성을 위해 할 것은 ? | EC2 인스턴스 앞단에 Network Load Balancer를 구성하고 Auto Scaling Group를 사용해서 여러 AZ에서 인스턴스를 자동으로 추가하고 삭제하도록 합니다.
+31 | RDS Mysql 사용. 자동 백업. 암호화 하지 않음. 앞으론 암호화해서 백업하고 암호화 되지 않은 데이터는 삭제하려고 한다. 지난 백업을 삭제하기 전에 암호화해서 백업을 만들 예정이다. 미래 데이터 백업을 위해 활성화해야할 것은 ? | 데이터베이스를 스냅샷하고 암호화 스냅샷으로 복사한다. 암호화한 스냅샷으로 데이터베이스를 다시 만든다.
+32 | 멀티 ALB에 웹싸이트 호스팅. 나라마다 다른 컨텐츠 배포권이 있고 유저에 맞는 컨텐츠를 전달해야 한다. | Route 53에 `a geolocation policy`를 설정한다.
+33 | 새로 만든 AWS 계정에 root 계정 접근을 막아야 한다. | 루트 유저가 강력한 비밀번호를 사용하고 있는지 확인. 루트 유저가 multi-factor를 사용하는지 확인.
+34 | 로그를 S3에 저장. 얼마나/어떤 로그에 접근하는지 예측할 수 없다. 효율적인 비용을 고려했을 때 어떤 S3를 선택해야할까 ? | `S3 Intelligent-Tiering`
 
 
 
@@ -272,14 +276,25 @@ Amazon Glacier | Back-Ups
 - `Direct Connect` : AWS 리소스에 대한 최단 경로입니다. 전송하는 동안 네트워크 트래픽은 AWS 글로벌 네트워크에 남아있으며 퍼블릭 인터넷에 닿지 않습니다. 프라이빗 네트워크 연결을 생성할 수 있습니다.
 - `EFS` : Windows나 Linux 시스템은 EFS를 사용하면 된다. 탄력적인 용량 증설이 가능하다.
 - `S3 Gateway Enpoint` : S3 and Dynamo DB 만을 위해 사용 가능하다.
-- `Cold Data Storage` : 
-- `Parallel Storage` : 
-- `Amazon Machine Image(AMI)` :
-- Reserved Instances
-- Spot Block Instances
-- On-Demand Instances
-- Scheduled Reserved Instances
-
+- `S3 - Cold Data Storage` : 용량이 크고 Read/Write가 적은 데이터를 저장하고 있는 Storage
+- `FSx - Lustre for high-performance parallel storage` : 고성능 파일 시스템에 구축된 빠르고 확장 가능한 스토리지
+- `Amazon Machine Image(AMI)` : 인스턴스를 시작하는 데 필요한 정보를 제공하는 AWS에서 지원되고 유지 관리되는 이미지입니다.
+- `EC2 인스턴스 종류`
+  - `On-Demand Instances` : 사용한 만큼 지불(시작/중지/수면)
+  - `Reserved Instances` : On-Demand과 비교하여 EC2 비용을 대폭 절감. 물리적 인스턴스가 아니며 계정에서 온디맨드 인스턴스를 사용할 때 적용되는 결제 할인.
+  - `Spot Block Instances` : 미사용 EC2 인스턴스를 요청할 수 있게 해줌. 큰 할인율로 비용을 대폭 절감. 스팟 인스턴스는의 시간당 가격을 스팟 가격.
+  - `Scheduled Reserved Instances` : 1년 동안 지정된 시작 시간 및 기간으로 매일, 매주 또는 매월 반복적으로 정기 용량을 예약 및 사용. 현재는 서비스하지 않으며 예약을 위해선 `On-Demand Capacity Reservations`을 사용해야함
+  - `On-Demand Capacity Reservations` : 특정 가용 영역의 Amazon EC2 인스턴스에 대해 원하는 기간만큼 컴퓨팅 용량을 예약.
+- `Route 53의 routing policy`
+  - `Simple` : 하나의 리소스에만 호스팅
+  - `Failover` : active-passive 장애 조치를 구성
+  - `Geolocation` : 사용자 위치(지역)에 기반
+  - `Geoproximity` : 리소스 위치에 기반
+  - `Latency` : 최상의 지연 시간
+  - `IP-based` : 사용자의 위치(IP)에 기반
+  - `Multivalue answer` : DNS 쿼리에 무작위로 선택된 최대 8개의 정상 레코드
+  - `Weighted` : 용자가 지정하는 비율에 따라
+- `S3 Intelligent-Tiering` : 데이터 액세스 패턴이 변경될 때 성능에 대한 영향이나 운영 오버헤드 없이 스토리지 비용을 자동으로 최적화하려는 고객을 위해 설계된 신규 Amazon S3 스토리지 클래스
 
 - ###### Storage Service
   Storage | Data
