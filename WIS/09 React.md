@@ -601,7 +601,62 @@ return (
 ---
 
 ### 상태관리 - Recoil
+- #### atom
+  - Recoil 상태 관리의 기본 단위이며 atom이 업데이트되면 구독하고 있는 Component 모두 re-rendering이 된다.
+  - key는 식별자로서 반드시 고유한 값을 가져야 한다.
+    ```js
+    const nameState = atom({
+      key: "nameState",
+      default: "yongwoo"
+    })
+    ```
+- #### atomFamily
+  - atom을 생성할 때 특정 parameter를 받아서 사용할 수 있다.
+  - 예를들어, Post를 관리하는 atom을 만든다고 한다면 atom은 Post[]를 가져야 한다.
+    ```js
+    const postList = atom<Post[]>({
+      key: "postList",
+      default: []
+    })
+    ```
+  - 이 방식은 Redux와 동일하게 1개의 Post가 수정될때마다 atom에는 매번 새로운 Post[] 배열이 할당되어야 하는 문제와 여러 개의 Post를 렌더링할 때 별도의 memoization이 필요한 문제점이 있다.
+  - 그렇다고해서 atom에 Post를 각각 매핑해서 사용할 수는 없다.
+    ```js
+    type Post = { id: string; title: string; content: string; }
+    const post1 = atom<Post>({ key: "post1" });
+    const post2 = atom<Post>({ key: "post2" });
+    const post3 = atom<Post>({ key: "post3" });
+    ```
+  - 이런 경우에 atomFamily를 사용하면 된다. 
+    ```js
+    const postFamilyState = atomFamily<
+      Post // return data type
+      , string // atomFamily 팩토리 함수 호출 파라미터
+    >({
+      key: "postFamilyState",
+      default: (id) => {
+        // id를 받아서 새로운 Post 객체를 만들어냄
+        return {
+          id,
+          title: "",
+          content: ""
+        }
+      }
+    })
+    ```
+    ```js
+    const [firstPost, setFirstPost] = useRecoilState(postFamilyState("1"));
+    const [secondPost, setSecondPost] = useRecoilState(postFamilyState("2"));
+    ```
+  - 이렇게 생성된 atom들의 id를 관리해줘야 한다. 이는 Recoil의 selector를 통해서 해결할 수 있다.
+- #### selector
+  - 
+- #### selectorFamily
 
+- #### useRecoilState
+- #### useRecoilValue
+- #### useSetRecoilState
+- #### useResetRecoilState
 
 ---
 ### next.js
@@ -699,5 +754,7 @@ return (
     export default App;
     ``` 
   
-- Reference : https://kyounghwan01.github.io/blog/React/next/basic/
+- Reference
+  - https://kyounghwan01.github.io/blog/React/next/basic/
+  - https://junglast.com/blog/recoil-atomfamily-atom
 ---
