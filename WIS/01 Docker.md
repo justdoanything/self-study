@@ -395,7 +395,7 @@ volumes:
       ```dockerfile
       # 1. ubuntu 설치 (패키지 업데이트 + 만든사람 표시)
       FROM ubuntu:16.04
-      MAINTAINER yongwoo@lgcns.com
+      MAINTAINER test@email.com
       RUN apt-get update
 
       # 2. ruby 설치
