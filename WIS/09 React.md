@@ -1,11 +1,13 @@
 # React
 - [실제 프로젝트에서 경험했던 기술과 고민](#실제-프로젝트에서-경험했던-기술과-고민)
 - [React 시작지점](#react의-시작지점-파악해보기)
-- [React 기존지식](#react-기본지식)
+- [React 기본지식](#react-기본지식)
 - [My React Library](#my-react-library)
   - [i18n 언어팩 적용](#i18n-언어팩-적용)
   - [Sub Component 제어](#sub-component-제어)
   - [Autocomplete](#autocomplete)
+  - [Recoil](#상태관리---recoil)
+  - [Next.js](#nextjs)
 ---
 
 # 실제 프로젝트에서 경험했던 기술과 고민
@@ -301,8 +303,8 @@ fetch("https://url", {
     "Access-Control-Allow-Origin": "*",
   },
   body: JSON.stringify({
-    fromEmail: "yongwoo.leee@lgcns.com",
-    toEmail: ["yongwoo.leee@lgcns.com"],
+    fromEmail: "test@email.com",
+    toEmail: ["test@email.com"],
     mailSubject: "Test Mailing - Beaver",
     mailContent: "Test Mailing - Beaver",
   }),
@@ -319,6 +321,8 @@ fetch("https://url", {
   });
 });
 ```
+### Reference
+- [Nomadcoder's ReactJS로 영화 웹 서비스 만들기](https://nomadcoders.co/react-for-beginners/lobby)
 
 ---
 
@@ -596,5 +600,104 @@ return (
 ```
 ---
 
-### Reference
-- [Nomadcoder's ReactJS로 영화 웹 서비스 만들기](https://nomadcoders.co/react-for-beginners/lobby)
+### 상태관리 - Recoil
+
+
+---
+### next.js
+- #### next.js 의 개념과 주요 기능
+  - next.js는 React로 만드는 SSR Framework 이다.
+  - CSR은 모든 js 파일을 loading하고 화면을 표시하는데 많은 시간을 소요하게 된다. 반면에 SSR은 서버에서 js 파일을 loading해서 client에선 js를 loading하는 시간을 절약할 수 있다.
+  - 검색엔진에 용이하고 SEO를 용이하게 할 수 있다.
+  - Hot Reloading : 저장되는 코드는 자동 새로고침
+  - Automatic Routing : pages 폴더 내에 있는 파일은 자동으로 routing
+  - _document.tsx : meta tag 정의. 서버사이드에 관여하는 로직 또는 static한 로직을 추가하는데 사용한다.
+  - _app.tsx : 최초 rendering
+  - Link와 prefetching : 백그라운드에서 페이지를 미리 가져옵니다.
+    - `<Link prefetch href="..">`
+- #### getInitialProps
+  - 각 페이지에서 사전(build될 때)에 불러와야할 데이터가 있을 때 사용한다.
+  - CSR 방식의 useEffect, created 함수와 비슷하다.
+  - v9 부터는 `getStaticProps`, `getStaticPaths`, `getServerSideProps` 사용을 권장한다.
+    - `getStaticProps` : build 될 때 고정되야 하는 props를 가져와서 사용한다.
+    - `getStaticPaths` : build 될 때 rendering 할 경로를 설정한다. 정의하지 않은 하위 경로는 뜨지 않는다.
+    - `getServerSideProps` : 많이 쓸 경우, Server가 모든 요청을 계산하기 때문에 값을 caching 하기 힘들다.
+  - `SWR` : Fetch Data by Client Side
+  - SEO가 필요하면 `getServerSideProps`를 사용하고 비공개 페이지 같은 경우엔 `SWR`을 사용한다.
+  - `getStaticPropd`, `getStaticPath`는 빌드 후에 고정된 정적 페이지로 사용할 수 있기 때문에 SSR을 하지 않고 CDN 등으로 캐싱할 수 있어서 loading 속도가 좋지만 `getServerSideProps`, `getInitialProps`는 요청이 있을 때마다 SSR을 할 수 있어서 loading 속도가 안좋을 수 있습니다.
+  - `getInitialProps`는 _app에서 사용하면 next.js의 page 최적화에 안좋을 수 있기 때문에 각 Component에서 사용하는게 좋습니다.
+
+- #### Server Side Life Cycle
+  - next 서버가 GET 요청을 받는다.
+  - GET 요청에 맞는 Component를 pages에서 찾는다.
+  - _app.tsx 의 `getInitialProps`가 있으면 실행한다.
+  - 해당 Component의 `getInitialProps`가 있으면 실행한다. (props를 받아온다.)
+  - _document.tsx의 `getInitialProps`가 있으면 실행한다.
+  - 모든 props를 구성하고 _app.tsx → Component 순으로 Rendering
+  - 모든 contents를 구성하고 _document.tsx를 실행해서 html 형태로 출력한다.
+  - `getInitialProps`는 ⭐️ 1번만 ⭐️ 실행된다. _app.tsx → Component으로 실행되기 때문에 _app.tsx에서 `getInitialProps`를 정의했다면 Component에 있는 `getInitialProps`는 실행되지 않는다. Component에서도 사용하려면 _app.tsx에 코드를 추가해야 한다.
+    ```js
+    import "./globals.css";
+
+    function MyApp({ Component, pageProps }) {
+      return <Component ponent {...pageProps} />;
+    }
+
+    MyApp.getInitialProps = async ({ Component, ctx }) => {
+      let pageProps = {};
+      // 하위 컴포넌트에 getInitialProps가 있다면 추가 (각 개별 컴포넌트에서 사용할 값 추가)
+      if (Component.getInitialProps) {
+        pageProps = await Component.getInitialProps(ctx);
+      }
+
+      // _app에서 props 추가 (모든 컴포넌트에서 공통적으로 사용할 값 추가)
+      pageProps = { ...pageProps, posttt: { title: 11111, content: 3333 } };
+
+      return { pageProps };
+    };
+
+    export default MyApp;
+    ```
+  - `getInitialProps`는 Server에서 실행되기 때문에 Browser API를 실행하면 안된다.
+
+- #### Context Object
+  - /profile/about → { id: 'about' }
+  - /profile/about?name=yongwoo → { name: 'yongwoo' }
+
+- #### Shallow Route
+  - 같은 페이지에서 getInitialProps를 굳이 호출하지 않고 URL을 변경하고 싶을 때 사용합니다.
+  - URL이 변경된 것은 `componentDidUpdate`, `useEffect`를 통해 감지할 수 있습니다.
+  - 반드시 같은 페이지 내에서 동작해야하고 다른 페이지를 사용하면 새 페이지가 loading 되고 getInitialProps가 실행됩니다.
+  - 아래 코드를 통해 페이지는 교체되지 않고 URL만 변경할 수 있습니다.
+    ```js
+    router.push(
+      {
+        pathname: "/about/profile?name=yongwoo"
+        query: { ...values, page: 1 }
+      },
+      undefiend,
+      { shallow: true }
+    )
+    ```
+- #### CssBaseline
+  - 모든 브라우저가 일관적으로 보이도록 css룰 전역에서 normaliza 해야 합니다.
+    ```js
+    import type { AppProps } from "next/app";
+    import CssBaseline from "@mui/material/CssBaseline";
+
+    const App = (props: AppProps) => {
+      const { Component, pageProps } = props;
+
+      return (
+        <>
+          <CssBaseline />
+          <Component {...pageProps} />
+        </>
+      );
+    };
+
+    export default App;
+    ``` 
+  
+- Reference : https://kyounghwan01.github.io/blog/React/next/basic/
+---
