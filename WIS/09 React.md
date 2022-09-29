@@ -839,7 +839,11 @@ return (
         trigger="$"
         data={users}
         renderSuggestion={function (entry, search, highlightedDisplay, index, focused)}
+        /* renderSuggestion={(suggestion, search, highlightedDisplay) => (
+            <div className="user">{highlightedDisplay}</div>
+          )} */
         markup="@__display__"
+        /* 여러개의 Mention에 displayTransform, style을 적용하려면 markup 값이 달라야 한다.*/
         displayTransform={function (id, display)}
         /* displayTransform={(display) => `${"$" + display}`} */
         regex={RegExp}
