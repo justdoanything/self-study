@@ -767,3 +767,88 @@ return (
 - Reference
   - https://kyounghwan01.github.io/blog/React/next/basic/
 ---
+- ### react-notion
+  - Library 추가
+    - yarn add react-notion
+  - 예제
+    ```js
+    <Link href="/notion/page">
+      <Button variant="outlined"></Button>
+    </Link>
+
+    //-------------------------------------------------------------//
+    import 'react-notion/src/styles.css';
+    import 'prismjs/themes/prism-tomorrow.css';
+    import React, { useState, ReactElement, useEffect } from 'react';
+
+    import { NotionRenderer } from 'react-notion';
+
+    const NoticePage = (): ReactElement => {
+      const [notionData, setNotionData] = useState({});
+
+      useEffect(() => {
+        fetch('https://notion-api.splitbee.io/v1/page/${NOTION_PAGE_ID}')
+          .then((response) => response.json())
+          .then((json) => {
+            setNotionData(json);
+          });
+      }, []);
+
+      return (
+        <div className="noticePage">
+          {Object.keys(notionData).length ? (
+            <NotionRenderer
+              blockMap={notionData}
+              fullPage={true}
+              hideHeader={true}
+            />
+          ) : (
+            <div>static page</div>
+          )}
+        </div>
+      );
+    };
+    export default NoticePage;
+
+    ```
+
+  - git repo : https://github.com/splitbee/react-notion
+
+- ### react-mentions
+  - Library 추가
+    - yarn add @types/react-mentions
+    - yarn add react-mentions
+    
+  - 예제
+    ```js
+    <MentionsInput
+      value={mentionValue}
+      onChange={(e) => setMentionValue(e.target.value)}
+      onKeyDown={function(event)}
+      singleLine={true|false}
+      onBlur={function(event, clickedSuggestion)}
+      allowSpaceInQuery={true|false}
+      suggestionsPortalHost={DOM Element}
+      inputRef={React ref}
+      allowSuggestionsAboveCursor={true|false}
+      forceSuggestionsAboveCursor={true|false}
+      a11ySuggestionsListLabel={string}
+      customSuggestionsContainer={function(children)}
+    >
+      <Mention
+        trigger="$"
+        data={users}
+        renderSuggestion={function (entry, search, highlightedDisplay, index, focused)}
+        markup="@__display__"
+        displayTransform={function (id, display)}
+        /* displayTransform={(display) => `${"$" + display}`} */
+        regex={RegExp}
+        onAdd={function (id, display, startPos, endPos)}
+        appendSpaceOnAdd={true|false}
+      />
+    </MentionsInput>
+    ```
+  
+  - git repo : https://github.com/signavio/react-mentions
+
+---
