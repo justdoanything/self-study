@@ -650,13 +650,23 @@ return (
     ```
   - 이렇게 생성된 atom들의 id를 관리해줘야 한다. 이는 Recoil의 selector를 통해서 해결할 수 있다.
 - #### selector
-  - 
+  - atom 상태에 따른 동적인 데이터를 파생시킨다.
+  - `get` 함수를 가져야 한다.
+    
 - #### selectorFamily
 
 - #### useRecoilState
+  - atom의 값을 구독하고 update하는 hook
 - #### useRecoilValue
+  - setter를 제외한 atom의 값만 구독한다.
 - #### useSetRecoilState
+  - setter만 구독한다.
 - #### useResetRecoilState
+  - atom을 reset 시킨다.
+
+- Reference
+  - basic : https://recoiljs.org/ko/docs/basic-tutorial/atoms
+  - atom, atomFamily, selector, selectorFamily : https://kelly-kh-woo.medium.com/번역-recoil-새로운-리액트-상태-관리-라이브러리-95b5bea91b0
 
 ---
 ### next.js
@@ -756,5 +766,4 @@ return (
   
 - Reference
   - https://kyounghwan01.github.io/blog/React/next/basic/
-  - https://junglast.com/blog/recoil-atomfamily-atom
 ---
