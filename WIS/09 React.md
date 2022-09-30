@@ -5,6 +5,7 @@
 - [Recoil](#상태관리---recoil)
 - [Next.js](#nextjs)
 - [My React Library](#my-react-library)
+  - [문법 관리](#문법-관리)
   - [i18n 언어팩 적용](#i18n-언어팩-적용)
   - [Sub Component 제어](#sub-component-제어)
   - [Autocomplete](#autocomplete)
@@ -411,14 +412,150 @@ fetch("https://url", {
 - ### getInitialProps
   - 각 페이지에서 사전(build될 때)에 불러와야할 데이터가 있을 때 사용한다.
   - CSR 방식의 useEffect, created 함수와 비슷하다.
-  - v9 부터는 `getStaticProps`, `getStaticPaths`, `getServerSideProps` 사용을 권장한다.
-    - `getStaticProps` : build 될 때 고정되야 하는 props를 가져와서 사용한다.
-    - `getStaticPaths` : build 될 때 rendering 할 경로를 설정한다. 정의하지 않은 하위 경로는 뜨지 않는다.
-    - `getServerSideProps` : 많이 쓸 경우, Server가 모든 요청을 계산하기 때문에 값을 caching 하기 힘들다.
-  - `SWR` : Fetch Data by Client Side
-  - SEO가 필요하면 `getServerSideProps`를 사용하고 비공개 페이지 같은 경우엔 `SWR`을 사용한다.
-  - `getStaticPropd`, `getStaticPath`는 빌드 후에 고정된 정적 페이지로 사용할 수 있기 때문에 SSR을 하지 않고 CDN 등으로 캐싱할 수 있어서 loading 속도가 좋지만 `getServerSideProps`, `getInitialProps`는 요청이 있을 때마다 SSR을 할 수 있어서 loading 속도가 안좋을 수 있습니다.
   - `getInitialProps`는 _app에서 사용하면 next.js의 page 최적화에 안좋을 수 있기 때문에 각 Component에서 사용하는게 좋습니다.
+  - `getStaticPropd`, `getStaticPath`는 빌드 후에 고정된 정적 페이지로 사용할 수 있기 때문에 SSR을 하지 않고 CDN 등으로 캐싱할 수 있어서 loading 속도가 좋지만 `getServerSideProps`, `getInitialProps`는 요청이 있을 때마다 SSR을 할 수 있어서 loading 속도가 안좋을 수 있습니다.
+  - ⭐️ v9 부터는 `getStaticProps`, `getStaticPaths`, `getServerSideProps` 사용을 권장한다.⭐️
+
+- ### getStaticProps
+  - 페이지의 컨텐츠를 외부에서 가져올 때 사용한다.
+    ```js
+    export const funcName = async (/* parameter 기본값 */ isLoading = true,) 
+      // 반환 객체값
+      : Promise<CommonResponse> => {
+        // 함수 작성
+        return callApi({
+          // API Request Interface를 정의해서 사용
+      });
+    };
+
+    export const getStaticProps = async ( /* params */ { local } : any )  => ({
+      const response = await fetch(url);
+      const posts = await response.json();
+      props: {
+        posts,
+      }
+    });
+
+    const Page:React.FC = ( { posts }):ReactElement => {
+      return (
+        <div>Hello ! {posts} </div>
+      );
+    };
+    export default Page
+    ```
+- ### getStaticPaths
+  - Dynamic Routes 쉽게 구성할 수 있다. 폴더 구조에서 [id] 와 같이 값을 사용하면 Next.js는 알아서 Routes를 구성합니다.
+  - 미래 생성된 paths는 캐싱되기 때문에 페이지 로딩 속도가 굉장히 빠릅니다.
+    ```js
+    export const getStaticPaths = () => {
+      const response = await fetch(url);
+      const posts = await response.json();
+
+      const paths = posts.map((post) => ({
+        params: {id: post.id},
+      }));
+
+      return { paths, fallback: false }
+    }
+    ```
+
+- ### SWR (Stale-While-Revalidate)
+  - 캐시로부터 데이터(stale)을 반환하고 fetch 요청(revalidate)를 보낸 후 최신 데이터를 업데이트합니다.
+  - 재검증(revalidate)하는 동안에 기존에 캐시된 데이터를 반환하기 때문에 최신 데이터가 아닐 수 있습니다.
+  - 재검증은 포커싱을 다른 곳으로 옮겼다가 다시 돌아오거나 원하는 순간 혹은 주기로 수행할 수 있습니다.
+  - SEO가 필요하면 `getServerSideProps`를 사용하고 비공개 페이지 같은 경우엔 `SWR`을 사용합니다.
+    ```js
+    const { data, error, isValidating, mutate } = useSWR({key}, fetcher, options);
+    key : needs unique
+    fetcher : Promise
+    options : SWR hook 옵션 (https://swr.vercel.app/ko/docs/options)
+
+    data : fetcher 성공 시 반환하는 데이터
+    error : fetcher 실패 시 반환하는 에러
+    isValidating : 요청이 있거나 로딩 중인 경우 반환 (boolean)
+    mutate(data? shouldRevalidate?) : 캐시된 데이터를 mutate 하기 위한 함수
+
+    /******************************************/
+    expost const fetcher = async(url) => {
+      const response = await fetch(url);
+      if(!response.ok){
+        const error = new Error("Fail to fetch data");
+        error.info = await response.json();
+        error.status = response.status;
+        throw error;
+      }
+      return res.json();
+    }
+
+    /******************************************/
+    import useSWR from "swr";
+    import { fetcher } from "./fetch";
+
+    export const fetchData = () => {
+      const { data, error } = useSWR(url, fetcher, {
+        onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
+          if (error.status === 404) return;
+          if (retryCount >= 10) return;
+          setTimeout(() => revalidate({ retryCount }), 5000);
+        },
+      });
+
+      if(error) return "Fail to get data";
+      if(!data) return "no data";
+      return data;
+    }
+    ```
+  - SWR은 built in cache, 중복제거를 자동으로 해줘서 불필요한 네트워크 요청을 줄여줍니다. 한 컴포넌트에서 useUser() 라는 SWR이 사용되고 컴포넌트가 4번 사용된다고 해도 네트워크 요청은 1번만 일어나게 됩니다.
+  - 불필요한 렌더링을 줄이기 위해선 dependency를 조정해야 합니다.
+    ```js
+    const { data, error, isValidating} = useSWR({key}, fetcher); // 불필요한 rendering 발생함
+    const { data } = useSWR(url, fetcher); // data가 변경되었을 때에만 rendering 발생함
+    ```
+  - SWRConfig
+    - SWRConfig의 { value }로 SWR에 적용할 options 값을 넘겨주면서 전역적으로 전파할 수 있습니다.
+      ```js
+      <SWRConfig
+        value = {{
+          resfreshInterval: 3000,
+          retcher: (resource, init) => fetch(resource, init).then(res => res.json())
+        }}>
+        <TemplateComponent />
+        <FrameComponent />
+      </SWRConfig>
+      ```
+  - mutate 
+    - useSWRConfig로 얻을 수 있는 mutate는 key를 기준으로 다른 SWR Hook에게 revalidate 메세지를 전역으로 보냅니다.
+      ```js
+      const { mutate } = useSWRConfig();
+      return (
+        <div>
+          <Button onClick={() => {
+            document.cookie = "token=; expires=...";
+            mutate('/api/user');  // key 값에 해당하는 모든 SWR이 revalidate 하도록 전파
+          }}
+          </Button>
+        </div>
+      )
+      ```
+  - Revalidate
+    - 자동 갱신 옵션 : https://swr.vercel.app/ko/docs/revalidation
+  - Pre-fetching
+    - <link rel="preload" href="/api/data" as="fetch" crossorigin="anonymous">
+    - prefetch 함수를 따로 정의해서 사용할 수 있다.
+      ```js
+      const func = () => {
+        mutate('/api/data', fetch('/api/data').then(res => res.json())); // Promise가 실행될 때 SWR은 결과를 사용한다.
+      }
+      ```
+    - pre-fill 방법
+      ```js
+      useSWR('/api/data/', fetcher, {fallbackData: prefetchedData})
+      ```
+  - Reference
+    - 공식문서 : https://swr.vercel.app/ko/docs/revalidation
+    - https://velog.io/@soryeongk/SWRBasic
+    - https://velog.io/@soryeongk/ReactSWRTutorial
+
 
 - ### Server Side Life Cycle
   - next 서버가 GET 요청을 받는다.
@@ -429,6 +566,7 @@ fetch("https://url", {
   - 모든 props를 구성하고 _app.tsx → Component 순으로 Rendering
   - 모든 contents를 구성하고 _document.tsx를 실행해서 html 형태로 출력한다.
   - `getInitialProps`는 ⭐️ 1번만 ⭐️ 실행된다. _app.tsx → Component으로 실행되기 때문에 _app.tsx에서 `getInitialProps`를 정의했다면 Component에 있는 `getInitialProps`는 실행되지 않는다. Component에서도 사용하려면 _app.tsx에 코드를 추가해야 한다.
+  - `getInitialProps`는 Server에서 실행되기 때문에 Browser API를 실행하면 안된다.
     ```js
     import "./globals.css";
 
@@ -444,14 +582,14 @@ fetch("https://url", {
       }
 
       // _app에서 props 추가 (모든 컴포넌트에서 공통적으로 사용할 값 추가)
-      pageProps = { ...pageProps, posttt: { title: 11111, content: 3333 } };
+      pageProps = { ...pageProps, post: { title: 11111, content: 3333 } };
 
       return { pageProps };
     };
 
     export default MyApp;
     ```
-  - `getInitialProps`는 Server에서 실행되기 때문에 Browser API를 실행하면 안된다.
+  
 
 - ### Context Object
   - /profile/about → { id: 'about' }
@@ -498,22 +636,15 @@ fetch("https://url", {
 
 # My React Library
 
-### i18n 언어팩 적용
-- 문법 관리
+### 문법 관리
   - async 함수 정의
     ```js
-    export const testFunction = async () => {
-
-    }
-    export const {함수이름} = async (
-      // parameter 기본값
-      isLoading = true,
-    ) // 반환 객체값
-    : Promise<CommonResponse> => {
-      // 함수 작성
-      return callApi({
-        // API Request Interface를 정의해서 사용
-
+    export const funcName = async (/* parameter 기본값 */ isLoading = true,) 
+      // 반환 객체값
+      : Promise<CommonResponse> => {
+        // 함수 작성
+        return callApi({
+          // API Request Interface를 정의해서 사용
       });
     };
 
@@ -690,7 +821,7 @@ fetch("https://url", {
   }
   ```
 ---
-### Sub Component 제어
+- ### Sub Component 제어
 - Modal을 호출하는 Main Component에서 데이터값 뿐만 아니라 state 함수를 같이 넘겨서 사용한다.
 - Modal은 부모의 state를 사용해서 부모에서 선언해놓은 snackbar component를 제어하고 사용한다.
 ```js
@@ -765,7 +896,7 @@ export default function RequestModal({
 
 ---
 
-### Autocomplete
+- ### Autocomplete
 ```js
 ...
 const filter = createFilterOptions<Team>();
@@ -798,7 +929,7 @@ return (
 )
 ```
 ---
-
+- ### react-notion
   - 새로운 창으로 띄우기 : `window.open(link, '', '_blank');`
   - Library 추가
     - yarn add react-notion
