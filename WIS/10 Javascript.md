@@ -443,7 +443,7 @@ Promise.resolve(10)
     })
     .finally(() => {
         console.log("In finally");
-    }
+    })
     .then(data => {
         console.log(data); // 20
     })
@@ -453,13 +453,28 @@ Promise.reject(10)
         console.log("In resolve");
         return data + 10;
     })
-    .catch(error => { 
+    .catch(data => { 
         console.log("In catch");
         return data - 10;
     })
     .finally(() => {
         console.log("In finally");
-    }
+    })
+    .then(data => {
+        console.log(data); // 0
+    })
+
+Promise.reject(10)
+    .then(data => {
+        console.log("In resolve");
+        return data + 10;
+    }, data => { 
+        console.log("In catch");
+        return data - 10;
+    })
+    .finally(() => {
+        console.log("In finally");
+    })
     .then(data => {
         console.log(data); // 0
     })
