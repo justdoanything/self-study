@@ -7,7 +7,7 @@
   - [Global Infra](#global-infra)
   - [ELB](#elastic-load-balancing)
 - [ECS와 EC2](#aws-ecs-and-ec2)
-- 
+- [Cognito](#cognito)
 
 
 ---
@@ -375,7 +375,50 @@ AWS ECS and EC2
 Cognito
 ===
 
+<img width="411" alt="image" src="https://user-images.githubusercontent.com/21374902/193582302-89b9f50b-22a7-48d4-8edb-f8ac91b805ee.png">
 
-- Reference
+- 웹 및 모바일 앱에 대한 인증, 권한 부여 및 사용자 관리를 제공합니다. 사용자는 사용자 이름과 암호를 사용하여 직접 로그인하거나 Facebook, Amazon, Google 또는 Apple 같은 타사를 통해 로그인할 수 있습니다.
+- ### 사용자 흐름
+  - 첫 번째 단계에서 앱 사용자는 `사용자 풀`을 통해 로그인하여 인증 성공 이후 사용자 풀 토큰을 받습니다.
+  - 다음으로 앱은 `자격 증명 풀`을 통해 사용자 풀 토큰을 AWS 자격 증명으로 교환합니다.
+  - 마지막으로 앱 사용자는 AWS 자격 증명을 사용하여 Amazon S3, DynamoDB 등 다른 AWS 서비스에 액세스할 수 있습니다.
+- ### 사용자 풀(User Pool)
+  - 가입 및 로그인, 소셜 로그인, 사용자 정보 관리, 2FA 등 기능을 제공
+  - 사용자 풀 인증 흐름
+    
+    <img width="520" alt="image" src="https://user-images.githubusercontent.com/21374902/193584060-1e3b492b-74da-4771-ae4e-b1623dea7613.png">
+- ### Lambda를 통한 Customize
+  - Cognito를 사용할 때 특정 시점에 원하는 trigger 등과 같은 customize를 정의할 때 사용할 수 있습니다.
+  - https://docs.aws.amazon.com/ko_kr/cognito/latest/developerguide/cognito-user-identity-pools-working-with-aws-lambda-triggers.html
+
+    사용자 풀 흐름 | 작업 | 설명
+    ---|---|---
+    사용자 지정 인증 흐름 | 인증 문제 정의 | 사용자 지정 인증 흐름에서 다음 문제를 결정합니다.
+    사용자 지정 인증 흐름 | 인증 문제 생성 |사용자 지정 인증 흐름에서 다음 문제를 생성합니다.
+    사용자 지정 인증 흐름 | 인증 문제 응답 확인 | 사용자 지정 인증 흐름에서 응답이 올바른지 결정합니다.
+    인증 이벤트 | 사전 인증 Lambda 트리거 | 로그인 요청 승인 및 거절에 대한 사용자 지정 검증입니다.
+    인증 이벤트 | 사후 인증 Lambda 트리거 | 사용자 지정 분석을 위한 이벤트 기록
+    인증 이벤트 | 사전 토큰 생성 Lambda 트리거 | 토큰 신청 증강 또는 억제
+    가입 | 사전 가입 Lambda 트리거 | 가입 요청을 수락 또는 거부하는 사용자 지정 검증 수행
+    가입 | 사후 확인 Lambda 트리거 | 사용자 지정 분석을 위한 사용자 지정 시작 메시지 또는 이벤트 로깅 추가
+    가입 | 사용자 마이그레이션 Lambda 트리거 | 기존 사용자 디렉터리에 있는 사용자를 사용자 풀로 마이그레이션
+    메시지 | 사용자 정의 메시지 Lambda 트리거 | 고급 사용자 지정 및 메시지 현지화 수행
+    토큰 생성 | 사전 토큰 생성 Lambda 트리거 | ID 토큰 속성 추가 또는 제거
+    이메일 및 SMS 서드 파티 공급자 | 사용자 지정 발신자 Lambda 트리거 | 서드 파티 공급자를 사용하여 SMS 및 이메일 메시지 보내기
+
+- ### 3rd party 로그인
+  
+  <img width="718" alt="image" src="https://user-images.githubusercontent.com/21374902/193587955-dce3309e-351d-4ebc-aee0-6c9ae9d4a58a.png">
+
+  <img width="718" alt="image" src="https://user-images.githubusercontent.com/21374902/193588007-410b62b1-2f01-4a43-a1b3-68b69e40b8ec.png">
+
+- ### Sequence Diagram
+  - 회원가입
+
+    ![Untitled](https://user-images.githubusercontent.com/21374902/193581636-6ab0054d-7a2a-4bcc-89ba-964e5dd5caf6.png)
+
+- ### Reference
+  - https://docs.aws.amazon.com/ko_kr/cognito/latest/developerguide/what-is-amazon-cognito.html
+  - https://velog.io/@w1nu/쉽게-풀어쓴-AWS-Cognito-기초-이론
 
 ---
