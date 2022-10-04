@@ -4,6 +4,16 @@
 - [React 기본지식](#react-기본지식)
 - [Recoil](#상태관리---recoil)
 - [Next.js](#nextjs)
+  - [getInitialProps](#getinitialprops)
+  - [getStaticProps](#getstaticprops)
+  - [getServerSideProps](#getstaticpaths)
+  - [SWR (Stale-While-Revalidate)](#swr-stale-while-revalidate)
+  - [Server Side Life Cycle](#server-side-life-cycle)
+  - [Context Object](#context-object)
+  - [Shallow Route](#shallow-route)
+  - [CssBaseline](#cssbaseline)
+  - [react-next-keep-alive](#react-next-keep-alive)
+
 - [My React Library](#my-react-library)
   - [문법 관리](#문법-관리)
   - [i18n 언어팩 적용](#i18n-언어팩-적용)
@@ -458,6 +468,26 @@ fetch("https://url", {
       return { paths, fallback: false }
     }
     ```
+- ### getServerSideProps
+  - dd
+    ```js
+    export const getServerSideProps = () => {
+      const response = await fetch(url);
+      const posts = await response.json();
+
+      if(!posts) {
+        return {
+          notFound: true,
+        }
+      }
+      return {
+        props: {
+          posts
+        }
+      }
+    }
+    ```
+  
 
 - ### SWR (Stale-While-Revalidate)
   - 캐시로부터 데이터(stale)을 반환하고 fetch 요청(revalidate)를 보낸 후 최신 데이터를 업데이트합니다.
@@ -629,9 +659,24 @@ fetch("https://url", {
 
     export default App;
     ``` 
+- ### react-next-keep-alive
+  - git repo : https://github.com/AlexSapoznikov/react-next-keep-alive
+  - 사용 방법
+    - _app.tsx에 적용
+      ```js
+
+      ```
+    - 특정 page에 적용
+      ```js
+      
+      ```
+
+
   
-- Reference
+
+- ### Reference
   - https://kyounghwan01.github.io/blog/React/next/basic/
+  - https://github.com/AlexSapoznikov/react-next-keep-alive
 ---
 
 # My React Library
