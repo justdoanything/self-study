@@ -664,11 +664,34 @@ fetch("https://url", {
   - 사용 방법
     - _app.tsx에 적용
       ```js
+      import { AppProps } from 'next/app';
+      import { KeepAliveProvider } from 'react-next-keep-alive';
 
+      function MyApp ({ Component, pageProps }: AppProps) {
+        const router = useRouter();
+
+        return (
+          <KeepAliveProvider router={router}>
+            <Component {...pageProps} />
+          </KeepAliveProvider>
+        );
+      }
+
+      export default MyApp;
       ```
     - 특정 page에 적용
       ```js
-      
+      import React, { useState } from 'react';
+      import Link from 'next/link';
+      import { withKeepAlive } from 'react-next-keep-alive';
+
+      const IndexPage = () => (
+        <>
+          My index page
+        </>
+      );
+
+      export default withKeepAlive(IndexPage, 'my-unique-name');
       ```
 
 
