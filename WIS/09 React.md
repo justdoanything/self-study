@@ -792,92 +792,92 @@ fetch("https://url", {
     ```
     ```js
     const getInstance = (serviceName: string, isLoading: boolean, params?: any): AxiosInstance => {
-    if (isLoading) {
-      // @ts-ignore
-      // eslint-disable-next-line
-      window.loadingSpinner.setChange(true);
-
-    }
-
-    axios.defaults.headers.post['Content-Type'] = 'application/json';
-
-    let baseURL = process.env.NEXT_PUBLIC_API_BASE_URL ;
-    const sessionUtil = new SessionUtil();
-
-    if (process.env.NODE_ENV === 'development') {
-      switch (serviceName) {
-      case Service.MZP_BE:
-        baseURL += ':' + ServicePort.MZP_BE.toString();
-        break;
-      default:
-        break;
-      }
-    }
-
-    const instance = axios.create({
-      baseURL: baseURL,
-      params: params || {},
-    });
-
-    // 공통 요청 처리
-    instance.interceptors.request.use(
-      (config: AxiosRequestConfig): AxiosRequestConfig => {
-        if (config?.headers) {
-          config.headers['x-correlation-id'] =
-            window.location.pathname === '/'
-              ? 'root'.concat('_').concat(uuidv4())
-              : window.location.pathname?.concat('_').concat(uuidv4()) || '';
-          if (sessionUtil.getSessionInfo().sessionId) {
-            config.headers['x-session-id'] = sessionUtil.getSessionInfo().sessionId || '';
-          }
-        }
-        return config;
-      },
-      (error: any): Promise<any> => {
-        return Promise.reject(error);
-      },
-    );
-
-    // success / error 공통 처리
-    instance.interceptors.response.use(
-      (response: any): any => {
-        if (isLoading) {
-          // @ts-ignore
-          // eslint-disable-next-line
-          window.loadingSpinner.setChange(false);
-        }
-
-        const commonResponse: CommonResponse = response.data as CommonResponse;
-        if (commonResponse.statusCode && commonResponse.statusCode === StatusCode.SESSION_EXPIRE) {
-          sessionUtil.deleteSessionInfo();
-          window.location.assign('/login');
-        }
-        return commonResponse;
-      },
-
-      (error: any): any => {
-        if (isLoading) {
-          // @ts-ignore
-          // eslint-disable-next-line
-          window.loadingSpinner.setChange(false);
-        }
-
-        const unknownError: CommonResponse = {
-          successOrNot: 'N',
-          statusCode: StatusCode.UNKNOWN_ERROR,
-          data: {},
-        };
-
+      if (isLoading) {
+        // @ts-ignore
         // eslint-disable-next-line
-        if (error.response && error.response.status.toString().indexOf('40') === 0) {
-          //TODO: 400대 에러 공통처리
-        }
-        return unknownError;
-      },
-    );
+        window.loadingSpinner.setChange(true);
 
-    return instance;
-  };
+      }
+
+      axios.defaults.headers.post['Content-Type'] = 'application/json';
+
+      let baseURL = process.env.NEXT_PUBLIC_API_BASE_URL ;
+      const sessionUtil = new SessionUtil();
+
+      if (process.env.NODE_ENV === 'development') {
+        switch (serviceName) {
+        case Service.MZP_BE:
+          baseURL += ':' + ServicePort.MZP_BE.toString();
+          break;
+        default:
+          break;
+        }
+      }
+
+      const instance = axios.create({
+        baseURL: baseURL,
+        params: params || {},
+      });
+
+      // 공통 요청 처리
+      instance.interceptors.request.use(
+        (config: AxiosRequestConfig): AxiosRequestConfig => {
+          if (config?.headers) {
+            config.headers['x-correlation-id'] =
+              window.location.pathname === '/'
+                ? 'root'.concat('_').concat(uuidv4())
+                : window.location.pathname?.concat('_').concat(uuidv4()) || '';
+            if (sessionUtil.getSessionInfo().sessionId) {
+              config.headers['x-session-id'] = sessionUtil.getSessionInfo().sessionId || '';
+            }
+          }
+          return config;
+        },
+        (error: any): Promise<any> => {
+          return Promise.reject(error);
+        },
+      );
+
+      // success / error 공통 처리
+      instance.interceptors.response.use(
+        (response: any): any => {
+          if (isLoading) {
+            // @ts-ignore
+            // eslint-disable-next-line
+            window.loadingSpinner.setChange(false);
+          }
+
+          const commonResponse: CommonResponse = response.data as CommonResponse;
+          if (commonResponse.statusCode && commonResponse.statusCode === StatusCode.SESSION_EXPIRE) {
+            sessionUtil.deleteSessionInfo();
+            window.location.assign('/login');
+          }
+          return commonResponse;
+        },
+
+        (error: any): any => {
+          if (isLoading) {
+            // @ts-ignore
+            // eslint-disable-next-line
+            window.loadingSpinner.setChange(false);
+          }
+
+          const unknownError: CommonResponse = {
+            successOrNot: 'N',
+            statusCode: StatusCode.UNKNOWN_ERROR,
+            data: {},
+          };
+
+          // eslint-disable-next-line
+          if (error.response && error.response.status.toString().indexOf('40') === 0) {
+            //TODO: 400대 에러 공통처리
+          }
+          return unknownError;
+        },
+      );
+
+      return instance;
+    };
     ```
     ```js
     export interface SampleRequest {
