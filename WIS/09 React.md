@@ -717,6 +717,7 @@ fetch("https://url", {
 
 
 - ### Reference
+  - https://nextjs.org
   - https://kyounghwan01.github.io/blog/React/next/basic/
   - https://github.com/AlexSapoznikov/react-next-keep-alive
 ---
@@ -726,22 +727,55 @@ fetch("https://url", {
 ### 문법 관리
   - async 함수 정의
     ```js
-    export const funcName = async (/* parameter 기본값 */ isLoading = true,) 
-      // 반환 객체값
-      : Promise<CommonResponse> => {
-        // 함수 작성
-        return callApi({
-          // API Request Interface를 정의해서 사용
-      });
+    const sampleCallApi = async () => {
+      const sampleRequest = {
+        type: info.type,
+        id: info.id,
+        email,
+        memberName,
+        nickname,
+      } as SampleRequest;
+      const response = await sampleApi(sampleRequest);
+      if (response.result === SuccessOrNot.Y) {
+        // input your logic
+      }
     };
+    
+    /******************************************/
 
-    // API Request Interface
+    export const sampleApi = async(sampleRequest: SampleRequest, isLoading = true): Promise<CommonResponse> => {
+      return callApi({
+        // ApiRequest 자리
+      });
+    }
+
+    /******************************************/
+
+    export const callApi = async (sampleRequest: SampleRequest): Promise<CommonResponse> => {
+
+    };
+    ```
+    ```js
+    export interface SampleRequest {
+      type: string;
+      id: string;
+      email: string;
+      memberName: string;
+      nickname?: string;
+    }
+
     export interface ApiRequest {
       service: Service;
       url: string;
       method: Method;
       params?: ParamObject;
       config?: Config;
+    }
+
+    export interface CommonResponse<T = any> {
+      result: string;
+      statusCode: string;
+      data?: T;
     }
     ```
 ### i18n 언어팩 적용
