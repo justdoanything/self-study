@@ -1,4 +1,4 @@
-package modern.practice;
+package book.modern.practice;
 
 import java.util.Arrays;
 import java.util.List;
@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import modern.Dish;
+import book.modern.Dish;
 
 public class iiii_NumberStreamPractive {
     public static void main(String[] args) {

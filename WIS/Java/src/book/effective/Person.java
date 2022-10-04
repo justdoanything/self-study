@@ -1,6 +1,6 @@
-package effective;
+package book.effective;
 
-public class BuilderPattern {
+public class Person {
     private final String name;
     private final int age;
     private final String address;
@@ -48,12 +48,12 @@ public class BuilderPattern {
             return this;
         }
 
-        public BuilderPattern build(){
-            return new BuilderPattern(this);
+        public Person build(){
+            return new Person(this);
         }
     }
 
-    private BuilderPattern(Builder builder){
+    private Person(Builder builder){
         name = builder.name;
         age = builder.age;
         address = builder.address;

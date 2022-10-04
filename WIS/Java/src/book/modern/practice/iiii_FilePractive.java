@@ -1,4 +1,4 @@
-package modern.practice;
+package book.modern.practice;
 
 import java.nio.charset.Charset;
 import java.nio.file.Files;

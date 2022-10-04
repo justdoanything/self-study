@@ -1,4 +1,4 @@
-package modern.practice;
+package book.modern.practice;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -8,9 +8,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import modern.Dish;
-import modern.Trader;
-import modern.Transaction;
+import book.modern.Dish;
+import book.modern.Trader;
+import book.modern.Transaction;
 
 public class iv_CollectPractice {
     public static void main(String[] args) {

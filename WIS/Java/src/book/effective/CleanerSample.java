@@ -1,4 +1,4 @@
-package effective;
+package book.effective;
 
 import java.lang.ref.Cleaner;
 

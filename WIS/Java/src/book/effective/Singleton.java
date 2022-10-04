@@ -1,4 +1,4 @@
-package effective;
+package book.effective;
 
 // public static final 방식
 public class Singleton {

@@ -1,11 +1,11 @@
-package modern.practice;
+package book.modern.practice;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import modern.Trader;
-import modern.Transaction;
+import book.modern.Trader;
+import book.modern.Transaction;
 
 public class iii_TransactionPractice {
     public static void main(String[] args) {

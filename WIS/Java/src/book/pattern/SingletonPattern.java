@@ -1,4 +1,4 @@
-package pattern;
+package book.pattern;
 
 import java.util.ArrayList;
 import java.util.HashMap;

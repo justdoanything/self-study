@@ -1,4 +1,4 @@
-package pattern;
+package book.pattern;
 
 public class Member {
     private long Id;
