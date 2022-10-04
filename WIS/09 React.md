@@ -3,6 +3,7 @@
 - [React 시작지점](#react의-시작지점-파악해보기)
 - [React 기본지식](#react-기본지식)
 - [Recoil](#상태관리---recoil)
+- [HOC](#hoc-higher-order-component)
 - [Next.js](#nextjs)
   - [getInitialProps](#getinitialprops)
   - [getStaticProps](#getstaticprops)
@@ -408,6 +409,14 @@ fetch("https://url", {
   - atom, atomFamily, selector, selectorFamily : https://kelly-kh-woo.medium.com/번역-recoil-새로운-리액트-상태-관리-라이브러리-95b5bea91b0
 
 ---
+
+# HOC (Higher Order Component)
+- 고차 컴포넌트는 컴포넌트를 가져와 새 컴포넌트를 반환합니다.
+- 
+
+- Reference
+  - https://ko.reactjs.org/docs/higher-order-components.html
+---
 # next.js
 - ### next.js 의 개념과 주요 기능
   - next.js는 React로 만드는 SSR Framework 이다.
@@ -671,6 +680,7 @@ fetch("https://url", {
         const router = useRouter();
 
         return (
+          // 다른 Component로 감쌀 경우, <Component {...pageProps} /> 바로 위에 위치
           <KeepAliveProvider router={router}>
             <Component {...pageProps} />
           </KeepAliveProvider>
@@ -685,17 +695,26 @@ fetch("https://url", {
       import Link from 'next/link';
       import { withKeepAlive } from 'react-next-keep-alive';
 
-      const IndexPage = () => (
-        <>
-          My index page
-        </>
+      const samplePage = () => (
+        const [count, setCount] = useState(0);
+        return (
+          <Link href="/page2" as="/page2">
+            <a>
+              Next page
+            </a>
+          </Link>
+
+          <br /><br />
+
+          <button type="button" onClick={() => setCount(count + 1)}>
+            Count: { count }
+          </button>
+        )
       );
 
-      export default withKeepAlive(IndexPage, 'my-unique-name');
+      export default withKeepAlive(samplePage, 'sample-page');
       ```
 
-
-  
 
 - ### Reference
   - https://kyounghwan01.github.io/blog/React/next/basic/
