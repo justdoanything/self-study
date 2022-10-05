@@ -415,8 +415,6 @@ Cognito
 - ### Sequence Diagram
   - 회원가입
 
-    ![Untitled](https://user-images.githubusercontent.com/21374902/193581636-6ab0054d-7a2a-4bcc-89ba-964e5dd5caf6.png)
-
 - ### Reference
   - https://docs.aws.amazon.com/ko_kr/cognito/latest/developerguide/what-is-amazon-cognito.html
   - https://velog.io/@w1nu/쉽게-풀어쓴-AWS-Cognito-기초-이론
