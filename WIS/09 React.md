@@ -16,7 +16,9 @@
   - [react-next-keep-alive](#react-next-keep-alive)
 
 - [My React Library](#my-react-library)
-  - [문법 관리](#문법-관리)
+  - [Basic Code Structure](#basic-code-structure)
+    - [async](#async-함수-정의)
+    - [enum](#enum)
   - [i18n 언어팩 적용](#i18n-언어팩-적용)
   - [Sub Component 제어](#sub-component-제어)
   - [Autocomplete](#autocomplete)
@@ -724,8 +726,8 @@ fetch("https://url", {
 
 # My React Library
 
-### 문법 관리
-  - async 함수 정의
+### Basic Code Structure
+  - #### async 함수 정의
     ```js
     const sampleCallApi = async () => {
       const sampleRequest = {
@@ -901,6 +903,18 @@ fetch("https://url", {
       statusCode: string;
       data?: T;
     }
+    ```
+  - #### enum
+    ```js
+    export enum Method {
+      GET = 'GET',
+      POST = 'POST',
+      PUT = 'PUT',
+      DELETE = 'DELETE',
+      PATCH = 'PATCH',
+    }
+
+    Method.GET
     ```
 ### i18n 언어팩 적용
 - `package.json` 에 i18next 관련 dependency 추가
