@@ -19,6 +19,7 @@
   - [Basic Code Structure](#basic-code-structure)
     - [async](#async-함수-정의)
     - [enum](#enum)
+    - [useEffect-async](#useeffect---async)
   - [i18n 언어팩 적용](#i18n-언어팩-적용)
   - [Sub Component 제어](#sub-component-제어)
   - [Autocomplete](#autocomplete)
@@ -499,6 +500,38 @@ fetch("https://url", {
     }
     ```
   
+  - ### Server Side Life Cycle
+  - next 서버가 GET 요청을 받는다.
+  - GET 요청에 맞는 Component를 pages에서 찾는다.
+  - _app.tsx 의 `getInitialProps`가 있으면 실행한다.
+  - 해당 Component의 `getInitialProps`가 있으면 실행한다. (props를 받아온다.)
+  - _document.tsx의 `getInitialProps`가 있으면 실행한다.
+  - 모든 props를 구성하고 _app.tsx → Component 순으로 Rendering
+  - 모든 contents를 구성하고 _document.tsx를 실행해서 html 형태로 출력한다.
+  - `getInitialProps`는 ⭐️ 1번만 ⭐️ 실행된다. _app.tsx → Component으로 실행되기 때문에 _app.tsx에서 `getInitialProps`를 정의했다면 Component에 있는 `getInitialProps`는 실행되지 않는다. Component에서도 사용하려면 _app.tsx에 코드를 추가해야 한다.
+  - `getInitialProps`는 Server에서 실행되기 때문에 Browser API를 실행하면 안된다.
+    ```js
+    import "./globals.css";
+
+    function MyApp({ Component, pageProps }) {
+      return <Component ponent {...pageProps} />;
+    }
+
+    MyApp.getInitialProps = async ({ Component, ctx }) => {
+      let pageProps = {};
+      // 하위 컴포넌트에 getInitialProps가 있다면 추가 (각 개별 컴포넌트에서 사용할 값 추가)
+      if (Component.getInitialProps) {
+        pageProps = await Component.getInitialProps(ctx);
+      }
+
+      // _app에서 props 추가 (모든 컴포넌트에서 공통적으로 사용할 값 추가)
+      pageProps = { ...pageProps, post: { title: 11111, content: 3333 } };
+
+      return { pageProps };
+    };
+
+    export default MyApp;
+    ```
 
 - ### SWR (Stale-While-Revalidate)
   - 캐시로부터 데이터(stale)을 반환하고 fetch 요청(revalidate)를 보낸 후 최신 데이터를 업데이트합니다.
@@ -596,41 +629,6 @@ fetch("https://url", {
     - 공식문서 : https://swr.vercel.app/ko/docs/revalidation
     - https://velog.io/@soryeongk/SWRBasic
     - https://velog.io/@soryeongk/ReactSWRTutorial
-
-
-- ### Server Side Life Cycle
-  - next 서버가 GET 요청을 받는다.
-  - GET 요청에 맞는 Component를 pages에서 찾는다.
-  - _app.tsx 의 `getInitialProps`가 있으면 실행한다.
-  - 해당 Component의 `getInitialProps`가 있으면 실행한다. (props를 받아온다.)
-  - _document.tsx의 `getInitialProps`가 있으면 실행한다.
-  - 모든 props를 구성하고 _app.tsx → Component 순으로 Rendering
-  - 모든 contents를 구성하고 _document.tsx를 실행해서 html 형태로 출력한다.
-  - `getInitialProps`는 ⭐️ 1번만 ⭐️ 실행된다. _app.tsx → Component으로 실행되기 때문에 _app.tsx에서 `getInitialProps`를 정의했다면 Component에 있는 `getInitialProps`는 실행되지 않는다. Component에서도 사용하려면 _app.tsx에 코드를 추가해야 한다.
-  - `getInitialProps`는 Server에서 실행되기 때문에 Browser API를 실행하면 안된다.
-    ```js
-    import "./globals.css";
-
-    function MyApp({ Component, pageProps }) {
-      return <Component ponent {...pageProps} />;
-    }
-
-    MyApp.getInitialProps = async ({ Component, ctx }) => {
-      let pageProps = {};
-      // 하위 컴포넌트에 getInitialProps가 있다면 추가 (각 개별 컴포넌트에서 사용할 값 추가)
-      if (Component.getInitialProps) {
-        pageProps = await Component.getInitialProps(ctx);
-      }
-
-      // _app에서 props 추가 (모든 컴포넌트에서 공통적으로 사용할 값 추가)
-      pageProps = { ...pageProps, post: { title: 11111, content: 3333 } };
-
-      return { pageProps };
-    };
-
-    export default MyApp;
-    ```
-  
 
 - ### Context Object
   - /profile/about → { id: 'about' }
@@ -916,6 +914,19 @@ fetch("https://url", {
 
     Method.GET
     ```
+  - ### useEffect - async
+    ```js
+    useEffect(() => {
+      const fetchData = async () => {
+        const data = await (await fetch(url)).json();
+        setData(data);
+      };
+
+      fetchData();
+    }, [data]);
+    ```
+
+---
 ### i18n 언어팩 적용
 - `package.json` 에 i18next 관련 dependency 추가
   ```json
