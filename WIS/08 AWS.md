@@ -415,6 +415,16 @@ Cognito
 - ### Sequence Diagram
   - 회원가입
 
+    ![Untitled-2](https://user-images.githubusercontent.com/21374902/194447273-4da943ca-c310-4ce5-8f11-40523d04102b.png)
+
+  - 로그인
+    
+    ![Untitled](https://user-images.githubusercontent.com/21374902/194447086-53d3d0b7-2605-4641-a2c8-6b5a93d865e2.png)
+
+  - 로그아웃 및 회원탈퇴
+
+    ![Untitled-3](https://user-images.githubusercontent.com/21374902/194447263-d9e1c057-996e-40a0-ae7f-087ecc1cb909.png)
+
 - ### Reference
   - https://docs.aws.amazon.com/ko_kr/cognito/latest/developerguide/what-is-amazon-cognito.html
   - https://velog.io/@w1nu/쉽게-풀어쓴-AWS-Cognito-기초-이론
