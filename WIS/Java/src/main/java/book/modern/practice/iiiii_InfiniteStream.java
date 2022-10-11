@@ -1,4 +1,4 @@
-package modern.practice;
+package book.modern.practice;
 
 import java.util.function.IntSupplier;
 import java.util.stream.IntStream;

@@ -1,4 +1,4 @@
-package effective;
+package book.effective;
 
 public class Person {
     private final String name;

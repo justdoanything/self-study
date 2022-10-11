@@ -1,4 +1,4 @@
-package modern.practice;
+package book.modern.practice;
 
 import java.util.Arrays;
 import java.util.List;

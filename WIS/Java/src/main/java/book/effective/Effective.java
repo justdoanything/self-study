@@ -1,4 +1,4 @@
-package effective;
+package book.effective;
 
 public class Effective {
     public static void main(String[] args) throws Exception {

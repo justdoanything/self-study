@@ -1,4 +1,4 @@
-package effective;
+package book.effective;
 
 public class BuilderPattern {
     private final String name;

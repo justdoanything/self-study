@@ -5,51 +5,38 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d7b433f7-d4da-44cb-99b4-1cf3b5faf129" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gradle/7.4/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/checksums/checksums.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/7.4/checksums/md5-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/checksums/md5-checksums.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/7.4/checksums/sha1-checksums.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/checksums/sha1-checksums.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/7.4/dependencies-accessors/dependencies-accessors.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/dependencies-accessors/dependencies-accessors.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/7.4/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/executionHistory/executionHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/7.4/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/executionHistory/executionHistory.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/7.4/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/fileHashes/fileHashes.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/7.4/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/fileHashes/fileHashes.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/7.4/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.4/fileHashes/resourceHashesCache.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/file-system.probe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/effective/App.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/effective/BuilderPattern.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/effective/CleanerSample.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/effective/Effective.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/effective/ImplementEquals.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/effective/Person.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/effective/Singleton.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/modern/Apple.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/modern/Dish.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/modern/Trader.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/modern/Transaction.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/modern/practice/i_ModernJavaPractice.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/modern/practice/ii_DishPractice.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/modern/practice/iii_TransactionPractice.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/modern/practice/iiii_FilePractive.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/modern/practice/iiii_NumberStreamPractive.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/modern/practice/iiiii_InfiniteStream.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/modern/practice/iv_CollectPractice.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/pattern/Member.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/book/pattern/SingletonPattern.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/memo.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/modern/vo/ModernVO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/book/effective/BuilderPattern.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/book/effective/BuilderPattern.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/book/effective/CleanerSample.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/book/effective/CleanerSample.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/book/effective/Effective.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/book/effective/Effective.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/book/effective/ImplementEquals.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/book/effective/ImplementEquals.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/book/effective/Person.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/book/effective/Person.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/book/modern/Apple.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/book/modern/Apple.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/book/modern/Transaction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/book/modern/Transaction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/book/modern/practice/i_ModernJavaPractice.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/book/modern/practice/i_ModernJavaPractice.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/book/modern/practice/ii_DishPractice.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/book/modern/practice/ii_DishPractice.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/book/modern/practice/iii_TransactionPractice.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/book/modern/practice/iii_TransactionPractice.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/book/modern/practice/iiii_FilePractive.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/book/modern/practice/iiii_FilePractive.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/book/modern/practice/iiii_NumberStreamPractive.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/book/modern/practice/iiii_NumberStreamPractive.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/book/modern/practice/iiiii_InfiniteStream.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/book/modern/practice/iiiii_InfiniteStream.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/book/modern/practice/iv_CollectPractice.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/book/modern/practice/iv_CollectPractice.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/modern/vo/ModernVO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/modern/vo/ModernVO.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CodeInsightWorkspaceSettings">
+    <option name="optimizeImportsOnTheFly" value="true" />
   </component>
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
@@ -92,10 +79,13 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "WebServerToolWindowFactoryState": "false"
+    "WebServerToolWindowFactoryState": "false",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.2"
   }
 }]]></component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Application.ii_DishPractice">
     <configuration name="ModernVO" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="modern.vo.ModernVO" />
       <module name="Java.main" />
@@ -109,8 +99,22 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="ii_DishPractice" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="book.modern.practice.ii_DishPractice" />
+      <module name="Java.main" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="book.modern.practice.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.ii_DishPractice" />
         <item itemvalue="Application.ModernVO" />
       </list>
     </recent_temporary>
@@ -123,7 +127,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1665500198791</updated>
-      <workItem from="1665500201734" duration="500000" />
+      <workItem from="1665500201734" duration="1194000" />
     </task>
     <servers />
   </component>
