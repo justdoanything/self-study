@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 public class i_ModernJavaPractice {
     
     public static void main(String[] args) {
-        System.out.println("z");
         List<Apple> inventory = new ArrayList<Apple>();
         inventory.add(new Apple("1", 100));
         inventory.add(new Apple("2", 100));
