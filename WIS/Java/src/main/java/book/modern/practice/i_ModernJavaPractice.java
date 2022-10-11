@@ -1,5 +1,7 @@
 package book.modern.practice;
 
+import book.modern.Apple;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -7,11 +9,10 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import book.modern.Apple;
-
 public class i_ModernJavaPractice {
     
     public static void main(String[] args) {
+        System.out.println("z");
         List<Apple> inventory = new ArrayList<Apple>();
         inventory.add(new Apple("1", 100));
         inventory.add(new Apple("2", 100));

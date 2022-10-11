@@ -11,6 +11,6 @@
         <module name="Java.main" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel target="1.8" />
+    <bytecodeTargetLevel target="18" />
   </component>
 </project>
