@@ -1,4 +1,4 @@
-package book.modern.practice;
+package modern.practice;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -12,7 +12,7 @@ import book.modern.Apple;
 public class i_ModernJavaPractice {
     
     public static void main(String[] args) {
-        List<Apple> inventory = new ArrayList<>();
+        List<Apple> inventory = new ArrayList<Apple>();
         inventory.add(new Apple("1", 100));
         inventory.add(new Apple("2", 100));
         inventory.add(new Apple("3", 200));

@@ -1,4 +1,4 @@
-package book.modern;
+package modern;
 
 public class Apple {
     

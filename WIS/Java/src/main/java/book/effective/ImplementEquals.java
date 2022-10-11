@@ -1,4 +1,4 @@
-package book.effective;
+package effective;
 
 public class ImplementEquals {
     private final short areaCode, prefix, lineNum;
