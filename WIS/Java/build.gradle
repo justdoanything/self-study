@@ -74,7 +74,7 @@ dependencyManagement {
 }
 
 flyway {
-    url = 'jdbc:mariadb://127.0.0.1:3306/mzp?useUnicode=yes&characterEncoding=UTF-8&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false'
+    url = 'jdbc:mariadb://127.0.0.1:3306/modern?useUnicode=yes&characterEncoding=UTF-8&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false'
     locations = ['filesystem:./src/main/resources/db/migration/common' , 'filesystem:./src/main/resources/db/migration/env/local']
     user = 'root'
     password = 'root'
@@ -94,7 +94,7 @@ def jacocoExclude = [
         '**/interceptor/**',
         '**/model/**',
         '**/repository/**',
-        '**/MzpBeApplication*'
+        '**/ModernBeApplication*'
 ]
 
 jacoco {
@@ -171,7 +171,7 @@ task copyGitHooks(type: Copy) {
 }
 
 jib {
-    container.mainClass = "com.mzp.be.MzpBeApplication"
+    container.mainClass = "modern.ModernBeApplication"
 }
 
 jar {
