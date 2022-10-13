@@ -500,7 +500,7 @@ fetch("https://url", {
     }
     ```
   
-  - ### Server Side Life Cycle
+- ### Server Side Life Cycle
   - next 서버가 GET 요청을 받는다.
   - GET 요청에 맞는 Component를 pages에서 찾는다.
   - _app.tsx 의 `getInitialProps`가 있으면 실행한다.
