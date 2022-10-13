@@ -1,0 +1,58 @@
+spring:
+  profiles:
+    group:
+      default: common, local
+      dev: common, dev
+      prod: common, prod
+    active: default
+
+---
+spring:
+  config:
+    activate:
+      on-profile: common
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+mybatis:
+  type-aliases-package: modern.model
+  mapper-locations: : classpath:/sql/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+api:
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    driver-class-name:
+    url:
+    username:
+    password:
+  flyway:
+    url:
+    schema:
+    user:
+    password:
+    locations:
+    out-of-order: true
+  redis:
+    host:
+    port:
+    session-ttl:
+
+cloud:
+
+logging:
+  level:
+    modern: info
