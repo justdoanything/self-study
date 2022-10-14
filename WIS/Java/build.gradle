@@ -178,5 +178,22 @@ jar {
     enabled = false
 }
 
+spotless {
+    java {
+        importOrder 'java', 'javax', 'org', 'com', ''
+        removeUnusedImports()
+        googleJavaFormat('1.9').aosp()
+        indentWithSpaces(4)
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    format 'misc', {
+        target '**/*.yml', '**/*.gradle', '**/*.md', '**/.gitignore'
+        indentWithSpaces(2)
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
 check.dependsOn testCoverage
 build.dependsOn copyGitHooks
