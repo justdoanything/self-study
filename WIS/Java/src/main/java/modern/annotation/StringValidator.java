@@ -2,9 +2,6 @@ package modern.annotation;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @Description
@@ -12,29 +9,13 @@ import java.util.stream.Collectors;
  *   String 타입의 필드를 검증하려면 ConstraintValidator<EnumValid, String>가 되어야 하고
  *   enum 타입의 필드를 검증하려면 ConstraintValidator<EnumValid, Enum>가 되야 한다.
  */
-public class StringValidator implements ConstraintValidator<EnumValid, String> {
+public class StringValidator implements ConstraintValidator<StringValid, String> {
 
-    private List<String> enumValues;
-    private EnumValid annotation;
+    private StringValid annotation;
 
     @Override
-    public void initialize(EnumValid constraintAnnotation) {
+    public void initialize(StringValid constraintAnnotation) {
         this.annotation = constraintAnnotation;
-        List<String> excludeEnumType =
-                Arrays.stream(this.annotation.excludeEnumType()).collect(Collectors.toList());
-
-        /**
-         * enum의 값들은 반드시 대문자여야 한다.
-         */
-        enumValues =
-                Arrays.stream(this.annotation.enumClass().getEnumConstants())
-                        .map(
-                                constants ->
-                                        this.annotation.ignoreCase()
-                                                ? constants.name().toUpperCase()
-                                                : constants.name())
-                        .filter(constants -> !excludeEnumType.contains(constants))
-                        .collect(Collectors.toList());
     }
 
     /**
@@ -49,8 +30,7 @@ public class StringValidator implements ConstraintValidator<EnumValid, String> {
         boolean retVal = false;
 
         if (value != null && !value.isEmpty()) {
-            retVal =
-                    enumValues.contains(this.annotation.ignoreCase() ? value.toUpperCase() : value);
+            retVal = this.annotation.getClass().toString().equals(value);
         } else {
             retVal = true;
         }

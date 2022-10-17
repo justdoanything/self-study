@@ -23,7 +23,7 @@ server:
 
 mybatis:
   type-aliases-package: modern.model
-  mapper-locations: : classpath:/sql/*.xml
+  mapper-locations: classpath:/sql/*.xml
   configuration:
     map-underscore-to-camel-case: true
 
@@ -35,21 +35,21 @@ spring:
     activate:
       on-profile: local
   datasource:
-    driver-class-name:
-    url:
-    username:
-    password:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/springdata
+    username: yongwoo
+    password: yongwoo
   flyway:
-    url:
-    schema:
-    user:
-    password:
-    locations:
+    url: jdbc:postgresql://localhost:5432/springdata?useUnicode=yes&characterEncoding=UTF-8&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
+    schema: springdata
+    user: yongwoo
+    password: yongwoo
+    locations: classpath:/db/migration
     out-of-order: true
-  redis:
-    host:
-    port:
-    session-ttl:
+#  redis:
+#    host:
+#    port:
+#    session-ttl:
 
 cloud:
 

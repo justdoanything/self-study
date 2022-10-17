@@ -2,7 +2,9 @@ package modern.annotation;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Description
@@ -10,7 +12,7 @@ import java.util.List;
  *   String 타입의 필드를 검증하려면 ConstraintValidator<EnumValid, String>가 되어야 하고
  *   enum 타입의 필드를 검증하려면 ConstraintValidator<EnumValid, Enum>가 되야 한다.
  */
-public class EnumValidator implements ConstraintValidator<EnumValid, Enum> {
+public class EnumValidator implements ConstraintValidator<EnumValid, String> {
 
     private List<String> enumValues;
     private EnumValid annotation;
@@ -18,27 +20,38 @@ public class EnumValidator implements ConstraintValidator<EnumValid, Enum> {
     @Override
     public void initialize(EnumValid constraintAnnotation) {
         this.annotation = constraintAnnotation;
+        List<String> excludeEnumType =
+                Arrays.stream(this.annotation.excludeEnumType()).collect(Collectors.toList());
+
+        enumValues =
+                Arrays.stream(this.annotation.enumClass().getEnumConstants())
+                        .map(
+                                constants ->
+                                        this.annotation.ignoreCase()
+                                                ? constants.name().toUpperCase()
+                                                : constants.name())
+                        .filter(constants -> !excludeEnumType.contains(constants))
+                        .collect(Collectors.toList());
     }
 
     /**
-     * 실제 Validation에 사용할 코드
+     * 실제 Validation 에 사용할 코드
      * @param value object to validate
      * @param context context in which the constraint is evaluated
      *
      * @return
      */
     @Override
-    public boolean isValid(Enum value, ConstraintValidatorContext context) {
-        boolean result = false;
-        Object[] enumValues = this.annotation.enumClass().getEnumConstants();
-        if (enumValues != null) {
-            for (Object enumValue : enumValues) {
-                if (value == enumValue) {
-                    result = true;
-                    break;
-                }
-            }
+    public boolean isValid(String value, ConstraintValidatorContext context) {
+        boolean retVal = false;
+
+        if (value != null && !value.isEmpty()) {
+            retVal =
+                    enumValues.contains(this.annotation.ignoreCase() ? value.toUpperCase() : value);
+        } else {
+            retVal = true;
         }
-        return result;
+
+        return retVal;
     }
 }
