@@ -18,7 +18,7 @@ public class SpringAspect {
      * @Target : @Aspect 를 사용하는 곳
      * @Advice : 부가 기능이 실질적으로 어떻게 동작하는지 명시해놓은 구현체
      * @JoinPoint : @Advice 가 적용될 위치, 끼어들 수 있는 지점으로 Method 진입 시잠, 생성자 호출 시점 등 특정한 시점에 적용할 수 있다.
-     * @PointCut : @JoinPoin t의 상세한 스펙을 정의한 것으로 "메서드 진입 시점에 호출할 것" 과 같이 구체적인 @Advice 실행 시점을 정할 수 있다.
+     * @PointCut : @JoinPoint 의 상세한 스펙을 정의한 것으로 "메서드 진입 시점에 호출할 것" 과 같이 구체적인 @Advice 실행 시점을 정할 수 있다.
      */
 }
 

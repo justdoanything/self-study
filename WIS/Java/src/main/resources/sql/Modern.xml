@@ -6,14 +6,15 @@
 <mapper namespace="modern.ModernRepository">
 <!--
     /**
+     * @Reference : https://europani.tistory.com/m/212
      * @Description
      *   resultMap, association, collection
      *
      */
 -->
-
-    <select id="">
-    </select>
+    <resultMap id="baseResultMap" type="Comment">
+        <id column="comment_no" jdbcType="BIGINT" property="commentNo" />
+    </resultMap>
 </mapper>
 
 

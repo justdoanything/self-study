@@ -16,6 +16,7 @@ public class ModernTest {
         System.out.println(commonVO.getMessage());
 
         commonVO.setGender(CommonEnumConstants.Gender.MAN);
-    }
 
+        System.out.println(commonVO.getGender().name());
+    }
 }

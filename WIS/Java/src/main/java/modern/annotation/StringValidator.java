@@ -28,6 +28,7 @@ public class StringValidator implements ConstraintValidator<StringValid, String>
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         boolean retVal = false;
+        System.out.println("들어왔니 String");
 
         if (value != null && !value.isEmpty()) {
             retVal = this.annotation.getClass().toString().equals(value);

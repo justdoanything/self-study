@@ -44,6 +44,7 @@ public class EnumValidator implements ConstraintValidator<EnumValid, String> {
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         boolean retVal = false;
+        System.out.println("들어왔니 이넘");
 
         if (value != null && !value.isEmpty()) {
             retVal =
