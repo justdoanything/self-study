@@ -18,7 +18,8 @@ public class InterceptorConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry interceptorRegistry) {
         List<String> urlPatterns = Arrays.asList("/**");
-        interceptorRegistry.addInterceptor(authenticationInterceptor)
+        interceptorRegistry
+                .addInterceptor(authenticationInterceptor)
                 .addPathPatterns(urlPatterns)
                 .excludePathPatterns("");
     }

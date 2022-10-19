@@ -13,12 +13,11 @@ import java.util.Set;
 @Aspect
 @Component
 public class ResponseAspect {
-    @Autowired
-    private Validator validator;
+    @Autowired private Validator validator;
 
     @AfterReturning(pointcut = "execution(* modern.controller..*(..))", returning = "response")
     public void validateResponse(JoinPoint joinPoint, Object response) throws Exception {
-        validateResponse(response);
+//        validateResponse(response);
     }
 
     private void validateResponse(Object object) throws Exception {
@@ -30,7 +29,10 @@ public class ResponseAspect {
             StringBuffer sb = new StringBuffer();
 
             for (ConstraintViolation<Object> error : validationResults) {
-                sb.append(error.getPropertyPath()).append(" - ").append(error.getMessage()).append("\n");
+                sb.append(error.getPropertyPath())
+                        .append(" - ")
+                        .append(error.getMessage())
+                        .append("\n");
             }
 
             String msg = sb.toString();

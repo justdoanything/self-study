@@ -14,28 +14,22 @@ public class Transaction {
         this.year = year;
         this.value = value;
     }
-    /**
-     * @return the trader
-     */
+    /** @return the trader */
     public Trader getTrader() {
         return trader;
     }
-    /**
-     * @return the year
-     */
+    /** @return the year */
     public int getYear() {
         return year;
     }
-    /**
-     * @return the value
-     */
+    /** @return the value */
     public int getValue() {
         return value;
     }
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
-    
+
     @Override
     public String toString() {
         return "Transaction [trader=" + trader + ", value=" + value + ", year=" + year + "]";

@@ -1,5 +1,5 @@
 # Package
-- book.effective : Effective Java 3E 
+- book.effective : Effective Java 3E
 - book.modern : Modern Java In Action
 - modern : 자주 사용하는 기본 package 구성
 

@@ -1,5 +1,4 @@
 package modern.repository;
 
-//@Mapper
-public class ModernRepository {
-}
+// @Mapper
+public class ModernRepository {}

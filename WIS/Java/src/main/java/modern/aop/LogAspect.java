@@ -11,11 +11,10 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class LogAspect {
 
-    @Before("(execution(* modern.exception..*(..)) "
-            + " || execution(* modern.interceptor..*(..))"
-            + " || execution(* modern.repository..*(..)))"
-            + " && !@annotation(NoLoggingAspect)")
-    public void beforeMethod(JoinPoint joinPointØ){
-
-    }
+    @Before(
+            "(execution(* modern.exception..*(..)) "
+                    + " || execution(* modern.interceptor..*(..))"
+                    + " || execution(* modern.repository..*(..)))"
+                    + " && !@annotation(NoLoggingAspect)")
+    public void beforeMethod(JoinPoint joinPointØ) {}
 }

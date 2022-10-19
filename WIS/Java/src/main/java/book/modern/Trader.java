@@ -11,26 +11,23 @@ public class Trader {
         this.name = name;
         this.city = city;
     }
-    /**
-     * @return the name
-     */
+    /** @return the name */
     public String getName() {
         return name;
     }
-    /**
-     * @return the city
-     */
+    /** @return the city */
     public String getCity() {
         return city;
     }
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
-    
+
     @Override
     public String toString() {
         return "Trader [city=" + city + ", name=" + name + "]";
     }
+
     public Trader getTrader() {
         return null;
     }

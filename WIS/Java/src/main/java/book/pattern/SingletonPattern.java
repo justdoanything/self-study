@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public class SingletonPattern {
-    
+
     // 아래 2개는 static이 없어도 singleton을 보장한다.
     private static Map<Long, Member> store = new HashMap<>();
     private static long sequence = 0L;
