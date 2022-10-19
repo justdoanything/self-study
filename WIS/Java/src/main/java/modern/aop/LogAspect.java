@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Aspect
 @Slf4j
-public class Slf4jAspect {
+public class LogAspect {
 
     @Before("(execution(* modern.exception..*(..)) "
             + " || execution(* modern.interceptor..*(..))"

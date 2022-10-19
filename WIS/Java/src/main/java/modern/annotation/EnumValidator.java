@@ -6,20 +6,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * @Description
- *   검증할 필드의 Type을 ConstraintValidator의 파라미터로 넘겨준다.
- *   String 타입의 필드를 검증하려면 ConstraintValidator<EnumValid, String>가 되어야 하고
- *   enum 타입의 필드를 검증하려면 ConstraintValidator<EnumValid, Enum>가 되야 한다.
- */
 public class EnumValidator implements ConstraintValidator<EnumValid, String> {
 
     private List<String> enumValues;
     private EnumValid annotation;
 
     @Override
-    public void initialize(EnumValid constraintAnnotation) {
-        this.annotation = constraintAnnotation;
+    public void initialize(EnumValid enumValid) {
+        this.annotation = enumValid;
         List<String> excludeEnumType =
                 Arrays.stream(this.annotation.excludeEnumType()).collect(Collectors.toList());
 
@@ -34,17 +28,9 @@ public class EnumValidator implements ConstraintValidator<EnumValid, String> {
                         .collect(Collectors.toList());
     }
 
-    /**
-     * 실제 Validation 에 사용할 코드
-     * @param value object to validate
-     * @param context context in which the constraint is evaluated
-     *
-     * @return
-     */
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         boolean retVal = false;
-        System.out.println("들어왔니 이넘");
 
         if (value != null && !value.isEmpty()) {
             retVal =

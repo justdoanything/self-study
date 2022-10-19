@@ -9,13 +9,13 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.TYPE_USE, ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = StringValidator.class)
-public @interface StringValid {
-    String message() default "유효하지 않은 String 값입니다.";
+@Constraint(validatedBy = EnumValidator.class) //validation 로직을 넣을 Class를 명시
+public @interface SpringValid {
+    String message() default "유효하지 않은 타입입니다.";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
 
-    String stringClass();
+    Class<? extends java.lang.Enum<?>> enumClass();
 }
