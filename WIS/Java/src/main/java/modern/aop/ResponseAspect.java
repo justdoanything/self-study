@@ -1,14 +1,13 @@
 package modern.aop;
 
+import java.util.Set;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
-import java.util.Set;
 
 @Aspect
 @Component
@@ -17,7 +16,7 @@ public class ResponseAspect {
 
     @AfterReturning(pointcut = "execution(* modern.controller..*(..))", returning = "response")
     public void validateResponse(JoinPoint joinPoint, Object response) throws Exception {
-//        validateResponse(response);
+                validateResponse(response);
     }
 
     private void validateResponse(Object object) throws Exception {

@@ -2,6 +2,8 @@ package modern.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import modern.model.CommonResponseVO;
 import modern.model.SpringRequestVO;
@@ -18,9 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
 @RestController
 @RequiredArgsConstructor
 @Api(tags = {"Spring"})
@@ -29,7 +28,10 @@ public class SpringController {
     private final SpringService springService;
 
     @ApiOperation(value = "Health Check", httpMethod = "POST", notes = "Health Check")
-    @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(
+            path = "",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody ResponseEntity<CommonResponseVO> healthCheck(
             @RequestBody @Valid SpringRequestVO request) {
         SpringResponseVO vo = springService.checkHealth(request);

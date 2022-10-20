@@ -11,9 +11,7 @@ public class SpringServiceImpl implements SpringService {
     @Override
     public SpringResponseVO checkHealth(SpringRequestVO request) {
         System.out.println("Enter checkHealth : " + request.toString());
-        return SpringResponseVO.builder()
-                .message("name : " + request.getName())
-                .build();
+        return SpringResponseVO.builder().message("name : " + request.getName()).build();
     }
 
     @Override
