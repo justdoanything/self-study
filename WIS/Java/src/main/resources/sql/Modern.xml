@@ -15,6 +15,11 @@
 <!--    <resultMap id="baseResultMap" type="Comment">-->
 <!--        <id column="comment_no" jdbcType="BIGINT" property="commentNo" />-->
 <!--    </resultMap>-->
+    <select id="findModernById" parameterType="int">
+        SELECT id
+        FROM modern_table mt
+        WHERE mt.id = ${id}
+    </select>
 </mapper>
 
 

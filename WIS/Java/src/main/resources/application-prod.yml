@@ -4,11 +4,11 @@ spring:
       on-profile: prod
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mysql://localhost:3330/spring
+    url: jdbc:mariadb://localhost:3330/spring
     username: root
     password: yongwoo
   flyway:
-    url: jdbc:mysql://localhost:3330/spring?useUnicode=yes&characterEncoding=UTF-8&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
+    url: jdbc:mariadb://localhost:3330/spring?useUnicode=yes&characterEncoding=UTF-8&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
     schema: spring
     user: root
     password: yongwoo
