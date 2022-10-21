@@ -1,4 +1,3 @@
 package modern.config;
 
-public class RedisConfig {
-}
+public class RedisConfig {}

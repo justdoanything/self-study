@@ -1,5 +1,7 @@
 package modern.config;
 
+import java.util.Arrays;
+import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -15,9 +17,6 @@ import springfox.documentation.service.SecurityReference;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
-
-import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 @EnableWebMvc
@@ -42,13 +41,11 @@ public class SwaggerConfig implements WebMvcConfigurer {
     }
 
     private ApiKey apiKey() {
-        return new ApiKey(
-                "SESSION_ID", "SESSION_ID", "header");
+        return new ApiKey("SESSION_ID", "SESSION_ID", "header");
     }
 
     private ApiKey authorization() {
-        return new ApiKey(
-                "Authorization", "Authorization", "header");
+        return new ApiKey("Authorization", "Authorization", "header");
     }
 
     private SecurityContext securityContext() {

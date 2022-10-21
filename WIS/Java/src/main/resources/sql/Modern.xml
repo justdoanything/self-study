@@ -12,9 +12,9 @@
      *
      */
 -->
-    <resultMap id="baseResultMap" type="Comment">
-        <id column="comment_no" jdbcType="BIGINT" property="commentNo" />
-    </resultMap>
+<!--    <resultMap id="baseResultMap" type="Comment">-->
+<!--        <id column="comment_no" jdbcType="BIGINT" property="commentNo" />-->
+<!--    </resultMap>-->
 </mapper>
 
 

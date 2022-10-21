@@ -16,7 +16,7 @@ public class ResponseAspect {
 
     @AfterReturning(pointcut = "execution(* modern.controller..*(..))", returning = "response")
     public void validateResponse(JoinPoint joinPoint, Object response) throws Exception {
-                validateResponse(response);
+        validateResponse(response);
     }
 
     private void validateResponse(Object object) throws Exception {

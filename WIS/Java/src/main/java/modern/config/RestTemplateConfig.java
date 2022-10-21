@@ -1,4 +1,3 @@
 package modern.config;
 
-public class RestTemplateConfig {
-}
+public class RestTemplateConfig {}
