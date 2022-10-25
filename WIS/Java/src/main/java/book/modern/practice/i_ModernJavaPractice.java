@@ -40,16 +40,14 @@ public class i_ModernJavaPractice {
         // AppleConstructor<String, Integer, Integer, Apple> apple = Apple::new;
         // apple.apply("tomato", 10, 100);
 
-        List<String> temp =
-                inventory.parallelStream()
-                        .filter(apple -> apple.getWeight() > 100)
-                        .sorted(Comparator.comparing(Apple::getWeight))
-                        .map(Apple::getName)
-                        .collect(Collectors.toList());
+        List<String> temp = inventory.parallelStream()
+                .filter(apple -> apple.getWeight() > 100)
+                .sorted(Comparator.comparing(Apple::getWeight))
+                .map(Apple::getName)
+                .collect(Collectors.toList());
         temp.forEach(System.out::println);
 
-        Map<Integer, List<Apple>> groupApple =
-                inventory.stream().collect(Collectors.groupingBy(Apple::getWeight));
+        Map<Integer, List<Apple>> groupApple = inventory.stream().collect(Collectors.groupingBy(Apple::getWeight));
         System.out.println(groupApple);
     }
 

@@ -17,15 +17,11 @@ public class EnumValidator implements ConstraintValidator<EnumValid, String> {
         List<String> excludeEnumType =
                 Arrays.stream(this.annotation.excludeEnumType()).collect(Collectors.toList());
 
-        enumValues =
-                Arrays.stream(this.annotation.enumClass().getEnumConstants())
-                        .map(
-                                constants ->
-                                        this.annotation.ignoreCase()
-                                                ? constants.name().toUpperCase()
-                                                : constants.name())
-                        .filter(constants -> !excludeEnumType.contains(constants))
-                        .collect(Collectors.toList());
+        enumValues = Arrays.stream(this.annotation.enumClass().getEnumConstants())
+                .map(constants ->
+                        this.annotation.ignoreCase() ? constants.name().toUpperCase() : constants.name())
+                .filter(constants -> !excludeEnumType.contains(constants))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -33,8 +29,7 @@ public class EnumValidator implements ConstraintValidator<EnumValid, String> {
         boolean retVal = false;
 
         if (value != null && !value.isEmpty()) {
-            retVal =
-                    enumValues.contains(this.annotation.ignoreCase() ? value.toUpperCase() : value);
+            retVal = enumValues.contains(this.annotation.ignoreCase() ? value.toUpperCase() : value);
         } else {
             retVal = true;
         }

@@ -21,8 +21,7 @@ public class ResponseUtil {
         return createSuccessResponse(HttpStatusConstants.SUCCESS, data);
     }
 
-    public static ResponseEntity<CommonResponseVO> createSuccessResponse(
-            String status, Object data) {
+    public static ResponseEntity<CommonResponseVO> createSuccessResponse(String status, Object data) {
         return createSuccessResponse(status, data, HttpStatus.OK);
     }
 
@@ -52,8 +51,7 @@ public class ResponseUtil {
         return createFailResponse(status, HttpStatus.OK);
     }
 
-    public static ResponseEntity<CommonResponseVO> createFailResponse(
-            String status, HttpStatus httpStatus) {
+    public static ResponseEntity<CommonResponseVO> createFailResponse(String status, HttpStatus httpStatus) {
         return new ResponseEntity<>(createFailCommonResponseVO(status), httpStatus);
     }
 

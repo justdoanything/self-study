@@ -12,7 +12,6 @@ import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -46,8 +45,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     SessionService sessionService;
 
     @Override
-    public boolean preHandle(
-            HttpServletRequest request, HttpServletResponse response, Object handler)
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
         String sessionId = request.getHeader(HttpHeaderConstants.SESSION_ID);
         if (HTTP_METHOD_OPTIONS.equals(request.getMethod())) return true;
@@ -70,7 +68,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             if (sessionUser == null) {
                 throw new Exception("Session is expired");
             } else {
-//                SessionScopeUtil.setContextSession(sessionUser);
+                //                SessionScopeUtil.setContextSession(sessionUser);
                 return true;
             }
         } else if (isExcludePattern(HttpMethod.valueOf(request.getMethod()), request.getRequestURI())) {
@@ -101,13 +99,11 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     }
 
     private ConfigurableJWTProcessor configurableJWTProcessor() throws MalformedURLException {
-        ResourceRetriever resourceRetriever =
-                new DefaultResourceRetriever(TOKEN_CONNECT_TIMEOUT, TOKEN_READ_TIMEOUT);
+        ResourceRetriever resourceRetriever = new DefaultResourceRetriever(TOKEN_CONNECT_TIMEOUT, TOKEN_READ_TIMEOUT);
         URL url = new URL(String.format("cognito url", "region", "userPoolId"));
         JWKSource jwkSource = new RemoteJWKSet(url, resourceRetriever);
         ConfigurableJWTProcessor configurableJWTProcessor = new DefaultJWTProcessor();
-        JWSKeySelector jwsKeySelector =
-                new JWSVerificationKeySelector(JWSAlgorithm.RS256, jwkSource);
+        JWSKeySelector jwsKeySelector = new JWSVerificationKeySelector(JWSAlgorithm.RS256, jwkSource);
         configurableJWTProcessor.setJWSKeySelector(jwsKeySelector);
         return configurableJWTProcessor;
     }

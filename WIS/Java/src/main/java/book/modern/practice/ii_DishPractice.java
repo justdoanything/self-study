@@ -11,26 +11,24 @@ import java.util.stream.Stream;
 public class ii_DishPractice {
 
     public static void main(String[] args) {
-        List<Dish> menu =
-                Arrays.asList(
-                        new Dish("pork", false, 800, Dish.Type.MEAT),
-                        new Dish("beef", false, 700, Dish.Type.MEAT),
-                        new Dish("chicken", false, 400, Dish.Type.MEAT),
-                        new Dish("french fries", true, 530, Dish.Type.OTHER),
-                        new Dish("season", true, 120, Dish.Type.OTHER),
-                        new Dish("pizza", true, 550, Dish.Type.OTHER),
-                        new Dish("prawns", false, 300, Dish.Type.FISH),
-                        new Dish("salmons", false, 450, Dish.Type.FISH));
+        List<Dish> menu = Arrays.asList(
+                new Dish("pork", false, 800, Dish.Type.MEAT),
+                new Dish("beef", false, 700, Dish.Type.MEAT),
+                new Dish("chicken", false, 400, Dish.Type.MEAT),
+                new Dish("french fries", true, 530, Dish.Type.OTHER),
+                new Dish("season", true, 120, Dish.Type.OTHER),
+                new Dish("pizza", true, 550, Dish.Type.OTHER),
+                new Dish("prawns", false, 300, Dish.Type.FISH),
+                new Dish("salmons", false, 450, Dish.Type.FISH));
 
         /*
          * Stream은 1번만 소비된다.
          */
-        List<String> threeHighCaloricDishNames =
-                menu.stream()
-                        .filter(dish -> dish.getCalories() > 300)
-                        .map(Dish::getName)
-                        .limit(3)
-                        .collect(Collectors.toList());
+        List<String> threeHighCaloricDishNames = menu.stream()
+                .filter(dish -> dish.getCalories() > 300)
+                .map(Dish::getName)
+                .limit(3)
+                .collect(Collectors.toList());
         threeHighCaloricDishNames.forEach(System.out::println);
 
         List<String> title = Arrays.asList("java", "8");
@@ -72,11 +70,10 @@ public class ii_DishPractice {
 
         // 1. 객체가 string[] 라서 문제
         System.out.println("=================== 1");
-        List<String[]> listStringArray =
-                words.stream()
-                        .map(w -> w.split("")) // string[] 을 전달함
-                        .distinct()
-                        .collect(Collectors.toList());
+        List<String[]> listStringArray = words.stream()
+                .map(w -> w.split("")) // string[] 을 전달함
+                .distinct()
+                .collect(Collectors.toList());
         for (String[] item : listStringArray) {
             Arrays.asList(item).forEach(System.out::print);
             System.out.println();
@@ -84,18 +81,15 @@ public class ii_DishPractice {
 
         // 2. 각 배열을 별도의 스트림으로 생성
         System.out.println("=================== 2");
-        List<Stream<String>> listStreamString =
-                words.stream()
-                        .map(w -> w.split("")) // string[] 을 전달함
-                        .map(Arrays::stream) // 각 배열을 stream으로 생성
-                        .distinct()
-                        .collect(Collectors.toList());
-        listStreamString.stream()
-                .forEach(
-                        stream -> {
-                            stream.forEach(System.out::print);
-                            System.out.println();
-                        });
+        List<Stream<String>> listStreamString = words.stream()
+                .map(w -> w.split("")) // string[] 을 전달함
+                .map(Arrays::stream) // 각 배열을 stream으로 생성
+                .distinct()
+                .collect(Collectors.toList());
+        listStreamString.stream().forEach(stream -> {
+            stream.forEach(System.out::print);
+            System.out.println();
+        });
 
         // 3. flatMap 사용
         System.out.println("=================== 3");
@@ -132,17 +126,10 @@ public class ii_DishPractice {
         Optional<Dish> dish = menu.stream().filter(d -> d.getCalories() > 1000).findAny();
         System.out.println(dish);
 
-        menu.stream()
-                .filter(d -> d.getCalories() > 1000)
-                .findAny()
-                .ifPresent(System.out::println); // 값이 없으면 수행하지 않음.
+        menu.stream().filter(d -> d.getCalories() > 1000).findAny().ifPresent(System.out::println); // 값이 없으면 수행하지 않음.
 
         List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
-        numbers.stream()
-                .map(n -> n * n)
-                .filter(n -> n % 3 == 0)
-                .findFirst()
-                .ifPresent(System.out::println);
+        numbers.stream().map(n -> n * n).filter(n -> n % 3 == 0).findFirst().ifPresent(System.out::println);
 
         /*
          * reduce (초기값, 두 요소를 조합해서 새로운 값을 만드는 연산)

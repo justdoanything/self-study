@@ -17,15 +17,13 @@ public class LogAspect {
     private static final String CLASS_LOG_FORMAT = "Class Name : [";
     private static final String METHOD_LOG_FORMAT = "Method Name : [";
 
-    @Before(
-            "(execution(* modern.exception..*(..)) "
-                    + " || execution(* modern.interceptor..*(..))"
-                    + " || execution(* modern.repository..*(..)))"
-                    + " && !@annotation(NoLoggingAspect)")
+    @Before("(execution(* modern.exception..*(..)) "
+            + " || execution(* modern.interceptor..*(..))"
+            + " || execution(* modern.repository..*(..)))"
+            + " && !@annotation(NoLoggingAspect)")
     public void beforeMethod(JoinPoint joinPointØ) {
         HttpServletRequest request =
-                ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
-                        .getRequest();
+                ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 
         StringBuilder logStringBuilder = new StringBuilder();
         String logInfo = logStringBuilder.append("원하는 LOG 내용").toString();
@@ -34,16 +32,14 @@ public class LogAspect {
     }
 
     @AfterReturning(
-            pointcut =
-                    "(execution(* modern.exception..*(..)) "
-                            + " || execution(* modern.interceptor..*(..))"
-                            + " || execution(* modern.repository..*(..)))"
-                            + " && !@annotation(NoLoggingAspect)",
+            pointcut = "(execution(* modern.exception..*(..)) "
+                    + " || execution(* modern.interceptor..*(..))"
+                    + " || execution(* modern.repository..*(..)))"
+                    + " && !@annotation(NoLoggingAspect)",
             returning = "result")
     public void afterMethod(JoinPoint joinPoint, Object result) {
         HttpServletRequest request =
-                ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
-                        .getRequest();
+                ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 
         StringBuilder logStringBuilder = new StringBuilder();
         String logInfo = logStringBuilder.append("원하는 LOG 내용").toString();

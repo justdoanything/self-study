@@ -1,4 +1,3 @@
 package modern.model.session;
 
-public class SessionVO {
-}
+public class SessionVO {}

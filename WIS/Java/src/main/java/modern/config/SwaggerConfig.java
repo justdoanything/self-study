@@ -46,8 +46,7 @@ public class SwaggerConfig implements WebMvcConfigurer {
     }
 
     private ApiKey authorization() {
-        return new ApiKey(
-                HttpHeaderConstants.AUTHORIZATION, HttpHeaderConstants.AUTHORIZATION, "header");
+        return new ApiKey(HttpHeaderConstants.AUTHORIZATION, HttpHeaderConstants.AUTHORIZATION, "header");
     }
 
     private SecurityContext securityContext() {
@@ -55,8 +54,7 @@ public class SwaggerConfig implements WebMvcConfigurer {
     }
 
     List<SecurityReference> defaultAuth() {
-        AuthorizationScope authorizationScope =
-                new AuthorizationScope("global", "accessEverything");
+        AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
         AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
         authorizationScopes[0] = authorizationScope;
         return Arrays.asList(
@@ -67,7 +65,6 @@ public class SwaggerConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/swagger-ui/**")
-                .addResourceLocations(
-                        "classpath:/META-INF/resources/webjars/springfox-swagger-ui/");
+                .addResourceLocations("classpath:/META-INF/resources/webjars/springfox-swagger-ui/");
     }
 }

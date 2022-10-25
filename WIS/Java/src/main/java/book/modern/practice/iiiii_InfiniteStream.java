@@ -11,26 +11,22 @@ public class iiiii_InfiniteStream {
 
         IntStream.iterate(0, n -> n < 100, n -> n + 4).limit(10).forEach(System.out::println);
 
-        IntStream.iterate(0, n -> n + 4)
-                .takeWhile(n -> n < 100)
-                .limit(10)
-                .forEach(System.out::println);
+        IntStream.iterate(0, n -> n + 4).takeWhile(n -> n < 100).limit(10).forEach(System.out::println);
 
         Stream.generate(Math::random).limit(10).forEach(System.out::println);
 
-        IntSupplier fibo =
-                new IntSupplier() {
-                    private int previous = 1;
-                    private int current = 2;
+        IntSupplier fibo = new IntSupplier() {
+            private int previous = 1;
+            private int current = 2;
 
-                    public int getAsInt() {
-                        int oldPrevious = this.previous;
-                        int nextValue = this.previous + this.current;
-                        this.previous = this.current;
-                        this.current = nextValue;
-                        return oldPrevious;
-                    }
-                };
+            public int getAsInt() {
+                int oldPrevious = this.previous;
+                int nextValue = this.previous + this.current;
+                this.previous = this.current;
+                this.current = nextValue;
+                return oldPrevious;
+            }
+        };
         IntStream.generate(fibo).limit(15).forEach(System.out::println);
     }
 }

@@ -13,14 +13,13 @@ public class iii_TransactionPractice {
         Trader alan = new Trader("Alan", "Cambridge");
         Trader brian = new Trader("Brian", "Cambridge");
 
-        List<Transaction> transactions =
-                Arrays.asList(
-                        new Transaction(brian, 2011, 300),
-                        new Transaction(raoul, 2012, 1000),
-                        new Transaction(raoul, 2011, 400),
-                        new Transaction(mario, 2012, 710),
-                        new Transaction(mario, 2012, 700),
-                        new Transaction(alan, 2012, 950));
+        List<Transaction> transactions = Arrays.asList(
+                new Transaction(brian, 2011, 300),
+                new Transaction(raoul, 2012, 1000),
+                new Transaction(raoul, 2011, 400),
+                new Transaction(mario, 2012, 710),
+                new Transaction(mario, 2012, 700),
+                new Transaction(alan, 2012, 950));
 
         // 2011년에 일어난 모든 트랜잭션을 찾아 값을 오름차순으로 정리하시오.
         System.out.println("2011년에 일어난 모든 트랜잭션을 찾아 값을 오름차순으로 정리하시오.");
@@ -31,10 +30,7 @@ public class iii_TransactionPractice {
 
         // 거래자가 근무하는 모든 도시를 중복 없이 나열하시오.
         System.out.println("\n거래자가 근무하는 모든 도시를 중복 없이 나열하시오.");
-        transactions.stream()
-                .map(t -> t.getTrader().getCity())
-                .distinct()
-                .forEach(System.out::println);
+        transactions.stream().map(t -> t.getTrader().getCity()).distinct().forEach(System.out::println);
 
         // 케임브리지에서 근무하는 모든 거래자를 찾아서 이름순으로 정렬하시오.
         System.out.println("\n케임브리지에서 근무하는 모든 거래자를 찾아서 이름순으로 정렬하시오.");
@@ -57,15 +53,11 @@ public class iii_TransactionPractice {
         // 밀리노에 거래자가 있는가?
         System.out.println("\n밀리노에 거래자가 있는가?");
         System.out.println(
-                transactions.stream().anyMatch(t -> t.getTrader().getCity().equals("Milano"))
-                        ? "Yes"
-                        : "No");
+                transactions.stream().anyMatch(t -> t.getTrader().getCity().equals("Milano")) ? "Yes" : "No");
 
         System.out.println("\n밀란에 거래자가 있는가?");
         System.out.println(
-                transactions.stream().anyMatch(t -> t.getTrader().getCity().equals("Milan"))
-                        ? "Yes"
-                        : "No");
+                transactions.stream().anyMatch(t -> t.getTrader().getCity().equals("Milan")) ? "Yes" : "No");
 
         // 케임브리지에 거주하는 거래자의 모든 트랜잭션 값을 출력하시오.
         System.out.println("\n케임브리지에 거주하는 거래자의 모든 트랜잭션 값을 출력하시오.");
@@ -82,10 +74,7 @@ public class iii_TransactionPractice {
                 .ifPresent(t -> System.out.println(t.getValue()));
 
         // 다른 예시
-        transactions.stream()
-                .map(Transaction::getValue)
-                .reduce(Integer::max)
-                .ifPresent(System.out::println);
+        transactions.stream().map(Transaction::getValue).reduce(Integer::max).ifPresent(System.out::println);
 
         // 전체 트랜잭션 중 최솟값은 얼마인가?
         System.out.println("\n전체 트랜잭션 중 최솟값은 얼마인가?");

@@ -12,7 +12,8 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 public class ResponseAspect {
-    @Autowired private Validator validator;
+    @Autowired
+    private Validator validator;
 
     @AfterReturning(pointcut = "execution(* modern.controller..*(..))", returning = "response")
     public void validateResponse(JoinPoint joinPoint, Object response) throws Exception {

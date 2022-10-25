@@ -45,14 +45,6 @@ public class Dish {
 
     @Override
     public String toString() {
-        return "Dish [calories="
-                + calories
-                + ", name="
-                + name
-                + ", type="
-                + type
-                + ", vegetarian="
-                + vegetarian
-                + "]";
+        return "Dish [calories=" + calories + ", name=" + name + ", type=" + type + ", vegetarian=" + vegetarian + "]";
     }
 }

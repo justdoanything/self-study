@@ -28,12 +28,8 @@ public class SpringController {
     private final SpringService springService;
 
     @ApiOperation(value = "Health Check", httpMethod = "POST", notes = "Health Check")
-    @PostMapping(
-            path = "",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody ResponseEntity<CommonResponseVO> healthCheck(
-            @RequestBody @Valid SpringRequestVO request) {
+    @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody ResponseEntity<CommonResponseVO> healthCheck(@RequestBody @Valid SpringRequestVO request) {
         SpringResponseVO vo = springService.checkHealth(request);
         return ResponseUtil.createSuccessResponse(vo);
     }
