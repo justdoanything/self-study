@@ -8,8 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 public class ModernTest {
 
-    @Autowired
-    SpringController springController;
+    @Autowired SpringController springController;
 
     @Test
     public void modernTest() {

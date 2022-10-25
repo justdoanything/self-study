@@ -1,4 +1,4 @@
-package modern.model;
+package modern.model.spring;
 
 import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.NotBlank;

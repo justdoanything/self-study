@@ -3,7 +3,7 @@ package modern.util;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.experimental.UtilityClass;
 import modern.constants.HttpStatusConstants;
-import modern.model.CommonResponseVO;
+import modern.model.spring.CommonResponseVO;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

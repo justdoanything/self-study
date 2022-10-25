@@ -1,4 +1,4 @@
-package modern.model;
+package modern.model.spring;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

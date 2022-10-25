@@ -2,7 +2,6 @@ package modern.config;
 
 import java.util.Arrays;
 import java.util.List;
-
 import modern.constants.HttpHeaderConstants;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,7 +46,8 @@ public class SwaggerConfig implements WebMvcConfigurer {
     }
 
     private ApiKey authorization() {
-        return new ApiKey(HttpHeaderConstants.AUTHORIZATION, HttpHeaderConstants.AUTHORIZATION, "header");
+        return new ApiKey(
+                HttpHeaderConstants.AUTHORIZATION, HttpHeaderConstants.AUTHORIZATION, "header");
     }
 
     private SecurityContext securityContext() {

@@ -1,13 +1,13 @@
-package modern.service;
+package modern.service.session;
 
 import lombok.RequiredArgsConstructor;
-import modern.model.SpringRequestVO;
-import modern.model.SpringResponseVO;
+import modern.model.spring.SpringRequestVO;
+import modern.model.spring.SpringResponseVO;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class SpringServiceImpl implements SpringService {
+public class SessionServiceImpl implements SessionService {
     @Override
     public SpringResponseVO checkHealth(SpringRequestVO request) {
         System.out.println("Enter checkHealth : " + request.toString());
