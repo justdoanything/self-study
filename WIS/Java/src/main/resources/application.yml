@@ -46,10 +46,10 @@ spring:
     password: yongwoo
     locations: classpath:/db/migration
     out-of-order: true
-#  redis:
-#    host:
-#    port:
-#    session-ttl:
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    session-ttl: 1800   # time-to-live : redis의 key가 살아있는 시간
 
 cloud:
 

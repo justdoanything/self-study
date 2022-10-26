@@ -1,0 +1,45 @@
+package modern.repository;
+
+import modern.model.session.SessionVO;
+import org.apache.ibatis.annotations.Mapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+
+import javax.annotation.Resource;
+import java.util.concurrent.TimeUnit;
+
+@Mapper
+public class SessionRepository {
+    @Value(value = "${spring.redis.session-ttl}")
+    private int redisSessionTtl;
+
+    @Autowired
+    private RedisTemplate<String, SessionVO> redisSessionTemplate;
+
+    /**
+     * @Description
+     * @return
+     */
+    @Resource
+    ValueOperations<String, SessionVO> valueOperations;
+
+    public void createSession(String key, SessionVO sessionVO) {
+        /**
+         * @Description
+         * @return
+         */
+        valueOperations.set(key, sessionVO);
+        redisSessionTemplate.expire(key, redisSessionTtl, TimeUnit.SECONDS);
+    }
+
+    public SessionVO getSession(String key) {
+        redisSessionTemplate.expire(key, redisSessionTtl, TimeUnit.SECONDS);
+        return valueOperations.get(key);
+    }
+
+    public Boolean deleteSession(String key) {
+        return redisSessionTemplate.delete(key);
+    }
+}
