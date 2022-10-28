@@ -1,5 +1,6 @@
 package modern.model.spring;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -42,6 +43,9 @@ import lombok.experimental.SuperBuilder;
  * @Descroption
  */
 @SuperBuilder
+
+// 이 이외의 속성값들
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SpringVO {
     /**
      * @Description Swagger

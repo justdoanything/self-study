@@ -4,7 +4,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.websocket.server.PathParam;
+
 import lombok.RequiredArgsConstructor;
+import modern.constants.CommonEnumConstants.Gender;
 import modern.model.spring.CommonResponseVO;
 import modern.model.spring.SpringRequestVO;
 import modern.model.spring.SpringResponseVO;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,7 +41,8 @@ public class SpringController {
     @ApiOperation(value = "Health Check", httpMethod = "GET", notes = "Health Check")
     @GetMapping(path = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody ResponseEntity<CommonResponseVO> healthCheck(
-            @NotNull @PathVariable(name = "id", required = true) Integer id) {
+            @NotNull @PathVariable(name = "id", required = true) Integer id,
+            @NotNull @RequestParam(name = "gender", required = true) Gender gender) {
         return ResponseUtil.createSuccessResponse(springService.checkHealth(id));
     }
 }
