@@ -52,6 +52,11 @@ spring:
     session-ttl: 1800   # time-to-live : redis의 key가 살아있는 시간
 
 cloud:
+  token:
+    connect:
+      timeout: 1800
+    read:
+      timeout: 1800
 
 logging:
   level:

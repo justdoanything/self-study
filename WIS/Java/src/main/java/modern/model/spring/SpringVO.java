@@ -2,19 +2,16 @@ package modern.model.spring;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.Extension;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-
-import io.swagger.annotations.Extension;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 /**
@@ -29,12 +26,12 @@ import lombok.experimental.SuperBuilder;
  * @Descroption
  */
 @Data
-//@Getter
-//@Setter
+// @Getter
+// @Setter
 /**
  * @Descroption
  */
-//@Builder
+// @Builder
 /**
  * @Descroption
  */
@@ -52,21 +49,23 @@ public class SpringVO {
      * @return
      */
     @ApiModelProperty(
-            value = ""
-            , name = ""
-            , allowableValues = ""
-            , access = ""
-            , notes = ""
-            , dataType = ""
-            , required = true
-            , position = 0
-            , hidden = true
-            , example = ""
-            , accessMode = ApiModelProperty.AccessMode.AUTO
-            , reference = ""
-            , allowEmptyValue = true
-            , extensions = @Extension(name = "", properties = {})
-    )
+            value = "",
+            name = "",
+            allowableValues = "",
+            access = "",
+            notes = "",
+            dataType = "",
+            required = true,
+            position = 0,
+            hidden = true,
+            example = "",
+            accessMode = ApiModelProperty.AccessMode.AUTO,
+            reference = "",
+            allowEmptyValue = true,
+            extensions =
+                    @Extension(
+                            name = "",
+                            properties = {}))
     /**
      * @Description Valid
      * @return

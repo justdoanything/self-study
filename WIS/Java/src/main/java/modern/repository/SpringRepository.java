@@ -1,11 +1,10 @@
 package modern.repository;
 
+import java.util.List;
+import javax.swing.*;
 import modern.model.spring.SpringRequestVO;
 import modern.model.spring.SpringResponseVO;
 import org.apache.ibatis.annotations.Mapper;
-
-import javax.swing.*;
-import java.util.List;
 
 /**
  * @Descroption
@@ -15,5 +14,6 @@ import java.util.List;
 @Mapper
 public interface SpringRepository {
     int insertSpring();
+
     List<SpringResponseVO> selectSpring(SpringRequestVO springRequestVO);
 }

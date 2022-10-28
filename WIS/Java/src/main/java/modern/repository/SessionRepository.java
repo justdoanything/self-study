@@ -1,16 +1,15 @@
 package modern.repository;
 
+import java.util.concurrent.TimeUnit;
+import javax.annotation.Resource;
 import modern.model.session.SessionVO;
-import org.apache.ibatis.annotations.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.stereotype.Repository;
 
-import javax.annotation.Resource;
-import java.util.concurrent.TimeUnit;
-
-@Mapper
+@Repository
 public class SessionRepository {
     @Value(value = "${spring.redis.session-ttl}")
     private int redisSessionTtl;
@@ -22,7 +21,7 @@ public class SessionRepository {
      * @Description
      * @return
      */
-    @Resource
+    @Resource(name = "redisSessionTemplate")
     ValueOperations<String, SessionVO> valueOperations;
 
     public void createSession(String key, SessionVO sessionVO) {

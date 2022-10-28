@@ -35,10 +35,10 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     private static final String HTTP_METHOD_OPTIONS = "OPTIONS";
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
-    @Value("${token.connect.timeout}")
+    @Value("${cloud.token.connect.timeout}")
     private int TOKEN_CONNECT_TIMEOUT;
 
-    @Value("${token.read.timeout}")
+    @Value("${cloud.token.read.timeout}")
     private int TOKEN_READ_TIMEOUT;
 
     @Autowired

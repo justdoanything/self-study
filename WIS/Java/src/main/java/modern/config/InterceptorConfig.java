@@ -2,7 +2,6 @@ package modern.config;
 
 import java.util.Arrays;
 import java.util.List;
-
 import modern.config.converter.SpringConverter;
 import modern.interceptor.AuthenticationInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;

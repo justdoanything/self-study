@@ -4,8 +4,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.websocket.server.PathParam;
-
 import lombok.RequiredArgsConstructor;
 import modern.constants.CommonEnumConstants.Gender;
 import modern.model.spring.CommonResponseVO;

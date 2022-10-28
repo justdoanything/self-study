@@ -1,6 +1,5 @@
 package modern.config.converter;
 
-import modern.constants.CommonEnumConstants;
 import modern.constants.CommonEnumConstants.Gender;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;

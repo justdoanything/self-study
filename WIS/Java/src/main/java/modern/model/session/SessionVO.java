@@ -4,18 +4,16 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Data
-//@Getter
-//@Setter
+// @Getter
+// @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class SessionVO {
-//    @Builder.Default
+    //    @Builder.Default
 
     private String sessionId;
     private String accessToken;
@@ -25,6 +23,7 @@ public class SessionVO {
      * id, name, token, uuid, email, nickname, role, profile 등
      */
     private String memberId;
+
     private String memberInfo;
     private String memberToken;
 }
