@@ -22,9 +22,10 @@ public class ModernTest {
                 TestVO.builder().termId(2).agree("Y").build(),
                 TestVO.builder().termId(3).agree("Y").build(),
                 TestVO.builder().termId(4).agree("Y").build(),
-                TestVO.builder().termId(5).agree("N").build(),
+                TestVO.builder().termId(5).agree("Y").build(),
                 TestVO.builder().termId(6).agree("Y").build(),
-                TestVO.builder().termId(9).agree("N").build());
+                TestVO.builder().termId(9).agree("Y").build(),
+                TestVO.builder().termId(11).agree("Y").build());
 
         required.forEach(id -> {
             request.stream()
@@ -40,10 +41,5 @@ public class ModernTest {
                                 System.out.println("필수 항목을 누락했습니다 : " + id);
                             });
         });
-
-        // required에 없을 경우 (O)
-        // required에 있는데 N한 경우
-        // 성공
-
     }
 }
