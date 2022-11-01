@@ -33,6 +33,14 @@
   ORDER BY INSTR(name, #{name}), name
   ```
 
+## SQL ORDER BY 시 `FIELD` 사용
+  - 특정한 값을 우선적으로 정렬할 때 사용한다
+  ```sql
+  SELECT *
+  FROM category c
+  ORDER BY FIED(c.category_name, '국내', '해외'), c.category_name, c.sort_order
+  ```
+
 ## Trouble Shooting
 - ### Bean 간 순환 참조 문제
   - Reference : https://www.baeldung.com/circular-dependencies-in-spring
