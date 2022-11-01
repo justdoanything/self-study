@@ -23,14 +23,19 @@
     - `select_type`
       - SELECT 쿼리가 어떤 타입인지 나타낸다.
       
-| 타입             | 설명                                                                                                                               |
-|----------------|----------------------------------------------------------------------------------------------------------------------------------|
-| `SIMPLE`        | UNION 이나 Sub Query를 사용하지 않은 단순 SELECT. JOIN하고 있는 쿼리도 따로 보지 않고 하나의 `SIMPLE`로 본다.                                                    | 
-| `PRIMARY`       | UNION 이나 Sub Query가 포함된 SELECT에서 가장 바깥쪽에 있는 SELECT. PRIMARY인 쿼리는 반드시 하나만 존재한다.                                                   |
-| `UNION`         | UNION을 사용한 SELECT에서 두번째 이후 쿼리는 모두 UNION 으로 표시된다. (첫번째 쿼리는 `DERIVED` 이다.)                                                           |
-| `DEPENDENT UNION` | UNION을 사용한 SELECT에서 UNION으로 결합된 쿼리가 외부 쿼리에 영향을 받는 경우이다. 내부 쿼리가 외부 값을 참조하는 경우이다.                                                  |
-| `UNION RESULT`   | UNION의 결과를 담는 임시 테이블을 의미한다. (Mysql 8.0 부터는 UNION ALL을 쓸 때 임시 테이블을 사용하지 않기로해서 보이지 않지만 UNION, UNION DISTINCT 쿼리는 임시 테이블에 결과를 담는다.) |
-| `SUBQUERY`       | FROM절 이외에 사용된 Sub Query에 표시된다. (FROM절에 사용된 Sub Query는 `DERIVED` 로 표시된다.)                                                           | 
+| 타입                     | 설명                                                                                                                                                                                                                                                            |
+|------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `SIMPLE`               | UNION 이나 Sub Query를 사용하지 않은 단순 SELECT. JOIN하고 있는 쿼리도 따로 보지 않고 하나의 `SIMPLE`로 본다.                                                                                                                                                                               | 
+| `PRIMARY`              | UNION 이나 Sub Query가 포함된 SELECT에서 가장 바깥쪽에 있는 SELECT. PRIMARY인 쿼리는 반드시 하나만 존재한다.                                                                                                                                                                                |
+| `UNION`                | UNION을 사용한 SELECT에서 두번째 이후 쿼리는 모두 UNION 으로 표시된다. (첫번째 쿼리는 `DERIVED` 이다.)                                                                                                                                                                                      |
+| `DEPENDENT UNION`      | UNION을 사용한 SELECT에서 UNION으로 결합된 쿼리가 외부 쿼리에 영향을 받는 경우이다. 내부 쿼리가 외부 값을 참조하는 경우이다.                                                                                                                                                                               |
+| `UNION RESULT`         | UNION의 결과를 담는 임시 테이블을 의미한다. (Mysql 8.0 부터는 UNION ALL을 쓸 때 임시 테이블을 사용하지 않기로해서 보이지 않지만 UNION, UNION DISTINCT 쿼리는 임시 테이블에 결과를 담는다.)                                                                                                                              |
+| `SUBQUERY`             | FROM절 이외에 사용된 Sub Query에 표시된다. (FROM절에 사용된 Sub Query는 `DERIVED` 로 표시된다.)                                                                                                                                                                                      |
+| `DEPENDENT SUBQUERY`   | FROM절 이외에 사용된 Sub Query가 바깥쪽 SELECT에서 정의된 컬럼을 사용할 경우 해당 Sub Query에 표시된다.                                                                                                                                                                                      |
+| `DERIVED`              | FROM절에 사용된 Sub Query로 SELECT 결과로 Memory나 Disk에 임시 테이블을 만드는 경우에 표시된다.                                                                                                                                                                                          |
+| `DEPENDENT DERIVED`    | LATERAL JOIN을 사용했을 떄 표시된다. (Mysql 8.0 이전에는 FROM절의 Sub Query에 외부 컬럼을 사용할 수 없었지만 8.0 이후로는 가능하고 LATERAL JOIN으로 FROM절의 Sub Query가 외부 컬럼을 참좋라 수 있다.)                                                                                                               |
+ | `UNCACHEABLE SUBQUERY` | `SUBQUERY`, `DEPENDENT SUBQUERY`는 Sub Query 결과를 Caching 할 수 있는데 툭정 조건 때문에 Caching 할 수 없을 때 표시된다. (사용자 변수가 Sub Query에 있거나 UUID(), RAND() 와 같은 결과값이 호출할 때마다 변경되는 함수가 Sub Query에 있을 때, NOT-DETERMINISTIC 속성의 Stored Function이 Sub Query에 들어간 경우 Caching 하지 못한다.) |
+| `MATERIALIZED`         |                                                                                                                                                                                                                                                               |
 
   - Reference : https://jeong-pro.tistory.com/243
 ## SQL LIKE 검색 시 `INTSTR` 사용

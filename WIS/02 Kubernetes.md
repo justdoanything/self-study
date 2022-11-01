@@ -686,7 +686,7 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
         - db에 접속해서 redis 동작 확인
           - `kubectl exec -it counter -c app -- sh`  # -c 옵션으로 container 지정
           - `curl localhost:3000`
-          - `telnet localhost 6379`
+          - `telnet localhost 6379` 혹은 `redis-cli` 혹은 `redis-cli -h <redis 서버 ip> -p <redis port> -a <password>`
           - `dbsize`
           - `keys *`
           - `get count`
