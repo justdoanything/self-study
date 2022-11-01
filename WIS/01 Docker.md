@@ -205,6 +205,8 @@ Docker
     - _redis는 메모리 기반의 다양한 기능을 가진 스토리지로 6379 포트로 통신_
     - _-d 옵션이 없으면 foreground로 실행되서 아무키도 입력할 수 없는 상태가 됨
       (docker는 1개로 떠있기 때문에 Ubuntu 내에서 1234 포트로 붙는 것과 Windows10 Terminal에서 1234포트로 붙는거 모두 동일한 redis를 사용한다._
+    - Redis Container 안에서 redis 접속 : `redis-cli`
+      - 별도의 주소로 접속할 때 : `redis-cli -h <redis 서버 ip> -p <redis port> -a <password>`
 - Mysql Container 실행 예제
   - `docker run -d -p 3306:3306 -e MYSQL_ALLOW_EMPTY_PASSWORD=true --name mysql mysql:5.7`
   - `mysql -h127.0.0.1 -uroot`
