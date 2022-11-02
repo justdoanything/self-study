@@ -37,6 +37,30 @@
   - 여러 form을 처리해주기 쉽게 만드는거.
 	- focus = touch로 (form 이 터치가 됐느냐)
 	- error = error로 잡아줌 (form에 값이 쓰여져있느냐)
+  - 기본 사용법 (https://krpeppermint100.medium.com/ts-formik-사용법-4f526888c81a)
+      ```js
+      return (
+        <Formik 
+          initialValues={{ username: "beaver", password: "beaver" }} 
+          onSubmit={(data, { setSubmitting }) => {
+            setSubmitting(true)
+          }}>
+          {
+            ({ values, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
+              <form onSubmit={handleSubmit}>
+                <div>
+                  <TextField name="username" value={values.username} onChange={handleChange} />
+                </div>
+                <div>
+                  <TextField name="password" value={values.password} onChange={handleChange} />
+                </div>
+                <Button type="submit" disabled={isSubmitting}>Submit</Button>
+              </form>
+            )
+          }
+        </Formik>
+      );
+      ```
 
 - ### yup
   - form에 대한 에러를 잡는 기준을 정해주는것.
