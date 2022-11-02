@@ -22,7 +22,7 @@
       - SELECT 쿼리를 구분하기 위한 용도로 JOIN으로 연결되어 있는 쿼리는 하나로 보기 때문에 같은 id 값을 가진다.
     - `select_type`
       - SELECT 쿼리가 어떤 타입인지 나타낸다.
-      
+
 | 타입                     | 설명                                                                                                                                                                                                                                                            |
 |------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `SIMPLE`               | UNION 이나 Sub Query를 사용하지 않은 단순 SELECT. JOIN하고 있는 쿼리도 따로 보지 않고 하나의 `SIMPLE`로 본다.                                                                                                                                                                               | 
@@ -35,7 +35,17 @@
 | `DERIVED`              | FROM절에 사용된 Sub Query로 SELECT 결과로 Memory나 Disk에 임시 테이블을 만드는 경우에 표시된다.                                                                                                                                                                                          |
 | `DEPENDENT DERIVED`    | LATERAL JOIN을 사용했을 떄 표시된다. (Mysql 8.0 이전에는 FROM절의 Sub Query에 외부 컬럼을 사용할 수 없었지만 8.0 이후로는 가능하고 LATERAL JOIN으로 FROM절의 Sub Query가 외부 컬럼을 참좋라 수 있다.)                                                                                                               |
  | `UNCACHEABLE SUBQUERY` | `SUBQUERY`, `DEPENDENT SUBQUERY`는 Sub Query 결과를 Caching 할 수 있는데 툭정 조건 때문에 Caching 할 수 없을 때 표시된다. (사용자 변수가 Sub Query에 있거나 UUID(), RAND() 와 같은 결과값이 호출할 때마다 변경되는 함수가 Sub Query에 있을 때, NOT-DETERMINISTIC 속성의 Stored Function이 Sub Query에 들어간 경우 Caching 하지 못한다.) |
-| `MATERIALIZED`         |                                                                                                                                                                                                                                                               |
+| `MATERIALIZED`         | FROM절이나 IN 형태의 쿼리에 사용된 Sub Query를 최적화할 때 표시된다. 보통 Sub Query보다 외부 쿼리의 테이블을 먼저 읽어서 비효율적으로 실행되는데 Sub Query 내용을 임시 테이블로 구체화한 후 외부 테이블과 Join 하여 최적화한다. 이 때 Sub Query가 먼저 구체화 되었다는 것을 표시한다.                                                                         |
+  - `table`
+  - `partitions`
+  - `type`
+  - `possible_keys`
+  - `key`
+  - `key_len`
+  - `ref`
+  - `row`
+  - `Extra`
+  - `Filtered`
 
   - Reference : https://jeong-pro.tistory.com/243
 ## SQL LIKE 검색 시 `INTSTR` 사용
