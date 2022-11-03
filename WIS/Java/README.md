@@ -36,11 +36,39 @@
         | `DEPENDENT UNION`      | UNION을 사용한 SELECT에서 UNION으로 결합된 쿼리가 외부 쿼리에 영향을 받는 경우이다. 내부 쿼리가 외부 값을 참조하는 경우이다.                                                                                                                                                                               |
         | `MATERIALIZED`         | FROM절이나 IN 형태의 쿼리에 사용된 Sub Query를 최적화할 때 표시된다. 보통 Sub Query보다 외부 쿼리의 테이블을 먼저 읽어서 비효율적으로 실행되는데 Sub Query 내용을 임시 테이블로 구체화한 후 외부 테이블과 Join 하여 최적화한다. 이 때 Sub Query가 먼저 구체화 되었다는 것을 표시한다.                                                                         |
     - `table`
+      - 실행 계획을 확인할 때 SELECT 쿼리가 아니고 테이블 기준으로 분류해서 나온다.
+      - `<>` 로 감싸져 있으면 임시 테이블을 뜻한다.
     - `partitions`
+      - Partitioning 으로 테이블이 관리되고 있을 때 어떤 Partitioning을 읽었는지 표시해준다.
     - `type`
+      - ⭐️ index를 참조했는지 알려주는 중요한 컬럼이다.
+      - ALL 을 빼면 index를 사용했다고 볼 수 있고 type 컬럼의 종류는 아래와 같다. (성능이 좋은 순으로 정렬되어 있다.)
+      - | 타입                | 설명                                                                                                                                                                                                                                                             |
+        |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---|
+        | `system`          | record가 0건 또는 1건만 존재하는 테이블을 접근할 때 표시된다.                                                                                                                                                                                                                        |
+        | `const`           | Query에 Primary/Unique Key를 이용하는 WHERE 조건이 있으면거 결과가 반드시 1건을 반환하는 쿼리로 접근할 때 표시된다. (=UNIQUE INDEX SCAN) 단, DBMS가 결과가 1개인 것을 예측할 수 있어야 한다. QUERY 결과가 1건인 것이랑은 별개이다.                                                                                                |
+        | `eq_ref`          | 여러 테이블이 JOIN 되는 QUERY 에서만 발생한다. JOIN에서 처음 읽은 테이블의 컬럼 값을 두번째 읽는 테이블의 Primary/Unique Index Column(NOT NULL)의 동등 조건에 사용될 때 (=반드시 1건만 존재한다는 보장이 있을 때) 사용되는 접근 방법                                                                                                   |
+        | `ref`             | eq_ref 와 달리 JOIN 순서에 상관없이 사용되며 Primary/Unique Index 등의 제약도 상관없이 사용된다. Index 종류와 상관없이 동등 조건이 사용될 때 사용되는 접근 방법이다. (단, 레코드가 반드시 1건이라는 보장이 없으므로 eq_ref보다 느리지만 전체로 봤을 땐 아주 빠른 index 이다.)                                                                            |
+        | `fulltext`        | 전문 검색 Index를 사용해서 Record에 접근하는 방법으로 검색할 컬럼에 Index가 있어야 한다. (MATCH ... AGAINST ... 구문을 사용해서 실행된다.)                                                                                                                                                              |
+        | `ref_or_null`     | ref와 같은데 NULL 비교가 추가된 형태이다.                                                                                                                                                                                                                                    |
+        | `unique_subqery`  | WHERE 조건에 IN 형태(Sub Query)를 갖을 때, Sub Query에서 중복되지 않는 Unique한 값만 반환될 때 사용된다.                                                                                                                                                                                   |
+        | `index_subquery`  | IN 연산자 특성상 IN 괄호 조건에 나오는 목록에 중복값이 제거 되어야 한다. Unique 하지 않은 경우에 Index를 이용해서 중복을 제거한다.                                                                                                                                                                            |
+        | `range`           | 인덱스를 하나의 값이 아니라 범위로 검색하는 경우에 사용된다. 주로 `<`, `>`, `IS NULL`, `BETWEEN`, `IN`, `LIKE` 등의 연산자로 Index를 검색하는 경우에 사용된다. 통상적으로 Index Scan 이라고 하면 `range`, `const`, `ref`를 묶어서 지칭한다.                                                                                    |
+        | `index_merge`     | 2개 이상의 Index를 이용해서 각각의 검색 결과를 만든 후 결과를 합치는 접근 방식으로 실제 우선순위가 range 보다 높지만 효율적으로 동작히지 않는다.                                                                                                                                                                       |
+        | `index`           | Index를 처음부터 끝까지 읽어야 하는 경우에 쓰이는 비효율적인 방식이다. 아래 2가지 조건에서 발생한다.<br/> - Index Scan(range, const, ref)이 불가능하고 Index에 포함된 컬럼만으로 처리할 수 있는 경우(데이터 파일을 읽지 않아도 되는 경우)<br/>- Index Scan(range, const, ref)이 불가능하고 Index를 이용해 정렬이나 Grouping 작업이 가능한 경우 (정렬 작업을 피할 수 있는 경우) |
+        | `ALL`             | Full Table Scan으로 일반적인 조회 환경에서 가장 안좋은 방식이다. 잘못된 Index를 사용하는 것보다 이 방식이 효율적일 수 있다.                                                                                                                                                                               |
     - `possible_keys`
+      - Optimizer가 Query를 처리하기 위해 여러 처리 방법을 고려하던 중에 사용된 후보 Index List
     - `key`
+      - possible_keys 컬럼에서 보여진 후보 Index List 중 실제로 사용된 Index를 의미한다. Index를 사용하지 못한 경우 NULL로 표시된다.
     - `key_len`
+      - Index가 다중 컬럼으로 만들어졌을 경우, Index 중에서 몇 byte까지 사용했는지 알려준다. 각 Index 컬럼에 할당된 byte를 알 수 있어서 몇 개의 Index 컬럼이 사용되었는지 추산할 수 있다.
+      - dept_emp 테이블은 다중 컬럼(dept_no, emp_no)으로 만들어진 Primary가 있고 아래 Query로 테이블을 조회할 때 key_len = 4 가 나온다. dept_no가 INTEGER(byte=4) 이기 때문에 Index 중에서 앞에 dep_no만 쓰였다는걸 추론할 수 있다.
+        ```sql
+        SELECT *
+        FROM dept_emp
+        WHERE dept_no=3
+        ```
     - `ref`
     - `row`
     - `Extra`
