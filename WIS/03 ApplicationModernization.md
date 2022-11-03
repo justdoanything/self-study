@@ -443,6 +443,66 @@ Flyway
   - Ant : Ant에 통합하여 실행.
   - SBT : SBT(Scala 빌드 도구)에 통합하여 실행.
 
+- ### Flyway 실습예제(Gradle 기반) with SpringBoot
+  - build.gradle
+    ```yml
+    plugins{
+      ...
+      id 'org.flywaydb.flyway' version '6.5.5'
+      ...
+    }
+
+    dependencies {
+      ...
+      implementation 'org.flywaydb:flyway-core'
+      ...
+    }
+
+    flyway {
+      // database source 입력
+      url = 'jdbc:mariadb://localhost:3330/spring?useUnicode=yes&characterEncoding=UTF-8&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false'
+      user = 'root'
+      password = 'yongwoo'
+      schemas = ['spring']
+      // sql 파일 경로 명시
+      locations = ['filesystem:./src/main/resources/db/migration/common', 'filesystem:./src/main/resources/db/migration/env/local']
+      sqlMigrationSuffixes = ['.sql']
+      outOfOrder = true
+    }
+    ```
+  - FlywayConfig.java
+    ```java
+    @Configuration
+    public class FlywayConfig {
+        @Value(value = "${spring.profiles.active}")
+        private String profile;
+
+        @Bean
+        public FlywayMigrationStrategy cleanMigrationStrategy() {
+            return flyway -> {
+                if (profile.equals("feature") || profile.equals("dev")) {
+                    flyway.clean();
+                }
+                flyway.migrate();
+            };
+        }
+    }
+    ```
+  - application.yml
+    ```yml
+    spring:
+      flyway:
+        url: jdbc:mariadb://localhost:3330/spring?useUnicode=yes&characterEncoding=UTF-8&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
+        schema: spring
+        user: root
+        password: yongwoo
+        locations: classpath:/db/migration
+        out-of-order: true
+    ```
+  - SQL 폴더 구성
+    - resources/db/migration/common : DDL과 같은 SQL Versioing
+    - resources/db/migration/env/local : DML과 같은 SQL Versioning, spring profile 별로 나눌 수 있다.
+
 - ### Flyway 실습예제(Maven 기반)
   - flayway dependency 추가 & build 설정 추가
   ```xml
