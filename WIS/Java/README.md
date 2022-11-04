@@ -70,8 +70,37 @@
         WHERE dept_no=3
         ```
     - `ref`
+      - type 컬럼에서 접근 방법이 ref 이면 어떤 컬럼이 조건에 사용되었는지 보여준다.
+      - 가공된 컬럼이 사용됐을 땐 `func` 라고 표시된다. 
     - `row`
+      - Optimizer가 비용을 산정하기 위해 얼마나 많은 레코드를 읽고 비교했는지 예측한 값으로 정확한 값은 아니고 통계에 의한 값이다.
     - `Extra`
+      - MySQL이 Query를 어떻게 풀었는지 부가 정보를 표시해준다.
+      - | 타입                                                                         | 설명                                                                                                                                                                                          |
+        |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---|
+        | `const row not found`                                                      | const 접근 방식으로 읽었으나 레코드가 0개인 것을 의미                                                                                                                                                           |
+        | `distinct`                                                                 | JOIN 할 때 중복된 값을 제거하고 필요한 필드만 JOIN 했음을 의미                                                                                                                                                    |
+        | `Full scan on NULL key`                                                    | WHERE 조건에 nullable 컬럼이 있는 경우 null 일 때 Full Scan을 하겠다는 의미                                                                                                                                    |
+        | `Impossible HAVING`<br/>(Query 수정 해야함)                                   | HAVING 조건에 만족하는 레코드가 없는 경우를 의미                                                                                                                                                              |
+        | `Impossible WHERE`<br/>(Query 수정 해야함)                                    | WHERE 조건이 항상 False인 경우를 의미                                                                                                                                                                  |
+        | `Impossible WHERE noticed after reading const tables`<br/>(Query 수정 해야함) | Query를 실행해보니 WHERE 조건이 항상 False 라는 의미                                                                                                                                                       |
+        | `No matching min/max row`<br/>(Query 수정 해야함)                             | MIN(), MAX() 와 같은 집합 함수가 있는 Query의 WHERE 조건절에 일치하는 레코드가 하나도 없는 경우를 의미                                                                                                                       |
+        | `No matching row in const table`<br/>(Query 수정 해야함)                      | const 방식으로 접근할 때 일치하는 레코드가 없는 경우를 의미                                                                                                                                                        |
+        | `No tables used`                                                           | FROM 절이 없거나 DUAL 테이블을 사용한 경우를 의미                                                                                                                                                            |
+        | `Not exists`                                                               | A 테이블에는 존재하지만 B 테이블에 존재하지 않는 값을 조회할 때 `Anti Join`, `Left Outer Join`을 사용한다. <br/>- `Anti Join` : NOT INT, NOT EXISTS 연산자를 사용한 Query<br/>- `Left Outer Join` : 레코드가 많을 때 Anti Join보다 유리한 방식. | 
+        | `Range checked for each record(index map: N)`                              |                                                                                                                                                                                             |
+        | `Scanned N databases`                                                      |                                                                                                                                                                                             |
+        | `Select tables optimized away`                                             |                                                                                                                                                                                             |
+        | `unique row not found`                                                     |                                                                                                                                                                                             |
+        | `Using filesort`                                                           |                                                                                                                                                                                             |
+        | `Using index`                                                              |                                                                                                                                                                                             |
+        | `Using index for group-by`                                                 |                                                                                                                                                                                             |
+        | `Using join buffer`                                                        |                                                                                                                                                                                             |
+        | `Using sort_union`                                                         |                                                                                                                                                                                             |
+        | `Using union`                                                              |                                                                                                                                                                                             |
+        | `Using intersect`                                                          |                                                                                                                                                                                             |
+        | `Using temporary`                                                          |                                                                                                                                                                                             |
+        | `Using where`                                                              |                                                                                                                                                                                             |
     - `Filtered`
   
   - Reference : https://jeong-pro.tistory.com/243
