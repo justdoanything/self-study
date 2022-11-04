@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import modern.constants.HttpHeaderConstants;
 import modern.constants.HttpUrlConstants;
+import modern.exception.CustomException;
 import modern.model.session.SessionVO;
 import modern.service.session.SessionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,14 +47,14 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
-            throws Exception {
+            throws CustomException {
         String sessionId = request.getHeader(HttpHeaderConstants.SESSION_ID);
         if (HTTP_METHOD_OPTIONS.equals(request.getMethod())) return true;
         else if (!ObjectUtils.isEmpty(sessionId)) {
             String authorization = request.getHeader(HttpHeaderConstants.AUTHORIZATION);
 
             if (ObjectUtils.isEmpty(authorization)) {
-                throw new Exception("Authorization is required");
+                throw new CustomException("Authorization is required");
             }
 
             if (Pattern.matches("^Bearer .*", authorization)) {
@@ -61,12 +62,12 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             }
 
             if (!verifyToken(authorization)) {
-                throw new Exception("Unauthorized");
+                throw new CustomException("Unauthorized");
             }
 
             SessionVO sessionUser = sessionService.getSession(sessionId);
             if (sessionUser == null) {
-                throw new Exception("Session is expired");
+                throw new CustomException("Session is expired");
             } else {
                 //                SessionScopeUtil.setContextSession(sessionUser);
                 return true;
@@ -74,7 +75,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         } else if (isExcludePattern(HttpMethod.valueOf(request.getMethod()), request.getRequestURI())) {
             return true;
         } else {
-            throw new Exception("session_id is required");
+            throw new CustomException("session_id is required");
         }
     }
 

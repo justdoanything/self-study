@@ -102,7 +102,16 @@
         | `Using temporary`                                                          |                                                                                                                                                                                             |
         | `Using where`                                                              |                                                                                                                                                                                             |
     - `Filtered`
-  
+      - `EXPLAIN` 키워드에 `EXTENDED` 키워드를 붙이면 `Filtered` 컬럼을 볼 수 있다.
+      - `Extra` 컬럼에 표시되는 `Using where`은 Storage Engine이 반환해준 레코드들을 MySQL Engine이 필터링하면 등장한다.
+      - 이 때, 얼마나 많은 레코드들이 필터링 되는지 보여주는 컬림이다.
+      - 필터링 후 몇퍼센트 정도 남았는지 표시해주는데 이는 `통계값이지 정확한 값이 아니다.`
+        ```sql
+        EXPLAIN EXTENDED
+        SELECT *
+        FROM dept_emp
+        WHERE emp_no BETWEEN 1 AND 10
+        ```
   - Reference : https://jeong-pro.tistory.com/243
 ## SQL LIKE 검색 시 `INTSTR` 사용
   -  `yong`으로 검색한 결과가 `yongwoo`, `leeyong`, `lyong` 라고 했을 때 _INSTR_ 을 사용하면 `GROUP BY 1, 4, 2, name` 순으로 되고 yongwoo, lyong, leeyong 순으로 정렬할 수 있다.

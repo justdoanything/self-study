@@ -3,6 +3,8 @@ package modern.aop;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
+
+import modern.exception.CustomException;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -16,11 +18,11 @@ public class ResponseAspect {
     private Validator validator;
 
     @AfterReturning(pointcut = "execution(* modern.controller..*(..))", returning = "response")
-    public void validateResponse(JoinPoint joinPoint, Object response) throws Exception {
+    public void validateResponse(JoinPoint joinPoint, Object response) throws CustomException {
         validateResponse(response);
     }
 
-    private void validateResponse(Object object) throws Exception {
+    private void validateResponse(Object object) throws CustomException {
 
         Set<ConstraintViolation<Object>> validationResults = validator.validate(object);
 
@@ -36,7 +38,7 @@ public class ResponseAspect {
             }
 
             String msg = sb.toString();
-            throw new Exception(msg);
+            throw new CustomException(msg);
         }
     }
 }
