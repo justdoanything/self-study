@@ -918,6 +918,9 @@ https://subicura.com/2016/06/07/zero-downtime-docker-deployment.html
       - 👉 Rancher Desktop에 설정에서 Admin 권한 주고 Macbook 환경설정에서 모든 폴더에 접근 권한 부여하기
     - Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running? and Shared network is not available.
       - 👉 `sudo ln -s ~$USER/.rd/docker.sock /var/run/docker.sock`
+    - Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get http://%2Fvar%2Frun%2Fdocker.sock/v1.40/containers/json?all=1: dial unix /var/run/docker.sock: connect: permission denied
+      - 👉 `sudo chmod 666 /var/run/docker.sock`
+      - 👉 `sudo chown root:docker /var/run/docker.sock`
 - `podman`을 설치해서 사용
   - `brew`가 없다면 설치 : `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
   - `brew`를 최신버전으로 업그레이드 : `brew upgrade`
