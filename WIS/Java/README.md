@@ -25,6 +25,11 @@
   FROM category c
   ORDER BY FIED(c.category_name, '국내', '해외'), c.category_name, c.sort_order
   ```
+## Annotation
+  - ### VO
+    - `@NotNull` : null
+    - `@NotEmpty` : null, ""
+    - `@NotBlank` : null, "", " "
 
 ## Spring Handler VO
   - VO와 DTO를 나눠서 사용하기도 하지만 프로젝트에선 VO만 사용하기로 했다.
