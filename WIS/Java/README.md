@@ -1,3 +1,9 @@
+# This Branch is ...
+- JAVA 관련 책을 읽으면서 실습 및 테스트하는 코드들을 작성한다.
+- SpringBoot를 초기 구축할 때 자주 사용되는 패턴과 패키지를 정리하고 그 안에서 사용되는 Annotation, 문법 등을 더 자세하게 찾고 정리한다.
+- SpringBoot 기본 패키지 구조를 구성해본다.
+- JAVA 개발을 하면서 유용한 문법, 마주쳤던 에러 등을 정리한다.
+
 # Package
 - book.effective : Effective Java 3E
 - book.modern : Modern Java In Action
@@ -25,6 +31,17 @@
   FROM category c
   ORDER BY FIED(c.category_name, '국내', '해외'), c.category_name, c.sort_order
   ```
+
+## SQL IGNORE CASE
+- `INSERT IGNORE ...` : 중복 키 에러가 발생했을 때 신규로 입력되는 레코드는 무시하고 AUTO_INCREMENT 되지 않음.
+- `REPLACE IGNORE ...` : 중복 키 에러가 발생했을 때 기존 레코드는 삭제하고 신규 레코드를 삽입하는 방식이다. 
+- `INSERT INTO ... ON DUPLICATE UPDATE ...` : 중복 키 에러가 발생했을 때 원하는 값을 직접 설정할 수 있다.
+    ```sql
+    INSERT INTO employee VALUES ('name', 'city')
+    ON DUPLICATE KEY UPDATE city = VALUES(city)
+    ```
+- Reference : http://jason-heo.github.io/mysql/2014/03/05/manage-dup-key2.html
+
 ## Annotation
   - ### VO
     - `@NotNull` : null
@@ -157,3 +174,7 @@
         }
     }
     ```
+
+Insert - 1 (여러개인 경우 1) 
+Update - 업데이트 된 행의 개수 (없으면 0) 
+Delete - 삭제 된 행의 개수 (없으면 0)
