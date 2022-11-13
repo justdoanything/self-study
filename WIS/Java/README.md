@@ -9,6 +9,7 @@
 - book.modern : Modern Java In Action
 - modern : 자주 사용하는 기본 package 구성
 
+# Commend
 - docker run -p 3330:3306 -e MYSQL_ROOT_PASSWORD=yongwoo -e MYSQL_DATABASE=spring -d --name spring-mysql mysql:8.0
 
 # Notes
