@@ -1,6 +1,5 @@
 package modern.aop;
 
-import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -10,6 +9,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
+
 @Component
 @Aspect
 @Slf4j
@@ -17,7 +18,7 @@ public class LogAspect {
     private static final String CLASS_LOG_FORMAT = "Class Name : [";
     private static final String METHOD_LOG_FORMAT = "Method Name : [";
 
-    @Before("(execution(* modern.exception..*(..)) "
+    @Before("(execution(* modern.exception..*(..))"
             + " || execution(* modern.interceptor..*(..))"
             + " || execution(* modern.repository..*(..)))"
             + " && !@annotation(NoLoggingAspect)")
@@ -32,7 +33,7 @@ public class LogAspect {
     }
 
     @AfterReturning(
-            pointcut = "(execution(* modern.exception..*(..)) "
+            pointcut = "(execution(* modern.exception..*(..))"
                     + " || execution(* modern.interceptor..*(..))"
                     + " || execution(* modern.repository..*(..)))"
                     + " && !@annotation(NoLoggingAspect)",
