@@ -12,6 +12,7 @@
 - [REST API](#rest-api)
 - [TCP / UDP / HTTP](#tcp--udp--http)
 - [SQL 실행계획](#SQL-실행계획)
+- [SQL Indexing](#SQL-Indexing)
 - [기타](#기타)
 ---
 
@@ -910,6 +911,56 @@ SQL 실행계획
       WHERE emp_no BETWEEN 1 AND 10
       ```
 - Reference : https://jeong-pro.tistory.com/243
+
+---
+
+SQL Indexing
+===
+
+- ## Indexing을 타지 않는 경우
+  - 인덱스 컬럼을 변형시킨 경우
+    - 인덱스로 잡혀 있는 컬럼에 함수를 적용하거나 그 컬럼 자체를 변형시킨 경우 인덱스를 타지 않는다.
+      ```sql
+      SELECT * FROM employee WHERE SUBSTR(name, 5) = 'lee';
+      SELECT * FROM employee WHERE age + 10 = 30; -- 인덱스를 타지 않음
+      SELECT * FROM employee WHERE age = 30 - 10; -- 인덱스를 사용
+      ```
+  - NULL 조건을 사용했을 경우
+    - NULL 조건식을 사용할 경우 `Table Full Scan`이 동작한다.
+      ```sql
+      SELECT * FROM employee WHERE name IS NULL;
+      SELECT * FROM employee WHERE dept IS NOT NULL;
+      ```
+  - 부정 연산자를 사용한 경우
+    - 무조건 인덱스를 타지 않는건 아니고 일반적으로 NOT에 사용된 값이 아닌 경우가 데이터가 많기 때문에 인덱스를 타지 않는다.
+      ```sql
+      SELECT * FROM employee WHERE age != 30; -- 인덱스를 타지 않음
+      SELECT * FROM employee WHERE age > 20 AND age < 30; -- 인덱스를 사용
+      ```
+  - LIKE 문에서 전체 범위를 설정했을 경우
+    ```sql
+    SELECT * FROM employee WHERE name LIKE '%yongwoo%'; -- 인덱스를 타지 않음
+    SELECT * FROM employee WHERE name LIKE 'yongwoo%'; -- 인덱스를 사용
+    ```
+  - IN 연산자를 사용했을 경우
+    - 부정 연산자와 마찬가지도 무조건 인덱스를 타지 않는건 아니고 조건에 해당하는 데이터가 많다고 판단할 경우 `Tall Full Scan`으로 동작한다.
+      ```sql
+      SELECT * FROM employee WHERE age IN ( 29, 30, 31);
+      ```
+  - 복합 인덱스일 경우 첫 인덱스가 첫 조건으로 안들어갔을 경우
+    - name, age가 복합 인덱스일 경우 name -> age 순으로 조건을 걸어야 인덱스를 탈 수 있다.
+      ```sql
+      SELECT * FROM employee WHERE age = 30 AND name = 'yongwoo'-- 인덱스를 타지 않음
+      SELECT * FROM employee WHERE name = 'yongwoo' AND age = 30; -- 인덱스를 사용 
+      ``` 
+  - 인덱스 컬럼이 내부적으로 데이터를 변환할 경우
+    - 인덱스 컬럼이 갖고 있는 정확한 데이터 타입을 넣어줘야 한다.
+      ```sql
+      SELECT * FROM employee WHERE age = '30' -- 인덱스를 타지 않음
+      SELECT * FROM employee WHERE age = to_number('30') -- 인덱스를 사용
+      ```
+- Reference : https://hckcksrl.medium.com/index를-타지않는-쿼리-41f0417bfe03
+
 
 ---
 
