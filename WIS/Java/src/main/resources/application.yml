@@ -50,6 +50,11 @@ spring:
     host: 127.0.0.1
     port: 6379
     session-ttl: 1800   # time-to-live : redis의 key가 살아있는 시간
+  rest-template:
+    connection-timeout: 5000
+    read-timeout: 5000
+    max-connection: 100
+    max-per-route: 50
 
 cloud:
   token:
