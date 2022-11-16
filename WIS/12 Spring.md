@@ -307,8 +307,33 @@ Spring JPA
 Spring Testing
 ===
 - ## Unit Test Best Practices: JUnit Reference Guide
-  - dd
-  - Reference : https://dzone.com/articles/unit-testing-best-practices 
+  - #### 단위 테스트는 버그를 찾기 위함이 아니다.(Unit Testing is not about finding bugs.)
+    - 단위 테스트는 버그를 찾기에 적합하지 않다. 모든 단위들은 완벽하게 하나의 유기체로 동작해야 하지만 독립적으로 분리되어 있는 컴포넌트가 서로 호환되는 것까지 검증하지는 않는다.
+    - 단위 테스트는 `TDD`에서 말하는 것처럼 시스템 디자인 단계의 일부분으로 보아야 한다.
+  - #### 하나의 테스트 케이스는 하나의 시나리오만 테스트해야 한다. (Tips for writing great unit tests.)
+    - 하나의 단위 테스트는 복수의 테스트 시나리오를 가지면 안된다.
+    - 이는 리팩토링시 코드의 의도된 기능을 망가뜨렸는지 확인할 수 있어서 효과적이다.
+  - #### 불필요한 검증 구문은 작성하지 않아야 한다. (Do not make unnecessary assertions.)
+    - 단위 테스트는 시스템의 특정 단위가 어떻게 동작하는지에 대한 디자인 스펙이지 코드에 대한 검증이 아니다.
+    - 테스트 하려고 하는 하나의 시나리오에만 집중해서 코드를 작성해야 한다. 그렇지 않으면 하나의 이유로 여러 테스트 케이스가 실패할 수 있다.
+  - #### 각 테스트 케이스는 독립적이어야 한다. (Make each test independent to all the others.)
+  - #### 테스트에 필요한 모든 서비스와 상태들은 모두 `Stub`으로 제공되어야 한다. (Mock out all external services and state.)
+  - #### 시스템 설정 파일에 대한 단위 테스트는 작성하지 않는다. (Do not unit-test configuration settings.)
+  - #### 단위 테스트 케이스의 이름은 명확하고 일관되어야 한다. (Name your unit tests clearly and consistently.)
+  - #### 외부 시스템, 서비스에 대한 의존성이 낮은 서비스들부터 테스트를 작성하고 확장해 나가야 한다. (Write tests for methods that have the fewest dependencies first, and work your way up.)
+  - #### private 함수를 포함한 모든 함수들은 가시 범위에 상관없이 단위 케이스를 작성해야 한다. (All methods, regardless of visibility, should have appropriate unit tests.)
+  - #### 단위 테스트 함수는 정확히 하나의 검증구문만 가져야 한다. (Aim for each unit test method to perform exactly one assertion.)
+  - #### 예외 케이스를 처리하는 단위 테스트 코드를 작성해야 한다. (Create unit tests that target exceptions.)
+  - #### 테스트를 위한 코드는 Product 코드에서 분리되어 있어야 한다. (Ensure that test code is separated from production code.)
+  - #### 단위 테스트 내에선 아무것도 출력하지 않아야 한다. (Do not print anything out in unit tests.)
+  - #### 정적 변수를 단위 테스트에 사용하지 않아야 한다. (Do not use static members in a test class. If you have used then re-initialize for each test case.)
+  - #### Exception 처리에 catch 구문을 작성하지 않아야 한다. (Do not write your own catch blocks that exist only to fail a test.)
+  - #### 단위 테스트를 자동으로 실행할 수 있는 스크립트를 작성해야 한다. (Integrate Testcases with build script.)
+  - #### 단위 테스트를 생략하지 않아야 한다. (@Ignore 사용 금지) (Do not skip unit test.)
+  - #### 테스트 결과를 XML 형태로 출력해야 한다. (Capture results using the XML formatter.)
+  - ### Reference
+    - https://dzone.com/articles/unit-testing-best-practices
+    - http://jinson.tistory.com/entry/번역-Unit-Testing-Best-Practices-JUnit-Reference-Guide-단위-테스트-활용-방법-JUnit-참조-가이드
 - ## JUnit의 Mockito
   - ### Version
     - Spring Boot Version : 2.6.6
