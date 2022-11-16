@@ -5,6 +5,8 @@
 - [Spring Cloud](#spring-cloud)
 - [Spring Boot](#spring-boot)
 - [Spring Batch](#spring-batch)
+- [Spring JPA](#spring-jpa)
+- [Spring Testing](#spring-testing)
 
 ---
 
@@ -292,4 +294,17 @@ RetryListener | Retry 시작, 종료, 에러 시점
     @AfterWrite public void afterWrite(List<? extends Object> objs);
     @OnWriteError public void onWriteError(Exception exception, List<? extends Object> objs);
     ```
+    
+---
+
+Spring JPA
+===
+- [Spring JPA 이론](https://github.com/justdoanything/self-study/blob/main/WIS/05%20JPA.md)
+- [Spring JPA Project](https://github.com/justdoanything/self-study/blob/main/WIS/Spring%20Data%20JPA/README.md)
+
+---
+
+Spring Testing
+===
+
     

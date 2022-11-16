@@ -13,9 +13,9 @@ Test-Automation
   - [Health Check](#health-check)
   - [Smoke Test](#smoke-test)
 - [Code Linting](#code-linting)
-- [Spring Test](#spring-test)
-  - [@Mock](#mock)
+
 ---
+- 
 - # TDD, BDD, DDD, ATDD
   - ###### TDD (Test-Driven Development)
     - 짧은 개발 사이클을 반복하는 SW 개발 프로세스 중에서 요구사항을 검증하는 자동화된 테스트 케이스를 먼저 작성합니다. 테스트 케이스를 통과하기 위한 최소한의 코드를 생성하고 코드에 대한 리팩토링을 진행합니다. 
@@ -213,5 +213,3 @@ Test-Automation
   - https://boorownie.github.io/1
 
 ---
-# Spring Test
-  - ### @Mock
