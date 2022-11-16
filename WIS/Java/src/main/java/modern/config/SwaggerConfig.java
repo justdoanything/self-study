@@ -2,7 +2,7 @@ package modern.config;
 
 import java.util.Arrays;
 import java.util.List;
-import modern.constants.HttpHeaderConstants;
+import modern.constants.HttpHeaderConstant;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -42,11 +42,11 @@ public class SwaggerConfig implements WebMvcConfigurer {
     }
 
     private ApiKey apiKey() {
-        return new ApiKey(HttpHeaderConstants.SESSION_ID, HttpHeaderConstants.SESSION_ID, "header");
+        return new ApiKey(HttpHeaderConstant.SESSION_ID, HttpHeaderConstant.SESSION_ID, "header");
     }
 
     private ApiKey authorization() {
-        return new ApiKey(HttpHeaderConstants.AUTHORIZATION, HttpHeaderConstants.AUTHORIZATION, "header");
+        return new ApiKey(HttpHeaderConstant.AUTHORIZATION, HttpHeaderConstant.AUTHORIZATION, "header");
     }
 
     private SecurityContext securityContext() {
@@ -58,8 +58,8 @@ public class SwaggerConfig implements WebMvcConfigurer {
         AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
         authorizationScopes[0] = authorizationScope;
         return Arrays.asList(
-                new SecurityReference(HttpHeaderConstants.SESSION_ID, authorizationScopes),
-                new SecurityReference(HttpHeaderConstants.AUTHORIZATION, authorizationScopes));
+                new SecurityReference(HttpHeaderConstant.SESSION_ID, authorizationScopes),
+                new SecurityReference(HttpHeaderConstant.AUTHORIZATION, authorizationScopes));
     }
 
     @Override

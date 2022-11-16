@@ -1,6 +1,6 @@
 package modern.exception;
 
-import modern.constants.HttpStatusConstants;
+import modern.constants.HttpStatusConstant;
 
 public class CustomException extends RuntimeException {
     private final String message;
@@ -18,10 +18,10 @@ public class CustomException extends RuntimeException {
     }
 
     public CustomException(String message) {
-        this(message, HttpStatusConstants.FAIL);
+        this(message, HttpStatusConstant.FAIL);
     }
 
     public CustomException(String message, Throwable throwable) {
-        this(message, HttpStatusConstants.FAIL, throwable);
+        this(message, HttpStatusConstant.FAIL, throwable);
     }
 }

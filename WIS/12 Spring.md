@@ -306,5 +306,81 @@ Spring JPA
 
 Spring Testing
 ===
+- ## Unit Test Best Practices: JUnit Reference Guide
+  - dd
+  - Reference : https://dzone.com/articles/unit-testing-best-practices 
+- ## JUnit의 Mockito
+  - ### Version
+    - Spring Boot Version : 2.6.6
+    - Spring Test Version : 5.3.18
+    - JUnit Version : 5.8.2
+    - Mockito Version : 4.0.0
+  - ### build.gradle
+    ```gradle
+    dependencies {
+      ...
+      testImplementation 'org.springframework.boot:spring-boot-starter-test'
+      testImplementation 'org.mockito:mockito-inline'
+    }
+    ```
+  - ### Controller Test
+  - ### Service Test
+    - `@ExtendWith(MockitoExtension.class)` : Mockito를 사용하기 위한 annotation. Class Level에 붙여준다.
+    - `@InjectMocks` : 테스트 할 대상 서비스 클래스에 붙여준다.
+    - `@Mock` : 대상 서비스에서 참조하고 있는 다른 Bean을 Mocking 하기 위해 사용한다.
+    - `@Test` : 테스트할 함수 단위로 붙여준다.
+    - `@DisplayName` : 테스트 함수에 대한 설명을 적는다.
 
+    ```java
+    @ExtendWith(MockitoExtension.class)
+    class SpringBootMockitoTest {
+        @InjectMocks
+        private SpringServiceImpl service;
+    
+        @Mock
+        private SpringRepository repository;
+    
+        @Mock
+        private FileService fileService;
+    
+        @Mock
+        private CommonService commonService;
+    
+        @Test
+        @DisplayName("테스트 케이스에 대한 설명을 적습니다.")
+        void doTest_ReturnTrue() {
+          ...
+        }
+    }
+    ```
+    - #### Session Mocking
+      -  Service에서 Session을 사용할 때 Session을 Mocking 해주기 위해서 공통 코드로 관리할 수 있다.
+      -  Session 관련 코드는 [Modern Spring Project](https://github.com/justdoanything/self-study/tree/main/WIS/Java/src/main/java/modern) 참고
+      
+      ```java
+      @ExtendWith(MockitoExtension.class)
+      class SpringBootMockitoTest {
+        private static MockedStatic<SessionUtil> sessionMock;
+      
+        @BeforeAll
+        public static void beforeAll() {
+          sessionMock = mockStatic(SessionUtil.class);
+          SessionVO session = SessionVO.builder().sessionId(1).memberId(1).build();
+          sessionMock.when(SessionUtil::getSessionContext).thenReturn(session);
+        }
+      
+        @AfterAll
+        public static void afterAll() {
+          sessionMock.close();
+        }
+      }
+      ```
+    - #### Test 코드 짜기
+      - 테스트 코드는 기본적으로 `given` → `when` → `then` 구조를 가진다.
+      - 개인적인 방법으로 테스트 코드를 짤 때 역순으로 생각하면서 코드를 작성한다.\
+        테스트 케이스를 정의하고 → `then`\
+        해당 테스트에 필요한 조건(함수 호출)과 결과를 정의하고 → `when`\
+        호출하는 함수에서 필요로 하는 값(파라미터)를 정의한다. → `then`
+      - 만약에 함수 중간에서 Exception 및 Fail case를 짤 때 `when` 에서 Exception/Fail 이후에 호출되는 함수를 작성하면 Junit이 `Following stubbings are unnecessary`을 발생시킨다.\
+        불필요한 검증 구문을 작성하지 말아야하기 때문이다.
     

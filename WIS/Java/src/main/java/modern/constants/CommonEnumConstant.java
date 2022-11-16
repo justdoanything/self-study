@@ -1,6 +1,6 @@
 package modern.constants;
 
-public class CommonEnumConstants {
+public class CommonEnumConstant {
     /**
      * @Description
      * @Reference https://johnmarc.tistory.com/152

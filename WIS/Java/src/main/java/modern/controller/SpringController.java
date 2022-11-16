@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import modern.constants.CommonEnumConstants.Gender;
+import modern.constants.CommonEnumConstant.Gender;
 import modern.model.spring.CommonResponseVO;
 import modern.model.spring.SpringRequestVO;
 import modern.model.spring.SpringResponseVO;

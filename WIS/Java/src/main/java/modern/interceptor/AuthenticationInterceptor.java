@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import modern.constants.HttpHeaderConstants;
-import modern.constants.HttpUrlConstants;
+import modern.constants.HttpHeaderConstant;
+import modern.constants.HttpUrlConstant;
 import modern.exception.CustomException;
 import modern.model.session.SessionVO;
 import modern.service.session.SessionService;
@@ -48,10 +48,10 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws CustomException {
-        String sessionId = request.getHeader(HttpHeaderConstants.SESSION_ID);
+        String sessionId = request.getHeader(HttpHeaderConstant.SESSION_ID);
         if (HTTP_METHOD_OPTIONS.equals(request.getMethod())) return true;
         else if (!ObjectUtils.isEmpty(sessionId)) {
-            String authorization = request.getHeader(HttpHeaderConstants.AUTHORIZATION);
+            String authorization = request.getHeader(HttpHeaderConstant.AUTHORIZATION);
 
             if (ObjectUtils.isEmpty(authorization)) {
                 throw new CustomException("Authorization is required");
@@ -110,7 +110,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     }
 
     private boolean isExcludePattern(HttpMethod httpMethod, String requestUri) {
-        List<String> uriList = HttpUrlConstants.NO_AUTH_SESSION_HTTP_URI.get(httpMethod);
+        List<String> uriList = HttpUrlConstant.NO_AUTH_SESSION_HTTP_URI.get(httpMethod);
         for (String uri : uriList) {
             if (antPathMatcher.match(uri, requestUri)) return true;
         }

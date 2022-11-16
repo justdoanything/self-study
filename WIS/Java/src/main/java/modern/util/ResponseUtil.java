@@ -2,7 +2,7 @@ package modern.util;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.experimental.UtilityClass;
-import modern.constants.HttpStatusConstants;
+import modern.constants.HttpStatusConstant;
 import modern.model.spring.CommonResponseVO;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,11 +14,11 @@ public class ResponseUtil {
     public static class EmptyJsonResponse {}
 
     public static ResponseEntity<CommonResponseVO> createSuccessResponse() {
-        return createSuccessCommonResponseVO(HttpStatusConstants.SUCCESS, null, HttpStatus.OK);
+        return createSuccessCommonResponseVO(HttpStatusConstant.SUCCESS, null, HttpStatus.OK);
     }
 
     public static ResponseEntity<CommonResponseVO> createSuccessResponse(Object data) {
-        return createSuccessResponse(HttpStatusConstants.SUCCESS, data);
+        return createSuccessResponse(HttpStatusConstant.SUCCESS, data);
     }
 
     public static ResponseEntity<CommonResponseVO> createSuccessResponse(String status, Object data) {
@@ -44,7 +44,7 @@ public class ResponseUtil {
     }
 
     public static ResponseEntity<CommonResponseVO> createFailResponse(HttpStatus httpStatus) {
-        return createFailResponse(HttpStatusConstants.FAIL, httpStatus);
+        return createFailResponse(HttpStatusConstant.FAIL, httpStatus);
     }
 
     public static ResponseEntity<CommonResponseVO> createFailResponse(String status) {

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpMethod;
 
-public class HttpUrlConstants {
+public class HttpUrlConstant {
 
     public static final Map<HttpMethod, List<String>> NO_AUTH_SESSION_HTTP_URI = new EnumMap<>(HttpMethod.class);
 
