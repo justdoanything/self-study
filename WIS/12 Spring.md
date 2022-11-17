@@ -317,9 +317,19 @@ Spring Testing
     - 단위 테스트는 시스템의 특정 단위가 어떻게 동작하는지에 대한 디자인 스펙이지 코드에 대한 검증이 아니다.
     - 테스트 하려고 하는 하나의 시나리오에만 집중해서 코드를 작성해야 한다. 그렇지 않으면 하나의 이유로 여러 테스트 케이스가 실패할 수 있다.
   - #### 각 테스트 케이스는 독립적이어야 한다. (Make each test independent to all the others.)
+    - 다른 테스트 케이스에 의존적인 테스트 케이스를 만들지 않아야 한다.
+    - 다른 테스트와 선결 조건을 설정하려면 @Before, @After 같은 annotation을 사용해라.
   - #### 테스트에 필요한 모든 서비스와 상태들은 모두 `Stub`으로 제공되어야 한다. (Mock out all external services and state.)
+    - 테스트 케이스가 공통된 외부 조건을 사용하는 경우 결과가 서로에게 영향을 미친다.
+    - 테스트 실행 순서와 네트워크 설정 등이 테스트 결과에 영향을 미칠 수 있다는 의미이다.
   - #### 시스템 설정 파일에 대한 단위 테스트는 작성하지 않는다. (Do not unit-test configuration settings.)
+    - 시스템 설정 값에 대한 단위 테스트가 필요하다면 설정값을 읽는 모듈에 대해서만 수행한다.
   - #### 단위 테스트 케이스의 이름은 명확하고 일관되어야 한다. (Name your unit tests clearly and consistently.)
+    - 좋은 예
+      - TestCreateEmployee_NullId_ShouldThrowException
+      - TestCreateEmployee_NegativeId_ShouldThrowException
+      - TestCreateEmployee_DuplicateId_ShouldThrowException
+      - TestCreateEmployee_ValidId_ShouldPass
   - #### 외부 시스템, 서비스에 대한 의존성이 낮은 서비스들부터 테스트를 작성하고 확장해 나가야 한다. (Write tests for methods that have the fewest dependencies first, and work your way up.)
   - #### private 함수를 포함한 모든 함수들은 가시 범위에 상관없이 단위 케이스를 작성해야 한다. (All methods, regardless of visibility, should have appropriate unit tests.)
   - #### 단위 테스트 함수는 정확히 하나의 검증구문만 가져야 한다. (Aim for each unit test method to perform exactly one assertion.)
