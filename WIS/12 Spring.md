@@ -331,15 +331,21 @@ Spring Testing
       - TestCreateEmployee_DuplicateId_ShouldThrowException
       - TestCreateEmployee_ValidId_ShouldPass
   - #### 외부 시스템, 서비스에 대한 의존성이 낮은 서비스들부터 테스트를 작성하고 확장해 나가야 한다. (Write tests for methods that have the fewest dependencies first, and work your way up.)
+    - Employee 모듈을 테스트한다고 했을 때 가장 낮은 외부 의존성을 갖는 'Employee 생성' 테스트 코드부터 작성하는 것이 유리하다.
   - #### private 함수를 포함한 모든 함수들은 가시 범위에 상관없이 단위 케이스를 작성해야 한다. (All methods, regardless of visibility, should have appropriate unit tests.)
+    - 논란거리가 될 수 있지만 중요한 로직을 갖고 있다면 모두 단위 케이스를 작성해야 한다고 생각한다.
   - #### 단위 테스트 함수는 정확히 하나의 검증구문만 가져야 한다. (Aim for each unit test method to perform exactly one assertion.)
   - #### 예외 케이스를 처리하는 단위 테스트 코드를 작성해야 한다. (Create unit tests that target exceptions.)
+    - try/catch 문을 사용하지 않는다.
+    - `@Test(expected=SomeDomainSpecificException.SubException.class)` 를 사용할 수 있다.
   - #### 테스트를 위한 코드는 Product 코드에서 분리되어 있어야 한다. (Ensure that test code is separated from production code.)
   - #### 단위 테스트 내에선 아무것도 출력하지 않아야 한다. (Do not print anything out in unit tests.)
   - #### 정적 변수를 단위 테스트에 사용하지 않아야 한다. (Do not use static members in a test class. If you have used then re-initialize for each test case.)
+    - 독립성이 중요하기 때문에 static 변수는 사용하지 않으며 필요하다면 각 테스트 케이스 시작 전에 초기화 해야한다.
   - #### Exception 처리에 catch 구문을 작성하지 않아야 한다. (Do not write your own catch blocks that exist only to fail a test.)
   - #### 단위 테스트를 자동으로 실행할 수 있는 스크립트를 작성해야 한다. (Integrate Testcases with build script.)
   - #### 단위 테스트를 생략하지 않아야 한다. (@Ignore 사용 금지) (Do not skip unit test.)
+    - `@Ignore` 를 사용해서 임의로 생략하는 것은 하지 말아야 한다.
   - #### 테스트 결과를 XML 형태로 출력해야 한다. (Capture results using the XML formatter.)
   - ### Reference
     - https://dzone.com/articles/unit-testing-best-practices
@@ -410,12 +416,34 @@ Spring Testing
         }
       }
       ```
-    - #### Test 코드 짜기
+    - #### Test 코드 사전작업
       - 테스트 코드는 기본적으로 `given` → `when` → `then` 구조를 가진다.
       - 개인적인 방법으로 테스트 코드를 짤 때 역순으로 생각하면서 코드를 작성한다.\
         테스트 케이스를 정의하고 → `then`\
         해당 테스트에 필요한 조건(함수 호출)과 결과를 정의하고 → `when`\
         호출하는 함수에서 필요로 하는 값(파라미터)를 정의한다. → `then`
       - 만약에 함수 중간에서 Exception 및 Fail case를 짤 때 `when` 에서 Exception/Fail 이후에 호출되는 함수를 작성하면 Junit이 `Following stubbings are unnecessary`을 발생시킨다.\
-        불필요한 검증 구문을 작성하지 말아야하기 때문이다.
+        불필요한 검증 구문을 작성하지 말아야하기 때문이다. ([Unit Test Best Practice 참고](#unit-test-best-practices-junit-reference-guide))
+      - static 변수는 단위 케이스마다 초기화나 재지정을 해야하며 공통 처리하는 부분이 있으면 `@After`, `@Before` 를 사용한다.
+    - #### Test 코드 작성하기
+      - `given` : 특정 값이 필요한 객체는 `given` 단계에서 직접 선언 후 사용하며 그 외엔 `any`, `Collections`로 빈 값을 사용한다.
+      - `when` : `when` ~ `then` 문법보단 `doReturn` ~ `when` 사용을 권장한다.
+        - Service에서 사용되는 파라미터의 형식을 잘 지정해서 넣어줘야 하며 불필요한 검증 구문을 작성하면 에러가 반환된다.
+      - `then` : 실제 반환되는 값을 검증하는 부분으로 `assert` 구문을 사용한다.
+        - `assertDoesNotThrow`, `assertEquals`, `assertSame`, `assertInstanceOf` 등을 사용한다.
+        - Exception의 경우 상세값까지 비교하면 좋다.
+          ```java
+          BusinessException businessException =
+                assertThrows(BusinessException.class, () -> service.createEmployee(employeeNo));
+          assertEquals(businessException.getMessage(), "Employee No is duplicated.");
+          assertEquals(businessException.getStatusCode(), ExceptionStatusCode.FAIL);
+          ```
+        - 여러 값을 한번에 비교하고 싶을 땐 `assertAll`을 사용한다.
+          ```java
+          assertAll( 
+            () -> assertDoesNotThrow(..)
+            , () -> assertEquals(..) 
+          )
+          ```
+          
     
