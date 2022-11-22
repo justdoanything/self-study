@@ -14,12 +14,13 @@
   - [Shallow Route](#shallow-route)
   - [CssBaseline](#cssbaseline)
   - [react-next-keep-alive](#react-next-keep-alive)
-
+- [My Nextjs Library](#my-nextjs-library)
+  - [useEffect와 route.query](#useeffect와-routerquery)
 - [My React Library](#my-react-library)
   - [Basic Code Structure](#basic-code-structure)
     - [async](#async-함수-정의)
     - [enum](#enum)
-    - [useEffect-async](#useeffect---async)
+    - [useEffect와 async](#useeffect---async)
   - [i18n 언어팩 적용](#i18n-언어팩-적용)
   - [Sub Component 제어](#sub-component-제어)
   - [Autocomplete](#autocomplete)
@@ -746,186 +747,223 @@ fetch("https://url", {
   - https://github.com/AlexSapoznikov/react-next-keep-alive
 ---
 
-# My React Library
+# My Nextjs Library
+- ### useEffect와 router.query
+  ```js
+  const router = useRouter();
+  const { id } = router.query;
 
+  useEffect(() => {
+    if (!router.isReady) return;
+    console.log(id);
+  }, [router.isReady]);
+  ```
+
+---
+# My React Library
 ### Basic Code Structure
   - #### async 함수 정의
-    ```js
-    const sampleCallApi = async () => {
-      const sampleRequest = {
-        type: info.type,
-        id: info.id,
-        email,
-        memberName,
-        nickname,
-      } as SampleRequest;
-      const response = await sampleApi(sampleRequest);
-      if (response.result === SuccessOrNot.Y) {
-        // input your logic
-      }
-    };
-    
-    /******************************************/
+    - API 사용 공통 함수 만들기
+      ```js
+      // utils/ApiUtil.ts
+      export const commonCallApi = async (commonApiRequest: CommonApiRequest): Promise<CommonApiResponse> => {
+        const url: string = commonApiRequest.url + getQueryStringFormat(commonApiRequest.params?.queryParams);
+        const isLoading = commonApiRequest.config?.isLoading || false;
+        let response: CommonApiResponse = {
+          successOrNot: 'N',
+          statusCode: StatusCode.UNKNOWN_ERROR,
+          data: {},
+        };
 
-    export const sampleApi = async(sampleRequest: SampleRequest, isLoading = true): Promise<CommonResponse> => {
-      return callApi({
-        service: Service.BackEnd,
-        url: '/health',
-        method: Method.POST,
-        params: {
-          bodyParams: reqData
-        },
-        config: {
-          isLoading: isLoading
+        switch (commonApiRequest.method) {
+          case Method.GET:
+            response = await getInstance(commonApiRequest.service, isLoading).get(url);
+            break;
+          case Method.POST:
+            response = await getInstance(commonApiRequest.service, isLoading).post(url, commonApiRequest.params?.bodyParams);
+            break;
+          case Method.PUT:
+            response = await getInstance(commonApiRequest.service, isLoading).put(url, commonApiRequest.params?.bodyParams);
+            break;
+          case Method.DELETE:
+            response = await getInstance(commonApiRequest.service, isLoading).delete(url);
+            break;
+          case Method.PATCH:
+            response = await getInstance(commonApiRequest.service, isLoading).patch(url, commonApiRequest.params?.bodyParams);
+            break;
+          default:
+            break;
         }
-      });
-    }
-
-    /******************************************/
-
-    export const callApi = async (sampleRequest: SampleRequest): Promise<CommonResponse> => {
-      const url: string = apiRequest.url + getQueryStringFormat(apiRequest.params?.queryParams);
-      const isLoading = apiRequest.config?.isLoading || false;
-      let response: CommonResponse = {
-        successOrNot: 'N',
-        statusCode: StatusCode.UNKNOWN_ERROR,
-        data: {},
+        return response;
       };
-
-      switch (apiRequest.method) {
-        case Method.GET:
-          response = await getInstance(apiRequest.service, isLoading).get(url);
-          break;
-        case Method.POST:
-          response = await getInstance(apiRequest.service, isLoading).post(url, apiRequest.params?.bodyParams);
-          break;
-        case Method.PUT:
-          response = await getInstance(apiRequest.service, isLoading).put(url, apiRequest.params?.bodyParams);
-          break;
-        case Method.DELETE:
-          response = await getInstance(apiRequest.service, isLoading).delete(url);
-          break;
-        case Method.PATCH:
-          response = await getInstance(apiRequest.service, isLoading).patch(url, apiRequest.params?.bodyParams);
-          break;
-        default:
-          break;
-      }
-      return response;
-    };
-    ```
-    ```js
-    const getInstance = (serviceName: string, isLoading: boolean, params?: any): AxiosInstance => {
-      if (isLoading) {
-        // @ts-ignore
-        // eslint-disable-next-line
-        window.loadingSpinner.setChange(true);
-
-      }
-
-      axios.defaults.headers.post['Content-Type'] = 'application/json';
-
-      let baseURL = process.env.NEXT_PUBLIC_API_BASE_URL ;
-      const sessionUtil = new SessionUtil();
-
-      if (process.env.NODE_ENV === 'development') {
-        switch (serviceName) {
-        case Service.MZP_BE:
-          baseURL += ':' + ServicePort.MZP_BE.toString();
-          break;
-        default:
-          break;
-        }
-      }
-
-      const instance = axios.create({
-        baseURL: baseURL,
-        params: params || {},
-      });
-
-      // 공통 요청 처리
-      instance.interceptors.request.use(
-        (config: AxiosRequestConfig): AxiosRequestConfig => {
-          if (config?.headers) {
-            config.headers['x-correlation-id'] =
-              window.location.pathname === '/'
-                ? 'root'.concat('_').concat(uuidv4())
-                : window.location.pathname?.concat('_').concat(uuidv4()) || '';
-            if (sessionUtil.getSessionInfo().sessionId) {
-              config.headers['x-session-id'] = sessionUtil.getSessionInfo().sessionId || '';
-            }
-          }
-          return config;
-        },
-        (error: any): Promise<any> => {
-          return Promise.reject(error);
-        },
-      );
-
-      // success / error 공통 처리
-      instance.interceptors.response.use(
-        (response: any): any => {
-          if (isLoading) {
-            // @ts-ignore
-            // eslint-disable-next-line
-            window.loadingSpinner.setChange(false);
-          }
-
-          const commonResponse: CommonResponse = response.data as CommonResponse;
-          if (commonResponse.statusCode && commonResponse.statusCode === StatusCode.SESSION_EXPIRE) {
-            sessionUtil.deleteSessionInfo();
-            window.location.assign('/login');
-          }
-          return commonResponse;
-        },
-
-        (error: any): any => {
-          if (isLoading) {
-            // @ts-ignore
-            // eslint-disable-next-line
-            window.loadingSpinner.setChange(false);
-          }
-
-          const unknownError: CommonResponse = {
-            successOrNot: 'N',
-            statusCode: StatusCode.UNKNOWN_ERROR,
-            data: {},
-          };
-
+      ```
+      ```js
+      const getInstance = (serviceName: string, isLoading: boolean, params?: any): AxiosInstance => {
+        if (isLoading) {
+          // @ts-ignore
           // eslint-disable-next-line
-          if (error.response && error.response.status.toString().indexOf('40') === 0) {
-            //TODO: 400대 에러 공통처리
+          window.loadingSpinner.setChange(true);
+
+        }
+
+        axios.defaults.headers.post['Content-Type'] = 'application/json';
+
+        let baseURL = process.env.NEXT_PUBLIC_API_BASE_URL ;
+        const sessionUtil = new SessionUtil();
+
+        if (process.env.NODE_ENV === 'development') {
+          switch (serviceName) {
+          case Service.MZP_BE:
+            baseURL += ':' + ServicePort.MZP_BE.toString();
+            break;
+          default:
+            break;
           }
-          return unknownError;
-        },
-      );
+        }
 
-      return instance;
-    };
-    ```
-    ```js
-    export interface SampleRequest {
-      type: string;
-      id: string;
-      email: string;
-      memberName: string;
-      nickname?: string;
-    }
+        const instance = axios.create({
+          baseURL: baseURL,
+          params: params || {},
+        });
 
-    export interface ApiRequest {
-      service: Service;
-      url: string;
-      method: Method;
-      params?: ParamObject;
-      config?: Config;
-    }
+        // 공통 요청 처리
+        instance.interceptors.request.use(
+          (config: AxiosRequestConfig): AxiosRequestConfig => {
+            if (config?.headers) {
+              config.headers['x-correlation-id'] =
+                window.location.pathname === '/'
+                  ? 'root'.concat('_').concat(uuidv4())
+                  : window.location.pathname?.concat('_').concat(uuidv4()) || '';
+              if (sessionUtil.getSessionInfo().sessionId) {
+                config.headers['x-session-id'] = sessionUtil.getSessionInfo().sessionId || '';
+              }
+            }
+            return config;
+          },
+          (error: any): Promise<any> => {
+            return Promise.reject(error);
+          },
+        );
 
-    export interface CommonResponse<T = any> {
-      result: string;
-      statusCode: string;
-      data?: T;
-    }
-    ```
+        // success / error 공통 처리
+        instance.interceptors.response.use(
+          (response: any): any => {
+            if (isLoading) {
+              // @ts-ignore
+              // eslint-disable-next-line
+              window.loadingSpinner.setChange(false);
+            }
+
+            const commonResponse: CommonResponse = response.data as CommonResponse;
+            if (commonResponse.statusCode && commonResponse.statusCode === StatusCode.SESSION_EXPIRE) {
+              sessionUtil.deleteSessionInfo();
+              window.location.assign('/login');
+            }
+            return commonResponse;
+          },
+
+          (error: any): any => {
+            if (isLoading) {
+              // @ts-ignore
+              // eslint-disable-next-line
+              window.loadingSpinner.setChange(false);
+            }
+
+            const unknownError: CommonResponse = {
+              successOrNot: 'N',
+              statusCode: StatusCode.UNKNOWN_ERROR,
+              data: {},
+            };
+
+            // eslint-disable-next-line
+            if (error.response && error.response.status.toString().indexOf('40') === 0) {
+              //TODO: 400대 에러 공통처리
+            }
+            return unknownError;
+          },
+        );
+
+        return instance;
+      };
+      ```
+      ```js
+      const getQueryStringFormat = (queryParams?: QueryParams): string => {
+        if (!queryParams) return '';
+        const keys = Object.keys(queryParams);
+        const queryString = keys
+          .map((key) => `${key}=${encodeURIComponent(queryParams[key] as string)}`) // eslint-disable-line
+          .join('&');
+        return queryString ? `?${queryString}` : '';
+      };
+      ```
+
+    - CommonApiRequest/CommonApiResponse 정의
+      ```js
+      export interface CommonApiRequest {
+        service: Service;
+        url: string;
+        method: Method;
+        params?: ParamObject;
+        config?: Config;
+      }
+
+      export interface CommonApiResponse<T = any> {
+        result: string;
+        statusCode: string;
+        data?: T;
+      }
+      ```
+    
+    - API 정의
+      ```js
+      export interface SampleRequest {
+        type: string;
+        id: string;
+        email: string;
+        memberName: string;
+        nickname?: string;
+      }
+      
+      export const sampleApi = async(sampleRequest: SampleRequest, isLoading = true): Promise<CommonApiResponse> => {
+        return commonCallApi({
+          service: Service.BackEnd,
+          url: '/health',
+          method: Method.POST,
+          params: {
+            bodyParams: sampleRequest
+          },
+          config: {
+            isLoading: isLoading
+          }
+        });
+      }
+      ```
+    - API 사용
+      ```js
+      const [data, setData] = useState<SampleResponse>();
+      useEffect( () => {
+        (async () => {
+          const response = await sample.sampleApi(sampleRequest);
+        setData(response);
+        })();
+      }, []);
+      ```
+      ```js
+      const sampleCallApi = async () => {
+        const sampleRequest = {
+          type: info.type,
+          id: info.id,
+          email,
+          memberName,
+          nickname,
+        } as SampleRequest;
+        const response = await sampleApi(sampleRequest);
+        if (response.result === SuccessOrNot.Y) {
+          // input your logic
+        }
+      };
+      ```
+
   - #### enum
     ```js
     export enum Method {
