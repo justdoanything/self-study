@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="modern.ModernRepository">
+<!--
+    /**
+     * @Reference : https://europani.tistory.com/m/212
+     * @Description
+     *   resultMap, association, collection
+     *
+     */
+-->
+<!--    <resultMap id="baseResultMap" type="Comment">-->
+<!--        <id column="comment_no" jdbcType="BIGINT" property="commentNo" />-->
+<!--    </resultMap>-->
+    <select id="findModernById" parameterType="int">
+        SELECT id
+        FROM modern_table mt
+        WHERE mt.id = ${id}
+    </select>
+</mapper>
+
+
