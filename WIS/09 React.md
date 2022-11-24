@@ -456,6 +456,14 @@ fetch("https://url", {
   - _app.tsx : 최초 rendering
   - Link와 prefetching : 백그라운드에서 페이지를 미리 가져옵니다.
     - `<Link prefetch href="..">`
+- ### 요약해보기
+    | 종류                    | build 시에만 동작 | 비고                           |
+    |--------------|------------------------------|---|
+    | `getInitialProps`    | O            | 9.3 버전부터는 사용을 권장하지 않음 |
+    | `getStaticProps`     | O            | build 시에만 데이터를 가져오고 속도가 빠름 |
+    | `getStaticPaths`     | O            | 페이지가 Dynamic Routes 사용할 때 유리 |
+    | `getServerSideProps` | X            | 페이지 요청 시 마다 데이터를 가져와야할 때 유리  |
+
 - ### getInitialProps
   - 각 페이지에서 사전(build될 때)에 불러와야할 데이터가 있을 때 사용한다.
   - CSR 방식의 useEffect, created 함수와 비슷하다.
@@ -464,65 +472,166 @@ fetch("https://url", {
   - ⭐️ v9 부터는 `getStaticProps`, `getStaticPaths`, `getServerSideProps` 사용을 권장한다.⭐️
 
 - ### getStaticProps
-  - 페이지의 컨텐츠를 외부에서 가져올 때 사용한다.
+  - build 시 고정되는 값으로 빌드 이후에는 수정이 불가능하다. 가져온 데이터를 static 하게 사용하기 때문에 속도는 굉장히 빠르지만 자주 변하는 데이터에는 적합하지 않다.
+  - 페이지의 고정 컨텐츠를 외부에서 가져올 때 사용한다.
+  - `getStaticProps`가 받는 props
+    - `params`: dynamic route page 일 때, params에 route parameter 정보를 갖고 있다.
+    - `req`: Http Request Object
+    - `res`: Http Response Object
+    - `query`: Query String
+    - `preview`: Preview 모드 여부
+    - `previewData`: setPreviewData로 설정되있는 데이터
+  - `getStaticProps`가 응답하는 props
+    - `props`: 해당 컴포넌트로 리턴할 값 (optional)
+    - `revalidate`: 페이지 재생성이 발생할 수 있는 시간(초), default = false (다음 build 때까지 페이지가 이 상태로 캐시됨) (optional)   
+    - `notFound`: boolean, 404 status를 보내는 것을 허용한다. (optional)
     ```js
-    export const funcName = async (/* parameter 기본값 */ isLoading = true,) 
-      // 반환 객체값
-      : Promise<CommonResponse> => {
-        // 함수 작성
-        return callApi({
-          // API Request Interface를 정의해서 사용
-      });
-    };
-
-    export const getStaticProps = async ( /* params */ { local } : any )  => ({
-      const response = await fetch(url);
-      const posts = await response.json();
-      props: {
-        posts,
-      }
-    });
-
-    const Page:React.FC = ( { posts }):ReactElement => {
-      return (
-        <div>Hello ! {posts} </div>
-      );
-    };
-    export default Page
-    ```
-- ### getStaticPaths
-  - Dynamic Routes 쉽게 구성할 수 있다. 폴더 구조에서 [id] 와 같이 값을 사용하면 Next.js는 알아서 Routes를 구성합니다.
-  - 미래 생성된 paths는 캐싱되기 때문에 페이지 로딩 속도가 굉장히 빠릅니다.
-    ```js
-    export const getStaticPaths = () => {
-      const response = await fetch(url);
-      const posts = await response.json();
-
-      const paths = posts.map((post) => ({
-        params: {id: post.id},
-      }));
-
-      return { paths, fallback: false }
+    // 타입지정을 위해 import
+    import { GetStaticProps } from 'next'
+    
+    interface PostInterface {
+      userId: number
+      id: number
+      title: string
+      body: string
     }
-    ```
-- ### getServerSideProps
-  - dd
-    ```js
-    export const getServerSideProps = () => {
-      const response = await fetch(url);
-      const posts = await response.json();
-
-      if(!posts) {
+    
+    //getStaticProps()에서 받은 데이터값을 props로 받음
+    function Blog({ posts } : { posts:PostInterface }) {
+      return (
+        <ul>
+          {posts.map((post) => (
+            <li>{post.title}</li>
+          ))}
+        </ul>
+      )
+    }
+    
+    // getStaticProps 받는 부분
+    export const getStaticProps: GetStaticProps = async (context) => {
+      const res = await fetch('https://.../posts')
+      const posts = await res.json()
+    
+      // 데이터가 없으면 notFound를 보낸다
+      if (!data) {
         return {
           notFound: true,
         }
       }
+      
+      //{ props: posts } 빌드타임에 받아서 Blog component로 보낸다
       return {
         props: {
-          posts
-        }
+          posts,
+        },
       }
     }
+    
+    export default Blog
+    ```
+
+- ### getStaticPaths
+  - Dynamic Routes 쉽게 구성할 수 있다. 폴더 구조에서 [id] 와 같이 값을 사용하면 Next.js는 알아서 Routes를 구성합니다.
+  - 미리 생성된 paths는 캐싱되기 때문에 페이지 로딩 속도가 굉장히 빠릅니다.
+  - `getStaticPaths`가 응답하는 props
+    - `paths`: build 할 때 pre-rendering 할 경로들
+    - `fallback`: paths 이외의 경로들에 대해 추후 요청이 들어오면 만들어 줄지 말지 정한다. 정하지 않으면 404를 반환한다.
+    ```js
+    import { GetStaticProps } from 'next'
+
+    interface PostInterface {
+      userId: number
+      id: number
+      title: string
+      body: string
+    }
+    
+    // 이 페이지에서 렌더될 컴포넌트
+    function Post({ posts } : { posts:PostInterface }) {
+      return (
+        <ul>
+          {posts.map((post) => (
+            <li>{post.title}</li>
+          ))}
+        </ul>
+      )
+    }
+    
+    // 빌드될 때 실행
+    export const getStaticPaths = async () => {
+      // posts를 받기 위해 fetch
+      const res = await fetch('https://.../posts')
+      const posts = await res.json()
+    
+      // pre-render할 Path를 얻음 (posts를 통해서)
+      const paths = posts.map((post) => ({
+      params: { id: post.id },
+      }))
+    
+      // 우리는 오로지 이 path들만 빌드타임에 프리렌더 함
+      // { fallback: false } 는 다른 routes들은 404임을 의미
+      // true이면 만들어지지 않은 것도 추후 요청이 들어오면 만들어 줄 거라는 뜻
+      return { paths, fallback: false }
+    }
+    
+    // 빌드될 때 실행
+    export const getStaticProps = async ({ params }) => {
+      // params는 post `id`를 포함하고 있다
+      const res = await fetch(`https://.../posts/${params.id}`)
+      const post = await res.json()
+    
+      // 해당 페이지에 props로 보냄
+      return { props: { post } }
+    }
+    
+    export default Post
+    ```
+
+- ### getServerSideProps
+  - build와 상관없이 매 페이지 요청마다 데이터를 서버로부터 가져옵니다.
+  - `getServerSideProps`는 주로 페이지를 렌더링 하기 전에 필요한 fetch 데이터가 있을 때 사용합니다. 페이지 요청때마다 호출되서 `getStaticProps`보단 느리지만 최신화가 자주 필요한 데이터에 적합합니다.
+  - `getServerSideProps`가 요청하는 props
+    - `params`: dynamic route page 일 때, params에 route parameter 정보를 갖고 있다.
+    - `req`: Http Request Object
+    - `res`: Http Response Object
+    - `query`: Query String
+    - `preview`: Preview 모드 여부
+    - `previewData`: setPreviewData로 설정되있는 데이터
+  - `getServerSideProps`가 응답하는 props
+    - `props`: 해당 컴포넌트로 리턴할 값 (optional)
+    - `redirect` : 값 내부와 외부 리소스 리디렉션 허용한다 (optional)\
+      무조건 { destination: string, permanent: boolean } 의 꼴이어야 한다.\
+      몇몇 드문 케이스에서 오래된 HTTP Client를 적절히 리디렉션하기 위해 커스텀 status코드가 필요할 수 있는데, 그땐 permanent property 대신에 statusCode property를 이용한다.
+    - `notFound`: boolean, 404 status를 보내는 것을 허용한다. (optional)
+    ```js
+    // 타입 지정을 위해 import
+    import { GetServerSideProps } from 'next'
+    
+    function Page({ data }) {
+      console.log(this.props.data)
+      //res.json()이 찍힙니다
+    }
+    
+    export const getServerSideProps: GetServerSideProps = async (context) => {
+    
+      const res = await fetch(`https://.../data`)
+      const data = await res.json()
+    
+      // data 없을 땐 리턴값을 달리함
+      if (!data) {
+        return {
+          redirect: {
+            destination: '/',
+            permanent: false,
+          },
+        }
+      }
+      
+      //pageProps로 넘길 데이터
+      return { props: { data: data } }
+    }
+    
+    export default Page
     ```
   
 - ### Server Side Life Cycle
@@ -745,6 +854,7 @@ fetch("https://url", {
   - https://nextjs.org
   - https://kyounghwan01.github.io/blog/React/next/basic/
   - https://github.com/AlexSapoznikov/react-next-keep-alive
+  - https://velog.io/@devstone/Next.js-100-활용하기-feat.-initialProps-webpack-storybook
 ---
 
 # My Nextjs Library
