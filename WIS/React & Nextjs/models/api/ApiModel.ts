@@ -7,6 +7,13 @@ export enum HttpMethod {
     PATCH = 'PATCH'
 }
 
+export enum HttpStatusCode {
+    OK = 'OK',
+    FAIL = 'FAIL',
+    SUCCESS = 'SUCCESS',
+    SESSION_EXPIRE = 'SESSION_EXPIRE'
+}
+
 export enum Endpoint {
     BACKEND = 'back-end'
 }
@@ -34,4 +41,10 @@ export interface ApiRequest {
     method: HttpMethod;
     param?: ApiRequestBodyParam;
     option?: ApiRequestOption;
+}
+
+export interface CommonResponse<T = any> {
+    result: string;
+    status: string;
+    data?: T;
 }
