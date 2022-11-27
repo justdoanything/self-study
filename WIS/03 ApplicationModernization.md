@@ -809,7 +809,20 @@ TCP / UDP / HTTP
 
 Netty와 NIO
 ===
-
+- 비동기 호출을 지원하는 디자인 패턴
+  - Ticket을 사용한 `Future Pattern`
+  - Event Listener를 사용한 `Observer Pattern`
+  - `Callback Pattern` 👉 Nodejs
+  - `Reactor Pattern` 👉 Netty  
+- Blocking vs Non-Blocking
+  - Blocking
+    - Java에는 `ServerSocket`, `Socket`과 같은 Blocking Socket이 존재한다.
+    - Client가 Server로 연결을 요청하면 Server는 요청을 수락하고 Client와 연결된 Socket을 새로 만든 후 연결이 끝날 때까지 Thread의 blocking이 발생한다.
+    - Client가 여러개일 땐 Client의 요청마다 Socket과 Thread를 생성할 수 있는데 accept 에서 병목 현상이 일어날 수 있기 때문에 대량의 Client를 커버하기는 어렵다.
+    - 또한 Socket과 Thread를 무한정 늘리면 heap을 많이 사용해서 GC 발생 주기가 길어지면서 Stop-the-world 시간이 길어지고 Context Switching에 많은 자원이 소모되기 때문에 문제가 될 수 있다.
+  - Non-Blocking
+    - Java 1.4 부터는 `ServerSocketChannel`, `SocketChannel`과 같은 Non-Blocking Socket이 존재한다.
+    - 
 
 - Reference : https://velog.io/@monami/Netty
 
