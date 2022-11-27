@@ -232,6 +232,14 @@ Spring MVC
 ---
 Spring Cloud
 ===
+- ### Spring Cloud Gateway
+  - Spring Cloud Gateway는 tomcat이 아니라 netty를 사용한다.
+    ```
+    netty 란 ? 
+    비동기 + 논블로킹 + 이벤트 기반 + 추상화로 되어 있어서 대규모 트래픽을 좀 더 효율적으로 처리할 수 있다.
+    netty는 이벤트를 Inboud / Outbound 로 구분해서 추상화하여 사용한다.
+    - Reference : https://velog.io/@monami/Netty
+    ```
 
 
 ---
