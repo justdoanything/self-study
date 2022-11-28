@@ -2,12 +2,14 @@
 - [실제 프로젝트에서 경험했던 기술과 고민](#실제-프로젝트에서-경험했던-기술과-고민)
 - [React 시작지점](#react의-시작지점-파악해보기)
 - [React 기본지식](#react-기본지식)
+- [useState & useEffect & useMemo](#usestate--useeffect--usememo)
 - [Recoil](#상태관리---recoil)
 - [HOC](#hoc-higher-order-component)
 - [Next.js](#nextjs)
   - [getInitialProps](#getinitialprops)
   - [getStaticProps](#getstaticprops)
-  - [getServerSideProps](#getstaticpaths)
+  - [getStaticPaths](#getstaticpaths)
+  - [getServerSideProps](#getserversideprops)
   - [SWR (Stale-While-Revalidate)](#swr-stale-while-revalidate)
   - [Server Side Life Cycle](#server-side-life-cycle)
   - [Context Object](#context-object)
@@ -88,6 +90,12 @@
     - 최종적으로 A에 대한 수정된 내용을 비교할 때 initial value는 이미 변경됐기 때문에 form에서 변경된 값으로 인지를 못했다. (변경된 값이 initial value가 됐기 때문에 Redux는 A가 변하지 않은 값으로 판단한다.)
     - SPA에선 변경된 값을 감지하는게 중요한대 (그래야 부분적으로 렌더링을 할 수 있으니까) props로 값들을 넘길때 얕은 복사가 이뤄지면서 데이터의 보존이 어려워졌다.
 
+- ### Nextjs에서 getServerSideProps의 로그인 처리
+  - Nestjs + SpringBoot로 구성되어 있는 어플리케이션에서 SEO를 위해서 한 페이지의 데이터를 SSR로 가져와야 했다.
+  - 새로고침이 필요한 데이터라서 `getServerSideProps`를 사용해서 데이터를 가져왔고 로그인 구분 없이 보여주는 컨텐츠와 반응, 댓글 등 로그인 사용자의 정보를 보여줘야하는 컨텐츠가 섞여 있었다.
+  - Session에 로그인 된 사용자가 있으면 BE API를 호출할 때 로그인 정보를 담아서 호출하고 BE는 Session을 체크해서 로그인 사용자의 대한 정보를 추가로 응답했다.
+  - 여기서 발생했던 문제는 token 등 로그인 정보는 session과 localStorage에 있었는데 `getServerSideProps`에선 session, localStorage에 접근할 수 없었기 때문에 로그인 정보를 담아서 API를 호출할 수 없었다.
+  - 이를 해결하기 위해서 해당 페이지의 각 데이터 영역을 공통 컴포넌트 등으로 세분화하고 최초 로딩 시 SSR을 통해서 가져온 데이터로 화면을 렌더링하고 로그인 session이 존재하면 API를 다시 호출해서 로그인 사용자의 정보를 가져오고 useEffect, useMemo를 사용해서 로그인 사용자의 정보가 필요한 컴포넌트만 재랜더링하는 방식으로 구현했다.
 --- 
 # React의 시작지점 파악해보기
 - 프로젝트를 처음 install 후 무작정 실행해보면 아래 파일들이 실행된다.
@@ -285,23 +293,6 @@
   }
 </script>
 ```
-#### useState & useEffect
-
-- useState[state, setState]
-  - document : https://ko.reactjs.org/docs/hooks-reference.html#usestate
-  - `function useState<S>(initialState: S | (() => S)): [S, Dispatch<SetStateAction<S>>] import useState`
-  - `state`를 변경하기 위해선 `setState`를 호출해야하며 `setState`가 호출될 때마다 해당하는 component는 re-rendering 된다.
-  - component가 전체 re-rendering 되기 때문에 필요에 따라 `useEffect`를 사용해준다.
-- useEffect
-  - document : https://ko.reactjs.org/docs/hooks-reference.html#useeffect
-  - `function useEffect(effect: EffectCallback, deps?: DependencyList): void import useEffect`
-  - object가 변경됐을 때만 function을 수행한다.
-  - 예시
-    ```js
-    useEffect(() => {
-      if (keyword.length > 5) console.log("keyword is changes");
-    }, [keyword]);
-    ```
 
 #### Cleanup
 - Component가 삭제됐을 때 실행되는 함수
@@ -368,6 +359,27 @@ fetch("https://url", {
 
 ---
 
+# useState & useEffect & useMemo
+- ### useState[state, setState]
+  - document : https://ko.reactjs.org/docs/hooks-reference.html#usestate
+  - 기본정의 : `function useState<S>(initialState: S | (() => S)): [S, Dispatch<SetStateAction<S>>] import useState`
+  - `state`를 변경하기 위해선 `setState`를 호출해야하며 `setState`가 호출될 때마다 해당하는 component는 re-rendering 된다.
+  - component가 전체 re-rendering 되기 때문에 필요에 따라 `useEffect`를 사용해준다.
+- ### useEffect
+  - document : https://ko.reactjs.org/docs/hooks-reference.html#useeffect
+  - 기본 정의 : `function useEffect(effect: EffectCallback, deps?: DependencyList): void import useEffect`
+  - object가 변경됐을 때만 function을 수행한다.
+  - 예시
+    ```js
+    useEffect(() => {
+      if (keyword.length > 5) console.log("keyword is changes");
+    }, [keyword]);
+    ```
+- ### useMemo
+  - `const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b]);`
+
+
+---
 # 상태관리 - Recoil
 - ### atom
   - Recoil 상태 관리의 기본 단위이며 atom이 업데이트되면 구독하고 있는 Component 모두 re-rendering이 된다.
@@ -759,11 +771,6 @@ fetch("https://url", {
       ```js
       useSWR('/api/data/', fetcher, {fallbackData: prefetchedData})
       ```
-  - Reference
-    - 공식문서 : https://swr.vercel.app/ko/docs/revalidation
-    - https://velog.io/@soryeongk/SWRBasic
-    - https://velog.io/@soryeongk/ReactSWRTutorial
-
 - ### Context Object
   - /profile/about → { id: 'about' }
   - /profile/about?name=yongwoo → { name: 'yongwoo' }
@@ -854,7 +861,14 @@ fetch("https://url", {
   - https://nextjs.org
   - https://kyounghwan01.github.io/blog/React/next/basic/
   - https://github.com/AlexSapoznikov/react-next-keep-alive
-  - https://velog.io/@devstone/Next.js-100-활용하기-feat.-initialProps-webpack-storybook
+  - Data Fetching
+    - https://nextjs.org/docs/basic-features/data-fetching/get-server-side-props
+    - https://nextjs.org/docs/api-reference/data-fetching/get-server-side-props
+    - https://velog.io/@devstone/Next.js-100-활용하기-feat.-initialProps-webpack-storybook
+  - SWR
+    - https://swr.vercel.app/ko/docs/revalidation
+    - https://velog.io/@soryeongk/SWRBasic
+    - https://velog.io/@soryeongk/ReactSWRTutorial
 ---
 
 # My Nextjs Library
