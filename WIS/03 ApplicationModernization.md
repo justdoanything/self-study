@@ -1211,6 +1211,20 @@ public class Client {
   5. 꼬리물기 질문 다수
 - 기술 질문
   1. JVM의 구조
+      - Java는 플랫폼에 상관없이 사용할 수 있다. 
+        - JVM은 하나의 byte code인 .class를 사용하고 .class는 JVM 위에서 사용되고 JVM은 운영체제에 따라 알아서 실행파일을 만들고 실행합니다. 
+        - 따라서 운영체제와 상관없이 Java 언어로 프로그램을 만들 수 있습니다.
+      - JVM은 플랫폼에 종속적이다.
+        - 플랫폼에 따라 JVM은 달리지며 설치되어야 합니다.
+      - byte code를 읽는 방식
+       - JVM은 byte code를 명령어 단위로 읽어서 해석하는데 `Interpreter` 방식과 `JIT Compile` 방식 2가지를 혼용합니다.
+       - Interpreter 방식 : byte code를 한 줄씩 해석해서 실행하는 방식. 하지만 속도가 느립니다.
+         - JIT(Just In Time) Compile 방식 : btye code를 실제 실행하는 시점에 각 플랫폼에 맞는 Native Code로 변환시켜서 실행하는 방식. 하지만 Native Code로 변환시킬 때 비용이 많이 소요되므로 모든 코드를 JIT Compiler 방식으로 하지 않고 Interpreter 방식을 사용하다가 일정 기준이 넘어가면 JIT Compiler 방식으로 명령어를 실행합니다.
+         - 인터프리터에서 JIT로 변경하는 기준은 ?
+     
+      <img width="657" alt="image" src="https://user-images.githubusercontent.com/21374902/205311306-c1e245fb-2a44-4ae6-98ca-eccb14409bbd.png">
+      
+      - Reference : https://coding-factory.tistory.com/827
   2. JVM의 GC 종류 및 GC 사용 경험
   3. GC 절차 및 GC 튜닝 경험
   4. REST API에 대해서 나열 후 개발 과정
