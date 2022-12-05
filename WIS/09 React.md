@@ -638,6 +638,12 @@ fetch("https://url", {
           },
         }
       }
+
+      if(!data) {
+        return {
+          notFound: true,
+        }
+      }
       
       //pageProps로 넘길 데이터
       return { props: { data: data } }
