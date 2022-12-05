@@ -1195,3 +1195,50 @@ public class Client {
 - `높은` 응집도 : 모듈에 포함된 내부 요소들이 하나의 책임/목적을 위해 연결되어 있는지에 대한 정도
 - `낮은` 결합도 : 다른 모듈과의 의존성을 나타내는 정도
 
+
+### 공부할 것들
+- 알고리즘
+- 지원 동기
+  1. 지원한 이유?
+  2. 이직하고 싶은 이유?
+  3. 팀에 지원한 이유?
+  4. 개발과 운영 중 하고 싶은 것?
+- 기술 경험 질문
+  1. 써본 기술?
+  2. 경험한 프로젝트?
+  3. 경험한 아키텍처?
+  4. 트래픽 경험?
+  5. 꼬리물기 질문 다수
+- 기술 질문
+  1. JVM의 구조
+      - Java는 플랫폼에 상관없이 사용할 수 있다. 
+        - JVM은 하나의 byte code인 .class를 사용하고 .class는 JVM 위에서 사용되고 JVM은 운영체제에 따라 알아서 실행파일을 만들고 실행합니다. 
+        - 따라서 운영체제와 상관없이 Java 언어로 프로그램을 만들 수 있습니다.
+      - JVM은 플랫폼에 종속적이다.
+        - 플랫폼에 따라 JVM은 달리지며 설치되어야 합니다.
+      - byte code를 읽는 방식
+       - JVM은 byte code를 명령어 단위로 읽어서 해석하는데 `Interpreter` 방식과 `JIT Compile` 방식 2가지를 혼용합니다.
+       - Interpreter 방식 : byte code를 한 줄씩 해석해서 실행하는 방식. 하지만 속도가 느립니다.
+         - JIT(Just In Time) Compile 방식 : btye code를 실제 실행하는 시점에 각 플랫폼에 맞는 Native Code로 변환시켜서 실행하는 방식. 하지만 Native Code로 변환시킬 때 비용이 많이 소요되므로 모든 코드를 JIT Compiler 방식으로 하지 않고 Interpreter 방식을 사용하다가 일정 기준이 넘어가면 JIT Compiler 방식으로 명령어를 실행합니다.
+         - 인터프리터에서 JIT로 변경하는 기준은 ?
+     
+      <img width="657" alt="image" src="https://user-images.githubusercontent.com/21374902/205311306-c1e245fb-2a44-4ae6-98ca-eccb14409bbd.png">
+      
+      - Reference : https://coding-factory.tistory.com/827
+  2. JVM의 GC 종류 및 GC 사용 경험
+  3. GC 절차 및 GC 튜닝 경험
+  4. REST API에 대해서 나열 후 개발 과정
+  5. PUT과 PATCH의 차이와 개발 경험
+  6. THREAD LOCAL이란? 써본 적 있나
+  7. JPA란?
+  8. 디자인 패턴이란? 
+  9. 써봤던 디자인패턴 나열
+  10. MSA란, MSA 구조 경험한 적 있나?
+  11. KAFKA란, KAFKA로 스트리밍을 경험해본적 있나
+- 책 추천
+  1. 자바의 정석(한번 훑는 것을 추천)
+  2. 이펙티브 자바(틈틈히)
+  3. Head First 디자인 패턴 (한번 훑기)
+  4. 클린코드(그냥 스키밍, 이런게 있구나 정도로)
+  5. 모던 자바 (Stream, Optional, Lambda, Functional interface 등의 개념 공부)
+  6. 친절한 SQL 튜닝 (안 친절함, 근데 공부할 것들 많음)

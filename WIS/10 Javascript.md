@@ -138,7 +138,19 @@ console.log({ result });    // 123
 taggedFunction`a-${v1}-b-${v2}-c`; // { strings : ['a-', '-b-', '-c'], expressions [ 10, 20 ] }
 taggedFunction`a-${v1}-b-${v2}`; // { strings : ['a-', '-b-', ''], expressions [ 10, 20 ] }
 taggedFunction`${v1}-b-${v2}`; // { strings : ['', '-b-', ''], expressions [ 10, 20 ] }  
+```
 
+```js
+/*
+* javascript의 map은 java stream의 map과는 다르다.
+* 객체의 속성값을 변경하거나 일괄 처리를 하고 싶을 때 아래와 같이 사용한다.  
+*/
+const data = File[];
+data.files
+.filter((item) => item.fileUrl.startsWith('/IMAGE'))
+.map((item) => {
+    return { ...item, fileUrl: bucketBaseUrl + item.fileUrl };
+})
 ```
 
 ## boolean
