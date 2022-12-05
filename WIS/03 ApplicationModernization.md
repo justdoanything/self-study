@@ -1211,22 +1211,49 @@ public class Client {
   5. 꼬리물기 질문 다수
 - 기술 질문
   1. JVM의 구조
-      - Java는 플랫폼에 상관없이 사용할 수 있다. 
-        - JVM은 하나의 byte code인 .class를 사용하고 .class는 JVM 위에서 사용되고 JVM은 운영체제에 따라 알아서 실행파일을 만들고 실행합니다. 
-        - 따라서 운영체제와 상관없이 Java 언어로 프로그램을 만들 수 있습니다.
-      - JVM은 플랫폼에 종속적이다.
-        - 플랫폼에 따라 JVM은 달리지며 설치되어야 합니다.
-      - byte code를 읽는 방식
-       - JVM은 byte code를 명령어 단위로 읽어서 해석하는데 `Interpreter` 방식과 `JIT Compile` 방식 2가지를 혼용합니다.
-       - Interpreter 방식 : byte code를 한 줄씩 해석해서 실행하는 방식. 하지만 속도가 느립니다.
-         - JIT(Just In Time) Compile 방식 : btye code를 실제 실행하는 시점에 각 플랫폼에 맞는 Native Code로 변환시켜서 실행하는 방식. 하지만 Native Code로 변환시킬 때 비용이 많이 소요되므로 모든 코드를 JIT Compiler 방식으로 하지 않고 Interpreter 방식을 사용하다가 일정 기준이 넘어가면 JIT Compiler 방식으로 명령어를 실행합니다.
-         - 인터프리터에서 JIT로 변경하는 기준은 ?
-     
-      <img width="657" alt="image" src="https://user-images.githubusercontent.com/21374902/205311306-c1e245fb-2a44-4ae6-98ca-eccb14409bbd.png">
-      
-      - Reference : https://coding-factory.tistory.com/827
+    - Java는 플랫폼에 상관없이 사용할 수 있다. 
+      - JVM은 하나의 byte code인 .class를 사용하고 .class는 JVM 위에서 사용되고 JVM은 운영체제에 따라 알아서 실행파일을 만들고 실행합니다. 
+      - 따라서 운영체제와 상관없이 Java 언어로 프로그램을 만들 수 있습니다.
+    - JVM은 플랫폼에 종속적이다.
+      - 플랫폼에 따라 JVM은 달리지며 설치되어야 합니다.
+    - byte code를 읽는 방식
+      - JVM은 byte code를 명령어 단위로 읽어서 해석하는데 `Interpreter` 방식과 `JIT Compile` 방식 2가지를 혼용합니다.
+      - Interpreter 방식 : byte code를 한 줄씩 해석해서 실행하는 방식. 하지만 속도가 느립니다.
+        - JIT(Just In Time) Compile 방식 : btye code를 실제 실행하는 시점에 각 플랫폼에 맞는 Native Code로 변환시켜서 실행하는 방식. 하지만 Native Code로 변환시킬 때 비용이 많이 소요되므로 모든 코드를 JIT Compiler 방식으로 하지 않고 Interpreter 방식을 사용하다가 일정 기준이 넘어가면 JIT Compiler 방식으로 명령어를 실행합니다.
+        - 인터프리터에서 JIT로 변경하는 기준은 ?
+      - JIT Compiler
+        - 같은 코드를 계속 해석하지 않고 코드를 실행할 때 컴파일 하면서 해당 코드를 caching 하고 이후에는 바뀐 코드만 다시 컴파일하고 기존에 있던 코드는 캐싱된 코드를 사용하기 때문에 Interpreter에 비해 속도가 월등히 빠릅니다.
+
+  <img width="657" alt="image" src="https://user-images.githubusercontent.com/21374902/205311306-c1e245fb-2a44-4ae6-98ca-eccb14409bbd.png">
+
+  2. JVM 동작 방식
+    - Java Application이 실행되면 JVM은 OS로부터 Memory를 할당한다.
+    - Java Compiler(javac)가 Java Code(.java)를 Java Byte Code(.class)로 Compile 한다.
+    - Class Loader를 통해서 JVM Runtime Data Area로 Loading 한다.
+    - Runtime Data Area에 Loading 된 Java Byte Code(.class)는 Excution Engine을 통해 해석한다.
+    - 해석된 Byte Code는 Runtime Data Area의 각 영역에 배치되어 수행되는 과정에서 Execution Engine에 의해 GC 동작과 Thread 동기화가 이뤄진다.
+  3. JVM 구조와 설명
+    - Class Loader
+    - Execution Engine
+    - Garbage Collector
+    - Runtime Data Area
+      - JVM의 메모리 영역으로 Java Application을 실행할 때 사용되는 데이터들을 적재해서 사용하는 영역
+      - 모든 Thread가 공유해서 사용하는 영역 (GC의 대상)
+        - Heap Area : 
+        - Method Area : 
+      - 각 Thread가 생성하는 영역
+        - Stack Area : 
+        - PC Register : 
+        - Native Method Stack : 
+
   2. JVM의 GC 종류 및 GC 사용 경험
   3. GC 절차 및 GC 튜닝 경험
+
+  - Reference
+    - https://coding-factory.tistory.com/827
+    - https://coding-factory.tistory.com/828
+    - https://coding-factory.tistory.com/828
+
   4. REST API에 대해서 나열 후 개발 과정
   5. PUT과 PATCH의 차이와 개발 경험
   6. THREAD LOCAL이란? 써본 적 있나
