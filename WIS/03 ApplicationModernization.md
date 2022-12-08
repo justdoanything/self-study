@@ -1233,25 +1233,24 @@ public class Client {
     - Runtime Data Area에 Loading 된 Java Byte Code(.class)는 Excution Engine을 통해 해석한다.
     - 해석된 Byte Code는 Runtime Data Area의 각 영역에 배치되어 수행되는 과정에서 Execution Engine에 의해 GC 동작과 Thread 동기화가 이뤄진다.
   3. JVM 구조와 설명
-    - Class Loader
-    - Execution Engine
-    - Garbage Collector
-    - Runtime Data Area
+    - `Class Loader` : Java는 동적으로 Class를 불러오기 때문에 프로그램이 실행 중일 때 (Runtime), 모든 코드가 JVM과 연결된다. 이러한 동적으로 Class를 Load 해주는 것이 Class `Loader` 이다. `Class Loader`는 .class 파일을 묶어서 JVM이 운영체제로 부터 할당 받은 `Runtime Data Area`로 적재한다. (Compiler는 .java를 .class로 변환해준다.)
+    - `Execution Engine` : JVM의 `Runtime Data Area`의 `Method Area`에 배치된 Byte Code(.class)을 `Execution Engine`에 제공하여 정의된대로 Byte Code를 실행시키는 역할을 한다. 짧게 말하면 Byte Code를 명령어 단위로 읽어서 실행시키는 Runtime Module 이라고 할 수 있다. 
+    - `Garbage Collector` : 더이상 사용하지 않는 메모리를 자동으로 회수해주는 역할을 한다. 이는 개발자가 따로 메모리 관리를 하지 않아도 되서 프로그래밍이 쉬워진다. Heap 메모리에 생성되있는 객체들 중에서 참조되지 않는 객체들을 탐색하고 제거해주는 역할도 하며 시점은 특정할 수 없다. GC가 수행되면 GC 역할을 수행하는 Thread가 아닌 다른 Thread들은 모두 일시중지가 된다.
+    - `Runtime Data Area`
       - JVM의 메모리 영역으로 Java Application을 실행할 때 사용되는 데이터들을 적재해서 사용하는 영역
       - 모든 Thread가 공유해서 사용하는 영역 (GC의 대상)
-        - Heap Area : 
-        - Method Area : 
+        - `Heap Area` : 
+        - `Method Area` : 
       - 각 Thread가 생성하는 영역
-        - Stack Area : 
-        - PC Register : 
-        - Native Method Stack : 
+        - `Stack Area` : 
+        - `PC Register` : 
+        - `Native Method Stack` : 
 
   2. JVM의 GC 종류 및 GC 사용 경험
   3. GC 절차 및 GC 튜닝 경험
 
   - Reference
     - https://coding-factory.tistory.com/827
-    - https://coding-factory.tistory.com/828
     - https://coding-factory.tistory.com/828
 
   4. REST API에 대해서 나열 후 개발 과정
