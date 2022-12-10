@@ -1239,12 +1239,15 @@ public class Client {
     - `Runtime Data Area`
       - JVM의 메모리 영역으로 Java Application을 실행할 때 사용되는 데이터들을 적재해서 사용하는 영역
       - 모든 Thread가 공유해서 사용하는 영역 (GC의 대상)
-        - `Heap Area` : 
-        - `Method Area` : 
+        - `Heap Area` : new 키워드로 생성된 객체와 배열이 생성되는 영역
+        - `Method Area`
+          - Young Generation
+          - Tenured Generation
+          - Permanent Generation
       - 각 Thread가 생성하는 영역
-        - `Stack Area` : 
-        - `PC Register` : 
-        - `Native Method Stack` : 
+        - `Stack Area` : 지역변수, 파라미터, 리턴 값, 연산에 사용되는 임시 값 등이 생성되는 영역
+        - `PC Register` : Thread가 생성될 때마다 생성되는 영역으로 프로그램 카운터, 즉 현재 스레드가 실행되는 부분의 주소와 명령을 저장하고 있는 영역
+        - `Native Method Stack` : 자바 이외의 언어(C, C++, 어셈블리 등)로 작성된 네이티브 코드를 실행할 때 사용되는 메모리 영역으로 일반적인 C 스택을 사용하고 보통 C/C++ 등의 코드를 수행하기 위한 스택을 말하며 (JNI) 자바 컴파일러에 의해 변환된 자바 바이트 코드를 읽고 해석하는 역할을 하는 것이 자바 인터프리터(interpreter) 이다.
 
   2. JVM의 GC 종류 및 GC 사용 경험
   3. GC 절차 및 GC 튜닝 경험
