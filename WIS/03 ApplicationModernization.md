@@ -1234,36 +1234,45 @@ public class Client {
     - 해석된 Byte Code는 Runtime Data Area의 각 영역에 배치되어 수행되는 과정에서 Execution Engine에 의해 GC 동작과 Thread 동기화가 이뤄진다.
   3. JVM 구조와 설명
     - `Class Loader` : Java는 동적으로 Class를 불러오기 때문에 프로그램이 실행 중일 때 (Runtime), 모든 코드가 JVM과 연결된다. 이러한 동적으로 Class를 Load 해주는 것이 Class `Loader` 이다. `Class Loader`는 .class 파일을 묶어서 JVM이 운영체제로 부터 할당 받은 `Runtime Data Area`로 적재한다. (Compiler는 .java를 .class로 변환해준다.)
+      <img width="342" alt="스크린샷 2022-12-10 15 36 02" src="https://user-images.githubusercontent.com/21374902/206893474-4bb88536-1f23-41a2-9eea-488275e4ec49.png">
     - `Execution Engine` : JVM의 `Runtime Data Area`의 `Method Area`에 배치된 Byte Code(.class)을 `Execution Engine`에 제공하여 정의된대로 Byte Code를 실행시키는 역할을 한다. 짧게 말하면 Byte Code를 명령어 단위로 읽어서 실행시키는 Runtime Module 이라고 할 수 있다. 
-    - `Garbage Collector` : 더이상 사용하지 않는 메모리를 자동으로 회수해주는 역할을 한다. 이는 개발자가 따로 메모리 관리를 하지 않아도 되서 프로그래밍이 쉬워진다. Heap 메모리에 생성되있는 객체들 중에서 참조되지 않는 객체들을 탐색하고 제거해주는 역할도 하며 시점은 특정할 수 없다. GC가 수행되면 GC 역할을 수행하는 Thread가 아닌 다른 Thread들은 모두 일시중지가 된다.
+    - `Garbage Collector (GC)` : 더이상 사용하지 않는 메모리를 자동으로 회수해주는 역할을 한다. 이는 개발자가 따로 메모리 관리를 하지 않아도 되서 프로그래밍이 쉬워진다. Heap 메모리에 생성되있는 객체들 중에서 참조되지 않는 객체들을 탐색하고 제거해주는 역할도 하며 시점은 특정할 수 없다. GC가 수행되면 GC 역할을 수행하는 Thread가 아닌 다른 Thread들은 모두 일시중지가 된다.
+      <img width="355" alt="스크린샷 2022-12-10 15 36 07" src="https://user-images.githubusercontent.com/21374902/206893547-9e4f6e59-fb52-45a6-b72a-606564860d28.png">
     - `Runtime Data Area`
+      <img width="781" alt="스크린샷 2022-12-10 15 36 21" src="https://user-images.githubusercontent.com/21374902/206893557-0350bdbb-eee7-487c-9cf6-dd1d6af7d958.png">
       - JVM의 메모리 영역으로 Java Application을 실행할 때 사용되는 데이터들을 적재해서 사용하는 영역
       - 모든 Thread가 공유해서 사용하는 영역 (GC의 대상)
+        - `Method Area` : 클래스 멤버 변수의 이름, 데이터 타입, 접근 제어자 정보와 같은 각종 필드 정보들과 메서드 정보, 데이터 Type 정보, Constant Pool, static변수, final class 등이 생성되는 영역
         - `Heap Area` : new 키워드로 생성된 객체와 배열이 생성되는 영역
-        - `Method Area`
-          - Young Generation
-          - Tenured Generation
-          - Permanent Generation
+          <img width="587" alt="스크린샷 2022-12-10 15 36 25" src="https://user-images.githubusercontent.com/21374902/206893577-dd6f728d-e975-4e47-99df-f5f503bfb358.png">
+          - `Young Generation` : 객체가 생성됐을 때 저장되는 영역으로 Heap 영역에 객체가 최초로 생성되면 `Eden` 영역에 할당된다. `Eden 영역에 데이터가 어느정도 쌓이게 되면 참조 정도에 따라 `Servivor`의 빈 공간으로 이동되거나 회수된다. 
+          - `Tenured Generation` : `Young Generation` 영역이 어느정도 차게되면 참조 정도에 따라 `Old` 영역으로 이동되거나 회수 된다.
+            - `Minor GC` : `Young`과 `Tenured` 에서 실행되는 GC
+            - `Major GC` : `Old` 영역에 할당된 메모리가 허용치를 넘게되서 `Old` 영역 내 모든 객체들을 검사하고 사용하지 않는 객체는 삭제하는 작업`(Stop-The-World)`으로 시간이 오래 걸리고 그동안 모든 Thread는 중단된다. 
+          - `Permanent Generation`
       - 각 Thread가 생성하는 영역
         - `Stack Area` : 지역변수, 파라미터, 리턴 값, 연산에 사용되는 임시 값 등이 생성되는 영역
-        - `PC Register` : Thread가 생성될 때마다 생성되는 영역으로 프로그램 카운터, 즉 현재 스레드가 실행되는 부분의 주소와 명령을 저장하고 있는 영역
-        - `Native Method Stack` : 자바 이외의 언어(C, C++, 어셈블리 등)로 작성된 네이티브 코드를 실행할 때 사용되는 메모리 영역으로 일반적인 C 스택을 사용하고 보통 C/C++ 등의 코드를 수행하기 위한 스택을 말하며 (JNI) 자바 컴파일러에 의해 변환된 자바 바이트 코드를 읽고 해석하는 역할을 하는 것이 자바 인터프리터(interpreter) 이다.
-
-  2. JVM의 GC 종류 및 GC 사용 경험
-  3. GC 절차 및 GC 튜닝 경험
-
+        - `PC Register` : Thread가 생성될 때마다 생성되는 영역으로 프로그램 카운터, 즉 현재 Thread가 실행되는 부분의 주소와 명령을 저장하고 있는 영역
+        - `Native Method Stack` : Java 이외의 언어(C, C++, 어셈블리 등)로 작성된 Native Code를 실행할 때 사용되는 메모리 영역으로 일반적인 C 스택을 사용하고 보통 C/C++ 등의 코드를 수행하기 위한 스택을 말하며 `(JNI)` Java Compiler에 의해 변환된 Java Byte Code를 읽고 해석하는 역할을 하는 것이 `Java Interpreter`
+  4. Garbage Collection
   - Reference
     - https://coding-factory.tistory.com/827
     - https://coding-factory.tistory.com/828
+    - https://coding-factory.tistory.com/829
+  
 
-  4. REST API에 대해서 나열 후 개발 과정
-  5. PUT과 PATCH의 차이와 개발 경험
-  6. THREAD LOCAL이란? 써본 적 있나
-  7. JPA란?
-  8. 디자인 패턴이란? 
-  9. 써봤던 디자인패턴 나열
-  10. MSA란, MSA 구조 경험한 적 있나?
-  11. KAFKA란, KAFKA로 스트리밍을 경험해본적 있나
+
+1. JVM 구조
+2. JVM의 GC 종류 및 GC 사용 경험
+3. GC 절차 및 GC 튜닝 경험
+4. REST API에 대해서 나열 후 개발 과정
+5. PUT과 PATCH의 차이와 개발 경험
+6. THREAD LOCAL이란? 써본 적 있나
+7. JPA란?
+8. 디자인 패턴이란? 
+9. 써봤던 디자인패턴 나열
+10. MSA란, MSA 구조 경험한 적 있나?
+11. KAFKA란, KAFKA로 스트리밍을 경험해본적 있나
 - 책 추천
   1. 자바의 정석(한번 훑는 것을 추천)
   2. 이펙티브 자바(틈틈히)
