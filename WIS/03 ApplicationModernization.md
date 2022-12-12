@@ -1249,12 +1249,19 @@ public class Client {
           - `Tenured Generation` : `Young Generation` 영역이 어느정도 차게되면 참조 정도에 따라 `Old` 영역으로 이동되거나 회수 된다.
             - `Minor GC` : `Young`과 `Tenured` 에서 실행되는 GC
             - `Major GC` : `Old` 영역에 할당된 메모리가 허용치를 넘게되서 `Old` 영역 내 모든 객체들을 검사하고 사용하지 않는 객체는 삭제하는 작업`(Stop-The-World)`으로 시간이 오래 걸리고 그동안 모든 Thread는 중단된다. 
-          - `Permanent Generation`
+          - `Permanent Generation` : Java 8 부터 사라진 영역. Class, Method Code가 저장되는 영역이다.
       - 각 Thread가 생성하는 영역
         - `Stack Area` : 지역변수, 파라미터, 리턴 값, 연산에 사용되는 임시 값 등이 생성되는 영역
         - `PC Register` : Thread가 생성될 때마다 생성되는 영역으로 프로그램 카운터, 즉 현재 Thread가 실행되는 부분의 주소와 명령을 저장하고 있는 영역
         - `Native Method Stack` : Java 이외의 언어(C, C++, 어셈블리 등)로 작성된 Native Code를 실행할 때 사용되는 메모리 영역으로 일반적인 C 스택을 사용하고 보통 C/C++ 등의 코드를 수행하기 위한 스택을 말하며 `(JNI)` Java Compiler에 의해 변환된 Java Byte Code를 읽고 해석하는 역할을 하는 것이 `Java Interpreter`
-  4. Garbage Collection
+  4. Garbage Collection (GC)
+    - GC의 동작 시점을 알 수 없고 GC가 동작하는 동안에는 다른 동작을 모두 멈추기 때문에 Overhead가 발생할 수 있다.
+    - Application이 동작하면 객체들을 Head 영역에 생성되고 Method Area나 Stack Area 등 Root Area에서는 Heap Area에 생성 된 객체의 주소만 참조하는 형식으로 구성된다.
+    - Method가 끝나거나 생명주기가 끝나거나 특정 이벤트로 인해서 Heap Area의 객체를 참조하고 있던`(Reachable)` 참조 변수들이 삭제되면 Heap Area에는 아무런 참조도 되지 않는 객체`(Unreachable)`들이 생기게 되고 이 객체들을 GC의 대상이 된다.
+    - GC는 `Mark And Sweep` 알고리즘을 사용해서 동작한다.
+      - Mark : Root로부터 그래프 순회를 돌면서 연결된 객체들을 찾아내어 각각 어떤 객체를 참조하고 있는지 Marking 한다.
+      - Sweep : Unreachable한 객체들을 Heap Area에서 제거한다.
+      - Compact : Sweep 후에 분산된 객체들을 Heap의 시작 주소로 모아 메모리가 할당된 부분과 그렇지 않은 부분으로 압축한다. (GC 종류에 따라 하지 않는 경우도 있음)
   - Reference
     - https://coding-factory.tistory.com/827
     - https://coding-factory.tistory.com/828
