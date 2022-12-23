@@ -889,6 +889,155 @@ fetch("https://url", {
   }, [router.isReady]);
   ```
 
+- ### BaseSelect
+  - BaseSelect에서 multi check 옵션을 썼을 때 완료를 누르지 않을 땐 처음 진입했을 때의 checked list 값을 유지해야했는데 잘 되지 않았다.
+  - 해당 컴포넌트 진입(화면에 노출될 때)할 떄 기본적으로 체크된 값은 `defaultChecked` 를 사용해야한다. `checked` 값을 사용하려면 true/false 값을 각 항목마다 state로 관리해야 하는데 번거로움이 있다.
+  - 한 항목을 체크하고 체크를 해제했을 때 실행되는 `handleMultipleChecked` 함수는 체크를 하고 해제할 때마다 해당 함수만 나가는게 아니라 컴포넌트 전체를 나가는 문제 떄문에 어려웠었다.
+  - 따라서 체크를 할 때마다 `onChange` 함수를 통해 바깥쪽 값(state)를 변화시켜줘야 하고 해당 컴포넌트를 `onClose` 하거나 그냥 나갔을 때 기존 값을 유지해주기 위해서 기존 값을 해당 컴포넌트 밖에서 관리해줘야 했다.
+  - `value`와 `originValue`를 관리해서 완료 버튼을 눌렀을 땐, `onComplete` 를 실행해서 value와 originValue를 없데이트하고 해당 컴포넌트가 닫힐 때 발생하는 `handleCloseModal`에선 외부 변수를 기존 값으로 돌려준다.
+  - `handleMultipleChecked`에선 체크/해제가 될 때마다 외부 값에 추가 또는 삭제해줘야 한다.
+  ```js
+  interface DefaultProps {
+    title: string;
+    value: string | string[];
+    originValue?: string;
+    optionList: string[];
+    multiple: boolean;
+    onChange: (param: string) => void;
+    onComplete?: (param: string) => void;
+  }
+  const BaseSelect = ({
+    title,
+    value,
+    originValue,
+    optionList,
+    multiple,
+    onChange,
+    onComplte,
+  }: DefaultProps) => {
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [btnDisabled, setBtnDisabled] = useState(true);
+  
+    const handleMultipleChecked = (checked: boolean, checkedValue: any) => {
+      let newCheckValue: string[] = value ? [...value] : [];
+      if (checked) {
+        if (!newCheckValue.includes(checkedValue)) {
+          newCheckValue = [...newCheckValue, checkedValue];
+        }
+      } else {
+        newCheckValue = [...newCheckValue.filter((item: any) => item !== checkedValue)];
+      }
+      onChange(newCheckValue);
+      setBtnDisabled(newCheckValue?.length === 0);
+    };
+    
+    const handleShowModal = (visible: boolean) => () => {
+      setBtnDisabled(value?.length === 0);
+      setIsModalVisible(visible);
+    };
+    
+    const handleCloseModal = () => {
+      if (multiple) {
+        onChange(originValue);
+      }
+      setIsModalVisible(false);
+    };
+    
+    const handleMultiComplete = () => {
+      if (onComplete) onComplete(value);
+      setIsModalVisible(false);
+    };
+    
+    const handleOptionClick = (optionValue: string) => {
+      onChange(optionValue);
+      setIsModalVisible(false);
+    };
+    
+    const setOptionList = () => {
+      return (
+        <List>
+          {list.map((item: any) => (
+            <ListItem key={item.value}>
+              {!multiple && <ListItemButton onClick={() => handleOptionClick(item.value)}>{item.label}</ListItemButton>}
+              {multiple && (
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      onChange={(event, checked) => handleMultipleChecked(checked, item.value)}
+                      defaultChecked={value.includes(item.value)}
+                    />
+                  }
+                  label={item.label}
+                />
+              )}
+            </ListItem>
+          ))}
+        </List>
+      );
+    };
+    
+    return (
+      <RootStyled>
+        <div>
+          <Input value={value} readOnly />
+          <button type="button" onClick={handleShowModal(true)}>
+            {(!multiple && list.filter((item: any) => item.value === value)[0]?.label) ?? title}
+            {multiple &&
+              (value.length === 0
+                ? title
+                : value.length === 1
+                ? list.filter((item: any) => item.value === value[0])[0]?.label
+                : `${list.filter((item: any) => item.value === value[0])[0]?.label} 외 ${value.length - 1}개`)}
+          </button>
+          <DrawerStyled anchor="bottom" open={isModalVisible} onClose={handleCloseModal}>
+            <Box sx={{ display: 'flex', alignItems: 'left', padding: '24px 16px 16px' }}>
+              {title && <p>{title}</p>}
+              <IconButtonStyled sx={{ marginLeft: 'auto' }} onClick={handleCloseModal}>
+                <IconClose />
+              </IconButtonStyled>
+            </Box>
+            <Box sx={{ padding: '0 16px 16px', alignItems: 'left', overflowY: 'auto' }}>{setOptionList()}</Box>
+            {multiple && (
+              <Box>
+                <BaseButton variant="boxPurple" onClick={handleMultiComplete} disabled={btnDisabled} fullWidth>
+                  완료
+                </BaseButton>
+              </Box>
+            )}
+          </DrawerStyled>
+        </div>
+      </RootStyled>
+    );
+  };
+  export default BaseSelectWithMulti;
+  ```
+  ```js
+  // 단일 선택 BaseSelect
+  <FormControl variant="standard">
+    <FormLabel htmlFor="contentId">단일선택</FormLabel>
+    <BaseSelectWithMulti
+      value={selectOne}
+      title="지역 선택"
+      list={selectOntList}
+      onChange={handleSelectOneChange}
+    />
+  </FormControl>
+
+  // 멀티 선택 BaseSelect
+  <FormControl variant="standard">
+    <FormLabel htmlFor="contentId">다중선택</FormLabel>
+    <BaseSelectWithMulti
+      value={selectMulti}
+      originValue={originSelectMulti}
+      title="근무 업종 선택"
+      list={selectMultiList}
+      onComplete={handleSelectMultiComplete}
+      onChange={handleSelectMultiChange}
+      multiple={true}
+    />
+  </FormControl>
+  ```
+
 ---
 # My React Library
 ### Basic Code Structure
