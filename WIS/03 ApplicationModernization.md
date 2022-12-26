@@ -1274,6 +1274,9 @@ public class Client {
 3. GC 절차 및 GC 튜닝 경험
 4. REST API에 대해서 나열 후 개발 과정
 5. PUT과 PATCH의 차이와 개발 경험
+  - 간단히 요약하면 `PATCH`는 Resource에 일부분만 수정할 때 사용하고 `PUT`은 Resource의 모든 속성을 수정할 때 사용한다.
+  - `PUT`으로 요청할 때 Resource의 일부분만 보냈을 경우, 나머지는 기본값으로 수정되는게 원칙이다. 따라서 바꾸지 않을 속성도 같이 보내줘야 한다.
+  - `PATCH`는 요청한 일부분만 수정한다.
 6. THREAD LOCAL이란? 써본 적 있나
 7. JPA란?
 8. 디자인 패턴이란? 
