@@ -1278,6 +1278,47 @@ public class Client {
   - `PUT`으로 요청할 때 Resource의 일부분만 보냈을 경우, 나머지는 기본값으로 수정되는게 원칙이다. 따라서 바꾸지 않을 속성도 같이 보내줘야 한다.
   - `PATCH`는 요청한 일부분만 수정한다.
 6. THREAD LOCAL이란? 써본 적 있나
+  - 한 Thread에서 읽고 쓰여질 수 있는 변수를 할당하여 접귾라 수 있도록 한다. Multi Thread 환경에서 각 Thread 마다 get(), set() method를 통해 독립적으로 변수에 접근이 필요할 때 유용하다.
+  - Thread의 장점 : Multi Thread는 Multi Processing에 비해 `문맥 교환(Context Switch)`이라는 Overhead가 일어나지 않고 자원을 공유하기 때문에 Process 끼리 통신하는 것보다 비용이 적고 문맥교환이 적어서 효율적인 작업이 가능하다. CPU 사용률을 향상시키고 자원을 적게 소모하며 코드가 간결해진다.
+  - Thread의 단점 : 여러 Thread가 하나의 Process 내에서 자원을 공유하기 때문에 `동기화(Synchronization)` 문제, `교착상태(Deadlock)`와 같은 문제가 발생할 수 있다.
+  - Thread Safe
+    - Multi Thread 환경에서 Thread끼리 객체를 공유할 때가 있는데 Thread가 동시에 접근하면 안되는 영역을 `임계 영역(Critical Section)` 이라고 하고 이 문제를 해결하기 위해서 `세마포어(Semaphore)`, `상호배제(Mutex)` 등의 개념이 있다.
+    - `세마포어(Semaphore)` : 공유된 자원의 데이터를 여러 Process가 접근하지 못하도록 막는 것 
+    - `상호배제(Mutex)` : 공유된 자원의 데이터를 여러 Thread가 접근하지 못하도록 막는 것
+    - Java의 `Synchronized` keyword를 사용해서 현재 데이터를 사용하고 있는 해당 Thread를 제외하고 다른 Thread는 데이터에 접근할 수 없도록 할 수 있고 이것을 `thread safe` 환경이라고 한다.
+    - `thread safe`한 공유 자원에 다른 Thread가 접근하려고 하면 wait 상태가 되기 때문에 성능 저하가 발생할 수 있다.
+  - ThreadLocal
+    - ThreadLocal은 Java에서 제공하는 Class 중에 하나이고 간단히 말하면 하나의 Thread에 의해서만 read/write가 가능한 변수라고 할 수 있다.
+    - 2개의 Thread가 같은 코드를 실행하고 하나의 ThreadLocal 변수를 참조하더라고 서로의 ThreadLocal은 각 Thread에서 독립적으로 사용되고 서로의 ThreadLocal을 볼 수 없다.
+    - 하나의 Thread에서 실행되는 코드가 동일한 객체를 사용해야할 때 `.set()`, `.get()` 를 사용해서 데이터를 사용하고 메모리 누수의 원인이 될 수 있기 때문에 사용이 끝나면 반드시 `.remove()`로 삭제해줘야 한다.
+    - 아래 예제코드에선 ClassA 에서 set(...)한 Date를 ClassB, ClassC 에서 get() 해서 사용한다. 즉 Parameter로 객체를 전달하지 않아도 여러 Thread에서 한 객체의 값을 참조하여 사용할 수 있다.
+      ```java
+      public static ThreadLocal<Date> tl = new ThreadLocal<>();
+      
+      class ClassA {
+        public void execute() {
+          tl.set(new Date());
+          ClassB classB = new ClassB();
+          classB.execute();
+          tl.remove();
+        }  
+      }
+      
+      class ClassB {
+        public void execute() {
+          Date date = tl.get();
+          ClassC classC = new ClassC();
+          classC.execute();
+        }  
+      }
+      
+      class ClassC {
+        public void execute() {
+          Date date = tl.get();
+        }  
+      }      
+      ```
+  - Reference : https://yeonbot.github.io/java/ThreadLocal/
 7. JPA란?
 8. 디자인 패턴이란? 
 9. 써봤던 디자인패턴 나열
