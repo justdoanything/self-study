@@ -1273,6 +1273,17 @@ public class Client {
 2. JVM의 GC 종류 및 GC 사용 경험
 3. GC 절차 및 GC 튜닝 경험
 4. REST API에 대해서 나열 후 개발 과정
+  - 메소드 | 설명                                         | 응답코드               | 에러코드
+    ---|--------------------------------------------|--------------------|---
+    `GET` | 조회                                         | _Read Operation_   | 200 OK                 | 404 Not Found
+    `POST` | 정보 생성                                      | _Update Operation_ | 200 OK, 204 No-Content | 409 Conflict
+    `PUT` | 정보 변경 (속성 전체)                              | _Create Operation_ | 201 Created            | 400 Bad Request
+    `PATCH` | 정보 변경 (속성 일부)                              | _Create Operation_ | 201 Created            | 400 Bad Request
+    `DELETE` | 정보 삭제 | _Delete Operation_ | 204 No-Content     | 404 Not Found          
+    `HEAD` | 응답 헤더를 조회할 때 사용                            |                    | 200 OK                 |
+    `OPTIONS` | Allow 응답 헤더를 이용해 리소스에서 사용 가능한 메소드를 표기하는 용도 |                    | 200 OK             |
+  - CRUD 성격으로 구분할 수 없는 경우엔 `POST`를 사용한다.
+  - `HEAD`는 GET 요청을 통해 특정 리소스를 조회하기 전에 `결과 데이터 크기를 파악`하고 싶을 때 HEAD 메소드를 사용하면 된다. 응답 헤더의 `Content-Length` 값을 알면 데이터 크기를 알 수 있다.
 5. PUT과 PATCH의 차이와 개발 경험
   - 간단히 요약하면 `PATCH`는 Resource에 일부분만 수정할 때 사용하고 `PUT`은 Resource의 모든 속성을 수정할 때 사용한다.
   - `PUT`으로 요청할 때 Resource의 일부분만 보냈을 경우, 나머지는 기본값으로 수정되는게 원칙이다. 따라서 바꾸지 않을 속성도 같이 보내줘야 한다.
@@ -1320,7 +1331,20 @@ public class Client {
       ```
   - Reference : https://yeonbot.github.io/java/ThreadLocal/
 7. JPA란?
-8. 디자인 패턴이란? 
+8. 디자인 패턴이란?
+  - Proxy Pattern
+  - Singleton Pattern
+  - Strategy Pattern
+  - Adapter Pattern
+  - Template Method Pattern
+  - Factory Method Pattern
+  - Prototype Pattern
+  - Builder Pattern
+  - Abstract Factory Pattern
+  - Bridge Pattern
+  - Composite Pattern
+  - Reference
+    - https://www.javatpoint.com/design-patterns-in-java
 9. 써봤던 디자인패턴 나열
 10. MSA란, MSA 구조 경험한 적 있나?
 11. KAFKA란, KAFKA로 스트리밍을 경험해본적 있나
