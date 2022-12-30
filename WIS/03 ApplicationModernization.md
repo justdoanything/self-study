@@ -1197,6 +1197,174 @@ public class Client {
 
 
 ### 공부할 것들
+# 1️⃣ JVM
+## 1. JVM의 구조
+- Java는 플랫폼에 상관없이 사용할 수 있다. 
+  - JVM은 하나의 byte code인 .class를 사용하고 .class는 JVM 위에서 사용되고 JVM은 운영체제에 따라 알아서 실행파일을 만들고 실행합니다. 
+  - 따라서 운영체제와 상관없이 Java 언어로 프로그램을 만들 수 있습니다.
+- JVM은 플랫폼에 종속적이다.
+  - 플랫폼에 따라 JVM은 달리지며 설치되어야 합니다.
+- byte code를 읽는 방식
+  - JVM은 byte code를 명령어 단위로 읽어서 해석하는데 `Interpreter` 방식과 `JIT Compile` 방식 2가지를 혼용합니다.
+  - Interpreter 방식 : byte code를 한 줄씩 해석해서 실행하는 방식. 하지만 속도가 느립니다.
+    - JIT(Just In Time) Compile 방식 : btye code를 실제 실행하는 시점에 각 플랫폼에 맞는 Native Code로 변환시켜서 실행하는 방식. 하지만 Native Code로 변환시킬 때 비용이 많이 소요되므로 모든 코드를 JIT Compiler 방식으로 하지 않고 Interpreter 방식을 사용하다가 일정 기준이 넘어가면 JIT Compiler 방식으로 명령어를 실행합니다.
+    - 인터프리터에서 JIT로 변경하는 기준은 ?
+  - JIT Compiler
+    - 같은 코드를 계속 해석하지 않고 코드를 실행할 때 컴파일 하면서 해당 코드를 caching 하고 이후에는 바뀐 코드만 다시 컴파일하고 기존에 있던 코드는 캐싱된 코드를 사용하기 때문에 Interpreter에 비해 속도가 월등히 빠릅니다.
+    
+<img width="657" alt="image" src="https://user-images.githubusercontent.com/21374902/205311306-c1e245fb-2a44-4ae6-98ca-eccb14409bbd.png">
+
+## 2. JVM 동작 방식
+- Java Application이 실행되면 JVM은 OS로부터 Memory를 할당한다.
+- Java Compiler(javac)가 Java Code(.java)를 Java Byte Code(.class)로 Compile 한다.
+- Class Loader를 통해서 JVM Runtime Data Area로 Loading 한다.
+- Runtime Data Area에 Loading 된 Java Byte Code(.class)는 Excution Engine을 통해 해석한다.
+- 해석된 Byte Code는 Runtime Data Area의 각 영역에 배치되어 수행되는 과정에서 Execution Engine에 의해 GC 동작과 Thread 동기화가 이뤄진다.
+
+## 3. JVM 구조와 설명
+- ### `Class Loader`
+  - Java는 동적으로 Class를 불러오기 때문에 프로그램이 실행 중일 때 (Runtime), 모든 코드가 JVM과 연결된다. 이러한 동적으로 Class를 Load 해주는 것이 Class `Loader` 이다. `Class Loader`는 .class 파일을 묶어서 JVM이 운영체제로 부터 할당 받은 `Runtime Data Area`로 적재한다. (Compiler는 .java를 .class로 변환해준다.)
+  
+    <img width="342" alt="스크린샷 2022-12-10 15 36 02" src="https://user-images.githubusercontent.com/21374902/206893474-4bb88536-1f23-41a2-9eea-488275e4ec49.png">
+
+- ### `Execution Engine`
+  - JVM의 `Runtime Data Area`의 `Method Area`에 배치된 Byte Code(.class)을 `Execution Engine`에 제공하여 정의된대로 Byte Code를 실행시키는 역할을 한다. 짧게 말하면 Byte Code를 명령어 단위로 읽어서 실행시키는 Runtime Module 이라고 할 수 있다. 
+- ### `Garbage Collector (GC)`
+  - 더이상 사용하지 않는 메모리를 자동으로 회수해주는 역할을 한다. 이는 개발자가 따로 메모리 관리를 하지 않아도 되서 프로그래밍이 쉬워진다. Heap 메모리에 생성되있는 객체들 중에서 참조되지 않는 객체들을 탐색하고 제거해주는 역할도 하며 시점은 특정할 수 없다. GC가 수행되면 GC 역할을 수행하는 Thread가 아닌 다른 Thread들은 모두 일시중지가 된다.
+    
+    <img width="355" alt="스크린샷 2022-12-10 15 36 07" src="https://user-images.githubusercontent.com/21374902/206893547-9e4f6e59-fb52-45a6-b72a-606564860d28.png">
+
+- ### `Runtime Data Area`
+  
+  <img width="781" alt="스크린샷 2022-12-10 15 36 21" src="https://user-images.githubusercontent.com/21374902/206893557-0350bdbb-eee7-487c-9cf6-dd1d6af7d958.png">
+  
+  - JVM의 메모리 영역으로 Java Application을 실행할 때 사용되는 데이터들을 적재해서 사용하는 영역
+  - 모든 Thread가 공유해서 사용하는 영역 (GC의 대상)
+    - #### `Method Area` : 클래스 멤버 변수의 이름, 데이터 타입, 접근 제어자 정보와 같은 각종 필드 정보들과 메서드 정보, 데이터 Type 정보, Constant Pool, static변수, final class 등이 생성되는 영역
+    - #### `Heap Area` : new 키워드로 생성된 객체와 배열이 생성되는 영역
+    
+      <img width="587" alt="스크린샷 2022-12-10 15 36 25" src="https://user-images.githubusercontent.com/21374902/206893577-dd6f728d-e975-4e47-99df-f5f503bfb358.png">
+
+      - ##### `Young Generation` : 객체가 생성됐을 때 저장되는 영역으로 Heap 영역에 객체가 최초로 생성되면 `Eden` 영역에 할당된다. `Eden 영역에 데이터가 어느정도 쌓이게 되면 참조 정도에 따라 `Servivor`의 빈 공간으로 이동되거나 회수된다. 
+      - ##### `Tenured Generation` : `Young Generation` 영역이 어느정도 차게되면 참조 정도에 따라 `Old` 영역으로 이동되거나 회수 된다.
+        - ###### `Minor GC` : `Young`과 `Tenured` 에서 실행되는 GC
+        - ###### `Major GC` : `Old` 영역에 할당된 메모리가 허용치를 넘게되서 `Old` 영역 내 모든 객체들을 검사하고 사용하지 않는 객체는 삭제하는 작업`(Stop-The-World)`으로 시간이 오래 걸리고 그동안 모든 Thread는 중단된다. 
+      - ##### `Permanent Generation` : Java 8 부터 사라진 영역. Class, Method Code가 저장되는 영역이다.
+- ### `각 Thread가 생성하는 영역`
+  - #### `Stack Area` : 지역변수, 파라미터, 리턴 값, 연산에 사용되는 임시 값 등이 생성되는 영역
+  - #### `PC Register` : Thread가 생성될 때마다 생성되는 영역으로 프로그램 카운터, 즉 현재 Thread가 실행되는 부분의 주소와 명령을 저장하고 있는 영역
+  - #### `Native Method Stack` : Java 이외의 언어(C, C++, 어셈블리 등)로 작성된 Native Code를 실행할 때 사용되는 메모리 영역으로 일반적인 C 스택을 사용하고 보통 C/C++ 등의 코드를 수행하기 위한 스택을 말하며 `(JNI)` Java Compiler에 의해 변환된 Java Byte Code를 읽고 해석하는 역할을 하는 것이 `Java Interpreter`
+## Reference
+- [[Java] 자바 가상머신 JVM(Java Virtual Machine) 총정리](https://coding-factory.tistory.com/827)
+
+---
+
+# 2️⃣ Garbage Collection (GC)
+- GC의 동작 시점을 알 수 없고 GC가 동작하는 동안에는 다른 동작을 모두 멈추기 때문에 Overhead가 발생할 수 있다.
+- Application이 동작하면 객체들을 Head 영역에 생성되고 Method Area나 Stack Area 등 Root Area에서는 Heap Area에 생성 된 객체의 주소만 참조하는 형식으로 구성된다.
+- Method가 끝나거나 생명주기가 끝나거나 특정 이벤트로 인해서 Heap Area의 객체를 참조하고 있던`(Reachable)` 참조 변수들이 삭제되면 Heap Area에는 아무런 참조도 되지 않는 객체`(Unreachable)`들이 생기게 되고 이 객체들을 GC의 대상이 된다.
+- GC는 `Mark And Sweep` 알고리즘을 사용해서 동작한다.
+  - Mark(식별) : Root로부터 그래프 순회를 돌면서 연결된 객체들을 찾아내어 각각 어떤 객체를 참조하고 있는지 Marking 한다.
+  - Sweep(제거) : Unreachable한 객체들을 Heap Area에서 제거한다.
+  - Compact(재구성) : Sweep 후에 분산된 객체들을 Heap의 시작 주소로 모아 메모리가 할당된 부분과 그렇지 않은 부분으로 압축한다. (GC 종류에 따라 하지 않는 경우도 있음)
+- GC란 JVM의 Heap 영역에서 동적으로 할당했던 메모리 중 필요 없게 된 메모리 객체를 모아서 주기적으로 제거하는 프로세스
+- GC의 대상은 객체를 Reachable/Unreachable로 구분하고 Unreachable 객체가 GC 대상이 된다.
+- GC의 Root로부터 해당 객체에 접근이 가능한지가 Sweep의 대상이 되는데 Heap 메모리 영역을 참조하는 method area, static 변수, stack, native method stack이 Root Space가 된다.
+
+- JVM의 GC 종류 및 GC 사용 경험
+- GC 절차 및 GC 튜닝 경험
+
+## Reference
+- [JAVA-☕-가비지-컬렉션GC-동작-원리-알고리즘-💯-총정리](https://inpa.tistory.com/entry/JAVA-%E2%98%95-%EA%B0%80%EB%B9%84%EC%A7%80-%EC%BB%AC%EB%A0%89%EC%85%98GC-%EB%8F%99%EC%9E%91-%EC%9B%90%EB%A6%AC-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%F0%9F%92%AF-%EC%B4%9D%EC%A0%95%EB%A6%AC)
+
+---
+
+# 3️⃣ REST API
+## 1. REST API 종류와 역할
+메소드 | 설명                                         | 응답코드               | 에러코드
+---|--------------------------------------------|--------------------|---
+`GET` | 조회                                         | _Read Operation_   | 200 OK                 | 404 Not Found
+`POST` | 정보 생성                                      | _Update Operation_ | 200 OK, 204 No-Content | 409 Conflict
+`PUT` | 정보 변경 (속성 전체)                              | _Create Operation_ | 201 Created            | 400 Bad Request
+`PATCH` | 정보 변경 (속성 일부)                              | _Create Operation_ | 201 Created            | 400 Bad Request
+`DELETE` | 정보 삭제 | _Delete Operation_ | 204 No-Content     | 404 Not Found          
+`HEAD` | 응답 헤더를 조회할 때 사용                            |                    | 200 OK                 |
+`OPTIONS` | Allow 응답 헤더를 이용해 리소스에서 사용 가능한 메소드를 표기하는 용도 |                    | 200 OK             |
+- CRUD 성격으로 구분할 수 없는 경우엔 `POST`를 사용한다.
+- `HEAD`는 GET 요청을 통해 특정 리소스를 조회하기 전에 `결과 데이터 크기를 파악`하고 싶을 때 HEAD 메소드를 사용하면 된다. 응답 헤더의 `Content-Length` 값을 알면 데이터 크기를 알 수 있다.
+## 2. PUT과 PATCH의 차이
+  - 간단히 요약하면 `PATCH`는 Resource에 일부분만 수정할 때 사용하고 `PUT`은 Resource의 모든 속성을 수정할 때 사용한다.
+  - `PUT`으로 요청할 때 Resource의 일부분만 보냈을 경우, 나머지는 기본값으로 수정되는게 원칙이다. 따라서 바꾸지 않을 속성도 같이 보내줘야 한다.
+  - `PATCH`는 요청한 일부분만 수정한다.
+
+---
+
+# 4️⃣ ThreadLocal
+## 1. Thread 공통
+- 한 Thread에서 읽고 쓰여질 수 있는 변수를 할당하여 접근할 수 있도록 한다. Multi Thread 환경에서 각 Thread 마다 get(), set() method를 통해 독립적으로 변수에 접근이 필요할 때 유용하다.
+- Thread의 장점 : Multi Thread는 Multi Processing에 비해 `문맥 교환(Context Switch)`이라는 Overhead가 일어나지 않고 자원을 공유하기 때문에 Process 끼리 통신하는 것보다 비용이 적고 문맥교환이 적어서 효율적인 작업이 가능하다. CPU 사용률을 향상시키고 자원을 적게 소모하며 코드가 간결해진다.
+- Thread의 단점 : 여러 Thread가 하나의 Process 내에서 자원을 공유하기 때문에 `동기화(Synchronization)` 문제, `교착상태(Deadlock)`와 같은 문제가 발생할 수 있다.
+- Thread Safe
+  - Multi Thread 환경에서 Thread끼리 객체를 공유할 때가 있는데 Thread가 동시에 접근하면 안되는 영역을 `임계 영역(Critical Section)` 이라고 하고 이 문제를 해결하기 위해서 `세마포어(Semaphore)`, `상호배제(Mutex)` 등의 개념이 있다.
+  - `세마포어(Semaphore)` : 공유된 자원의 데이터를 여러 Process가 접근하지 못하도록 막는 것 
+  - `상호배제(Mutex)` : 공유된 자원의 데이터를 여러 Thread가 접근하지 못하도록 막는 것
+  - Java의 `Synchronized` keyword를 사용해서 현재 데이터를 사용하고 있는 해당 Thread를 제외하고 다른 Thread는 데이터에 접근할 수 없도록 할 수 있고 이것을 `thread safe` 환경이라고 한다.
+  - `thread safe`한 공유 자원에 다른 Thread가 접근하려고 하면 wait 상태가 되기 때문에 성능 저하가 발생할 수 있다.
+## 2. ThreadLocal
+  - ThreadLocal은 Java에서 제공하는 Class 중에 하나이고 간단히 말하면 하나의 Thread에 의해서만 read/write가 가능한 변수라고 할 수 있다.
+  - 2개의 Thread가 같은 코드를 실행하고 하나의 ThreadLocal 변수를 참조하더라고 서로의 ThreadLocal은 각 Thread에서 독립적으로 사용되고 서로의 ThreadLocal을 볼 수 없다.
+  - 하나의 Thread에서 실행되는 코드가 동일한 객체를 사용해야할 때 `.set()`, `.get()` 를 사용해서 데이터를 사용하고 메모리 누수의 원인이 될 수 있기 때문에 사용이 끝나면 반드시 `.remove()`로 삭제해줘야 한다.
+  - 아래 예제코드에선 ClassA 에서 set(...)한 Date를 ClassB, ClassC 에서 get() 해서 사용한다. 즉 Parameter로 객체를 전달하지 않아도 여러 Thread에서 한 객체의 값을 참조하여 사용할 수 있다.
+    ```java
+    public static ThreadLocal<Date> tl = new ThreadLocal<>();
+    
+    class ClassA {
+      public void execute() {
+        tl.set(new Date());
+        ClassB classB = new ClassB();
+        classB.execute();
+        tl.remove();
+      }  
+    }
+    
+    class ClassB {
+      public void execute() {
+        Date date = tl.get();
+        ClassC classC = new ClassC();
+        classC.execute();
+      }  
+    }
+    
+    class ClassC {
+      public void execute() {
+        Date date = tl.get();
+      }  
+    }      
+    ```
+## Reference
+- https://yeonbot.github.io/java/ThreadLocal/
+---
+# 5️⃣ Java Design Pattern
+## - Proxy Pattern
+## - Singleton Pattern
+## - Strategy Pattern
+## - Adapter Pattern
+## - Template Method Pattern
+## - Factory Method Pattern
+## - Prototype Pattern
+## - Builder Pattern
+## - Abstract Factory Pattern
+## - Bridge Pattern
+## - Composite Pattern
+## - Reference
+- https://www.javatpoint.com/design-patterns-in-java
+
+---
+
+# 6️⃣ KAFKA
+
+---
+
 - 알고리즘
 - 지원 동기
   1. 지원한 이유?
@@ -1210,144 +1378,17 @@ public class Client {
   4. 트래픽 경험?
   5. 꼬리물기 질문 다수
 - 기술 질문
-  1. JVM의 구조
-    - Java는 플랫폼에 상관없이 사용할 수 있다. 
-      - JVM은 하나의 byte code인 .class를 사용하고 .class는 JVM 위에서 사용되고 JVM은 운영체제에 따라 알아서 실행파일을 만들고 실행합니다. 
-      - 따라서 운영체제와 상관없이 Java 언어로 프로그램을 만들 수 있습니다.
-    - JVM은 플랫폼에 종속적이다.
-      - 플랫폼에 따라 JVM은 달리지며 설치되어야 합니다.
-    - byte code를 읽는 방식
-      - JVM은 byte code를 명령어 단위로 읽어서 해석하는데 `Interpreter` 방식과 `JIT Compile` 방식 2가지를 혼용합니다.
-      - Interpreter 방식 : byte code를 한 줄씩 해석해서 실행하는 방식. 하지만 속도가 느립니다.
-        - JIT(Just In Time) Compile 방식 : btye code를 실제 실행하는 시점에 각 플랫폼에 맞는 Native Code로 변환시켜서 실행하는 방식. 하지만 Native Code로 변환시킬 때 비용이 많이 소요되므로 모든 코드를 JIT Compiler 방식으로 하지 않고 Interpreter 방식을 사용하다가 일정 기준이 넘어가면 JIT Compiler 방식으로 명령어를 실행합니다.
-        - 인터프리터에서 JIT로 변경하는 기준은 ?
-      - JIT Compiler
-        - 같은 코드를 계속 해석하지 않고 코드를 실행할 때 컴파일 하면서 해당 코드를 caching 하고 이후에는 바뀐 코드만 다시 컴파일하고 기존에 있던 코드는 캐싱된 코드를 사용하기 때문에 Interpreter에 비해 속도가 월등히 빠릅니다.
-
-  <img width="657" alt="image" src="https://user-images.githubusercontent.com/21374902/205311306-c1e245fb-2a44-4ae6-98ca-eccb14409bbd.png">
-
-  2. JVM 동작 방식
-    - Java Application이 실행되면 JVM은 OS로부터 Memory를 할당한다.
-    - Java Compiler(javac)가 Java Code(.java)를 Java Byte Code(.class)로 Compile 한다.
-    - Class Loader를 통해서 JVM Runtime Data Area로 Loading 한다.
-    - Runtime Data Area에 Loading 된 Java Byte Code(.class)는 Excution Engine을 통해 해석한다.
-    - 해석된 Byte Code는 Runtime Data Area의 각 영역에 배치되어 수행되는 과정에서 Execution Engine에 의해 GC 동작과 Thread 동기화가 이뤄진다.
-  3. JVM 구조와 설명
-    - `Class Loader` : Java는 동적으로 Class를 불러오기 때문에 프로그램이 실행 중일 때 (Runtime), 모든 코드가 JVM과 연결된다. 이러한 동적으로 Class를 Load 해주는 것이 Class `Loader` 이다. `Class Loader`는 .class 파일을 묶어서 JVM이 운영체제로 부터 할당 받은 `Runtime Data Area`로 적재한다. (Compiler는 .java를 .class로 변환해준다.)
-      <img width="342" alt="스크린샷 2022-12-10 15 36 02" src="https://user-images.githubusercontent.com/21374902/206893474-4bb88536-1f23-41a2-9eea-488275e4ec49.png">
-    - `Execution Engine` : JVM의 `Runtime Data Area`의 `Method Area`에 배치된 Byte Code(.class)을 `Execution Engine`에 제공하여 정의된대로 Byte Code를 실행시키는 역할을 한다. 짧게 말하면 Byte Code를 명령어 단위로 읽어서 실행시키는 Runtime Module 이라고 할 수 있다. 
-    - `Garbage Collector (GC)` : 더이상 사용하지 않는 메모리를 자동으로 회수해주는 역할을 한다. 이는 개발자가 따로 메모리 관리를 하지 않아도 되서 프로그래밍이 쉬워진다. Heap 메모리에 생성되있는 객체들 중에서 참조되지 않는 객체들을 탐색하고 제거해주는 역할도 하며 시점은 특정할 수 없다. GC가 수행되면 GC 역할을 수행하는 Thread가 아닌 다른 Thread들은 모두 일시중지가 된다.
-      <img width="355" alt="스크린샷 2022-12-10 15 36 07" src="https://user-images.githubusercontent.com/21374902/206893547-9e4f6e59-fb52-45a6-b72a-606564860d28.png">
-    - `Runtime Data Area`
-      <img width="781" alt="스크린샷 2022-12-10 15 36 21" src="https://user-images.githubusercontent.com/21374902/206893557-0350bdbb-eee7-487c-9cf6-dd1d6af7d958.png">
-      - JVM의 메모리 영역으로 Java Application을 실행할 때 사용되는 데이터들을 적재해서 사용하는 영역
-      - 모든 Thread가 공유해서 사용하는 영역 (GC의 대상)
-        - `Method Area` : 클래스 멤버 변수의 이름, 데이터 타입, 접근 제어자 정보와 같은 각종 필드 정보들과 메서드 정보, 데이터 Type 정보, Constant Pool, static변수, final class 등이 생성되는 영역
-        - `Heap Area` : new 키워드로 생성된 객체와 배열이 생성되는 영역
-          <img width="587" alt="스크린샷 2022-12-10 15 36 25" src="https://user-images.githubusercontent.com/21374902/206893577-dd6f728d-e975-4e47-99df-f5f503bfb358.png">
-          - `Young Generation` : 객체가 생성됐을 때 저장되는 영역으로 Heap 영역에 객체가 최초로 생성되면 `Eden` 영역에 할당된다. `Eden 영역에 데이터가 어느정도 쌓이게 되면 참조 정도에 따라 `Servivor`의 빈 공간으로 이동되거나 회수된다. 
-          - `Tenured Generation` : `Young Generation` 영역이 어느정도 차게되면 참조 정도에 따라 `Old` 영역으로 이동되거나 회수 된다.
-            - `Minor GC` : `Young`과 `Tenured` 에서 실행되는 GC
-            - `Major GC` : `Old` 영역에 할당된 메모리가 허용치를 넘게되서 `Old` 영역 내 모든 객체들을 검사하고 사용하지 않는 객체는 삭제하는 작업`(Stop-The-World)`으로 시간이 오래 걸리고 그동안 모든 Thread는 중단된다. 
-          - `Permanent Generation` : Java 8 부터 사라진 영역. Class, Method Code가 저장되는 영역이다.
-      - 각 Thread가 생성하는 영역
-        - `Stack Area` : 지역변수, 파라미터, 리턴 값, 연산에 사용되는 임시 값 등이 생성되는 영역
-        - `PC Register` : Thread가 생성될 때마다 생성되는 영역으로 프로그램 카운터, 즉 현재 Thread가 실행되는 부분의 주소와 명령을 저장하고 있는 영역
-        - `Native Method Stack` : Java 이외의 언어(C, C++, 어셈블리 등)로 작성된 Native Code를 실행할 때 사용되는 메모리 영역으로 일반적인 C 스택을 사용하고 보통 C/C++ 등의 코드를 수행하기 위한 스택을 말하며 `(JNI)` Java Compiler에 의해 변환된 Java Byte Code를 읽고 해석하는 역할을 하는 것이 `Java Interpreter`
-  4. Garbage Collection (GC)
-    - GC의 동작 시점을 알 수 없고 GC가 동작하는 동안에는 다른 동작을 모두 멈추기 때문에 Overhead가 발생할 수 있다.
-    - Application이 동작하면 객체들을 Head 영역에 생성되고 Method Area나 Stack Area 등 Root Area에서는 Heap Area에 생성 된 객체의 주소만 참조하는 형식으로 구성된다.
-    - Method가 끝나거나 생명주기가 끝나거나 특정 이벤트로 인해서 Heap Area의 객체를 참조하고 있던`(Reachable)` 참조 변수들이 삭제되면 Heap Area에는 아무런 참조도 되지 않는 객체`(Unreachable)`들이 생기게 되고 이 객체들을 GC의 대상이 된다.
-    - GC는 `Mark And Sweep` 알고리즘을 사용해서 동작한다.
-      - Mark : Root로부터 그래프 순회를 돌면서 연결된 객체들을 찾아내어 각각 어떤 객체를 참조하고 있는지 Marking 한다.
-      - Sweep : Unreachable한 객체들을 Heap Area에서 제거한다.
-      - Compact : Sweep 후에 분산된 객체들을 Heap의 시작 주소로 모아 메모리가 할당된 부분과 그렇지 않은 부분으로 압축한다. (GC 종류에 따라 하지 않는 경우도 있음)
-  - Reference
-    - https://coding-factory.tistory.com/827
-    - https://coding-factory.tistory.com/828
-    - https://coding-factory.tistory.com/829
-  
-
-
-1. JVM 구조
-2. JVM의 GC 종류 및 GC 사용 경험
-3. GC 절차 및 GC 튜닝 경험
-4. REST API에 대해서 나열 후 개발 과정
-  - 메소드 | 설명                                         | 응답코드               | 에러코드
-    ---|--------------------------------------------|--------------------|---
-    `GET` | 조회                                         | _Read Operation_   | 200 OK                 | 404 Not Found
-    `POST` | 정보 생성                                      | _Update Operation_ | 200 OK, 204 No-Content | 409 Conflict
-    `PUT` | 정보 변경 (속성 전체)                              | _Create Operation_ | 201 Created            | 400 Bad Request
-    `PATCH` | 정보 변경 (속성 일부)                              | _Create Operation_ | 201 Created            | 400 Bad Request
-    `DELETE` | 정보 삭제 | _Delete Operation_ | 204 No-Content     | 404 Not Found          
-    `HEAD` | 응답 헤더를 조회할 때 사용                            |                    | 200 OK                 |
-    `OPTIONS` | Allow 응답 헤더를 이용해 리소스에서 사용 가능한 메소드를 표기하는 용도 |                    | 200 OK             |
-  - CRUD 성격으로 구분할 수 없는 경우엔 `POST`를 사용한다.
-  - `HEAD`는 GET 요청을 통해 특정 리소스를 조회하기 전에 `결과 데이터 크기를 파악`하고 싶을 때 HEAD 메소드를 사용하면 된다. 응답 헤더의 `Content-Length` 값을 알면 데이터 크기를 알 수 있다.
-5. PUT과 PATCH의 차이와 개발 경험
-  - 간단히 요약하면 `PATCH`는 Resource에 일부분만 수정할 때 사용하고 `PUT`은 Resource의 모든 속성을 수정할 때 사용한다.
-  - `PUT`으로 요청할 때 Resource의 일부분만 보냈을 경우, 나머지는 기본값으로 수정되는게 원칙이다. 따라서 바꾸지 않을 속성도 같이 보내줘야 한다.
-  - `PATCH`는 요청한 일부분만 수정한다.
-6. THREAD LOCAL이란? 써본 적 있나
-  - 한 Thread에서 읽고 쓰여질 수 있는 변수를 할당하여 접귾라 수 있도록 한다. Multi Thread 환경에서 각 Thread 마다 get(), set() method를 통해 독립적으로 변수에 접근이 필요할 때 유용하다.
-  - Thread의 장점 : Multi Thread는 Multi Processing에 비해 `문맥 교환(Context Switch)`이라는 Overhead가 일어나지 않고 자원을 공유하기 때문에 Process 끼리 통신하는 것보다 비용이 적고 문맥교환이 적어서 효율적인 작업이 가능하다. CPU 사용률을 향상시키고 자원을 적게 소모하며 코드가 간결해진다.
-  - Thread의 단점 : 여러 Thread가 하나의 Process 내에서 자원을 공유하기 때문에 `동기화(Synchronization)` 문제, `교착상태(Deadlock)`와 같은 문제가 발생할 수 있다.
-  - Thread Safe
-    - Multi Thread 환경에서 Thread끼리 객체를 공유할 때가 있는데 Thread가 동시에 접근하면 안되는 영역을 `임계 영역(Critical Section)` 이라고 하고 이 문제를 해결하기 위해서 `세마포어(Semaphore)`, `상호배제(Mutex)` 등의 개념이 있다.
-    - `세마포어(Semaphore)` : 공유된 자원의 데이터를 여러 Process가 접근하지 못하도록 막는 것 
-    - `상호배제(Mutex)` : 공유된 자원의 데이터를 여러 Thread가 접근하지 못하도록 막는 것
-    - Java의 `Synchronized` keyword를 사용해서 현재 데이터를 사용하고 있는 해당 Thread를 제외하고 다른 Thread는 데이터에 접근할 수 없도록 할 수 있고 이것을 `thread safe` 환경이라고 한다.
-    - `thread safe`한 공유 자원에 다른 Thread가 접근하려고 하면 wait 상태가 되기 때문에 성능 저하가 발생할 수 있다.
-  - ThreadLocal
-    - ThreadLocal은 Java에서 제공하는 Class 중에 하나이고 간단히 말하면 하나의 Thread에 의해서만 read/write가 가능한 변수라고 할 수 있다.
-    - 2개의 Thread가 같은 코드를 실행하고 하나의 ThreadLocal 변수를 참조하더라고 서로의 ThreadLocal은 각 Thread에서 독립적으로 사용되고 서로의 ThreadLocal을 볼 수 없다.
-    - 하나의 Thread에서 실행되는 코드가 동일한 객체를 사용해야할 때 `.set()`, `.get()` 를 사용해서 데이터를 사용하고 메모리 누수의 원인이 될 수 있기 때문에 사용이 끝나면 반드시 `.remove()`로 삭제해줘야 한다.
-    - 아래 예제코드에선 ClassA 에서 set(...)한 Date를 ClassB, ClassC 에서 get() 해서 사용한다. 즉 Parameter로 객체를 전달하지 않아도 여러 Thread에서 한 객체의 값을 참조하여 사용할 수 있다.
-      ```java
-      public static ThreadLocal<Date> tl = new ThreadLocal<>();
-      
-      class ClassA {
-        public void execute() {
-          tl.set(new Date());
-          ClassB classB = new ClassB();
-          classB.execute();
-          tl.remove();
-        }  
-      }
-      
-      class ClassB {
-        public void execute() {
-          Date date = tl.get();
-          ClassC classC = new ClassC();
-          classC.execute();
-        }  
-      }
-      
-      class ClassC {
-        public void execute() {
-          Date date = tl.get();
-        }  
-      }      
-      ```
-  - Reference : https://yeonbot.github.io/java/ThreadLocal/
-7. JPA란?
-8. 디자인 패턴이란?
-  - Proxy Pattern
-  - Singleton Pattern
-  - Strategy Pattern
-  - Adapter Pattern
-  - Template Method Pattern
-  - Factory Method Pattern
-  - Prototype Pattern
-  - Builder Pattern
-  - Abstract Factory Pattern
-  - Bridge Pattern
-  - Composite Pattern
-  - Reference
-    - https://www.javatpoint.com/design-patterns-in-java
-9. 써봤던 디자인패턴 나열
-10. MSA란, MSA 구조 경험한 적 있나?
-11. KAFKA란, KAFKA로 스트리밍을 경험해본적 있나
+  1. JVM 구조
+  2. JVM의 GC 종류 및 GC 사용 경험
+  3. GC 절차 및 GC 튜닝 경험
+  4. REST API에 대해서 나열 후 개발 과정
+  5. PUT과 PATCH의 차이와 개발 경험
+  6. THREAD LOCAL의 개념과 개발 경험
+  7. JPA란?
+  8. 디자인 패턴이란?
+  9. 써봤던 디자인패턴 나열
+  10. MSA란, MSA 구조 경험한 적 있나?
+  11. KAFKA란, KAFKA로 스트리밍을 경험해본적 있나
 - 책 추천
   1. 자바의 정석(한번 훑는 것을 추천)
   2. 이펙티브 자바(틈틈히)
