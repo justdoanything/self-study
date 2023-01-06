@@ -16,18 +16,20 @@
   - [Shallow Route](#shallow-route)
   - [CssBaseline](#cssbaseline)
   - [react-next-keep-alive](#react-next-keep-alive)
-- [My Nextjs Library](#my-nextjs-library)
-  - [useEffect와 route.query](#useeffect와-routerquery)
-- [My React Library](#my-react-library)
-  - [Basic Code Structure](#basic-code-structure)
+- [My Library With React.js & Next.js](#my-library-with-reactjs--nextjs)
+- [Basic Code Structure](#basic-code-structure)
     - [async](#async-함수-정의)
     - [enum](#enum)
     - [useEffect와 async](#useeffect---async)
+  - [useEffect와 route.query](#useeffect와-routerquery)
+  - [BaseSelect](#baseselect)
+  - [react-notion-x](#react-notion-x)
+  - [react-notion](#react-notion)
   - [i18n 언어팩 적용](#i18n-언어팩-적용)
   - [Sub Component 제어](#sub-component-제어)
   - [Autocomplete](#autocomplete)
-  - [react-notion](#react-notion)
   - [react-mentions](#react-mentions)
+  - [infinite scroll](#infinite-scroll)
 ---
 
 # 실제 프로젝트에서 경험했던 기술과 고민
@@ -877,169 +879,7 @@ fetch("https://url", {
     - https://velog.io/@soryeongk/ReactSWRTutorial
 ---
 
-# My Nextjs Library
-- ### useEffect와 router.query
-  ```js
-  const router = useRouter();
-  const { id } = router.query;
-
-  useEffect(() => {
-    if (!router.isReady) return;
-    console.log(id);
-  }, [router.isReady]);
-  ```
-
-- ### BaseSelect
-  - BaseSelect에서 multi check 옵션을 썼을 때 완료를 누르지 않을 땐 처음 진입했을 때의 checked list 값을 유지해야했는데 잘 되지 않았다.
-  - 해당 컴포넌트 진입(화면에 노출될 때)할 떄 기본적으로 체크된 값은 `defaultChecked` 를 사용해야한다. `checked` 값을 사용하려면 true/false 값을 각 항목마다 state로 관리해야 하는데 번거로움이 있다.
-  - 한 항목을 체크하고 체크를 해제했을 때 실행되는 `handleMultipleChecked` 함수는 체크를 하고 해제할 때마다 해당 함수만 나가는게 아니라 컴포넌트 전체를 나가는 문제 떄문에 어려웠었다.
-  - 따라서 체크를 할 때마다 `onChange` 함수를 통해 바깥쪽 값(state)를 변화시켜줘야 하고 해당 컴포넌트를 `onClose` 하거나 그냥 나갔을 때 기존 값을 유지해주기 위해서 기존 값을 해당 컴포넌트 밖에서 관리해줘야 했다.
-  - `value`와 `originValue`를 관리해서 완료 버튼을 눌렀을 땐, `onComplete` 를 실행해서 value와 originValue를 없데이트하고 해당 컴포넌트가 닫힐 때 발생하는 `handleCloseModal`에선 외부 변수를 기존 값으로 돌려준다.
-  - `handleMultipleChecked`에선 체크/해제가 될 때마다 외부 값에 추가 또는 삭제해줘야 한다.
-  ```js
-  interface DefaultProps {
-    title: string;
-    value: string | string[];
-    originValue?: string;
-    optionList: string[];
-    multiple: boolean;
-    onChange: (param: string) => void;
-    onComplete?: (param: string) => void;
-  }
-  const BaseSelect = ({
-    title,
-    value,
-    originValue,
-    optionList,
-    multiple,
-    onChange,
-    onComplte,
-  }: DefaultProps) => {
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const [btnDisabled, setBtnDisabled] = useState(true);
-  
-    const handleMultipleChecked = (checked: boolean, checkedValue: any) => {
-      let newCheckValue: string[] = value ? [...value] : [];
-      if (checked) {
-        if (!newCheckValue.includes(checkedValue)) {
-          newCheckValue = [...newCheckValue, checkedValue];
-        }
-      } else {
-        newCheckValue = [...newCheckValue.filter((item: any) => item !== checkedValue)];
-      }
-      onChange(newCheckValue);
-      setBtnDisabled(newCheckValue?.length === 0);
-    };
-    
-    const handleShowModal = (visible: boolean) => () => {
-      setBtnDisabled(value?.length === 0);
-      setIsModalVisible(visible);
-    };
-    
-    const handleCloseModal = () => {
-      if (multiple) {
-        onChange(originValue);
-      }
-      setIsModalVisible(false);
-    };
-    
-    const handleMultiComplete = () => {
-      if (onComplete) onComplete(value);
-      setIsModalVisible(false);
-    };
-    
-    const handleOptionClick = (optionValue: string) => {
-      onChange(optionValue);
-      setIsModalVisible(false);
-    };
-    
-    const setOptionList = () => {
-      return (
-        <List>
-          {list.map((item: any) => (
-            <ListItem key={item.value}>
-              {!multiple && <ListItemButton onClick={() => handleOptionClick(item.value)}>{item.label}</ListItemButton>}
-              {multiple && (
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      onChange={(event, checked) => handleMultipleChecked(checked, item.value)}
-                      defaultChecked={value.includes(item.value)}
-                    />
-                  }
-                  label={item.label}
-                />
-              )}
-            </ListItem>
-          ))}
-        </List>
-      );
-    };
-    
-    return (
-      <RootStyled>
-        <div>
-          <Input value={value} readOnly />
-          <button type="button" onClick={handleShowModal(true)}>
-            {(!multiple && list.filter((item: any) => item.value === value)[0]?.label) ?? title}
-            {multiple &&
-              (value.length === 0
-                ? title
-                : value.length === 1
-                ? list.filter((item: any) => item.value === value[0])[0]?.label
-                : `${list.filter((item: any) => item.value === value[0])[0]?.label} 외 ${value.length - 1}개`)}
-          </button>
-          <DrawerStyled anchor="bottom" open={isModalVisible} onClose={handleCloseModal}>
-            <Box sx={{ display: 'flex', alignItems: 'left', padding: '24px 16px 16px' }}>
-              {title && <p>{title}</p>}
-              <IconButtonStyled sx={{ marginLeft: 'auto' }} onClick={handleCloseModal}>
-                <IconClose />
-              </IconButtonStyled>
-            </Box>
-            <Box sx={{ padding: '0 16px 16px', alignItems: 'left', overflowY: 'auto' }}>{setOptionList()}</Box>
-            {multiple && (
-              <Box>
-                <BaseButton variant="boxPurple" onClick={handleMultiComplete} disabled={btnDisabled} fullWidth>
-                  완료
-                </BaseButton>
-              </Box>
-            )}
-          </DrawerStyled>
-        </div>
-      </RootStyled>
-    );
-  };
-  export default BaseSelectWithMulti;
-  ```
-  ```js
-  // 단일 선택 BaseSelect
-  <FormControl variant="standard">
-    <FormLabel htmlFor="contentId">단일선택</FormLabel>
-    <BaseSelectWithMulti
-      value={selectOne}
-      title="지역 선택"
-      list={selectOntList}
-      onChange={handleSelectOneChange}
-    />
-  </FormControl>
-
-  // 멀티 선택 BaseSelect
-  <FormControl variant="standard">
-    <FormLabel htmlFor="contentId">다중선택</FormLabel>
-    <BaseSelectWithMulti
-      value={selectMulti}
-      originValue={originSelectMulti}
-      title="근무 업종 선택"
-      list={selectMultiList}
-      onComplete={handleSelectMultiComplete}
-      onChange={handleSelectMultiChange}
-      multiple={true}
-    />
-  </FormControl>
-  ```
-
----
-# My React Library
+# My Library With React.js & Next.js
 ### Basic Code Structure
   - #### async 함수 정의
     - API 사용 공통 함수 만들기
@@ -1268,6 +1108,259 @@ fetch("https://url", {
     ```
 
 ---
+- ### useEffect와 router.query
+  ```js
+  const router = useRouter();
+  const { id } = router.query;
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    console.log(id);
+  }, [router.isReady]);
+  ```
+
+---
+
+- ### BaseSelect
+  - BaseSelect에서 multi check 옵션을 썼을 때 완료를 누르지 않을 땐 처음 진입했을 때의 checked list 값을 유지해야했는데 잘 되지 않았다.
+  - 해당 컴포넌트 진입(화면에 노출될 때)할 떄 기본적으로 체크된 값은 `defaultChecked` 를 사용해야한다. `checked` 값을 사용하려면 true/false 값을 각 항목마다 state로 관리해야 하는데 번거로움이 있다.
+  - 한 항목을 체크하고 체크를 해제했을 때 실행되는 `handleMultipleChecked` 함수는 체크를 하고 해제할 때마다 해당 함수만 나가는게 아니라 컴포넌트 전체를 나가는 문제 떄문에 어려웠었다.
+  - 따라서 체크를 할 때마다 `onChange` 함수를 통해 바깥쪽 값(state)를 변화시켜줘야 하고 해당 컴포넌트를 `onClose` 하거나 그냥 나갔을 때 기존 값을 유지해주기 위해서 기존 값을 해당 컴포넌트 밖에서 관리해줘야 했다.
+  - `value`와 `originValue`를 관리해서 완료 버튼을 눌렀을 땐, `onComplete` 를 실행해서 value와 originValue를 없데이트하고 해당 컴포넌트가 닫힐 때 발생하는 `handleCloseModal`에선 외부 변수를 기존 값으로 돌려준다.
+  - `handleMultipleChecked`에선 체크/해제가 될 때마다 외부 값에 추가 또는 삭제해줘야 한다.
+  ```js
+  interface DefaultProps {
+    title: string;
+    value: string | string[];
+    originValue?: string;
+    optionList: string[];
+    multiple: boolean;
+    onChange: (param: string) => void;
+    onComplete?: (param: string) => void;
+  }
+  const BaseSelect = ({
+    title,
+    value,
+    originValue,
+    optionList,
+    multiple,
+    onChange,
+    onComplte,
+  }: DefaultProps) => {
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [btnDisabled, setBtnDisabled] = useState(true);
+  
+    const handleMultipleChecked = (checked: boolean, checkedValue: any) => {
+      let newCheckValue: string[] = value ? [...value] : [];
+      if (checked) {
+        if (!newCheckValue.includes(checkedValue)) {
+          newCheckValue = [...newCheckValue, checkedValue];
+        }
+      } else {
+        newCheckValue = [...newCheckValue.filter((item: any) => item !== checkedValue)];
+      }
+      onChange(newCheckValue);
+      setBtnDisabled(newCheckValue?.length === 0);
+    };
+    
+    const handleShowModal = (visible: boolean) => () => {
+      setBtnDisabled(value?.length === 0);
+      setIsModalVisible(visible);
+    };
+    
+    const handleCloseModal = () => {
+      if (multiple) {
+        onChange(originValue);
+      }
+      setIsModalVisible(false);
+    };
+    
+    const handleMultiComplete = () => {
+      if (onComplete) onComplete(value);
+      setIsModalVisible(false);
+    };
+    
+    const handleOptionClick = (optionValue: string) => {
+      onChange(optionValue);
+      setIsModalVisible(false);
+    };
+    
+    const setOptionList = () => {
+      return (
+        <List>
+          {list.map((item: any) => (
+            <ListItem key={item.value}>
+              {!multiple && <ListItemButton onClick={() => handleOptionClick(item.value)}>{item.label}</ListItemButton>}
+              {multiple && (
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      onChange={(event, checked) => handleMultipleChecked(checked, item.value)}
+                      defaultChecked={value.includes(item.value)}
+                    />
+                  }
+                  label={item.label}
+                />
+              )}
+            </ListItem>
+          ))}
+        </List>
+      );
+    };
+    
+    return (
+      <RootStyled>
+        <div>
+          <Input value={value} readOnly />
+          <button type="button" onClick={handleShowModal(true)}>
+            {(!multiple && list.filter((item: any) => item.value === value)[0]?.label) ?? title}
+            {multiple &&
+              (value.length === 0
+                ? title
+                : value.length === 1
+                ? list.filter((item: any) => item.value === value[0])[0]?.label
+                : `${list.filter((item: any) => item.value === value[0])[0]?.label} 외 ${value.length - 1}개`)}
+          </button>
+          <DrawerStyled anchor="bottom" open={isModalVisible} onClose={handleCloseModal}>
+            <Box sx={{ display: 'flex', alignItems: 'left', padding: '24px 16px 16px' }}>
+              {title && <p>{title}</p>}
+              <IconButtonStyled sx={{ marginLeft: 'auto' }} onClick={handleCloseModal}>
+                <IconClose />
+              </IconButtonStyled>
+            </Box>
+            <Box sx={{ padding: '0 16px 16px', alignItems: 'left', overflowY: 'auto' }}>{setOptionList()}</Box>
+            {multiple && (
+              <Box>
+                <BaseButton variant="boxPurple" onClick={handleMultiComplete} disabled={btnDisabled} fullWidth>
+                  완료
+                </BaseButton>
+              </Box>
+            )}
+          </DrawerStyled>
+        </div>
+      </RootStyled>
+    );
+  };
+  export default BaseSelectWithMulti;
+  ```
+  ```js
+  // 단일 선택 BaseSelect
+  <FormControl variant="standard">
+    <FormLabel htmlFor="contentId">단일선택</FormLabel>
+    <BaseSelectWithMulti
+      value={selectOne}
+      title="지역 선택"
+      list={selectOntList}
+      onChange={handleSelectOneChange}
+    />
+  </FormControl>
+
+  // 멀티 선택 BaseSelect
+  <FormControl variant="standard">
+    <FormLabel htmlFor="contentId">다중선택</FormLabel>
+    <BaseSelectWithMulti
+      value={selectMulti}
+      originValue={originSelectMulti}
+      title="근무 업종 선택"
+      list={selectMultiList}
+      onComplete={handleSelectMultiComplete}
+      onChange={handleSelectMultiChange}
+      multiple={true}
+    />
+  </FormControl>
+  ```
+
+---
+
+- ### react-notion-x
+  - 필요한 package
+    - react-notion-x (https://github.com/NotionX/react-notion-x)
+    - notion-client
+  - 유의사항
+    - notion-client를 사용하기 때문에 SSR로 데이터를 호출해야 합니다.
+    - notion page가 public page로 open되어 있어야 하며 private page은 notion-client에 인증키를 세팅해서 호출해야 합니다.
+    - notion page의 style을 사용하기 위해서 반드시 styles.css를 import 해줘야 합니다.\
+    `import 'react-notion-x/src/styles.css';`
+    - notion page 내 기능이나 link 가 동작하지 않기 때문에 정적인 컨텐츠를 보여줄 때 사용합니다.
+    - notion page 기능을 사용하려면 notion page를 popup으로 보여주는게 좋습니다.
+  - 샘플 코드
+    ```js
+    import 'react-notion-x/src/styles.css';
+
+    // SSR 방식으로 데이터 호출
+    export const getServerSideProps: GetServerSideProps = async () => {
+      const notionApi = new NotionAPI();
+      const recordMap = await notionApi.getPage(pageId || '');
+
+      return { props: { recordMap } };
+    };
+
+    const ClubMySet = ({ recordMap }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+      ...
+      return (
+        ...
+        <div>
+          // 데이터 렌더링
+          <NotionRenderer recordMap={recordMap} fullPage={false} darkMode={false} />
+        </div>
+        ...
+      )
+    }
+    ```
+
+---
+
+- ### react-notion
+  - 추가 : `react-notion` 보다 `react-notion-x`가 더 활용성이 좋다.
+  - 사용하는 Package
+    - react-notion (https://github.com/splitbee/react-notion)
+    - npm 버전에 따라 build가 되지 않을 수 있으니 node/npm 버전을 확인해야 한다.
+    - notion page의 style을 제대로 적용하기 위해서 아래 styles.css를 import 해야 한다.\
+    `import "react-notion/src/styles.css";`
+  - 예제
+    - 새로운 창으로 띄우기 : `window.open(link, '', '_blank');`
+      ```js
+      <Link href="/notion/page">
+        <Button variant="outlined"></Button>
+      </Link>
+
+      //-------------------------------------------------------------//
+      import 'react-notion/src/styles.css';
+      import 'prismjs/themes/prism-tomorrow.css';
+      import React, { useState, ReactElement, useEffect } from 'react';
+
+      import { NotionRenderer } from 'react-notion';
+
+      const NoticePage = (): ReactElement => {
+        const [notionData, setNotionData] = useState({});
+
+        useEffect(() => {
+          fetch('https://notion-api.splitbee.io/v1/page/${NOTION_PAGE_ID}')
+            .then((response) => response.json())
+            .then((json) => {
+              setNotionData(json);
+            });
+        }, []);
+
+        return (
+          <div className="noticePage">
+            {Object.keys(notionData).length ? (
+              <NotionRenderer
+                blockMap={notionData}
+                fullPage={true}
+                hideHeader={true}
+              />
+            ) : (
+              <div>static page</div>
+            )}
+          </div>
+        );
+      };
+      export default NoticePage;
+      ```
+
+---
+
 ### i18n 언어팩 적용
 - `package.json` 에 i18next 관련 dependency 추가
   ```json
@@ -1540,53 +1633,6 @@ return (
 )
 ```
 ---
-- ### react-notion
-  - 새로운 창으로 띄우기 : `window.open(link, '', '_blank');`
-  - Library 추가
-    - yarn add react-notion
-  - 예제
-    ```js
-    <Link href="/notion/page">
-      <Button variant="outlined"></Button>
-    </Link>
-
-    //-------------------------------------------------------------//
-    import 'react-notion/src/styles.css';
-    import 'prismjs/themes/prism-tomorrow.css';
-    import React, { useState, ReactElement, useEffect } from 'react';
-
-    import { NotionRenderer } from 'react-notion';
-
-    const NoticePage = (): ReactElement => {
-      const [notionData, setNotionData] = useState({});
-
-      useEffect(() => {
-        fetch('https://notion-api.splitbee.io/v1/page/${NOTION_PAGE_ID}')
-          .then((response) => response.json())
-          .then((json) => {
-            setNotionData(json);
-          });
-      }, []);
-
-      return (
-        <div className="noticePage">
-          {Object.keys(notionData).length ? (
-            <NotionRenderer
-              blockMap={notionData}
-              fullPage={true}
-              hideHeader={true}
-            />
-          ) : (
-            <div>static page</div>
-          )}
-        </div>
-      );
-    };
-    export default NoticePage;
-
-    ```
-
-  - git repo : https://github.com/splitbee/react-notion
 
 - ### react-mentions
   - Library 추가
@@ -1630,3 +1676,65 @@ return (
   - git repo : https://github.com/signavio/react-mentions
 
 ---
+
+- ### infinite scroll
+  - 사용하는 Package
+    - react-infinite-scroll-component
+  - Sample Code
+    - InfiniteScrollModule.tsx
+      ```js
+      import React from 'react';
+
+      import InfiniteScroll from 'react-infinite-scroll-component';
+
+      interface Props {
+        dataList: any;
+        fetchMoreData: () => void;
+        showListItem: (props: any) => React.ReactNode;
+        scrollThreshold?: number;
+        repeatCss?: any;
+      }
+
+      const InfiniteScrollModule: React.FC<Props> = ({
+        dataList,
+        fetchMoreData,
+        showListItem,
+        scrollThreshold,
+        repeatCss,
+      }: Props) => {
+        return (
+          <React.Fragment>
+            {dataList && (
+              <InfiniteScroll
+                dataLength={dataList.length}
+                next={fetchMoreData}
+                hasMore={true}
+                loader={<></>}
+                scrollThreshold={scrollThreshold || 1}
+                scrollableTarget="infiniteScrollDiv"
+              >
+                {dataList.map((item: any, idx: number) => {
+                  return (
+                    <React.Fragment key={idx}>
+                      <div style={repeatCss}>{showListItem(item)}</div>
+                    </React.Fragment>
+                  );
+                })}
+              </InfiniteScroll>
+            )}
+          </React.Fragment>
+        );
+      };
+
+      export default React.memo(InfiniteScrollModule);
+      ```
+    - Module 사용
+      ```js
+      <InfiniteScrollModule
+                      dataList={feedList}
+                      fetchMoreData={() => handleScrollEnd()}
+                      showListItem={showListItem}
+                      scrollThreshold={0.75}
+                      repeatCss={{ marginTop: '12px' }}
+                    />
+      ```
