@@ -15,6 +15,18 @@
 - [SQL 실행계획](#SQL-실행계획)
 - [SQL Indexing](#SQL-Indexing)
 - [기타](#기타)
+- [공부](#공부할-것들)
+  - [JVM](#1️⃣-jvm)
+    - [JVM 이란](#1-jvm이란)
+    - [JVM 동작 방식](#2-jvm-동작-방식)
+    - [JVM 구조와 설명](#3-jvm-구조와-설명)
+  - [Garbage Collection (GC)](#2️⃣-garbage-collection-gc)
+  - [REST API](#3️⃣-rest-api)
+    - [REST API 종류와 역할](#1-rest-api-종류와-역할)
+    - [PUT과 PATCH의 차이](#2-put과-patch의-차이)
+  - [Threadlocal](#4️⃣-threadlocal)
+  - [Java Design Pattern](#5️⃣-java-design-pattern)
+  - [KAFKA](#6️⃣-kafka)
 ---
 
 
@@ -1198,7 +1210,7 @@ public class Client {
 
 ### 공부할 것들
 # 1️⃣ JVM
-## 1. JVM의 구조
+## 1. JVM이란?
 - Java는 플랫폼에 상관없이 사용할 수 있다. 
   - JVM은 하나의 byte code인 .class를 사용하고 .class는 JVM 위에서 사용되고 JVM은 운영체제에 따라 알아서 실행파일을 만들고 실행합니다. 
   - 따라서 운영체제와 상관없이 Java 언어로 프로그램을 만들 수 있습니다.

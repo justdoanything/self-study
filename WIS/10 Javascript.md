@@ -404,7 +404,7 @@ callApi1()
 
 const pendingPromise = new Promise((resolve, reject) => {});
 const rejectedPromise = Promise.reject('error message');
-const fulfilledPromise = Promise.resolev(param);
+const fulfilledPromise = Promise.resolve(param);
 
 // pending : 대기중
 // settled
