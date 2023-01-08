@@ -140,18 +140,6 @@ taggedFunction`a-${v1}-b-${v2}`; // { strings : ['a-', '-b-', ''], expressions [
 taggedFunction`${v1}-b-${v2}`; // { strings : ['', '-b-', ''], expressions [ 10, 20 ] }  
 ```
 
-```js
-/*
-* javascript의 map은 java stream의 map과는 다르다.
-* 객체의 속성값을 변경하거나 일괄 처리를 하고 싶을 때 아래와 같이 사용한다.  
-*/
-const data = File[];
-data.files
-.filter((item) => item.fileUrl.startsWith('/IMAGE'))
-.map((item) => {
-    return { ...item, fileUrl: bucketBaseUrl + item.fileUrl };
-})
-```
 
 ## boolean
 ```js
@@ -518,7 +506,7 @@ Promise.race([
     .catch(error => console.log('rejected'));
 ```
 
-## async-awwait
+## async-await
 ```js
 async function getData() {
     new Promise.resolve(10);
@@ -717,3 +705,78 @@ export * from './a.js';
 # Reference
 - https://www.inflearn.com/course/%EC%8B%A4%EC%A0%84-%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8
 - https://hhyemi.github.io/2021/06/09/arrow.html
+
+# Memo
+```js
+/*
+* javascript의 map은 java stream의 map과는 다르다.
+* 객체의 속성값을 변경하거나 일괄 처리를 하고 싶을 때 아래와 같이 사용한다.  
+*/
+const data = File[];
+data.files
+.filter((item) => item.fileUrl.startsWith('/IMAGE'))
+.map((item) => {
+    return { ...item, fileUrl: bucketBaseUrl + item.fileUrl };
+})
+```
+```js
+/*
+* .map과 await 같이 쓰기 (Notion & SSR)
+*/
+interface NotionPageContents {
+  title: string;
+  contents: ExtendedRecordMap;
+}
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  const notionApi = new NotionAPI();
+  const notionPageList: NotionPageContents[] = await backApi.getContents(ContentsTypeCode.FEED).then((response) => {
+    if (response) {
+      return Promise.all(
+        response
+          .filter((item) => item.notionPageUrl)
+          .map(async (item) => {
+            const notionPageContents = item.notionPageUrl ? await notionApi.getPage(item.notionPageUrl);
+            return {
+              title: item.title,
+              contents: notionPageContents,
+            } as NotionPageContents;
+          })
+      );
+    } else {
+      return [];
+    }
+  });
+  return { props: { notionPageList } };
+}
+```
+```js
+interface NotionPageContents {
+  title: string;
+  contents: ExtendedRecordMap;
+}
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  if (!context.query.contents) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
+  }
+  const notionApi = new NotionAPI();
+  const contentsList: Contents[] = JSON.parse(context.query.contents as string);
+  const notionPageList: NotionPageContents[] = await Promise.all(
+    contentsList.map(async (item) => {
+      const recordMap = item.notionPageUrl ? await notionApi.getPage(item.notionPageUrl) : '';
+      return {
+        title: item.title,
+        contents: notionPageContents,
+      } as NotionPageContents;
+    })
+  );
+  return { props: { notionPageList } };
+}
+```
+
