@@ -1272,16 +1272,59 @@ public class Client {
 ---
 
 # 2️⃣ Garbage Collection (GC)
-- GC의 동작 시점을 알 수 없고 GC가 동작하는 동안에는 다른 동작을 모두 멈추기 때문에 Overhead가 발생할 수 있다.
-- Application이 동작하면 객체들을 Head 영역에 생성되고 Method Area나 Stack Area 등 Root Area에서는 Heap Area에 생성 된 객체의 주소만 참조하는 형식으로 구성된다.
-- Method가 끝나거나 생명주기가 끝나거나 특정 이벤트로 인해서 Heap Area의 객체를 참조하고 있던`(Reachable)` 참조 변수들이 삭제되면 Heap Area에는 아무런 참조도 되지 않는 객체`(Unreachable)`들이 생기게 되고 이 객체들을 GC의 대상이 된다.
-- GC는 `Mark And Sweep` 알고리즘을 사용해서 동작한다.
-  - Mark(식별) : Root로부터 그래프 순회를 돌면서 연결된 객체들을 찾아내어 각각 어떤 객체를 참조하고 있는지 Marking 한다.
-  - Sweep(제거) : Unreachable한 객체들을 Heap Area에서 제거한다.
-  - Compact(재구성) : Sweep 후에 분산된 객체들을 Heap의 시작 주소로 모아 메모리가 할당된 부분과 그렇지 않은 부분으로 압축한다. (GC 종류에 따라 하지 않는 경우도 있음)
-- GC란 JVM의 Heap 영역에서 동적으로 할당했던 메모리 중 필요 없게 된 메모리 객체를 모아서 주기적으로 제거하는 프로세스
-- GC의 대상은 객체를 Reachable/Unreachable로 구분하고 Unreachable 객체가 GC 대상이 된다.
-- GC의 Root로부터 해당 객체에 접근이 가능한지가 Sweep의 대상이 되는데 Heap 메모리 영역을 참조하는 method area, static 변수, stack, native method stack이 Root Space가 된다.
+## 1. GC의 특징
+  - GC란 JVM의 Heap 영역에서 동적으로 할당했던 메모리 중 필요 없게 된 메모리 객체를 모아서 주기적으로 제거하는 프로세스
+  - GC의 동작 시점을 알 수 없고 GC가 동작하는 동안에는 다른 동작을 모두 멈추기 때문에 Overhead가 발생할 수 있다.
+  - Application이 동작하면 객체들을 Head 영역에 생성되고 Method Area나 Stack Area 등 Root Area에서는 Heap Area에 생성 된 객체의 주소만 참조하는 형식으로 구성된다.
+  - Method가 끝나거나 생명 주기가 끝나거나 특정 이벤트로 인해서 Heap Area의 객체를 참조하고 있던`(Reachable)` 참조 변수들이 삭제되면 Heap Area에는 아무런 참조도 되지 않는 객체`(Unreachable)`들이 생기게 되고 이 객체들을 GC의 대상이 된다. 즉, GC는 객체를 `Reachable`/`Unreachable`로 구분하고 `Unreachable` 객체가 GC 대상이 된다.
+  - GC는 `Mark And Sweep` 알고리즘을 사용해서 동작한다.
+    - `Mark(식별)` : Root로부터 그래프 순회를 돌면서 연결된 객체들을 찾아내어 각각 어떤 객체를 참조하고 있는지 Marking 한다.
+    - `Sweep(제거)` : Unreachable한 객체들을 Heap Area에서 제거한다.
+    - `Compact(재구성)` : Sweep 후에 분산된 객체들을 Heap의 시작 주소로 모아 메모리가 할당된 부분과 그렇지 않은 부분으로 압축한다. (GC 종류에 따라 하지 않는 경우도 있음)
+    - GC의 Root로부터 해당 객체에 접근이 가능한지가 Sweep의 대상이 되는데 Heap 메모리 영역을 참조하는 method area, static 변수, stack, native method stack이 Root Space가 된다.
+
+## 2. Heap 메모리 구조
+  - JVM의 Heap 영억은 Dynamic Reference 객체들이 저장되는 공간으로 GC의 대상이 되는 공간이다.
+  - Heap 영역은 2가지 전제로 설계되었다. (객체는 대부분 일회성이며 메모리에 오랫동안 남아 있는 경우는 드물다는 것)
+    - 대부분의 객체는 금방 접근 불가능한 상태(`Unreachable`)가 된다.
+    - 오래된 객체에서 새로운 객체로의 참조는 아주 적게 존대한다.
+  - 이러한 설계 조건을 바탕으로 효율적인 메모리 관리를 위해 객체에 생존 기간에 따라 물리적으로 Heap 영역을 `Young 영역`과 `Old 영역`으로 설계했다. (`Permanent 영역`은 Java 8부터 제거됨)
+  - `Permanent 영역` : 생성된 객체들의 주소값이 저장되는 공간으로 Class Loader에 의해 load 된 Class, Mathod에 대한 Meta 정보가 저장되는 영역이고 JVM에 의해 사용된다. Java 8 이후에는 Native Method Stack에 편입된다.
+
+## 3. Young 영역
+  - 새롭게 생성된 객체가 할당되는 영역으로 대부분의 객체가 금방 `Unreachable` 상태가 되기 때문에 많은 객체가 생성되었다가 금방 사라진다.
+  - `Young 영역` 대상으로 이뤄지는 GC를 `Minor GC` 라고 한다.
+  - `Young 영역`은 3가지 영역으로 나뉜다.
+    - `Eden` : `new`를 통해 생성된 객체가 위치하고 정기적으로 Garbage 수집 후 살아남은 객체들을 `Survivor` 영역으로 보낸다.
+    - `Survivor 0`, `Survivor 1` : 최소 1번 이상 GC 대상에서 살아남은 객체가 존재하는 영역으로 `Survivor 0`과 `Survivor 1` 둘 중 하나는 꼭 비어 있어야 한다.
+
+## 4. Old 영역
+  - `Young 영역`에서 `Reachable` 상태를 유지해서 살아남은 객체가 복사되는 영역으로 `Young 영역`보단 물리적으로 크게 할당되며 영역의 크기가 큰 만큼 Garbage는 `Young 영역`보다 적게 발생한다.
+  - `Old 영역` 대상으로 이뤄지는 GC를 `Majob GC` 또는 `Full GC` 라고 한다.
+
+## 5. Minor GC 과정
+  - (1) 처음 생성된 객체는 __`Eden`__ 영역에 생성
+  - (2) __`Eden`__ 영역이 가득 찼을 때 `Minor GC` 실행 → `Reachable` 객체를 _`Mark`_
+  - (3) _`Mark`_ 된 객체들을 __`Survivor 0`__ 영역으로 이동
+  - (4) __`Eden`__ 영역에 `Unreachable` 객체를 _`Sweep`_
+  - (5) __`Survivor 0`__ 영역에 있는 객체들의 age를 1씩 증가
+  - (6) __`Eden`__ 영역이 가득 찼을 때 `Minor GC` 실행 → `Reachable` 객체를 _`Mark`_
+  - (7) __`Eden`__, __`Survivor 0`__ 에 있는 _`Mark`_ 된 객체들을 __`Survivor 2`__ 영역으로 이동
+  - (8) __`Eden`__, __`Survivor 0`__ 영역에 `Unreachable` 객체를 _`Sweep`_
+  - (9) __`Survivor 1`__ 영역에 있는 객체들의 age를 1씩 증가
+  - (10) 위 과정을 반복
+  ```
+  객체의 age 란 ?
+  Survivor 영역에서 살아남은 횟수를 의미하고 Object Header에 기록된다.
+  age의 임계값에 다다르면 Promotion(Old 영역으로 이동) 여부를 결정한다.
+  JVM의 일반적인 HotSpot JVM의 경우 age의 임계값은 31이다. 
+  (Object Header에 age를 기록하는 부분이 6 bit 이기 때문이다.)
+  ```
+
+## 6. Major GC 과정
+
+
+## 7. GC의 종류
 
 - JVM의 GC 종류 및 GC 사용 경험
 - GC 절차 및 GC 튜닝 경험
