@@ -21,11 +21,21 @@
     - [JVM 동작 방식](#2-jvm-동작-방식)
     - [JVM 구조와 설명](#3-jvm-구조와-설명)
   - [Garbage Collection (GC)](#2️⃣-garbage-collection-gc)
+    - [GC의 특징](#1-gc의-특징)
+    - [Heap 메모리 구조](#2-heap-메모리-구조)
+    - [Young 영역](#3-young-영역)
+    - [Old 영역](#4-old-영역)
+    - [Minor GC 과정](#5-minor-gc-과정)
+    - [Major GC 과정](#6-major-gc-과정)
+    - [GC의 종류](#7-gc의-종류)
   - [REST API](#3️⃣-rest-api)
     - [REST API 종류와 역할](#1-rest-api-종류와-역할)
     - [PUT과 PATCH의 차이](#2-put과-patch의-차이)
   - [Threadlocal](#4️⃣-threadlocal)
   - [Java Design Pattern](#5️⃣-java-design-pattern)
+    - [Creational Pattern](#1-creational-pattern)
+    - [Structural Pattern](#2-structural-pattern)
+    - [Behavioral Pattern](#3-behavioral-pattern)
   - [KAFKA](#6️⃣-kafka)
 ---
 
@@ -1400,17 +1410,35 @@ public class Client {
 - https://yeonbot.github.io/java/ThreadLocal/
 ---
 # 5️⃣ Java Design Pattern
-## - Proxy Pattern
-## - Singleton Pattern
-## - Strategy Pattern
-## - Adapter Pattern
-## - Template Method Pattern
-## - Factory Method Pattern
-## - Prototype Pattern
-## - Builder Pattern
-## - Abstract Factory Pattern
-## - Bridge Pattern
-## - Composite Pattern
+## 1) Creational Pattern
+- ### Factory Method Pattern 
+  - 
+- ### Abstract Factory Pattern
+- ### Singleton Pattern
+- ### Prototype Pattern
+- ### Builder Pattern
+- ### Object Pool Pattern
+
+## 2) Structural Pattern
+- ### Adapter Pattern
+- ### Bridge Pattern
+- ### Composite Pattern
+- ### Decorator Pattern
+- ### Facade Pattern
+- ### Flyweight Pattern
+- ### Proxy Pattern
+
+## 3) Behavioral Pattern
+- ### Chain of Responsibility
+- ### Command Pattern
+- ### Interpreter Pattern
+- ### Iterator Pattern
+- ### Mediator Pattern
+- ### Memento Pattern
+- ### Observer Pattern
+- ### State Pattern
+- ### Strategy Pattern
+- ### Template Pattern
 ## - Reference
 - https://www.javatpoint.com/design-patterns-in-java
 
