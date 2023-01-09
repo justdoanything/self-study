@@ -1324,20 +1324,65 @@ public class Client {
   - (9) __`Survivor 1`__ 영역에 있는 객체들의 age를 1씩 증가
   - (10) 위 과정을 반복
   ```
-  객체의 age 란 ?
-  Survivor 영역에서 살아남은 횟수를 의미하고 Object Header에 기록된다.
-  age의 임계값에 다다르면 Promotion(Old 영역으로 이동) 여부를 결정한다.
-  JVM의 일반적인 HotSpot JVM의 경우 age의 임계값은 31이다. 
-  (Object Header에 age를 기록하는 부분이 6 bit 이기 때문이다.)
+  ❓ 객체의 `age` 란 ?
+      Survivor 영역에서 살아남은 횟수를 의미하고 Object Header에 기록된다.
+      age의 임계값에 다다르면 Promotion(Old 영역으로 이동) 여부를 결정한다.
+      JVM의 일반적인 HotSpot JVM의 경우 age의 임계값은 31이다. 
+      (Object Header에 age를 기록하는 부분이 6 bit 이기 때문이다.)
   ```
 
 ## 6. Major GC 과정
-
+  - `Minor GC` 과정에서 살아남은 객체들(age가 임계치에 다다른 객체들)은 `Old 영역`에 존재하고 `Old 영역`의 메모리가 부족해지면 `Major GC`가 발생한다.
+  - `Old 영역`에 있는 모든 객체들을 검사해서 참조되어 있지 않은 객체들을 삭제한다.
+  - `Young 영역`은 1초 내외로 `Minor GC`가 끝나지만 `Old 영역`은 큰 공간을 차지하고 있기 때문에 객체를 정리하는 시간이 오래 걸린다.
+  - 이 때, `Stop-the-world` 문제가 발생하고 CPU에 부담을 준다. 이를 해결하기 위해 GC 알고리즘은 발전해왔다. GC 알고리즘은 상황에 따라 설정을 통해 특정 알고리즘을 적용할 수 있다.
+  ```
+  ❓ 객체의 `Promotion` 이란?
+      age의 임계치가 되서 Old 영역으로 이동되는 것
+  ```
 
 ## 7. GC의 종류
-
-- JVM의 GC 종류 및 GC 사용 경험
-- GC 절차 및 GC 튜닝 경험
+- ### `Serial GC`
+  - CPU 코어가 1개인 경우 사용하기 위해 개발된 가장 단순한 GC 알고리즘
+  - Minor GC에는 `Mark-Sweep`, Major GC에는 `Mark-Sweep-Compact`를 사용한다.
+  - CPU 코어가 1개이기 때문에 Stop-the-world 시간이 가장 길다.
+  - 실행 명령어 : `java -XX:+UseSerialGC -jar Application.java` 
+- ### `Parallel GC`
+  - Java 8의 기본 GC 알고리즘
+  - Serial GC와 알고리즘은 같지만 Minor GC를 Multi Thread로 수행하고 Major GC는 Single Thread로 실행한다.
+  - Serial GC에 비하면 Stop-the-world 시간이 감소한다.
+  - 실행 명령어 : `java -XX:+UseParallelGC -XX:ParallelGCThreads=4 -jar Application.java ` 
+    - `ParallelGCThreads` : 사용할 쓰레드의 갯수
+- ### `Parallel Old GC` (Parallel Compacting Collector GC)
+  - Parellel GC를 개선한 버전으로 Major GC에서도 Multi Thread로 실행한다.
+  - 기존과 다른 `Mark-Summary-Compact` 방식을 사용한다.
+  - 실행 명령어 : `java -XX:+UseParallelOldGC -XX:ParallelGCThreads=4 -jar Application.java`
+    - `ParallelGCThreads` : 사용할 쓰레드의 갯수
+  ```
+  ❓ Mark-Summary-Compact
+      Summary 단계는 Sweep과 달리 GC를 수행한 영역에 대한 객체 식별을 거친다.
+  ```
+- ### `CMS GC` (Concurrent Mark & Sweep GC)
+  - Application의 Thread와 GC의 Thread를 동시에 실행해서 Stop-the-world 시간을 최대한으로 줄이기 위한 GC
+  - 각 단계에서 한가지 일만 하기 때문에 Stop-the-world로 인한 부하가 가작 짧기 때문에 응답 속도가 매우 중요한 작업에서 많이 사용한다.
+  - GC 대상을 파악하는 과정이 복잡한 여러단계로 수행되기 때문에 다른 GC에 비해 CPU 사용량이 높다.
+  - Old 영역에 대한 Compact 작업이 기본적으로 이뤄지지 않기 때문에 메모리 파편화(Memory Fragmentation)가 발생하기 때문에 Compact 작업이 자주 일어나는지 확인해야 한다. Compact 작업에 따른 Stop-the-world 시간이 다른 GC보다 길어질 수 있다.
+  - Java9 버전부터 deprecated 되었고 Java14 버전부터는 사용이 중지되었다.
+  - 실행 명령어 : `java -XX:+UseConcMarkSweepGC -jar Application.java`
+  ```
+  ❓ CMS GC의 과정
+        `Initial Mark` : Class Loader에서 가장 가까운 객체 중 살아있는 객체를 Mark 한다. (가장 짧은 Stop-the-world)
+        `Concurrent Mark` : Initial Mark를 통해 살아있다고 확인한 객체에서 참조하는 객체를 Mark 한다.
+        `Remark` : Concurrent Mark 단계에서 새로 추가되거나 참조가 끊긴 객체를 확인한다.
+        `Concurrent Sweep` : Application Thread가 실행 중인 상태에서 Garbage를 수집한다.
+  ```
+- ### `G1 GC` (Garbage First)
+  - CMS GC를 대체하기 위해 JDK 7 버전부터 Release 된 GC
+  - 실행 명령어 : ``
+- ### `Shenandoah GC`
+  - 실행 명령어 : ``
+- ### `ZGC` (Z Garbage Collector)
+  - 실행 명령어 : ``
 
 ## Reference
 - [JAVA-☕-가비지-컬렉션GC-동작-원리-알고리즘-💯-총정리](https://inpa.tistory.com/entry/JAVA-%E2%98%95-%EA%B0%80%EB%B9%84%EC%A7%80-%EC%BB%AC%EB%A0%89%EC%85%98GC-%EB%8F%99%EC%9E%91-%EC%9B%90%EB%A6%AC-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%F0%9F%92%AF-%EC%B4%9D%EC%A0%95%EB%A6%AC)
