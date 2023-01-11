@@ -1491,11 +1491,209 @@ public class Client {
 
 # 5️⃣ Java Design Pattern
 ## 1) Creational Pattern
+  - ###### Instance를 만드는 절차를 추상화해서 객체를 생성, 합성하는 방법이나 객체의 표현 방법을 시스템과 분리해준다.
+  - ###### 시스템이 어떤 Concrete Class를 사용하는지에 대한 정보를 캡슐화한다.
+  - ###### Class의 Instance들이 어떻게 만들어지고 결합되는지에 대한 부분을 가려준다.
 - ### Factory Method Pattern 
-  - 
+  - 여러 개의 Sub Class를 갖고 있는 Super Class가 있을 때 Input Parameter에 따라 하나의 Sub Class를 생성해주는 방식
+  - Instance를 필요로 하는 Application에서 Sub Class에 대한 정보는 모른채 Instance를 생성할 수 있다.
+  - Factory Class는 Singleton으로 구현하거나 Sub Class를 만드는 함수를 static으로 구현해야 한다.
+  - Class 간의 종속성을 낮추고 결합도를 느슨하게 하며 확장을 쉽게 한다.
+  ```java
+  public abstract class Employee {
+    public abstract String getId();
+    public abstract String getName();
+    public abstract String getDepartment();
+  }
+  ```
+  ```java
+  public class Developer extends Employee {
+    private String id;
+    private String name;
+    private String department;
+
+    public Developer(String id, String name, String department) {
+      this.id = id;
+      this.name = name;
+      this.department = department;
+    }
+
+    @Override
+    public String getId() {
+      return this.id;
+    }
+    public String getName() {
+      return this.name;
+    }
+    public String getDepartment() {
+      return this.department;
+    }
+  }
+  ```
+  ```java
+  public class Tester extends Employee {
+    private String id;
+    private String name;
+    private String department;
+
+    public Tester(String id, String name, String department) {
+      this.id = id;
+      this.name = name;
+      this.department = department;
+    }
+
+    @Override
+    public String getId() {
+      return this.id;
+    }
+    public String getName() {
+      return this.name;
+    }
+    public String getDepartment() {
+      return this.department;
+    }
+  }
+  ```
+  ```java
+  public class FactoryDesignPattern {
+    public static Employee getEmployee(String type, String id, String name, String department) {
+      switch(type){
+        case Type.Developer : 
+          return new Developer(id, name, department);
+        case Type.Tester : 
+          return new Tester(id, name, department);
+        default :
+          return null;
+      }
+    }
+  }
+  ```
 - ### Abstract Factory Pattern
+  - Factory Pattern와 유사한 Pattern으로 Factory of Factory 라고 볼 수 있다. 
+  - Factory Pattern에서 input parameter로 Sub Class를 구분했었다면 하나의 Factory Class를 input parameter로 받아서 Sub Class를 생성한다.
+  - Interface를 위한 코드 접근법을 제공하고 Sub Class를 확장할 때 용이하다. 만약에 Designer Class를 추가하고자 한다면 DesignerFactory만 작성해주면 된다.
+  ```java
+  public abstract class Employee { ... }
+  public class Developer extends Employee { ... }
+  public class Tester extends Employee { ... }
+  ```
+  ```java
+  public interface EmployeeAbstractFactory {
+    public Employee createEmployee();
+  }
+  ```
+  ```java
+  public class DeveloperFactory implements EmployeeAbstractFactory {
+    private String id;
+    private String name;
+    private String department;
+
+    public DeveloperFactory(String id, String name, String department) {
+      this.id = id;
+      this.name = name;
+      this.department = department;
+    }
+
+    @Override
+    public Employee createEmployee() {
+      return new Developer(id, name, department);
+    }
+  }
+  ```
+  ```java
+  public class TesterFactory implements EmployeeAbstractFactory {
+    private String id;
+    private String name;
+    private String department;
+
+    public TesterFactory(String id, String name, String department) {
+      this.id = id;
+      this.name = name;
+      this.department = department;
+    }
+
+    @Override
+    public Employee createEmployee() {
+      return new Terster(id, name, department);
+    }
+  }
+  ```
+  ```java
+  public class EmployeeFactory {
+    public static Employee getEmployee(EmployeeAbstractFactory factory) {
+      return factory.createEmployee();
+    }
+  }
+  ```
+  ```java
+  public class AbstractFactoryPattern {
+    public static void main(String[] args) {
+      Employee developer = EmployeeFactory.getEmployee(new DeveloperFactory("1","John","DEV"));
+      Employee tester = EmployeeFactory.getEmployee(new TesterFactory("2","Dan","TEST"));
+    }
+  }
+  ```
 - ### Singleton Pattern
+  - 
 - ### Prototype Pattern
+  - Instance를 만드는 절차를 추상화하는 패턴
+  - Java의 clone() 메소드를 사용
+  - DB로 부터 데이터를 가져와서 만든 하나의 객체를 사용해서 수정하거나 재사용할 경우, 그때마다 DB에서 데이터를 가져오지 않고 하나의 Prototype 객체를 복사해서 사용한다.
+  ```java
+  public class Employee implements Cloneable {
+    private List<String> employees;
+    
+    public Employee() {
+      this.employees = new ArrayList<>();
+    }
+    
+    public Employee(List<String> list) {
+      this.employees = list;
+    }
+    
+    public void loadData() {
+      employees.add("John");
+      employees.add("Pika");
+      employees.add("Pie");
+      employees.add("Apple");
+    }
+    
+    public List<String> getEmployees() {
+      return this.employees;
+    }
+
+    public void addEmployee(String employee){
+      this.employees.add(employee);
+    }
+    
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+      List<String> temp = new ArrayList<>();
+      for(String emp : this.employees){
+        temp.add(emp);
+      }
+      return new Employee(temnp);
+    }
+  }
+  ```
+  ```java
+  public class PtorotypeDesignPattern {
+    public static void main(String[] args) throws ClloneNotSupportedException {
+      Employee employee = new Employee();
+      employee.loadData();
+
+      Employee newEmployee1 = (Employee) employee.clone();
+      Employee newEmployee2 = (Employee) employee.clone();
+      
+      newEmployee1.addEmployee("Teresa");
+      newEmployee2.addEmployee("Dan");
+
+      System.out.println(employee.getEmployees()); // [John, Pika, Pie, Apple]
+      System.out.println(newEmployee1.getEmployees()); // [John, Pika, Pie, Apple, Teresa]
+      System.out.println(newEmployee2.getEmployees()); // [John, Pika, Pie, Apple, Dan]
+    }
+  }
+  ```
 - ### Builder Pattern
 - ### Object Pool Pattern
 
@@ -1521,6 +1719,7 @@ public class Client {
 - ### Template Pattern
 ## - Reference
 - https://www.javatpoint.com/design-patterns-in-java
+- https://readystory.tistory.com/category/JAVA/Design%20Pattern
 
 ---
 
