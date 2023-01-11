@@ -1378,11 +1378,44 @@ public class Client {
   ```
 - ### `G1 GC` (Garbage First)
   - CMS GC를 대체하기 위해 JDK 7 버전부터 Release 된 GC
-  - 실행 명령어 : ``
+  - Java 9 버전 이상부터 Default GC
+  - 4 GB 이상의 메모리와 Stop-the-world 시간이 0.5초 정도 필요한 상황에 적합하고 Heap이 너무 작을 경우는 미사용 권장
+  - Heap 영역을 Young, Old 영역으로 나누지 않고 Region 이라는 영역으로 체스같이 분할하여 상황에 따라 Eden, Survivor, Old 영역의 역할을 동적으로 부여
+  - Garbage로 가득한 영역을 빠르게 회수하여 빈 공간을 확보하므로 GC 빈도가 줄어드는 효과가 있다.
+  - Young Region 영역은 Parallel GC를 사용하고 Old Region 영역은 Stop-the-world와 Multi-thread 방식 둘 다 사용 가능하다.
+  - 살아있는 객체들은 Young/Old의 GC 동안 Virtual Memory Address로 이동하기 때문에 메모리 파편화가 발생하지 않는다.
+  - 실행 명령어 : `java -XX:+UseG1GC -jar Application.java`
+ ```
+ ❓ G1 GC의 Region
+       기존의 GC들처럼 메모리를 탐색하면서 객체를 제거하지 않는 방식이 아닌 Garbage가 많은 Region을 우선적으로 GC 한다. 
+       Heap 메모리를 Region 영역으로 나눠 탐색하고 Region 단위로 GC 하는 것이다.
+       
+       기존의 GC는 Eden -> Survivor0 -> Survivor1 으로 순차적으로 이동했지만
+       G1 GC에서는 순차적으로 이동시키지 않고 효율적이라고 생각하는 위치로 객체를 Reallocate 시킨다.
+ ```
+ ```
+ ❓ G1 GC의 과정
+       `Initial Mark` : Old Region에 존재하는 객체들이 참조하는 Survivor Region을 Mark (Stop-the-world 발생)
+       `Root Region Scan` : Initial Mark를 통해 찾은 Survivor Region에 대한 GC 대상 Scan 
+       `Concurrent Mark` : 전체 Region을 Scan하고 GC 대상이 없는 Region은 제외
+       `Remark` : 최종적인 GC 대상을 Remark (Stop-the-world 발생)
+       `Cleanup` : 살아남은 객체가 가장 적은 Region을 대상으로 GC 수행 (Stop-the-world 발생)
+                   비워진 Region을 재사용하기 위해 Free List에 추가
+       `Copy` : GC가 동작했지만 완전히 비워지지 않은 Region은 새 Region으로 복사해서 Compaction 작업 수행
+ ```   
+
 - ### `Shenandoah GC`
-  - 실행 명령어 : ``
+  - JDK 12 버전부터 Release 된 GC (Redhat 에서 개발했다.)
+  - CMS GC가 갖고 있는 메모리 파편화, G1 GC가 갖고 있는 pause 문제를 해결
+  - 강력한 Concurrency와 가벼운 GC 로직으로 Heap 사이즈에 영향을 받지 않고 일정한 pause 시간이 소요되는 것이 특징
+  - 실행 명령어 : `java -XX:+UseShenandoahGC -jar Application.java`
+
 - ### `ZGC` (Z Garbage Collector)
-  - 실행 명령어 : ``
+  - JDK 15 버전부터 Release 된 GC (Redhat 에서 개발했다.)
+  - 큰 사이즈의 메모리 (8MB ~ 16TB)를 low-latency로 처리하기 위해 고안된 GC
+  - G1 GC의 Region 처럼 ZPage 라는 영역을 사용하며 Region은 크기가 고정이지만 ZPage는 2MB 배수로 크기를 동적으로 사용된다.
+  - Heap 메모리의 크기가 증가해도 Stop-the-world 시간이 10ms를 넘지 않는 것이 큰 장점이다.
+  - 실행 명령어 : `java -XX:+UnlockExperimentalVMOptions -XX:+UseZGC -jar Application.java`
 
 ## Reference
 - [JAVA-☕-가비지-컬렉션GC-동작-원리-알고리즘-💯-총정리](https://inpa.tistory.com/entry/JAVA-%E2%98%95-%EA%B0%80%EB%B9%84%EC%A7%80-%EC%BB%AC%EB%A0%89%EC%85%98GC-%EB%8F%99%EC%9E%91-%EC%9B%90%EB%A6%AC-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%F0%9F%92%AF-%EC%B4%9D%EC%A0%95%EB%A6%AC)
@@ -1453,7 +1486,9 @@ public class Client {
     ```
 ## Reference
 - https://yeonbot.github.io/java/ThreadLocal/
+
 ---
+
 # 5️⃣ Java Design Pattern
 ## 1) Creational Pattern
 - ### Factory Method Pattern 
