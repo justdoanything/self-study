@@ -1490,6 +1490,7 @@ public class Client {
 ---
 
 # 5️⃣ Java Design Pattern
+### 🔰 예제코드 : https://github.com/justdoanything/self-study/tree/main/WIS/Java/src/main/java/book/pattern
 ## 1) Creational Pattern
   - ###### Instance를 만드는 절차를 추상화해서 객체를 생성, 합성하는 방법이나 객체의 표현 방법을 시스템과 분리해준다.
   - ###### 시스템이 어떤 Concrete Class를 사용하는지에 대한 정보를 캡슐화한다.
