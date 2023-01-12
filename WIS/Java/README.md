@@ -4,7 +4,7 @@
 
 # Package
 - book.effective : Effective Java 3E
-- book.pattern : Effective Java 3E
+- book.pattern : Java Design Pattern
 - book.modern : Modern Java In Action
  
 
