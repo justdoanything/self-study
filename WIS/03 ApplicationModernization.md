@@ -1634,7 +1634,131 @@ public class Client {
   }
   ```
 - ### Singleton Pattern
-  - 
+  - 프로그램 시작부터 종료까지 Singleton Class의 Instance는 메모리 상에 하나만 존재하고 어디에서나 접근할 수 있도록 하는 패턴이다. 어디에서나 접근 가능하도록 하는 방법으로 static을 떠올릴 수 있지만 Instance로 접근하는 방법을 자체적으로 관리하는 방법도 있다.
+  - Singleton Class를 구현하는 방법은 여러가지가 있고 아래와 같은 공통적인 특징을 갖는다.
+    - private 생성자를 정의해 외부로부터 Instance 생성을 차단한다.
+    - Singleton을 구현하고자 하는 클래스 내부에 멤버 변수로 private static 객체 변수를 만든다.
+    - public static 메소드를 통해 외부에서 Singleton에 접근할 수 있도록 접점을 제공한다.
+  - Singleton Class 생성 방법
+    ##### 1. `Eager Initialization`
+      - Application에서 해당 Class를 사용하지 않아도 생성한다.
+      - Exception에 대한 Handling도 제공하지 않는다.
+        ```java
+        public class SingletonClass {
+          private static final SingletonClass instance = new SingletonClass();
+          
+          private SingletonClass(){ }
+          
+          public static SingletonClass getInstance() {
+            return instance;
+          }
+        }
+        ```
+    ##### 2. `Static Block Initialization`
+      - Application에서 해당 Class를 사용하지 않아도 생성한다.
+      - Exception에 대한 Handling은 제공한다.
+        ```java
+        public class SingletonClass {
+          private static SingletonClass instance;
+          
+          private SingletonClass(){}
+
+          static {
+            try {
+              instance = new SingletonClass();
+            }catch(Exception e){
+              throw new RuntimeException("There is an exception in creating singleton class");
+            }
+          }
+
+          public static SingletonClass getInstance() {
+            return instance;
+          }
+        }
+        ```
+    ##### 3. `Lazy Initialization`
+      - Application에서 해당 Class를 사용할 때 초기화 된다.
+      - Multi-thread 환경에서 여러 thread가 동시에 getInstance()를 호출하면 동기화 문제가 발생할 수 있다. 따라서 이 방법은 single thread가 보장되는 환경에서 사용해야 한다.
+        ```java
+        public class SingletonClass {
+          private static SingletonClass instance;
+          
+          private SingletonClass(){}
+
+          public static SingletonClass getInstance() {
+            if(instance == null) {
+              instance = new SingletonClass();
+            }
+            return instance;
+          }
+        }
+        ```
+    ##### 4. `Thread Safe Singleton`
+      - `Lazy Initialization` 방법의 Multi-thread 동기화 문제를 해결하기 위해서 getInstance() 함수에 synchronized를 사용한다.
+      - synchronized는 임계 영역(Critical Section)을 형성해 해당 영역에 오직 하나의 Thread만 접근 가능하게 한다. 하지만 synchronized에 사용되는 비용이 크기 때문에 Application의 성능이 떨어질 수 있다.
+      - 위 문제를 해결하기 위해 double checked locking을 사용하서 instance가 null일 때에만 synchronized을 실행하게 한다.
+        ```java
+        public class SingletonClass {
+          private static SingletonClass instance;
+
+          private SingletonClass(){}
+
+          public static synchronized SingletonClass getInstance() {
+            if(instance == null) {
+              instance = new SingletonClass();
+            }
+            return instance;
+          }
+        }
+        ```
+        ```java
+        public class SingletonClass {
+          private static SingletonClass instance;
+
+          private SingletonClass(){}
+
+          /* double checked locking */
+          public static SingletonClass getInstance() {
+            if(instance == null) {
+              synchronized (SingletonClass.class) {
+                if(instance == null) {
+                  instance = new SingletonClass();
+                }
+              }
+            }
+            return instance;
+          }
+        }
+        ```
+    ##### 5. `Bill Pugh Singleton Implementation`
+      - inner static helper class를 사용하는 방식이다.
+      - 위 방법들이 갖고 있는 문제를 거의 해결한 방식으로 현재 가장 보편적으로 사용되고 있다.
+      - synchronized를 사용하지 않으며 getInstance()가 호출될 때 JVM에 Load 되고 instance를 생성한다.
+        ```java
+        public class SingletonClass {
+          private SingletonClass(){}
+
+          private static class SingletonClassHelper {
+            private static final SingletonClass INSTANCE = new SingletonClass();
+          }
+
+          public static SingletonClass getInstance()  {
+            return SingletonClassHelper.INSTANCE;
+          }
+        }
+        ```
+    ##### 6. `Enum Singleton`
+      - 위 방법은 Java의 Reflection을 통해서 Singleton Class를 파괴할 수 있기 때문에 완벽하게 안전하지는 않다.
+      - Application에서 해당 Class를 사용하지 않아도 생성한다.
+        ```java
+        public enum SingletonClass {
+          INSTANCE;
+
+          public static void doingMethod() {
+            // doing
+          }
+        }
+        ```
 - ### Prototype Pattern
   - Instance를 만드는 절차를 추상화하는 패턴
   - Java의 clone() 메소드를 사용
@@ -1695,7 +1819,228 @@ public class Client {
   }
   ```
 - ### Builder Pattern
+  - Factory Pattern이나 Abstract Factory Pattern은 많은 속성 값을 갖고 있는 Class를 다룰 때 아래와 같은 이슈가 발생한다.
+    - 많은 속성 값을 설정할 때 타입, 순서 등에 대한 관리가 어려워 에러가 발생할 확률이 높아진다.
+    - 필요 없는 속성에 null을 설정해야 하는 경우가 있다.
+    - 생성해야 하는 Sub Class가 무거워지고 복잡해지면서 Factory Class 또한 복잡해질 수 있다.
+  - 내부에 Builder Class를 만들어 필수 속성값은 생성자를 통해 받고 선택적인 속성값은 함수를 통해 입력받은 후에 build() 함수를 통해 하나의 instance를 반환하는 방식이다.
+  - Builder Class는 Static Nested Class로 생성하고 생성자는 public으로 필수 속성값에 대한 값을 Parameter로 받는다. 생성 대상이 되는 객체의 생성자는 private으로 Builder Class를 통해 속성값들을 설정한다.
+  - 선택적인 속성 값 설정은 함수로 제공하고 각 함수의 반환값은 반드시 Builder Class 자신이어야 한다.
+  - 생성할 Class는 getter 함수만 갖고 있으며 public 생성자는 존재하지 않아야 한다.
+    ```java
+    public class Employee {
+      private int id;
+      private String name;
+      private String department;
+
+      private int age;
+      private String city;
+      private boolean isLeader;
+
+      public int getId() { return id; }
+      public String getName() { return name; }
+      public String getDepartment() { return department; }
+
+      public int getAge() { return age; }
+      public String getCity() { return city; }
+      public boolean isLeader() { return isLeader; }
+
+      private Employee(EmployeeBuilder builder) {
+        this.id = builder.id;
+        this.name = builder.name;
+        this.department = builder.department;
+        
+        this.age = builder.age;
+        this.city = builder.city;
+        this.isLeader = builder.isLeader;
+      }
+
+      public static class EmployeeBuilder {
+        private int id;
+        private String name;
+        private String department;
+
+        private int age;
+        private String city;
+        private boolean isLeader; 
+
+        public EmployeeBuilder(int id, String name, String department) {
+          this.id = id;
+          this.name = name;
+          this.department = department;
+        }
+
+        public EmployeeBuilder age(int age){
+          this.age = age;
+          return this;
+        }
+
+        public EmployeeBuilder city(String city){
+          this.city = city;
+          return this;
+        }
+
+        public EmployeeBuilder isLeader(boolean isLeader){
+          this.isLeader = isLeader;
+          return this;
+        }
+
+        public Employee builder() {
+          return new Employee(this);
+        }
+      }
+    }
+    ```
 - ### Object Pool Pattern
+  - Thread Pool 처럼 한정된 Resource서 자원을 재사용하는 방식을 적용할 때 사용하면 성능 개선에 좋다.
+  - Connection을 관리하고 이를 재사용하고 공유할 수 있고 객체의 최대 수를 관리할 수 있다.
+  - Class Instance의 빠른 초기화가 필요할 때 유용하다.
+  - 사용 비용이 높은 객체가 자주 필요한 경우 유용하다.
+  - 서로 다른 시간에 동일한 Resource를 필요로 하는 여러개의 Client가 있는 경우 유용하다.
+    ```java
+    public abstract class ObjectPool<T> {
+      private ConcurrentLinkedQueue<T> pool;
+      private ScheduledExecutorService executorService;
+
+      protected abstract T createObject();
+
+      private void initialize(final int minObjects) {
+        pool = new ConcurrentLinkedQueue<T>();
+        for(int i=0; i<minObjects; i++){
+          pool.add(createObject());
+        }
+      }
+
+      public ObjectPool(final int minObjects) {
+        initialize(minObjects);
+      }
+
+      public ObjectPool(final int minObjects, final int maxObjects, final long validationInterval) {
+        initialize(minObjects);
+
+        executorService = Executors.newSingleThreadScheduledExecutor();
+        executorService.scheduleWithFixedDelay(new Runnable() {
+          @Override
+          public void run() {
+            int size = pool.size();
+
+            if(size < minObjects) {
+              int sizeToBeAdded = minObjects + size;
+              for(int i=0; i<sizeToBeAdded; i++){
+                pool.add(createObject());
+              }
+            }else if(size > maxObjects) {
+              int sizeToBeRemoved = size - maxObjects;
+              for(int i=0; i<sizeToBeRemoved; i++){
+                pool.poll();
+              }
+            }
+          }
+        }, validationInterval, validationInterval, TimeUnit.SECONDS);
+      }
+
+      public T borrowObject() {
+        T object;
+        if((object == pool.poll()) == null) {
+          object = createObject();
+        }
+        return object;
+      }
+
+      public void returnObject(T object) {
+        if(object == null) {
+          return;
+        }
+        this.poll.offer(object);
+      }
+
+      public void shutdown() {
+        if(executorService != null) {
+          executeService.shutdown();
+        }
+      }
+    }
+    ```
+    ```java
+    public class ExportingProcess {
+      private long processNo;
+
+      public ExportingProcess(long processNo) {
+        this.processNo = processNo;
+        System.out.println("Object with process no. " + processNo + " was created");
+      }
+
+      public long getProcessNo() {
+        return processNo;
+      }
+    }
+    ```
+    ```java
+    public class ExportingTask implements Runnable {
+      private ObjectPool<ExportingProcess> pool;
+      private int threadNo;
+
+      public ExportingTask(ObjectPool<ExportingProcess> pool, int threadNo) {
+        this.pool = pool;
+        this.threadNo = threadNo;
+      }
+
+      public void run() {
+        ExportingProcess exportingProcess = pool.borrowObject();
+        System.out.printin("Thread " + threadNo + ": Object with process no. "
+        + exportingProcess.getProcessNo() + " was borrowed");
+
+        pool.returnObject(exportingProcess);
+        System.out.printin("Thread " + threadNo + ": Object with process no. "
+        + exportingProcess.getProcessNo() + " was returned");
+      }
+    }
+    ```
+    ```java
+    public class ObjectPoolDemo {
+      private ObjectPool<ExportingProcess> pool;
+      private AtomicLong processNo = new AtomicLong(0);
+
+      public void setUp() {
+        pool = new ObjectPool<ExportingProcess>(4, 10, 5){
+          @Override
+          protected ExportingProcess createObject() {
+            return new ExportingProcess(processNo.incrementAndGet());
+          }
+        }
+      }
+
+      public void tearDown() {
+        pool.shutdown();
+      }
+
+      public void testObjectPool() {
+        ExecutorService executor = Executors.newFixedTreadPool(8);
+        executor.execute(new ExportingTask(pool, 1));
+        executor.execute(new ExportingTask(pool, 2));
+        executor.execute(new ExportingTask(pool, 3));
+        executor.execute(new ExportingTask(pool, 4));
+        executor.execute(new ExportingTask(pool, 5));
+        executor.execute(new ExportingTask(pool, 6));
+        executor.execute(new ExportingTask(pool, 7));
+        executor.execute(new ExportingTask(pool, 8));
+
+        executor.shoutdown();
+        try {
+          executor.awaitTermination(30, TimeUnit.SECONDS);
+        }catch(InterruptedException e){
+          e.printStackTrace();
+        }
+      }
+
+      public static void main(String[] args) {
+        ObjectPoolDemo opd = new ObjectPoolDemo();
+        opd.setUp();
+        opd.tearDown();
+        opd.testObjectPool();
+      }
+    }
+    ```
 
 ## 2) Structural Pattern
 - ### Adapter Pattern
