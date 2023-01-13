@@ -2047,8 +2047,53 @@ public class Client {
 - ###### Structural Pattern은 Class들을 상속과 합성을 이용해서 더 큰 Class를 생성하는 방법을 제공하는 Pattern 이다.
 - ###### Interface를 제공하거나 구현을 복잡하게 하는 것이 아니라 객체를 합성하는 방법을 제공한다.
 - ###### Compile 단계가 아닌 Runtime 단계에서 복합 방법이나 대상을 변경할 수 있다는 유연성을 갖는다.
-- ### Factory Method Pattern 
 - ### Adapter Pattern
+  ```java
+  public class Employee {
+    private String name;
+    private String department;
+
+    public Employee(String name, String department) {
+      this.name = name;
+      this.department = department;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    public String getDepartment() {
+      return department;
+    }
+
+    public void setDepartment(String name) {
+      this.department = department;
+    }
+  }
+  ```
+  ```java
+  public interface EmployeeAdapter {
+    public List<Employee> getDevEmployees();
+    public List<Employee> getTestEmployees();
+  }
+  ```
+  ```java
+  public class EmployeeAdapterImpl extends Employee implements EmployeeAdapter {
+    @Override
+    public List<Employee> getDevEmployees(){
+      
+    }
+
+    @Override
+    public List<Employee> getTestEmployees(){
+
+    }
+  }
+  ```
 - ### Bridge Pattern
 - ### Composite Pattern
 - ### Decorator Pattern
