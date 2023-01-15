@@ -2048,22 +2048,16 @@ public class Client {
 - ###### Interface를 제공하거나 구현을 복잡하게 하는 것이 아니라 객체를 합성하는 방법을 제공한다.
 - ###### Compile 단계가 아닌 Runtime 단계에서 복합 방법이나 대상을 변경할 수 있다는 유연성을 갖는다.
 - ### Adapter Pattern
+- Class의 Interface를 사용자가 기대하는 Interface 형태로 변환시키는 Pattern
+- 서로 일치하지 않는 Interface를 갖는 Class들을 함께 동작시킨다.
+- Class Adapter : 상속(Inheritance)을 이용한 방법
+- Object Adapter : 합성(Composite)을 이용한 방법
   ```java
-  public class Employee {
-    private String name;
+  public class Employee { // POJO Class
     private String department;
 
-    public Employee(String name, String department) {
-      this.name = name;
+    public Employee(String department) {
       this.department = department;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public void setName(String name) {
-      this.name = name;
     }
 
     public String getDepartment() {
@@ -2073,26 +2067,92 @@ public class Client {
     public void setDepartment(String name) {
       this.department = department;
     }
+
+    public String toString() {
+      return department;
+    }
+  }
+  ```
+  ```java
+  public class Team {
+    public List<Employee> createDevTeam(){
+      return Arrays.asList(new Employee("DEV"));
+    }
   }
   ```
   ```java
   public interface EmployeeAdapter {
-    public List<Employee> getDevEmployees();
-    public List<Employee> getTestEmployees();
+    public List<Employee> createDevEmployees();
+    public List<Employee> createTestEmployees();
+    public List<Employee> createManagerEmployees();
   }
   ```
   ```java
-  public class EmployeeAdapterImpl extends Employee implements EmployeeAdapter {
+  public class EmployeeClassAdapterImpl extends Team implements EmployeeAdapter {
     @Override
-    public List<Employee> getDevEmployees(){
-      
+    public List<Employee> createDevEmployees(){
+      return createDevTeam();
     }
 
     @Override
-    public List<Employee> getTestEmployees(){
+    public List<Employee> createTestEmployees(){
+      List<Employee> emp = createDevTeam();
+      return convertTeam(emp, "TEST");
+    }
 
+    @Override
+    public List<Employee> createManagerEmployees(){
+      List<Employee> emp = createDevTeam();
+      return convertTeam(emp, "MANAGER");
+    }
+
+    private List<Employee> convertTeam(List<Employee> employees, String teamName) {
+      employees.forEach(employee -> employee.setDepartment(teamName));
+      return employees;
     }
   }
+  ```
+  ```java
+  public class EmployeeObjectAdapterImpl implements EmployeeAdapter {
+    private Team team = new Team();
+
+    @Override
+    public List<Employee> createDevEmployees(){
+        return team.createDevTeam();
+    }
+
+    @Override
+    public List<Employee> createTestEmployees(){
+        List<Employee> emp = team.createDevTeam();
+        return convertTeam(emp, "TEST");
+    }
+
+    @Override
+    public List<Employee> createManagerEmployees(){
+        List<Employee> emp = team.createDevTeam();
+        return convertTeam(emp, "MANAGER");
+    }
+
+    private List<Employee> convertTeam(List<Employee> employees, String teamName) {
+        employees.forEach(employee -> employee.setDepartment(teamName));
+        return employees;
+    }
+  }
+  ```
+  ```java
+  public class AdapterPattern {
+    public static void main(String[] args) {
+      EmployeeAdapter employeeClassAdapter = new EmployeeClassAdapterImpl();
+      employeeClassAdapter.createDevEmployees().forEach(System.out::println);
+      employeeClassAdapter.createTestEmployees().forEach(System.out::println);
+      employeeClassAdapter.createManagerEmployees().forEach(System.out::println);
+
+      EmployeeAdapter employeeObjectAdapter = new EmployeeClassAdapterImpl();
+      employeeObjectAdapter.createDevEmployees().forEach(System.out::println);
+      employeeObjectAdapter.createTestEmployees().forEach(System.out::println);
+      employeeObjectAdapter.createManagerEmployees().forEach(System.out::println);
+    }
+}
   ```
 - ### Bridge Pattern
 - ### Composite Pattern
