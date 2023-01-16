@@ -2157,6 +2157,75 @@ public class Client {
 - ### Bridge Pattern
   - 추상화(abstraction)을 구현으로부터 분리하여 각각 독립적으로 변화할 수 있도록 하는 Pattern
   - 추상화와 구현을 독립적으로 다른 계층 구조를 가질 수 있도록 하고 외부로부터 구현을 숨기고 싶을 때 사용한다.
+  ```java
+  public abstract class Employee {
+    protected Team team;
+
+    public Employee(Team team) {
+        this.team = team;
+    }
+
+    abstract public void applyTeam();
+  }
+  ```
+  ```java
+  public class EmployeeDev extends Employee {
+    public EmployeeDev(Team team) {
+        super(team);
+    }
+
+    @Override
+    public void applyTeam() {
+        System.out.print("This developer is in ");
+        team.applyTeam();
+    }
+  }
+  ```
+  ```java
+  public class EmployeeTester extends Employee {
+    public EmployeeTester(Team team) {
+        super(team);
+    }
+
+    @Override
+    public void applyTeam() {
+        System.out.print("This tester is in ");
+        team.applyTeam();
+    }
+  }
+  ```
+  ```java
+  public interface Team {
+    public void applyTeam();
+  }
+  ```
+  ```java
+  public class TeamDev implements Team {
+    @Override
+    public void applyTeam() {
+        System.out.println("Dev Team");
+    }
+  }
+  ```
+  ```java
+  public class TeamTest implements Team {
+    @Override
+    public void applyTeam() {
+        System.out.println("Test Team");
+    }
+  }
+  ```
+  ```java
+  public class BridgePattern {
+    public static void main(String[] args) {
+        Employee devEmployee = new EmployeeDev(new TeamDev());
+        devEmployee.applyTeam();
+
+        Employee testerEmployee = new EmployeeTester(new TeamTest());
+        testerEmployee.applyTeam();
+    }
+  }
+  ```
 - ### Composite Pattern
 - ### Decorator Pattern
 - ### Facade Pattern

@@ -1,4 +1,4 @@
-package book.pattern.structural.bridge;
+package book.pattern.structural.bridge.sample;
 
 import book.pattern.structural.bridge.sample.color.GreenColor;
 import book.pattern.structural.bridge.sample.color.RedColor;
