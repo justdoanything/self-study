@@ -2152,9 +2152,11 @@ public class Client {
       employeeObjectAdapter.createTestEmployees().forEach(System.out::println);
       employeeObjectAdapter.createManagerEmployees().forEach(System.out::println);
     }
-}
+  }
   ```
 - ### Bridge Pattern
+  - 추상화(abstraction)을 구현으로부터 분리하여 각각 독립적으로 변화할 수 있도록 하는 Pattern
+  - 추상화와 구현을 독립적으로 다른 계층 구조를 가질 수 있도록 하고 외부로부터 구현을 숨기고 싶을 때 사용한다.
 - ### Composite Pattern
 - ### Decorator Pattern
 - ### Facade Pattern
@@ -2172,9 +2174,10 @@ public class Client {
 - ### State Pattern
 - ### Strategy Pattern
 - ### Template Pattern
-## - Reference
+### Reference
 - https://www.javatpoint.com/design-patterns-in-java
 - https://readystory.tistory.com/category/JAVA/Design%20Pattern
+### 🔰 예제코드 : https://github.com/justdoanything/self-study/tree/main/WIS/Java/src/main/java/book/pattern
 
 ---
 
