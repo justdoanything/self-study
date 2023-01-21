@@ -2308,6 +2308,71 @@ public class Client {
   }
   ```
 - ### Decorator Pattern
+  ```java
+  public interface Car {
+	  public void assemble();
+  }
+  ```
+  ```java
+  public class BasicCar implements Car {
+	  @Override
+	  public void assemble() {
+		  System.out.print("Basic Car.");
+	  }
+  }
+  ```
+  ```java
+  public class CarDecorator implements Car {
+	  protected Car car;
+	
+	  public CarDecorator(Car c){
+  		this.car=c;
+	  }
+	
+	  @Override
+	  public void assemble() {
+		  this.car.assemble();
+	  }
+  }
+  ```
+  ```java
+  public class SportsCar extends CarDecorator {
+	  public SportsCar(Car c) {
+		  super(c);
+	  }
+ 
+	  @Override
+	  public void assemble(){
+		  super.assemble();
+		  System.out.print(" Adding features of Sports Car.");
+	  }
+  }
+  ```
+  ```java
+  public class LuxuryCar extends CarDecorator {
+  	public LuxuryCar(Car c) {
+  		super(c);
+  	}
+  	
+  	@Override
+  	public void assemble(){
+  		super.assemble();
+  		System.out.print(" Adding features of Luxury Car.");
+  	}
+  }
+  ```
+  ```java
+  public class DecoratorPatternTest {
+	  public static void main(String[] args) {
+		  Car sportsCar = new SportsCar(new BasicCar());
+		  sportsCar.assemble();
+		  System.out.println("\n*****");
+		
+		  Car sportsLuxuryCar = new SportsCar(new LuxuryCar(new BasicCar()));
+		  sportsLuxuryCar.assemble();
+	  }
+  }
+  ```
 - ### Facade Pattern
 - ### Flyweight Pattern
 - ### Proxy Pattern
