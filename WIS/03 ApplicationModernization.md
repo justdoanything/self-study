@@ -2227,82 +2227,102 @@ public class Client {
   }
   ```
 - ### Composite Pattern
+  - 어느 것도 구분하지 않고 한 가지 동작을 가능하도록 하는 것처럼 일괄적인 관리가 가능하도록 하는 Pattern
+  - `Base Component` : Client가 Composition 내의 Objects를 다루기 위해 제공되는 Interface 로 모든 Objects에 공통되는 Method를 갖고 있다.
+  - `Leaf` : Composition 내 Objects의 행동을 정의한다. 즉, Base Component를 구현한다.
+  - `Composite` : Leaf Object로 이루어져 있으며 Base Component 내 명령들을 구현한다.
+  - `Composite`도 `Base Component`를 구현하면서 다른 `Leaf`와 같이 사용할 수 있어야 한다.
   ```java
-  public interface Shape {
-	
-    public void draw(String fillColor);
+  /* Base Component */
+  public interface Employee {
+    public void doWork(String work);
   }
   ```  
   ```java
-  public class Triangle implements Shape {
- 
+  /* Leaf Object */
+  public class DevEmployee implements Employee {
+    private String name;
+
+    public DevEmployee(String name){
+        this.name = name;
+    }
+
+    public String toString() {
+        return name;
+    }
+
     @Override
-    public void draw(String fillColor) {
-        System.out.println("Drawing Triangle with color "+fillColor);
+    public void doWork(String work) {
+        System.out.println("DevEmployee " + name + " is doing " + work);
     }
   }
   ```
   ```java
-  public class Circle implements Shape {
- 
+  /* Leaf Object */
+  public class TestEmployee implements Employee {
+    private String name;
+
+    public TestEmployee(String name){
+        this.name = name;
+    }
+
+    public String toString() {
+        return name;
+    }
+
     @Override
-    public void draw(String fillColor) {
-        System.out.println("Drawing Circle with color "+fillColor);
+    public void doWork(String work) {
+        System.out.println("TestEmployee " + name + " is doing " + work);
     }
   }
   ```
   ```java
-  public class Drawing implements Shape {
- 
-    //collection of Shapes
-    private List<Shape> shapes = new ArrayList<Shape>();
-	
+  /* Composite Object */
+  public class Working implements Employee {
+    private List<Employee> employees = new ArrayList<>();
+
     @Override
-    public void draw(String fillColor) {
-        for(Shape sh : shapes) {
-            sh.draw(fillColor);
+    public void doWork(String work) {
+        for(Employee employee: employees) {
+            employee.doWork(work);
         }
     }
-	
-    //adding shape to drawing
-    public void add(Shape s) {
-        this.shapes.add(s);
+
+    public void add(Employee employee) {
+        System.out.println("Add Employee : " + employee);
+        this.employees.add(employee);
     }
-	
-    //removing shape from drawing
-    public void remove(Shape s) {
-        shapes.remove(s);
+
+    public void remove(Employee employee) {
+        System.out.println("Remove Employee : " + employee);
+        this.employees.remove(employee);
     }
-	
-    //removing all the shapes
+
     public void clear() {
-        System.out.println("Clearing all the shapes from drawing");
-        this.shapes.clear();
+        System.out.println("Remove All of Employee");
+        this.employees.clear();
     }
   }
   ```
   ```java
-  public class TestCompositePattern {
- 
+  public class CompositePattern {
     public static void main(String[] args) {
-        Shape tri = new Triangle();
-        Shape tri1 = new Triangle();
-        Shape cir = new Circle();
-		
-        Drawing drawing = new Drawing();
-        drawing.add(tri1);
-        drawing.add(tri1);
-        drawing.add(cir);
-		
-        drawing.draw("Red");
-		
-        List<Shape> shapes = new ArrayList<>();
-        shapes.add(drawing);
-        shapes.add(new Triangle());
-        shapes.add(new Circle());
-        
-        for(Shape shape : shapes) {
-            shape.draw("Green");
+        Employee devEmployee = new DevEmployee("John");
+        Employee testEmployee = new TestEmployee("Lin");
+
+        // Leaf 객체들을 Grouping 후 사용
+        Working working = new Working();
+        working.add(devEmployee);
+        working.add(testEmployee);
+        working.doWork("Daily Scrum Meeting.");
+
+        List<Employee> employees = new ArrayList<>();
+        // Composite Object(Working Class)도 Base Component(Employee Class)를 구현하고 있기 때문에 다른 Leaf Class와 같이 사용할 수 있다.
+        employees.add(working);
+        employees.add(new DevEmployee("Beaver"));
+        employees.add(new TestEmployee("Dan"));
+        for(Employee employee: employees) {
+            employee.doWork("Coffee Time");
         }
     }
   }
