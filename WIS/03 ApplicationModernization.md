@@ -2328,69 +2328,72 @@ public class Client {
   }
   ```
 - ### Decorator Pattern
+  - 상속과 합성을 사용해서 한 객체에 동적인 책임을 추가할 수 있게 한다.
+  - Runtime 단계에서 여러 개의 Class의 특징을 모두 갖는 Class를 얻고 싶을 때 사용할 수 있다.
   ```java
-  public interface Car {
-	  public void assemble();
+  public interface Employee {
+    public void assemble();
   }
   ```
   ```java
-  public class BasicCar implements Car {
-	  @Override
-	  public void assemble() {
-		  System.out.print("Basic Car.");
-	  }
+  public class NormalEmployee implements Employee {
+    @Override
+    public void assemble() {
+        System.out.println("Normal Employee.");
+    }
   }
   ```
   ```java
-  public class CarDecorator implements Car {
-	  protected Car car;
-	
-	  public CarDecorator(Car c){
-  		this.car=c;
-	  }
-	
-	  @Override
-	  public void assemble() {
-		  this.car.assemble();
-	  }
+  public class EmployeeDecorator implements Employee {
+    protected Employee employee;
+
+    public  EmployeeDecorator(Employee employee) {
+        this.employee = employee;
+    }
+
+    @Override
+    public void assemble() {
+        this.employee.assemble();
+    }
   }
   ```
   ```java
-  public class SportsCar extends CarDecorator {
-	  public SportsCar(Car c) {
-		  super(c);
-	  }
- 
-	  @Override
-	  public void assemble(){
-		  super.assemble();
-		  System.out.print(" Adding features of Sports Car.");
-	  }
+  public class DevEmployee extends EmployeeDecorator {
+    public DevEmployee(Employee employee){
+        super(employee);
+    }
+
+    @Override
+    public void assemble() {
+        super.assemble();
+        System.out.println("  Adding features of Dev Employee.");
+    }
   }
   ```
   ```java
-  public class LuxuryCar extends CarDecorator {
-  	public LuxuryCar(Car c) {
-  		super(c);
-  	}
-  	
-  	@Override
-  	public void assemble(){
-  		super.assemble();
-  		System.out.print(" Adding features of Luxury Car.");
-  	}
+  public class TestEmployee extends EmployeeDecorator {
+    public TestEmployee(Employee employee){
+        super(employee);
+    }
+
+    @Override
+    public void assemble() {
+        super.assemble();
+        System.out.println("  Adding features of Test Employee.");
+    }
   }
   ```
   ```java
-  public class DecoratorPatternTest {
-	  public static void main(String[] args) {
-		  Car sportsCar = new SportsCar(new BasicCar());
-		  sportsCar.assemble();
-		  System.out.println("\n*****");
-		
-		  Car sportsLuxuryCar = new SportsCar(new LuxuryCar(new BasicCar()));
-		  sportsLuxuryCar.assemble();
-	  }
+  public class DecoratorPattern {
+    public static void main(String[] args) {
+        Employee devEmployee = new DevEmployee(new NormalEmployee());
+        devEmployee.assemble();
+        System.out.println("********************");
+
+        // 2개의 Class 특성을 갖는 Class 생성
+        Employee multiEmployee = new DevEmployee(new TestEmployee(new NormalEmployee()));
+        multiEmployee.assemble();
+    }
   }
   ```
 - ### Facade Pattern
