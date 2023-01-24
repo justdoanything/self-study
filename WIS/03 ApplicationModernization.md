@@ -2397,13 +2397,100 @@ public class Client {
   }
   ```
 - ### Facade Pattern
+- Sub System을 더 쉽게 사용할 수 있도록 Higher-level Interface를 정의하고 제공한다.
   ```java
+  import java.sql.Connection;
+
+  public class MySqlHelper {
+    public static Connection getConnection() {
+        return null;
+    }
+
+    public static void generatePdfReport(String tableName, Connection connection) {
+
+    }
+
+    public static void generateHtmlReport(String tableName, Connection connection) {
+
+    }
+  }
   ```
   ```java
+  import java.sql.Connection;
+
+  public class OracleHelper {
+    public static Connection getConnection() {
+        return null;
+    }
+
+    public static void generatePdfReport(String tableName, Connection connection) {
+
+    }
+
+    public static void generateHtmlReport(String tableName, Connection connection) {
+
+    }
+  }
   ```
   ```java
+  import java.sql.Connection;
+
+  public class FacadeHelper {
+    public static enum DBTypes {
+        MYSQL, ORACLE
+    }
+
+    public static enum ReportTypes {
+        HTML, PDF
+    }
+
+    public static void generateReport(DBTypes dbTypes, ReportTypes reportTypes, String tableName) throws RuntimeException {
+        Connection connection = null;
+        switch (dbTypes) {
+            case MYSQL:
+                connection = MySqlHelper.getConnection();
+                switch (reportTypes){
+                    case HTML:
+                        MySqlHelper.generateHtmlReport(tableName, connection);
+                        break;
+                    case PDF:
+                        MySqlHelper.generatePdfReport(tableName, connection);
+                        break;
+                    default:
+                        throw new RuntimeException("Report Type Error.");
+                }
+                break;
+            case ORACLE:
+                connection = OracleHelper.getConnection();
+                switch (reportTypes){
+                    case HTML:
+                        OracleHelper.generateHtmlReport(tableName, connection);
+                        break;
+                    case PDF:
+                        OracleHelper.generatePdfReport(tableName, connection);
+                        break;
+                    default:
+                        throw new RuntimeException("Report Type Error.");
+                }
+                break;
+            default:
+                throw new RuntimeException("Database Type Error.");
+        }
+    }
+  }
   ```
   ```java
+  public class FacadePattern {
+    public static void main(String[] args) {
+        final String tableName = "Employee";
+
+        FacadeHelper.generateReport(FacadeHelper.DBTypes.MYSQL, FacadeHelper.ReportTypes.HTML, tableName);
+        FacadeHelper.generateReport(FacadeHelper.DBTypes.MYSQL, FacadeHelper.ReportTypes.PDF, tableName);
+
+        FacadeHelper.generateReport(FacadeHelper.DBTypes.ORACLE, FacadeHelper.ReportTypes.HTML, tableName);
+        FacadeHelper.generateReport(FacadeHelper.DBTypes.ORACLE, FacadeHelper.ReportTypes.PDF, tableName);
+    }
+  }
   ```
 - ### Flyweight Pattern
 - ### Proxy Pattern
