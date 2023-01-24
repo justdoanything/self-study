@@ -2493,6 +2493,32 @@ public class Client {
   }
   ```
 - ### Flyweight Pattern
+  - 공유를 통해서 대량의 객체들을 효과적으로 지원하는 방법
+  - 대량의 객체를 생성해야할 때 사용되며 메모리를 효율적으로 관리할 수 있다.
+  - Flyweight Pattern이 유리한 상황
+    - Application에 의해 생성되는 객체의 수가 많을 때
+    - 생성된 객체가 오래되면 메모리에 상주하고 사용되는 횟수가 많을 때
+    - 객체의 특성을 내적 속성(Intrinsic Properties)과 외적 속성(Extrinsic Properties)로 나눴을 때 외적 특성이 Client로부터 정의될 때
+      ```
+      ❓ 내적 속성 (Intrinsic Properties)
+         객체를 유니크하게 하는 것
+
+      ❓ 외적 속성 (Extrinsic Properties)
+         Client로부터 설정되어 다른 동작을 수행하도록 하는 특성
+      ```
+  - 예제코드에서 Oval Class는 fill 이라는 내적 속성을 갖는다.
+  - 예제코드에서 객체가 생성될 때 2초의 delay를 줘서 Flyweight Pattern의 효과를 확인할 수 있다. 
+  - Factory Class는 Client가 객체의 Instance를 생성할 때 사용하고 객체들은 Factory Class 내부에서 Map으로 관리됩니다. Client가 객체에 대한 Instance를 얻기 위해 호출할 때 기존에 객체가 있으면 Map에서 반환하고 없다면 새로운 객체를 생성하고 Map에 넣은 후 반환한다.
+  ```java
+  ```
+  ```java
+  ```
+  ```java
+  ```
+  ```java
+  ```
+  ```java
+  ```
 - ### Proxy Pattern
 
 ## 3) Behavioral Pattern
