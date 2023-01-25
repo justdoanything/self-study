@@ -2510,16 +2510,221 @@ public class Client {
   - 예제코드에서 객체가 생성될 때 2초의 delay를 줘서 Flyweight Pattern의 효과를 확인할 수 있다. 
   - Factory Class는 Client가 객체의 Instance를 생성할 때 사용하고 객체들은 Factory Class 내부에서 Map으로 관리됩니다. Client가 객체에 대한 Instance를 얻기 위해 호출할 때 기존에 객체가 있으면 Map에서 반환하고 없다면 새로운 객체를 생성하고 Map에 넣은 후 반환한다.
   ```java
+  import java.awt.Color;
+  import java.awt.Graphics;
+
+  public interface Shape {
+    public void draw(Graphics graphics, int x, int y, int width, int height, Color color);
+  }
   ```
   ```java
+  import java.awt.Color;
+  import java.awt.Graphics;
+
+  public class Line implements Shape {
+    public Line() {
+        System.out.println("Create Line");
+        try{
+            Thread.sleep(2000);
+        }catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void draw(Graphics graphics, int x, int y, int width, int height, Color color) {
+        graphics.setColor(color);
+        graphics.drawLine(x, y, width, height);
+    }
+  }
   ```
   ```java
+  import java.awt.Color;
+  import java.awt.Graphics;
+
+  public class Oval implements Shape {
+    // 내적 속성 (intrinsic Property)
+    private boolean fill;
+
+    public Oval(boolean fill) {
+        this.fill = fill;
+        System.out.println("Create Oval with fill : " + fill);
+        try {
+            Thread.sleep(2000);
+        }catch (InterruptedException e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void draw(Graphics graphics, int x, int y, int width, int height, Color color) {
+        graphics.setColor(color);
+        graphics.drawOval(x, y, width, height);
+        if(fill){
+            graphics.fillOval(x, y, width, height);
+        }
+    }
+  }
   ```
   ```java
+  public class FlyweightFactory {
+    public enum ShapeTypes {
+        OVAL, OVAL_FILL, LINE;
+    }
+    public static final HashMap<ShapeTypes, Shape> shapes = new HashMap<>();
+
+    public static Shape getShape(ShapeTypes shapeTypes) {
+        Shape shape = shapes.get(shapeTypes);
+
+        if(shape == null) {
+            switch (shapeTypes){
+                case LINE:
+                    shape = new Line();
+                    break;
+                case OVAL:
+                    shape = new Oval(false);
+                    break;
+                case OVAL_FILL:
+                    shape = new Oval(true);
+                    break;
+                default:
+                    throw new RuntimeException("Shape Types Error.");
+            }
+            shapes.put(shapeTypes, shape);
+        }
+        return shape;
+    }
+  }
   ```
   ```java
+  import javax.swing.JButton;
+  import javax.swing.JFrame;
+  import javax.swing.JPanel;
+  import java.awt.BorderLayout;
+  import java.awt.Color;
+  import java.awt.Container;
+  import java.awt.Graphics;
+  import java.awt.event.ActionEvent;
+  import java.awt.event.ActionListener;
+
+  public class FlyweightPattern extends JFrame {
+    private final int width;
+    private final int height;
+
+    private static final FlyweightFactory.ShapeTypes shapes[] = { FlyweightFactory.ShapeTypes.LINE, FlyweightFactory.ShapeTypes.OVAL, FlyweightFactory.ShapeTypes.OVAL_FILL };
+    private static final Color colors[] = { Color.RED, Color.GREEN, Color.YELLOW };
+
+    public FlyweightPattern(int width, int height) {
+        this.width = width;
+        this.height = height;
+        Container container = getContentPane();
+
+        JButton jButton = new JButton("Draw");
+        final JPanel jPanel = new JPanel();
+
+        container.add(jPanel, BorderLayout.CENTER);
+        container.add(jButton, BorderLayout.SOUTH);
+        setSize(width, height);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setVisible(true);
+
+        jButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Graphics graphics = jPanel.getGraphics();
+                for(int i=0; i<20; i++){
+                    Shape shape = FlyweightFactory.getShape(getRandomShape());
+                    shape.draw(graphics, getRandomX(), getRandomY(), getRandomWidth(), getRandomHeight(), getRandomColor());
+                }
+            }
+        });
+    }
+
+    private FlyweightFactory.ShapeTypes getRandomShape() {
+        return shapes[(int) (Math.random() * shapes.length)];
+    }
+
+    private int getRandomX() {
+        return (int) (Math.random() * width);
+    }
+
+    private int getRandomY() {
+        return (int) (Math.random() * height);
+    }
+
+    private int getRandomWidth() {
+        return (int) (Math.random() * (width / 10));
+    }
+
+    private int getRandomHeight() {
+        return (int) (Math.random() * (height / 10));
+    }
+
+    private Color getRandomColor() {
+        return colors[(int) (Math.random() * colors.length)];
+    }
+
+    public static void main(String[] args) {
+        FlyweightPattern drawing = new FlyweightPattern(500,600);
+    }
+  }
   ```
 - ### Proxy Pattern
+  - 다른 객체로 접근하는 것을 통제하기 위해서 그 객체의 대리자(surrogate)나 자리표시자(placeholder)의 역할을 하는 객체를 제공하는 Pattern
+  - Client에게 객체 자체를 제공하지 않고 앞단에서 특정 로직을 처리하는 Proxy 객체를 사용한다.
+  ```java
+  public interface CommandExecutor {
+    public void runCommand(String command) throws Exception;
+  }
+  ```
+  ```java
+  public class CommandExecutorImpl implements CommandExecutor {
+    @Override
+    public void runCommand(String command) throws Exception {
+        System.out.println("Execute Command : " + command);
+        Runtime.getRuntime().exec(command);
+    }
+  }
+  ```
+  ```java
+  public class CommandExecutorProxy implements CommandExecutor {
+    private boolean isAdmin;
+    private CommandExecutor commandExecutor;
+
+    public CommandExecutorProxy(String user, String pwd) {
+        if("Admin".equals(user) && "Password".equals(pwd)){
+            isAdmin = true;
+        }
+        commandExecutor = new CommandExecutorImpl();
+    }
+
+    @Override
+    public void runCommand(String command) throws Exception {
+        if(isAdmin) {
+            commandExecutor.runCommand(command);
+        }else {
+            if(command.trim().startsWith("rm")){
+                throw new RuntimeException("This command cannot run if not admin.");
+            }else{
+                commandExecutor.runCommand(command);
+            }
+        }
+    }
+  }
+  ```
+  ```java
+  public class ProxyPattern {
+    public static void main(String[] args) {
+        CommandExecutor commandExecutor = new CommandExecutorProxy("Admin", "WrongPassword");
+        try{
+            commandExecutor.runCommand("ls -ltr");
+            commandExecutor.runCommand("rm -rf test.test");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+  }
+  ```
 
 ## 3) Behavioral Pattern
 - ### Chain of Responsibility
@@ -2535,6 +2740,7 @@ public class Client {
 ### Reference
 - https://www.javatpoint.com/design-patterns-in-java
 - https://readystory.tistory.com/category/JAVA/Design%20Pattern
+- https://johngrib.github.io/wiki/pattern/#documents
 ### 🔰 예제코드 : https://github.com/justdoanything/self-study/tree/main/WIS/Java/src/main/java/book/pattern
 
 ---
