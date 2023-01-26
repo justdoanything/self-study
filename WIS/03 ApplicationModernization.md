@@ -2729,6 +2729,87 @@ public class Client {
 ## 3) Behavioral Pattern
 - ### Chain of Responsibility
   - 
+  ```java
+  public abstract class EmployeeValidatorAbstract {
+    private EmployeeValidatorAbstract nextValidator;
+
+    private boolean hasNext() {
+        return this.nextValidator != null;
+    }
+
+    public void setNextValidator(EmployeeValidatorAbstract nextValidator) {
+        this.nextValidator = nextValidator;
+    }
+
+    public abstract void validate(List<Map<String, String>> dataset);
+
+    public void executeValidation(List<Map<String, String>> dataset) {
+        if(hasNext()){
+            this.nextValidator.validate(dataset);
+        }
+    }
+  }
+  ```
+  ```java
+  public class DepartmentValidator extends EmployeeValidatorAbstract {
+    @Override
+    public void validate(List<Map<String, String>> dataset) {
+        System.out.println("=========> dataset에 대한 부서 검증 프로세스를 시작합니다.");
+        for(Map<String, String> data : dataset){
+            System.out.println(data + "에 대한 부서 검증 결과는 " + EmployeeCode.DEPARTMENT.contains(data.get("DEPARTMENT")) + " 입니다.");
+        }
+        this.executeValidation(dataset);
+    }
+  }
+  ```
+  ```java
+  public class NameValidator extends EmployeeValidatorAbstract {
+    @Override
+    public void validate(List<Map<String, String>> dataset) {
+        System.out.println("=========> dataset에 대한 이름 검증 프로세스를 시작합니다.");
+        for(Map<String, String> data : dataset){
+            System.out.println(data + "에 대한 이름 검증 결과는 " + EmployeeCode.NAME.contains(data.get("NAME")) + " 입니다.");
+        }
+        this.executeValidation(dataset);
+    }
+  }
+  ```
+  ```java
+  public class ChainOfResponsibilityPattern {
+    public static void main(String[] args) {
+        List<Map<String, String>> dataset = new ArrayList<>();
+        dataset.add(new HashMap<>(){{
+            put("DEPARTMENT", "DEV");
+            put("NAME", "John");
+        }});
+        dataset.add(new HashMap<>(){{
+            put("DEPARTMENT", "DEV");
+            put("NAME", "Melisa");
+        }});
+        dataset.add(new HashMap<>(){{
+            put("DEPARTMENT", "TEST");
+            put("NAME", "Tony");
+        }});
+        dataset.add(new HashMap<>(){{
+            put("DEPARTMENT", "TEST");
+            put("NAME", "Hong");
+        }});
+        dataset.add(new HashMap<>(){{
+            put("DEPARTMENT", "MANAGEMENT");
+            put("NAME", "Stranger");
+        }});
+        dataset.add(new HashMap<>(){{
+            put("DEPARTMENT", "MANAGEMENT");
+            put("NAME", "Chief");
+        }});
+
+        DepartmentValidator departmentValidator = new DepartmentValidator();
+        NameValidator nameValidator = new NameValidator();
+        departmentValidator.setNextValidator(nameValidator);
+        departmentValidator.validate(dataset);
+    }
+  }
+  ```
 - ### Command Pattern
 - ### Interpreter Pattern
 - ### Iterator Pattern

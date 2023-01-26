@@ -1,6 +1,5 @@
 package book.pattern.behavioral.chain.validator;
 
-import book.pattern.behavioral.chain.ChainOfResponsibilityPattern;
 import book.pattern.behavioral.chain.EmployeeCode;
 import book.pattern.behavioral.chain.EmployeeValidatorAbstract;
 
