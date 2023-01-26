@@ -2728,6 +2728,7 @@ public class Client {
 
 ## 3) Behavioral Pattern
 - ### Chain of Responsibility
+  - 
 - ### Command Pattern
 - ### Interpreter Pattern
 - ### Iterator Pattern
