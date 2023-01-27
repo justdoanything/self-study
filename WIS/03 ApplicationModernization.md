@@ -2727,8 +2727,12 @@ public class Client {
   ```
 
 ## 3) Behavioral Pattern
+- ###### 객체나 클래스 사이의 알고리즘이나 책임 분배에 관련된 Pattern
+- ###### 한 객체가 혼자 수행할 수 없는 작업을 여러 개의 객체로 어떻게 분배할지, 객체 사이의 결합도를 어떻게 최소화할지에 중점을 둔다.
 - ### Chain of Responsibility
-  - 
+  - 이벤트의 대한 처리를 특정 처리자에게 위임하고 체인에 속한 여러 처리자에 걸쳐 처리할 수 있다.
+  - 서로 다른 클래스에 대해서 낮은 결합도로 동일한 이벤트에 대한 핸들링을 가능하게 할 수 있다.
+  - 한 프로세스가 처리될 때 어떤 단계를 거칠지 정확하게 알 수 없기 때문에 프로세스가 끝나는 시간을 예측하기 어렵고 체인을 적절하게 구성하지 않으면 시간이 너무 오래 소요될 수 있다.
   ```java
   public abstract class EmployeeValidatorAbstract {
     private EmployeeValidatorAbstract nextValidator;
@@ -2811,6 +2815,91 @@ public class Client {
   }
   ```
 - ### Command Pattern
+  - 실행할 기능을 캡슐화해서 여러 기능을 실행할 수 있는 재사용성이 높은 Class를 설계하는 Pattern
+  - 이벤트가 발생했을 때 실행될 기능이 다양하면서 변경이 많이 필요한 경우 이벤트를 발생시키는 Class를 변경하지 않고 재사용할 수 있다.
+  - 실행될 기능을 캡슐화함으로써 기능의 실행을 요구하는 호출자(Invoker) 클래스와 실제 기능을 실행하는 수신자(Receiver) 클래스 사이의 의존성을 제거한다. 따라서 실행될 기능의 변경에도 호출자 클래스를 수정 없이 그대로 사용 할 수 있도록 해준다.
+  ```java
+  public interface Command {
+    public abstract void execute();
+  }
+  ```
+  ```java
+  public class Button {
+    private Command command;
+    public Button(Command command){
+        this.command = command;
+    }
+
+    public void setCommand(Command command){
+        this.command = command;
+    }
+
+    public void pressed() {
+        command.execute();
+    }
+  }
+  ```
+  ```java
+  public class Alarm {
+    public void start() {
+        System.out.println("Start Alarm");
+    }
+  }
+  ```
+  ```java
+  public class AlarmStartCommand implements Command {
+    private Alarm alarm;
+
+    public AlarmStartCommand(Alarm alarm){
+        this.alarm = alarm;
+    }
+
+    @Override
+    public void execute() {
+        alarm.start();
+    }
+  }
+  ```
+  ```java
+  public class Lamp {
+    public void turnOn() {
+        System.out.println("Lamp On");
+    }
+  }
+  ```
+  ```java
+  public class LampOnCommand implements Command {
+    private Lamp lamp;
+    
+    public LampOnCommand(Lamp lamp) {
+        this.lamp = lamp;
+    }
+
+    @Override
+    public void execute() {
+        lamp.turnOn();
+    }
+  }
+  ```
+  ```java
+  public class CommandPattern {
+    public static void main(String[] args) {
+        Command lampOnCommand = new LampOnCommand(new Lamp());
+        Command alarmStartCommand = new AlarmStartCommand(new Alarm());
+
+        Button button = new Button(lampOnCommand);
+        button.pressed();
+        button.pressed();
+
+        button.setCommand(alarmStartCommand);
+        button.pressed();
+        button.pressed();
+
+        button.setCommand(lampOnCommand);
+        button.pressed();
+    }
+  }
+  ```
 - ### Interpreter Pattern
 - ### Iterator Pattern
 - ### Mediator Pattern
