@@ -434,7 +434,48 @@ Cognito
 
 Amazon Connect
 === 
-aws.amazon.com/ko/connect
+
+## 서비스 개요
+https://aws.amazon.com/ko/connect
+
+클릭 몇 번으로 클라우드 고객 센터를 설정하고 에이전트를 온보딩하여 고객을 즉시 지원할 수 있다.
+올인원 형태의 AI 및 ML 기반 고객 센터를 통해 음성 및 디지털 채널 전반에서 에이전트 생산성과 고객 경험을 개선할 수 있습니다.
+위치에 관계없이 수만 명에 이르는 에이전트를 온보딩할 수 있는 유연성을 통해 고객 수요에 따라 간편하게 확장 또는 축소할 수 있습니다.
+기존 고객 센터 솔루션과 비교하여 최소 비용, 장기 약정 또는 선결제 라이선스 요금 없이 최대 80%를 절약할 수 있습니다.
+
+## 제공 서비스
+인터넷 연결만 있으면 관리자와 상담원은 어느 곳에서든 사용 가능하다.
+하드웨어, 공간, 전화, 인프라가 필요 없다.
+시스템 증설이나 축소 과정이 필요 없다.
+탄련적이며 필요에 따라 확대/축소가 가능하다.
+쉬운 설치
+동적 반응 - 개인화 - 자연어 처리 가능
+Lambda를 사용해서 기존 비지니스와 데이터 엔계를 통해 선대응이 가능하다. 비행기표 취소한 고객의 경우, 전화를 걸었을 때 취소한 표가 있으신데 취소에 대한 문의인지 먼저 물어볼 수 있다.
+
+FlowChart 제공 - 비지니스에 맞는 Connect Flow를 간단하게 작성 및 수정할 수 있다.
+Lambda 제공 - Connect Colow에 Lambda를 사용해서 비지니스 로직을 넣고 복잡한 상황에 맞는 Flow를 만들 수 있다.
+Amazon Polly - Text를 작성하면 읽어주는 AI 기반으로 한국어 서비스도 지원이 가능하다.
+AI 채팅 서비스 - ARS 뿐만 아니라 채팅 서비스도 제공 가능하다.
+통화/상담 이력 자동 저장 - 오디오 형태로 암호화되서 저장할 수 있다.
+계정 관리 - Admin, Manager, Caller 등 계정을 쉽게 관리할 수 있다.
+저장되는 통화, 상담 이력은 빅데이터로서 활용할 수 있다.
+Softphone을 제공한다.
+다양한 언어를 지원하기 때문에 글로벌 통합 센터를 운영할 수 있다.
+
+## 서비스 고려사항
+기존 비지니스에 갖고 있던 자료와 서비스 로직을 연동할 수 있어야 함. Lambda를 사용해야할 것 같고 API 혹은 DB Connector를 사용해야할 것 같다.
+Amazon Polly를 사용해서 데이터를 축정하고 활용하는 방안
+기존 ARS에만 국한된 Connect Center가 아니라 AI 챗봇, 이메일 상담 등 Mult-channel에 공통적으로 활용하고 데이터 축정 및 사용할 수 있어야 한다.
+(이메일로 상담 접수한 고객이 ARS로 전화했을 떄 이메일 상담 내용이 연동되어야 한다.)
+Softphone Customization 활용 방안
+
+## Reference
+- [Amazon Connect](https://docs.aws.amazon.com/connect/index.html)
+- [Amazon Connect Admin Guide](https://docs.aws.amazon.com/ko_kr/connect/latest/adminguide/what-is-amazon-connect.html)
+- [Softphone](https://github.com/aws/connect-rtc-js)
+- [Connect Stream API (Streams)](https://github.com/aws/amazon-connect-streams)
+- [Amazon Connect Lambda](https://docs.aws.amazon.com/ko_kr/connect/latest/adminguide/connect-lambda-functions.html)
+
 
 https://www.youtube.com/watch?v=wnmXSqHlgyM
 
