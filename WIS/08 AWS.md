@@ -434,3 +434,30 @@ Cognito
 
 Amazon Connect
 === 
+aws.amazon.com/ko/connect
+
+https://www.youtube.com/watch?v=wnmXSqHlgyM
+
+<img width="738" alt="스크린샷 2023-01-26 13 44 46" src="https://user-images.githubusercontent.com/21374902/215044933-fbdffa55-4d10-48be-86ad-e36ebb30e4e0.png">
+<img width="735" alt="스크린샷 2023-01-26 13 46 23" src="https://user-images.githubusercontent.com/21374902/215044938-2e5cf32e-d370-4b98-b408-ba0253cb2281.png">
+<img width="735" alt="스크린샷 2023-01-26 14 06 46" src="https://user-images.githubusercontent.com/21374902/215044941-d0a1dc16-0b9b-4ba2-8128-fd1cbd60187f.png">
+<img width="731" alt="스크린샷 2023-01-26 14 06 58" src="https://user-images.githubusercontent.com/21374902/215044944-5b9c3e68-ccbc-4ffd-bbdf-9161b8137527.png">
+<img width="736" alt="스크린샷 2023-01-26 14 07 05" src="https://user-images.githubusercontent.com/21374902/215044948-193f7242-2e80-446e-8502-e274457eae4e.png">
+<img width="729" alt="스크린샷 2023-01-26 14 08 20" src="https://user-images.githubusercontent.com/21374902/215044949-5b69aaf9-9c0c-4d89-89bc-49c09ee8d6c7.png">
+<img width="736" alt="스크린샷 2023-01-26 15 25 31" src="https://user-images.githubusercontent.com/21374902/215044952-fe53947e-7db3-4e9c-b46e-5e3942862600.png">
+<img width="734" alt="스크린샷 2023-01-26 15 27 18" src="https://user-images.githubusercontent.com/21374902/215044954-01ae0d8e-2787-4d00-bf81-8f42f1a6ed14.png">
+<img width="736" alt="스크린샷 2023-01-26 15 27 42" src="https://user-images.githubusercontent.com/21374902/215044955-545de8b3-c026-4ec5-9b88-d5e5d313df7f.png">
+<img width="735" alt="스크린샷 2023-01-26 15 28 27" src="https://user-images.githubusercontent.com/21374902/215044956-29196c44-1330-453a-8826-6e2a1c960db0.png">
+<img width="734" alt="스크린샷 2023-01-26 15 32 05" src="https://user-images.githubusercontent.com/21374902/215044961-d78a3f27-cc47-4819-a8c5-178e1dc31b02.png">
+<img width="1423" alt="스크린샷 2023-01-27 10 07 04" src="https://user-images.githubusercontent.com/21374902/215044964-f32e87e8-54e0-4789-8bca-e18d66d91e60.png">
+<img width="1430" alt="스크린샷 2023-01-27 10 07 48" src="https://user-images.githubusercontent.com/21374902/215044965-02c2bd74-946e-444a-a375-b77c6d460625.png">
+<img width="1428" alt="스크린샷 2023-01-27 10 09 04" src="https://user-images.githubusercontent.com/21374902/215044967-4b491ea1-dd9e-4ea7-afad-b31b88c3caae.png">
+<img width="1435" alt="스크린샷 2023-01-27 10 09 43" src="https://user-images.githubusercontent.com/21374902/215044969-3af96cb8-674e-4685-9c81-d9b14ec53324.png">
+<img width="1425" alt="스크린샷 2023-01-27 10 10 14" src="https://user-images.githubusercontent.com/21374902/215044972-7fb6cb56-52b6-4f24-a862-4c103ea95d9a.png">
+<img width="1436" alt="스크린샷 2023-01-27 10 11 33" src="https://user-images.githubusercontent.com/21374902/215044975-76f16971-fd85-43ec-bfc8-3db894e62ee2.png">
+<img width="1432" alt="스크린샷 2023-01-27 10 15 26" src="https://user-images.githubusercontent.com/21374902/215044978-3a6db169-97d9-4de1-87fd-32e7de1e472c.png">
+<img width="1651" alt="스크린샷 2023-01-27 10 18 24" src="https://user-images.githubusercontent.com/21374902/215044982-8b4788bb-7b9b-4427-a38b-be23cb586669.png">
+<img width="425" alt="스크린샷 2023-01-27 10 20 03" src="https://user-images.githubusercontent.com/21374902/215044987-a8852510-79ea-4a52-9789-9b7fee63a9b4.png">
+<img width="1627" alt="스크린샷 2023-01-27 10 20 44" src="https://user-images.githubusercontent.com/21374902/215044989-d8e86809-4942-4d45-b99e-0db871bc1235.png">
+<img width="1189" alt="스크린샷 2023-01-27 10 23 21" src="https://user-images.githubusercontent.com/21374902/215044996-45720ff9-4915-4b1d-9744-d42ebfddef41.png">
+<img width="1535" alt="스크린샷 2023-01-27 10 27 40" src="https://user-images.githubusercontent.com/21374902/215045000-671f32c8-e96e-4aeb-88cd-d99f1469ee14.png">

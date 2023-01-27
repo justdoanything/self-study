@@ -2901,6 +2901,17 @@ public class Client {
   }
   ```
 - ### Interpreter Pattern
+  - 
+  ```java
+  ```
+  ```java
+  ```
+  ```java
+  ```
+  ```java
+  ```
+  ```java
+  ```
 - ### Iterator Pattern
 - ### Mediator Pattern
 - ### Memento Pattern
