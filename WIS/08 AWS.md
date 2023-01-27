@@ -469,6 +469,11 @@ Amazon Polly를 사용해서 데이터를 축정하고 활용하는 방안
 (이메일로 상담 접수한 고객이 ARS로 전화했을 떄 이메일 상담 내용이 연동되어야 한다.)
 Softphone Customization 활용 방안
 
+## 구현사례
+- [Priceline - 통화량이 3배 증가하는 중에 고객 서비스를 최적화](https://aws.amazon.com/ko/solutions/case-studies/priceline/?did=cr_card&trk=cr_card)
+- [Deliveroo - AWS를 사용하여 고객의 기대치에 부응](https://pages.awscloud.com/rs/112-TZM-766/images/AWS%20Deliveroo%20Innovator.pdf)
+- [Unum - 완전히 새로운 보험 고객 경험 재정립](https://aws.amazon.com/ko/solutions/case-studies/unum-video/)
+
 ## Reference
 - [Amazon Connect](https://docs.aws.amazon.com/connect/index.html)
 - [Amazon Connect Admin Guide](https://docs.aws.amazon.com/ko_kr/connect/latest/adminguide/what-is-amazon-connect.html)
