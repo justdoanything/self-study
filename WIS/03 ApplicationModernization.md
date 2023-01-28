@@ -2903,14 +2903,90 @@ public class Client {
 - ### Interpreter Pattern
   - 
   ```java
+  public interface Logic {
+  // Logic.Values 는 Boolean 변수들을 보관하는 일종의 namespace 이다.
+  public static class Values {
+    static Map<String, Boolean> vars = new HashMap<>();
+
+    // 변수명과 변수값을 할당한다.
+    static void assign(String key, boolean value) {
+      if (key == null || key.length() <= 0) {
+        throw new LogicException("assign failed");
+      }
+      vars.put(key, value ? Boolean.TRUE : Boolean.FALSE);
+    }
+
+    // 변수 이름으로 변수값을 찾는다.
+    static boolean lookup(String key) {
+      Object got = vars.get(key);
+      return (Boolean) got;
+    }
+  }
+    boolean evaluate();
+  }
   ```
   ```java
+  public class ANDLogic implements Logic {
+  Logic left, right;
+
+  public ANDLogic(Logic left, Logic right) {
+    this.left = left;
+    this.right = right;
+  }
+
+  @Override
+  public boolean evaluate() {
+    return left.evaluate() && right.evaluate();
+  }
+  }
   ```
   ```java
+  public class ORLogic implements Logic {
+  Logic left, right;
+
+  public ORLogic(Logic left, Logic right) {
+    this.left = left;
+    this.right = right;
+  }
+
+  @Override
+  public boolean evaluate() {
+    return left.evaluate() || right.evaluate();
+  }
+  }
   ```
   ```java
+  public class NOTLogic implements Logic {
+  Logic value;
+
+  public NOTLogic(Logic value) {
+    this.value = value;
+  }
+
+  @Override
+  public boolean evaluate() {
+    return !value.evaluate();
+  }
+  }
   ```
   ```java
+  public class Variable implements Logic {
+  private String name;
+
+  public Variable(String name) {
+    this.name = name;
+  }
+
+  @Override
+  public String toString() {
+    return this.name;
+  }
+
+  @Override
+  public boolean evaluate() {
+    return Logic.Values.lookup(name);
+  }
+  }
   ```
 - ### Iterator Pattern
 - ### Mediator Pattern
