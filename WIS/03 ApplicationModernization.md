@@ -2729,6 +2729,7 @@ public class Client {
 ## 3) Behavioral Pattern
 - ###### 객체나 클래스 사이의 알고리즘이나 책임 분배에 관련된 Pattern
 - ###### 한 객체가 혼자 수행할 수 없는 작업을 여러 개의 객체로 어떻게 분배할지, 객체 사이의 결합도를 어떻게 최소화할지에 중점을 둔다.
+- ###### 구현 방법을 노출하지 않으면서 그 집합체 안에 들어있는 모든 항목에 접근하는 방법을 고려한다.
 - ### Chain of Responsibility
   - 이벤트의 대한 처리를 특정 처리자에게 위임하고 체인에 속한 여러 처리자에 걸쳐 처리할 수 있다.
   - 서로 다른 클래스에 대해서 낮은 결합도로 동일한 이벤트에 대한 핸들링을 가능하게 할 수 있다.
@@ -2901,38 +2902,17 @@ public class Client {
   }
   ```
 - ### Interpreter Pattern
-  - `AbstractExpression`
-  - `TerminalExpression`
-  - `NonterminalExpression`
-  - `Context`
-  - `Client`
+  - `AbstractExpression` : RegularExpression, 추상 구문 트리에 속한 모든 노드에 해당하는 클래스들이 공통으로 가져야 할 Interprete() 연상을 추상 연산으로 정의해야 한다.
+  - `TerminalExpression` : LiteralExpression, 문법에 정의한 터미널 기호와 관련된 해석 방법을 구현합니다. 문장을 구성하는 모든 터미널 기호에 대해서 해당 클래스를 만들어야 한다.
+  - `NonterminalExpression` : AlternationExpression, RepetitionExpression, SequenceExpressions, 문법의 오른편에 나타나는 모든 기호에 대해서 클래스를 정의해야 한다.
+  - `Context` : 번역기에 대한 포괄적인 정보를 포함합니다.
+  - `Client` : 언어로 정의한 특정 문장을 나타내는 추상 구문 트리입니다. 이 추상 구문 트리는 NonterminalExpression과 TerminalExpression 클래스의 인스턴스로 구성됩니다. 이 인스턴스의 Interprete() 연산을 호출한다.
   ```java
-  public interface Logic {
-  // Logic.Values 는 Boolean 변수들을 보관하는 일종의 namespace 이다.
-  public static class Values {
-    static Map<String, Boolean> vars = new HashMap<>();
-
-    // 변수명과 변수값을 할당한다.
-    static void assign(String key, boolean value) {
-      if (key == null || key.length() <= 0) {
-        throw new LogicException("assign failed");
-      }
-      vars.put(key, value ? Boolean.TRUE : Boolean.FALSE);
-    }
-
-    // 변수 이름으로 변수값을 찾는다.
-    static boolean lookup(String key) {
-      Object got = vars.get(key);
-      return (Boolean) got;
-    }
-  }
-    boolean evaluate();
-  }
-  ```
-  ```java
+  /* AbstractExpression */
   public interface Logic {
     boolean evaluate();
 
+    /* Context */
     public static class Values {
         static Map<String, Boolean> vars = new HashMap<>();
         static void assign(String key, boolean value) {
@@ -2950,6 +2930,7 @@ public class Client {
   }
   ```
   ```java
+  /* NonterminalExpression */
   public class AND implements Logic {
     Logic left, right;
 
@@ -2965,6 +2946,7 @@ public class Client {
   }
   ```
   ```java
+  /* NonterminalExpression */
   public class OR implements Logic {
     Logic left, right;
 
@@ -2980,6 +2962,7 @@ public class Client {
   }
   ```
   ```java
+  /* NonterminalExpression */
   public class NOT implements Logic {
     Logic value;
 
@@ -2994,6 +2977,7 @@ public class Client {
   }
   ```
   ```java
+  /* TerminalExpression */
   public class Variable implements Logic {
     private String name;
 
@@ -3030,6 +3014,129 @@ public class Client {
   }
   ```
 - ### Iterator Pattern
+  - 집합체 내에서 어떤 식으로 일이 처리되는지 몰라도 그 안에 들어있는 항목들에 대해서 반복작업을 수행할 수 있다.
+  - `Iterator` : 집합체의 요소들을 순서대로 검색하기 위한 Interface
+  - `ConcreateIterator` : Iterator 를 구현하는 Class
+  - `Aggregate` : 여러 요소들로 이루어져 있는 Interface
+  - `ConcreateAggregate` : Aggregate를 구현하는 Class
+  ```java
+  /* Aggregate */
+  public interface Aggregate {
+    Iterator getEmployeeIterator();
+  }
+  ```
+  ```java
+  public class Employee {
+    private String teamName;
+    private String name;
+
+    public Employee(String teamName, String name){
+        this.teamName = teamName;
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String toString() {
+        return teamName + "팀 소속 " + name;
+    }
+  }
+  ```
+  ```java
+  /* ConcreateAggregate */
+  public class Team implements Aggregate {
+    private List<Employee> employeeList = new ArrayList<>();
+    private String teamName;
+    private int maxCount;
+
+    public Team(String teamName, int maxCount){
+        this.teamName = teamName;
+        this.maxCount = maxCount;
+    }
+
+    public List<Employee> getEmployeeList() {
+        return employeeList;
+    }
+
+    public void addEmployee(Employee employee) {
+        if(employeeList.size() >= maxCount){
+            System.out.println("팀원을 더이상 추가할 수 없습니다.");
+        }else {
+            System.out.println(teamName + "팀에 " + employee.getName() + "을 추가했습니다.");
+            employeeList.add(employee);
+        }
+    }
+
+    public void removeEmployee(Employee employee) {
+        employeeList.remove(employee);
+    }
+
+    @Override
+    public Iterator getEmployeeIterator() {
+        return new TeamIterator(this);
+    }
+  }
+  ```
+  ```java
+  /* ConcreateIterator */
+  public class TeamIterator implements Iterator<Employee> {
+    private Team team;
+    private int index = 0;
+
+    public TeamIterator(Team team){
+        this.team = team;
+    }
+
+    @Override
+    public boolean hasNext() {
+        return index < team.getEmployeeList().size();
+    }
+
+    @Override
+    public Employee next() {
+        return team.getEmployeeList().get(index++);
+    }
+  }
+  ```
+  ```java
+  public class IteratorPattern {
+    public static void main(String[] args) {
+        Team devTeam = new Team("DEV", 10);
+        Team testTeam = new Team( "TEST", 3);
+
+        Employee john = new Employee("DEV", "John");
+        devTeam.addEmployee(john);
+        devTeam.addEmployee(new Employee("DEV", "Anh"));
+        devTeam.addEmployee(new Employee("DEV", "Dan"));
+        devTeam.addEmployee(new Employee("DEV", "Hung"));
+        devTeam.addEmployee(new Employee("DEV", "Tony"));
+
+        testTeam.addEmployee(new Employee("TEST", "Anna"));
+        testTeam.addEmployee(new Employee("TEST", "Drave"));
+        testTeam.addEmployee(new Employee("TEST", "Polly"));
+        testTeam.addEmployee(new Employee("TEST", "Zool"));
+        testTeam.addEmployee(new Employee("TETS", "Chris"));
+
+        Iterator iterator = devTeam.getEmployeeIterator();
+        while(iterator.hasNext()){
+            System.out.println(iterator.next());
+        }
+
+        iterator = testTeam.getEmployeeIterator();
+        while(iterator.hasNext()){
+            System.out.println(iterator.next());
+        }
+
+        devTeam.removeEmployee(john);
+        iterator = devTeam.getEmployeeIterator();
+        while(iterator.hasNext()){
+            System.out.println(iterator.next());
+        }
+    }
+  }
+  ```
 - ### Mediator Pattern
 - ### Memento Pattern
 - ### Observer Pattern
