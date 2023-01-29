@@ -2901,7 +2901,11 @@ public class Client {
   }
   ```
 - ### Interpreter Pattern
-  - 
+  - `AbstractExpression`
+  - `TerminalExpression`
+  - `NonterminalExpression`
+  - `Context`
+  - `Client`
   ```java
   public interface Logic {
   // Logic.Values 는 Boolean 변수들을 보관하는 일종의 namespace 이다.
@@ -2926,66 +2930,103 @@ public class Client {
   }
   ```
   ```java
-  public class ANDLogic implements Logic {
-  Logic left, right;
+  public interface Logic {
+    boolean evaluate();
 
-  public ANDLogic(Logic left, Logic right) {
-    this.left = left;
-    this.right = right;
-  }
+    public static class Values {
+        static Map<String, Boolean> vars = new HashMap<>();
+        static void assign(String key, boolean value) {
+            if(key == null || key.length() <= 0){
+                throw new RuntimeException("Assign falied");
+            }
+            vars.put(key, value ? Boolean.TRUE : Boolean.FALSE);
+        }
 
-  @Override
-  public boolean evaluate() {
-    return left.evaluate() && right.evaluate();
-  }
+        static boolean lookup(String key) {
+            Object got = vars.get(key);
+            return (Boolean) got;
+        }
+    }
   }
   ```
   ```java
-  public class ORLogic implements Logic {
-  Logic left, right;
+  public class AND implements Logic {
+    Logic left, right;
 
-  public ORLogic(Logic left, Logic right) {
-    this.left = left;
-    this.right = right;
-  }
+    public AND(Logic left, Logic right) {
+        this.left = left;
+        this.right = right;
+    }
 
-  @Override
-  public boolean evaluate() {
-    return left.evaluate() || right.evaluate();
-  }
+    @Override
+    public boolean evaluate() {
+        return left.evaluate() && right.evaluate();
+    }
   }
   ```
   ```java
-  public class NOTLogic implements Logic {
-  Logic value;
+  public class OR implements Logic {
+    Logic left, right;
 
-  public NOTLogic(Logic value) {
-    this.value = value;
-  }
+    public OR(Logic left, Logic right) {
+        this.left = left;
+        this.right = right;
+    }
 
-  @Override
-  public boolean evaluate() {
-    return !value.evaluate();
+    @Override
+    public boolean evaluate() {
+        return left.evaluate() || right.evaluate();
+    }
   }
+  ```
+  ```java
+  public class NOT implements Logic {
+    Logic value;
+
+    public NOT(Logic value) {
+        this.value = value;
+    }
+
+    @Override
+    public boolean evaluate() {
+        return !value.evaluate();
+    }
   }
   ```
   ```java
   public class Variable implements Logic {
-  private String name;
+    private String name;
 
-  public Variable(String name) {
-    this.name = name;
-  }
+    public Variable(String name) {
+        this.name = name;
+    }
 
-  @Override
-  public String toString() {
-    return this.name;
-  }
+    @Override
+    public String toString() {
+        return this.name;
+    }
 
-  @Override
-  public boolean evaluate() {
-    return Logic.Values.lookup(name);
+    @Override
+    public boolean evaluate() {
+        return Logic.Values.lookup(name);
+    }
   }
+  ```
+  ```java
+  public class InterpreterPattern {
+    public static void main(String[] args) {
+        Logic.Values.assign("A", true);
+        Logic.Values.assign("B", false);
+
+        Logic and = new AND(new Variable("A"), new Variable("B"));
+        System.out.println(and.evaluate());
+
+        Logic or = new OR(new Variable("A"), new Variable("B"));
+        System.out.println(or.evaluate());
+
+        Logic not = new AND(new Variable("A"), new NOT(new Variable("B")));
+        System.out.println(not.evaluate());
+    }
   }
   ```
 - ### Iterator Pattern
