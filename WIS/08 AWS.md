@@ -509,6 +509,13 @@ Amazon Connect
   
   <img width="600" alt="스크린샷 2023-01-27 10 20 44" src="https://user-images.githubusercontent.com/21374902/215044989-d8e86809-4942-4d45-b99e-0db871bc1235.png">
 
-  <img width="600" alt="스크린샷 2023-01-27 10 23 21" src="https://user-images.githubusercontent.com/21374902/215044996-45720ff9-4915-4b1d-9744-d42ebfddef41.png">
+  - #### 통신 채널 탐색
+    
+    <img width="600" alt="스크린샷 2023-01-27 10 23 21" src="https://user-images.githubusercontent.com/21374902/215044996-45720ff9-4915-4b1d-9744-d42ebfddef41.png">
 
-  <img width="600" alt="스크린샷 2023-01-27 10 27 40" src="https://user-images.githubusercontent.com/21374902/215045000-671f32c8-e96e-4aeb-88cd-d99f1469ee14.png">
+    <img width="600" alt="스크린샷 2023-01-27 10 27 40" src="https://user-images.githubusercontent.com/21374902/215045000-671f32c8-e96e-4aeb-88cd-d99f1469ee14.png">
+
+  - #### Chat widget
+  - #### Prompt
+  - #### Contact Flow
+    - ##### [Lambda 설정](https://docs.aws.amazon.com/ko_kr/connect/latest/adminguide/connect-lambda-functions.html)
