@@ -434,76 +434,81 @@ Cognito
 
 Amazon Connect
 === 
+### Amazon Connect : https://aws.amazon.com/ko/connect
+## 1. 서비스 개요
+- #### 간단히 말하면 고객센터를 구축해주는 Amazon의 몇 안되는 완성형 서비스이다. 간단한 [데모 영상](https://www.youtube.com/watch?v=wnmXSqHlgyM)을 보고 따라해봤을 때 인스턴스를 구축하고 기본 세팅을 하는데 10분이 채 걸리지 않았다.
 
-## 서비스 개요
-https://aws.amazon.com/ko/connect
+## 2. 서비스 특징
+- #### AWS 공식 페이지에선 아래와 같이 설명을 하고 있다.
+  - 클릭 몇 번으로 클라우드 고객 센터를 설정하고 에이전트를 온보딩하여 고객을 즉시 지원할 수 있다.
+  - 올인원 형태의 AI 및 ML 기반 고객 센터를 통해 음성 및 디지털 채널 전반에서 에이전트 생산성과 고객 경험을 개선할 수 있습니다.
+  - 위치에 관계없이 수만 명에 이르는 에이전트를 온보딩할 수 있는 유연성을 통해 고객 수요에 따라 간편하게 확장 또는 축소할 수 있습니다.
+  - 기존 고객 센터 솔루션과 비교하여 최소 비용, 장기 약정 또는 선결제 라이선스 요금 없이 최대 80%를 절약할 수 있습니다.
+- #### 인스턴스 구축에 필요한 대부분의 기능을 제공하기 때문에 클릭 몇 번으로 기본적인 인스턴스를 바로 만들고 운영할 수 있다.
+- #### Amazon에서 기본적으로 제공하는 고객센터 번호를 바로 사용할 수 있다. _(수신자 부담, 발신자 부담 설정 가능)_
+- #### 계정 관리를 통해 Admin, Manager, Caller를 설정할 수 있고 [Softphone](https://github.com/aws/connect-rtc-js), [AI Chatbot(Amazon Lex)](https://aws.amazon.com/ko/lex/)도 같이 제공한다. _(Multi Channel)_
+- #### 고객 응대 흐름은 draw.io에서 diagram 그리듯 그릴 수 있어서 편리하다. [AI Chatbot(Amazon Lex)](https://aws.amazon.com/ko/lex/)에 대한 흐름도 그릴 수 있다.
+- #### [Softphone](https://github.com/aws/connect-rtc-js)을 제공하기 때문에 인터넷 연결만 있으면 별도의 하드웨어(장비, 전화기 등) 없이 관리자와 상담원은 어디서든 사용할 수 있다. _(AutoScailing)_
+- #### 이벤트 기간 등 트래픽이 몰리는 상황에서 시스템을 증설 및 축소를 간단하게 할 수 있다.
+- #### [Amazon Polly](https://aws.amazon.com/ko/polly/)를 사용해 TTS(Text-To-Speech) 기능을 사용할 수 있다. 타이핑을 통해 안내 멘트를 간단하게 만들 수 있다. _(한국어 지원)_
+- #### [Amazon Lambda](https://aws.amazon.com/ko/lambda/)를 통해서 원하는 비지니스 로직을 부여할 수 있다. 예를들어 비행기를 취소 요청한 고객이 전화했을 때 "취소한 여행편이 있습니다. 이에 관련한 문의신가요?" 라는 질문을 먼저 할 수 있다. _(동적 반응)_
+- #### 통화, 상담 내용은 자동으로 암호화해서 저장하고 다시 들을 수 있다. _(KMS 암호화 방식)_
+- #### 저장된 데이터들을 적재하고 빅데이터를 기반으로 여러 서비스를 만들 수 있다.
+- #### 다양한 언어를 지원하기 때문에 Global 통합 운영 센터를 빠르게 만들 수 있다.
+- #### [데모 영상](https://www.youtube.com/watch?v=wnmXSqHlgyM)에서 소개하는 특징은 아래와 같다.
+  <img width="735" alt="스크린샷 2023-01-26 13 46 23" src="https://user-images.githubusercontent.com/21374902/215044938-2e5cf32e-d370-4b98-b408-ba0253cb2281.png">
+  <img width="736" alt="스크린샷 2023-01-26 14 07 05" src="https://user-images.githubusercontent.com/21374902/215044948-193f7242-2e80-446e-8502-e274457eae4e.png">
+  <img width="731" alt="스크린샷 2023-01-26 14 06 58" src="https://user-images.githubusercontent.com/21374902/215044944-5b9c3e68-ccbc-4ffd-bbdf-9161b8137527.png">
+  <img width="736" alt="스크린샷 2023-01-26 15 25 31" src="https://user-images.githubusercontent.com/21374902/215044952-fe53947e-7db3-4e9c-b46e-5e3942862600.png">
 
-클릭 몇 번으로 클라우드 고객 센터를 설정하고 에이전트를 온보딩하여 고객을 즉시 지원할 수 있다.
-올인원 형태의 AI 및 ML 기반 고객 센터를 통해 음성 및 디지털 채널 전반에서 에이전트 생산성과 고객 경험을 개선할 수 있습니다.
-위치에 관계없이 수만 명에 이르는 에이전트를 온보딩할 수 있는 유연성을 통해 고객 수요에 따라 간편하게 확장 또는 축소할 수 있습니다.
-기존 고객 센터 솔루션과 비교하여 최소 비용, 장기 약정 또는 선결제 라이선스 요금 없이 최대 80%를 절약할 수 있습니다.
 
-## 제공 서비스
-인터넷 연결만 있으면 관리자와 상담원은 어느 곳에서든 사용 가능하다.
-하드웨어, 공간, 전화, 인프라가 필요 없다.
-시스템 증설이나 축소 과정이 필요 없다.
-탄련적이며 필요에 따라 확대/축소가 가능하다.
-쉬운 설치
-동적 반응 - 개인화 - 자연어 처리 가능
-Lambda를 사용해서 기존 비지니스와 데이터 엔계를 통해 선대응이 가능하다. 비행기표 취소한 고객의 경우, 전화를 걸었을 때 취소한 표가 있으신데 취소에 대한 문의인지 먼저 물어볼 수 있다.
+## 3. 기대 효과
+- #### 원하는 비지니스에 대한 기능은 [Amazon Lambda](https://aws.amazon.com/ko/lambda/) 통해 사용할 수 있고 같은 AWS Infra에 있다면 AWS Resource와 연계하여 사용하기에도 용이해보인다.
+- #### 무엇보다 장비를 사거나 도메인을 할당받고 전화번호를 신청하고 그런 과정 없이 클릭 몇 번으로 고객센터를 바로 만들 수 있는게 큰 장점인 것 같다.
+- #### 기본으로 제공되는 [Softphone](https://github.com/aws/connect-rtc-js), [AI Chatbot(Amazon Lex)](https://aws.amazon.com/ko/lex/), [Amazon Polly](https://aws.amazon.com/ko/polly/) 기능이 좋아서 상담원만 있으면 전화를 수신하고 상담할 수 있는 업무는 바로 시작할 수 있다.
+- #### Contact Flow를 diagram으로 바로 만들 수 있는 것도 큰 장점이다.
+- #### Multi Channel에서 수집되고 저장되는 빅데이터를 활용해서 다른 서비스를 만들 수 있다.
+- #### [데모 영상](https://www.youtube.com/watch?v=wnmXSqHlgyM)에서 소개하는 기대효과는 아래와 같다.
+  <img width="734" alt="스크린샷 2023-01-26 15 27 18" src="https://user-images.githubusercontent.com/21374902/215044954-01ae0d8e-2787-4d00-bf81-8f42f1a6ed14.png">
+  <img width="736" alt="스크린샷 2023-01-26 15 27 42" src="https://user-images.githubusercontent.com/21374902/215044955-545de8b3-c026-4ec5-9b88-d5e5d313df7f.png">
+  <img width="735" alt="스크린샷 2023-01-26 15 28 27" src="https://user-images.githubusercontent.com/21374902/215044956-29196c44-1330-453a-8826-6e2a1c960db0.png">
+  <img width="734" alt="스크린샷 2023-01-26 15 32 05" src="https://user-images.githubusercontent.com/21374902/215044961-d78a3f27-cc47-4819-a8c5-178e1dc31b02.png">
 
-FlowChart 제공 - 비지니스에 맞는 Connect Flow를 간단하게 작성 및 수정할 수 있다.
-Lambda 제공 - Connect Colow에 Lambda를 사용해서 비지니스 로직을 넣고 복잡한 상황에 맞는 Flow를 만들 수 있다.
-Amazon Polly - Text를 작성하면 읽어주는 AI 기반으로 한국어 서비스도 지원이 가능하다.
-AI 채팅 서비스 - ARS 뿐만 아니라 채팅 서비스도 제공 가능하다.
-통화/상담 이력 자동 저장 - 오디오 형태로 암호화되서 저장할 수 있다.
-계정 관리 - Admin, Manager, Caller 등 계정을 쉽게 관리할 수 있다.
-저장되는 통화, 상담 이력은 빅데이터로서 활용할 수 있다.
-Softphone을 제공한다.
-다양한 언어를 지원하기 때문에 글로벌 통합 센터를 운영할 수 있다.
-
-## 서비스 고려사항
-기존 비지니스에 갖고 있던 자료와 서비스 로직을 연동할 수 있어야 함. Lambda를 사용해야할 것 같고 API 혹은 DB Connector를 사용해야할 것 같다.
-Amazon Polly를 사용해서 데이터를 축정하고 활용하는 방안
-기존 ARS에만 국한된 Connect Center가 아니라 AI 챗봇, 이메일 상담 등 Mult-channel에 공통적으로 활용하고 데이터 축정 및 사용할 수 있어야 한다.
-(이메일로 상담 접수한 고객이 ARS로 전화했을 떄 이메일 상담 내용이 연동되어야 한다.)
-Softphone Customization 활용 방안
-
-## 구현사례
+## 4. 대표 구현 사례
 - [Priceline - 통화량이 3배 증가하는 중에 고객 서비스를 최적화](https://aws.amazon.com/ko/solutions/case-studies/priceline/?did=cr_card&trk=cr_card)
 - [Deliveroo - AWS를 사용하여 고객의 기대치에 부응](https://pages.awscloud.com/rs/112-TZM-766/images/AWS%20Deliveroo%20Innovator.pdf)
 - [Unum - 완전히 새로운 보험 고객 경험 재정립](https://aws.amazon.com/ko/solutions/case-studies/unum-video/)
 
-## Reference
+
+## 5. 기타 참고 자료
 - [Amazon Connect](https://docs.aws.amazon.com/connect/index.html)
-- [Amazon Connect Admin Guide](https://docs.aws.amazon.com/ko_kr/connect/latest/adminguide/what-is-amazon-connect.html)
+- [Amazon Lex](https://aws.amazon.com/ko/lex/)
+- [Amazon Polly](https://aws.amazon.com/ko/polly/)
+- [Amazon Lambda](https://aws.amazon.com/ko/lambda/)
 - [Softphone](https://github.com/aws/connect-rtc-js)
-- [Connect Stream API (Streams)](https://github.com/aws/amazon-connect-streams)
-- [Amazon Connect Lambda](https://docs.aws.amazon.com/ko_kr/connect/latest/adminguide/connect-lambda-functions.html)
+- [Amazon Connect Admin Guide](https://docs.aws.amazon.com/ko_kr/connect/latest/adminguide/what-is-amazon-connect.html)
+- [Amazon Connect Lambda Guide](https://docs.aws.amazon.com/ko_kr/connect/latest/adminguide/connect-lambda-functions.html)
 
+## 6. Amazon Connect 만들어보기
+- ### Instance 구축
+  - [Amazon Connect](https://docs.aws.amazon.com/connect/index.html) 접속 → Amazon Connect 시작하기 → Create Instance
 
-https://www.youtube.com/watch?v=wnmXSqHlgyM
+    <img width="600" alt="스크린샷 2023-01-27 10 07 48" src="https://user-images.githubusercontent.com/21374902/215044965-02c2bd74-946e-444a-a375-b77c6d460625.png">
+    
+    <img width="600" alt="스크린샷 2023-01-27 10 09 43" src="https://user-images.githubusercontent.com/21374902/215044969-3af96cb8-674e-4685-9c81-d9b14ec53324.png">
+    
+    <img width="600" alt="스크린샷 2023-01-27 10 10 14" src="https://user-images.githubusercontent.com/21374902/215044972-7fb6cb56-52b6-4f24-a862-4c103ea95d9a.png">
+    
+    <img width="600" alt="스크린샷 2023-01-27 10 11 33" src="https://user-images.githubusercontent.com/21374902/215044975-76f16971-fd85-43ec-bfc8-3db894e62ee2.png">
+    
+    <img width="600" alt="스크린샷 2023-01-27 10 18 24" src="https://user-images.githubusercontent.com/21374902/215044982-8b4788bb-7b9b-4427-a38b-be23cb586669.png">
 
-<img width="738" alt="스크린샷 2023-01-26 13 44 46" src="https://user-images.githubusercontent.com/21374902/215044933-fbdffa55-4d10-48be-86ad-e36ebb30e4e0.png">
-<img width="735" alt="스크린샷 2023-01-26 13 46 23" src="https://user-images.githubusercontent.com/21374902/215044938-2e5cf32e-d370-4b98-b408-ba0253cb2281.png">
-<img width="735" alt="스크린샷 2023-01-26 14 06 46" src="https://user-images.githubusercontent.com/21374902/215044941-d0a1dc16-0b9b-4ba2-8128-fd1cbd60187f.png">
-<img width="731" alt="스크린샷 2023-01-26 14 06 58" src="https://user-images.githubusercontent.com/21374902/215044944-5b9c3e68-ccbc-4ffd-bbdf-9161b8137527.png">
-<img width="736" alt="스크린샷 2023-01-26 14 07 05" src="https://user-images.githubusercontent.com/21374902/215044948-193f7242-2e80-446e-8502-e274457eae4e.png">
-<img width="729" alt="스크린샷 2023-01-26 14 08 20" src="https://user-images.githubusercontent.com/21374902/215044949-5b69aaf9-9c0c-4d89-89bc-49c09ee8d6c7.png">
-<img width="736" alt="스크린샷 2023-01-26 15 25 31" src="https://user-images.githubusercontent.com/21374902/215044952-fe53947e-7db3-4e9c-b46e-5e3942862600.png">
-<img width="734" alt="스크린샷 2023-01-26 15 27 18" src="https://user-images.githubusercontent.com/21374902/215044954-01ae0d8e-2787-4d00-bf81-8f42f1a6ed14.png">
-<img width="736" alt="스크린샷 2023-01-26 15 27 42" src="https://user-images.githubusercontent.com/21374902/215044955-545de8b3-c026-4ec5-9b88-d5e5d313df7f.png">
-<img width="735" alt="스크린샷 2023-01-26 15 28 27" src="https://user-images.githubusercontent.com/21374902/215044956-29196c44-1330-453a-8826-6e2a1c960db0.png">
-<img width="734" alt="스크린샷 2023-01-26 15 32 05" src="https://user-images.githubusercontent.com/21374902/215044961-d78a3f27-cc47-4819-a8c5-178e1dc31b02.png">
-<img width="1423" alt="스크린샷 2023-01-27 10 07 04" src="https://user-images.githubusercontent.com/21374902/215044964-f32e87e8-54e0-4789-8bca-e18d66d91e60.png">
-<img width="1430" alt="스크린샷 2023-01-27 10 07 48" src="https://user-images.githubusercontent.com/21374902/215044965-02c2bd74-946e-444a-a375-b77c6d460625.png">
-<img width="1428" alt="스크린샷 2023-01-27 10 09 04" src="https://user-images.githubusercontent.com/21374902/215044967-4b491ea1-dd9e-4ea7-afad-b31b88c3caae.png">
-<img width="1435" alt="스크린샷 2023-01-27 10 09 43" src="https://user-images.githubusercontent.com/21374902/215044969-3af96cb8-674e-4685-9c81-d9b14ec53324.png">
-<img width="1425" alt="스크린샷 2023-01-27 10 10 14" src="https://user-images.githubusercontent.com/21374902/215044972-7fb6cb56-52b6-4f24-a862-4c103ea95d9a.png">
-<img width="1436" alt="스크린샷 2023-01-27 10 11 33" src="https://user-images.githubusercontent.com/21374902/215044975-76f16971-fd85-43ec-bfc8-3db894e62ee2.png">
-<img width="1432" alt="스크린샷 2023-01-27 10 15 26" src="https://user-images.githubusercontent.com/21374902/215044978-3a6db169-97d9-4de1-87fd-32e7de1e472c.png">
-<img width="1651" alt="스크린샷 2023-01-27 10 18 24" src="https://user-images.githubusercontent.com/21374902/215044982-8b4788bb-7b9b-4427-a38b-be23cb586669.png">
-<img width="425" alt="스크린샷 2023-01-27 10 20 03" src="https://user-images.githubusercontent.com/21374902/215044987-a8852510-79ea-4a52-9789-9b7fee63a9b4.png">
-<img width="1627" alt="스크린샷 2023-01-27 10 20 44" src="https://user-images.githubusercontent.com/21374902/215044989-d8e86809-4942-4d45-b99e-0db871bc1235.png">
-<img width="1189" alt="스크린샷 2023-01-27 10 23 21" src="https://user-images.githubusercontent.com/21374902/215044996-45720ff9-4915-4b1d-9744-d42ebfddef41.png">
-<img width="1535" alt="스크린샷 2023-01-27 10 27 40" src="https://user-images.githubusercontent.com/21374902/215045000-671f32c8-e96e-4aeb-88cd-d99f1469ee14.png">
+- ### Amazon Connect Dashboard
+
+  <img width="300" alt="스크린샷 2023-01-27 10 20 03" src="https://user-images.githubusercontent.com/21374902/215044987-a8852510-79ea-4a52-9789-9b7fee63a9b4.png">
+  
+  <img width="600" alt="스크린샷 2023-01-27 10 20 44" src="https://user-images.githubusercontent.com/21374902/215044989-d8e86809-4942-4d45-b99e-0db871bc1235.png">
+
+  <img width="600" alt="스크린샷 2023-01-27 10 23 21" src="https://user-images.githubusercontent.com/21374902/215044996-45720ff9-4915-4b1d-9744-d42ebfddef41.png">
+
+  <img width="600" alt="스크린샷 2023-01-27 10 27 40" src="https://user-images.githubusercontent.com/21374902/215045000-671f32c8-e96e-4aeb-88cd-d99f1469ee14.png">
