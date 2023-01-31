@@ -3138,6 +3138,10 @@ public class Client {
   }
   ```
 - ### Mediator Pattern
+  - 객체들 시이에 너무 많은 관계가 얽혀 있어서 상호작용이 복잡할 때 객체들을 캡슐화함으로써 낮은 결합도를 만들어준다.
+  - M개의 클래스 사이에 N개의 관계가 형성되어 있을 때 M:1 관계로 바꿔주기 위해 이 패턴을 사용한다.
+  - M개의 클래스 사이에 관계를 제어하는 Mediator Class를 넣어서 관계를 캡슐화하고 관리하도록 한다.
+
 - ### Memento Pattern
 - ### Observer Pattern
 - ### State Pattern
