@@ -519,3 +519,24 @@ Amazon Connect
   - #### Prompt
   - #### Contact Flow
     - ##### [Lambda 설정](https://docs.aws.amazon.com/ko_kr/connect/latest/adminguide/connect-lambda-functions.html)
+      - ###### Lambda 작성하기
+        - Amazon Connect Console → 원하는 Instance의 alias 선택 → AWS Lambda 영역에서 Lambda 작성 또는 만들어둔 Lambda 선택
+      - ###### Contact Flow에 Lambda 추가하기
+        - Amazon Connect Admin → Routing → Contanct Flows → 원하는 흐름 선택 → INTEGRATE → Invoke AWS Lambda Function 추가 → 설정한 Lambda 함수 설정 → Input Parameter 설정
+          
+          <img width="500" alt="스크린샷 2023-01-31 16 41 20" src="https://user-images.githubusercontent.com/21374902/215784157-af7f3f5c-e111-4e8e-a05b-3e89084024af.png">
+      - ###### Lambda 응답 데이터 활용하기
+        1. Lambda 응답을 직접 참조
+          
+            <img width="500" alt="스크린샷 2023-01-31 16 39 07" src="https://user-images.githubusercontent.com/21374902/215784146-f924f1e5-4a54-4d30-bc0c-6d7fbc1fc6f4.png">
+
+            <img width="500" alt="스크린샷 2023-01-31 16 39 32" src="https://user-images.githubusercontent.com/21374902/215784926-429b755e-6da6-4efd-8924-8cc6ef34bbca.png">
+
+        2. Lambda 응답을 연락처 속성으로 저장
+          - Amazon Connect Admin → SET → Set contact attributes → Add another attribute → 아래 사진처럼 설정해서 사용 가능
+          
+              <img width="500" alt="스크린샷 2023-01-31 16 41 37" src="https://user-images.githubusercontent.com/21374902/215784162-32c4dd3b-6d88-4d11-9331-c092bb271d7e.png">
+
+              <img width="500" alt="스크린샷 2023-01-31 16 41 58" src="https://user-images.githubusercontent.com/21374902/215785100-32f6fab8-336a-442e-8c44-7441461dc401.png">
+
+
