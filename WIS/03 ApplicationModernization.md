@@ -3248,6 +3248,91 @@ public class Client {
   }
   ```
 - ### Memento Pattern
+  - 객체의 정보를 저장하고 사용자가 원하는 시점의 데이터를 복원할 수 있도록 하는 Pattern
+  - `Memento` ; 객체의 상태를 갖고 있는 Class
+  - `Originator` : 현재 상태를 저장하고 Memento 객체의 정보를 얻는 Class
+  - `Caretaker` : `Memento` 클래스를 순서대로 저장하는 Class
+  ```java
+  public class Memento {
+    private final String state;
+
+    public Memento(String state) {
+        this.state = state;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public String toString() {
+        return state;
+    }
+  }
+  ```
+  ```java
+  public class Originator {
+    private String state;
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public Memento saveStateToMemento() {
+        return new Memento(state);
+    }
+
+    public void getStateFromMemento(Memento memento) {
+        state = memento.getState();
+    }
+  }
+  ```
+  ```java
+  public class CareTaker {
+    private final List<Memento> mementos = new ArrayList<>();
+
+    public void addMemento(Memento memento) {
+        this.mementos.add(memento);
+    }
+
+    public Memento getMemento(int index) {
+        return mementos.get(index);
+    }
+
+    public int getMementoSize() {
+        return mementos.size();
+    }
+  }
+  ```
+  ```java
+  public class MementoPattern {
+    public static void main(String[] args) {
+        CareTaker careTaker = new CareTaker();
+        Originator originator = new Originator();
+
+        originator.setState("State #1");
+        originator.setState("State #2");
+        careTaker.addMemento(originator.saveStateToMemento());
+        originator.setState("State #3");
+        careTaker.addMemento(originator.saveStateToMemento());
+
+        originator.setState("State #4");
+        originator.setState("State #5");
+        careTaker.addMemento(originator.saveStateToMemento());
+        originator.setState("State #6");
+        originator.setState("State #7");
+
+
+        System.out.println("Current State : " + originator.getState());
+        System.out.println("State Saved Count : " + careTaker.getMementoSize());
+        System.out.println("State Saved First : " + careTaker.getMemento(0));
+        System.out.println("State Saved Last : " + careTaker.getMemento(careTaker.getMementoSize()-1));
+    }
+  }
+  ```
 - ### Observer Pattern
 - ### State Pattern
 - ### Strategy Pattern
@@ -3256,6 +3341,7 @@ public class Client {
 - https://www.javatpoint.com/design-patterns-in-java
 - https://readystory.tistory.com/category/JAVA/Design%20Pattern
 - https://johngrib.github.io/wiki/pattern/#documents
+- https://brownbears.tistory.com/
 ### 🔰 예제코드 : https://github.com/justdoanything/self-study/tree/main/WIS/Java/src/main/java/book/pattern
 
 ---
