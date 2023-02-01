@@ -3141,7 +3141,112 @@ public class Client {
   - 객체들 시이에 너무 많은 관계가 얽혀 있어서 상호작용이 복잡할 때 객체들을 캡슐화함으로써 낮은 결합도를 만들어준다.
   - M개의 클래스 사이에 N개의 관계가 형성되어 있을 때 M:1 관계로 바꿔주기 위해 이 패턴을 사용한다.
   - M개의 클래스 사이에 관계를 제어하는 Mediator Class를 넣어서 관계를 캡슐화하고 관리하도록 한다.
+  - `Mediator` : 객체 간의 상호참조를 위한 인터페이스를 제공하고 하위 객체(`Colleague`)들을 등록, 제거하는 메소드를 포함한다.
+  - `ConcreteMediator` : `Mediator`를 구현하는 Class. 하위 객체(`Colleague`)들의 상호참조를 관리한다.
+  - `Colleague` : 다른 `Colleague`와 상호참조를 위한 인터페이스
+  - `ConcreteColleage` : `Colleague`를 구현하는 Class. `Mediator`을 통해 다른 `Colleague`와 상호참조한다.
+  ```java
+  /* Mediator */
+  public interface ChatServer {
+    void addUser(ChatClient chatClient);
+    void deleteUser(ChatClient chatClient);
+    void sendMessage(ChatClient chatClient, String message);
+  }
+  ```
+  ```java
+  /* Concrete Mediator */
+  public class ChatServerImpl implements ChatServer {
+    private final List<ChatClient> chatClients;
 
+    public ChatServerImpl() {
+        this.chatClients = new ArrayList<>();
+    }
+
+    @Override
+    public void addUser(ChatClient chatClient) {
+        System.out.println("[SERVER] " + chatClient.name + " joined this chat.");
+        this.chatClients.add(chatClient);
+    }
+
+    @Override
+    public void deleteUser(ChatClient chatClient) {
+        System.out.println("[SERVER] " + chatClient.name + " has left this chat.");
+        this.chatClients.remove(chatClient);
+    }
+
+    @Override
+    public void sendMessage(ChatClient chatClient, String message) {
+        for(ChatClient client: this.chatClients) {
+            if(client != chatClient){
+                client.receiveMessage(message);
+            }
+        }
+    }
+  }
+  ```
+  ```java
+  /* Colleague */
+  public abstract class ChatClient {
+    protected ChatServer chatServer;
+    protected String name;
+
+    public ChatClient(ChatServer chatServer, String name) {
+        this.chatServer = chatServer;
+        this.name = name;
+    }
+
+    public abstract void sendMessage(String message);
+    public abstract void receiveMessage(String message);
+  }
+  ```
+  ```java
+  /* Concrete Colleague */
+  public class ChatClientImpl extends ChatClient {
+    public ChatClientImpl(ChatServer chatServer, String name) {
+        super(chatServer, name);
+    }
+
+    @Override
+    public void sendMessage(String message) {
+        System.out.println(this.name + " sends message : " + message);
+        this.chatServer.sendMessage(this, message);
+    }
+
+    @Override
+    public void receiveMessage(String message) {
+        System.out.println("==> " + this.name + " receives message : " + message);
+    }
+  }
+  ```
+  ```java
+  public class MediatorPattern {
+    public static void main(String[] agrs) {
+        ChatServer chatServer = new ChatServerImpl();
+        ChatClient john = new ChatClientImpl(chatServer, "John");
+        ChatClient cool = new ChatClientImpl(chatServer, "Cool");
+        ChatClient dan = new ChatClientImpl(chatServer, "Dan");
+        ChatClient tony = new ChatClientImpl(chatServer, "Tony");
+
+        chatServer.addUser(john);
+        chatServer.addUser(cool);
+        chatServer.addUser(dan);
+        chatServer.addUser(tony);
+        System.out.println();
+
+        john.sendMessage("Hello, guys.");
+        System.out.println();
+
+        cool.sendMessage("Nice to meet you guys.");
+        System.out.println();
+
+        chatServer.deleteUser(john);
+        System.out.println();
+
+        dan.sendMessage("Oh, John has left this chat.");
+        System.out.println();
+    }
+  }
+  ```
 - ### Memento Pattern
 - ### Observer Pattern
 - ### State Pattern
