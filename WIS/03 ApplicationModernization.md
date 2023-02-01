@@ -3334,6 +3334,88 @@ public class Client {
   }
   ```
 - ### Observer Pattern
+  - 한 객체의 상태가 변경이 되면 해당 객체를 의존하고 있는 모든 객체에 상태 변경을 전파하는 Pattern
+  - `Subject` : 상태가 변경되었는지 관찰하는 대상
+  - `Observer` : `Subject`를 관찰하는 객체로 `Subject`에 의존성을 갖는다.
+  - `Subject` : `Observer` = 1 : N 구조이다.
+  ```java
+  public class Post {
+    private String title;
+
+    public Post(String title) {
+        this.title = title;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+  }
+  ```
+  ```java
+  public interface Observer {
+    void update(Post post);
+  }
+  ```
+  ```java
+  public class Subscriber implements Observer {
+    public void update(Post post){
+        System.out.println("notice : " + post.getTitle() + " is updated.");
+    }
+  }
+  ```
+  ```java
+  public interface Subject {
+    void addSubscriber(Subscriber subscriber);
+
+    void removeSubscriber(Subscriber subscriber);
+
+    void notifyObserver();
+  }
+  ```
+  ```java
+  public class Youtube implements Subject {
+    private List<Subscriber> subscribers = new ArrayList<>();
+    private Post post;
+
+    @Override
+    public void addSubscriber(Subscriber subscriber) {
+        this.subscribers.add(subscriber);
+    }
+
+    @Override
+    public void removeSubscriber(Subscriber subscriber) {
+        this.subscribers.remove(subscriber);
+    }
+
+    @Override
+    public void notifyObserver() {
+        for(Subscriber subscriber: subscribers) {
+            subscriber.update(post);
+        }
+    }
+
+    public void uploadPost(Post post) {
+        this.post = post;
+    }
+  }
+  ```
+  ```java
+  public class ObserverPattern {
+    public static void main(String[] args) {
+        Subscriber subscriber1 = new Subscriber();
+        Subscriber subscriber2 = new Subscriber();
+        Subscriber subscriber3 = new Subscriber();
+
+        Youtube youtube = new Youtube();
+        youtube.addSubscriber(subscriber1);
+        youtube.addSubscriber(subscriber2);
+        youtube.addSubscriber(subscriber3);
+
+        youtube.uploadPost(new Post("올해 바뀐 제도들에 대한 영상"));
+        youtube.notifyObserver();
+    }
+  }
+  ```
 - ### State Pattern
 - ### Strategy Pattern
 - ### Template Pattern
