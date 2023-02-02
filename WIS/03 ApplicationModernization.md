@@ -3417,6 +3417,124 @@ public class Client {
   }
   ```
 - ### State Pattern
+  - 어떤 행동을 수행할 때 상태에 맞는 행동을 수행하도록 정의하고 싶을 때 사용하는 Pattern
+  - 캡슐화를 위해 Interface를 생성하서 한 상태 클래스가 동작하는 범위를 지정하고 각 상태 클래스에서 동작을 구현한다.
+  ```java
+  public interface State {
+    void insertCoin(MachineContext machineContext);
+    void returnCoin(MachineContext machineContext);
+    int getCoinCount();
+    String getState();
+  }
+  ```
+  ```java
+  public class MachineContext {
+    State state;
+
+    public MachineContext() {
+        state = new NoCoinState();
+    }
+
+    public void setState(State state) {
+        this.state = state;
+    }
+
+    public String getState() {
+        return state.getState();
+    }
+
+    public void insertCoin() {
+        this.state.insertCoin(this);
+    }
+
+    public void returnCoin() {
+        this.state.returnCoin(this);
+    }
+  }
+  ```
+  ```java
+  public class CoinState implements State {
+    private int coinCount = 1;
+
+    @Override
+    public void insertCoin(MachineContext machineContext) {
+        coinCount++;
+        machineContext.setState(this);
+        System.out.println("코인이 삽입되었습니다. [코인 : " + coinCount + "]");
+    }
+
+    @Override
+    public void returnCoin(MachineContext machineContext) {
+        if(--coinCount == 0){
+            machineContext.setState(new NoCoinState());
+        }
+        System.out.println("코인이 반환되었습니다. [남은 코인 : " + coinCount + "]");
+    }
+
+    @Override
+    public String getState() {
+        return "코인이 있는 상태입니다. [남은 코인 : " + coinCount + "]";
+    }
+
+    @Override
+    public int getCoinCount() {
+        return coinCount;
+    }
+  }
+  ```
+  ```java
+  public class NoCoinState implements State {
+    @Override
+    public void insertCoin(MachineContext machineContext) {
+        machineContext.setState(new CoinState());
+        System.out.println("코인이 삽입되었습니다. [코인 : 1]");
+    }
+
+    @Override
+    public void returnCoin(MachineContext machineContext) {
+        System.out.println("코인이 없습니다.");
+    }
+
+    @Override
+    public int getCoinCount() {
+        return 0;
+    }
+
+    @Override
+    public String getState() {
+        return "코인이 없는 상태입니다.";
+    }
+  }
+  ```
+  ```java
+  public class StatePattern {
+    public static void main(String[] args) {
+        MachineContext machineContext = new MachineContext();
+        System.out.println(machineContext.getState());
+        System.out.println("==============================");
+
+        machineContext.insertCoin();
+        machineContext.insertCoin();
+        machineContext.insertCoin();
+        machineContext.insertCoin();
+        System.out.println(machineContext.getState());
+        System.out.println("==============================");
+
+        machineContext.returnCoin();
+        machineContext.returnCoin();
+        machineContext.returnCoin();
+        machineContext.returnCoin();
+        machineContext.returnCoin();
+        machineContext.returnCoin();
+        System.out.println(machineContext.getState());
+        System.out.println("==============================");
+
+        machineContext.insertCoin();
+        System.out.println(machineContext.getState());
+        System.out.println("==============================");
+    }
+  }
+  ```
 - ### Strategy Pattern
 - ### Template Pattern
 ### Reference
