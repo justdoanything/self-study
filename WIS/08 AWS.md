@@ -9,6 +9,7 @@
 - [ECS와 EC2](#aws-ecs-and-ec2)
 - [Cognito](#cognito)
 - [Amazon Connect](#amazon-connect)
+- [Amazon Lambda](#amazon-lambda)
 
 
 ---
@@ -539,4 +540,31 @@ Amazon Connect
 
               <img width="500" alt="스크린샷 2023-01-31 16 41 58" src="https://user-images.githubusercontent.com/21374902/215785100-32f6fab8-336a-442e-8c44-7441461dc401.png">
 
+---
 
+Amazon Lambda
+===
+### Amazon Lambda를 로컬 환경에서 개발하고 테스트할 수 있다.
+OS | IDE | Language
+---|---|---
+macOS | Intellij Ultimate | Java 11
+
+### 1. AWS SAM CLI 설치
+- `brew tap aws/tap`
+- `brew install aws-sam-cli`
+- `sam --version`
+- `brew update aws-sam-cli`
+
+### 2. Intelli에 AWS Toolkit 설치
+- Preferences -> Plugins -> Martketplace -> AWS Toolkit 설치
+
+### 3. Serverless 프로젝트 생성
+- File -> New -> Project -> AWS -> AWS Serverless Application
+- `Validation of sam failed: Not installed.` 에러가 뜰 경우, SAM CLI executable에 `which sam` 해서 나온 경로 입력
+
+### 4. Build & Test
+
+### 5. Test with SAM
+
+### 6. Reference
+  - https://goateedev.tistory.com/220
