@@ -1202,12 +1202,12 @@ public class Client {
 
 --- 
 ### SOLID (객체지향 설계) 원칙
-- `S`ingle Responsibility Principle (단일 책임 원칙) : 한 클래스는 하나의 책임만 가져야 한다.
-- `O`pen/Closed Principle (개방 폐쇠 원칙) : 소프트웨어 요소는 확장에는 열려 있으나 변경에는 닫혀 있어야 한다.
-- `L`iskov substitution Principle (리스코프 치환 원칙) : 프로그램의 객체는 프로그램의 정확성을 깨드리지 않으면서 하위 타입의 인스턴스로 바꿀 수 있어야 한다. 
-- `I`nterface Segregration Pringciple (인터페이스 분리 원칙) : 특정 클라이언트를 위한 인터페이스 여러 개가 범용 인터페이스 하나보다 낫다.
-- `D`ependency Inversion Principle (의존관계 역전 원칙) : 프로그래머는 추상화에 의존해야지 구체화에 의존하면 안된다.
-- reference : https://ko.wikipedia.org/wiki/SOLID_(%EA%B0%9D%EC%B2%B4_%EC%A7%80%ED%96%A5_%EC%84%A4%EA%B3%84)
+- `SRP` (Single Responsibility Principle (단일 책임 원칙)) : 한 클래스는 하나의 책임만 가져야 한다.
+- `OCP` (Open/Closed Principle (개방 폐쇠 원칙)) : 소프트웨어 요소는 확장에는 열려 있으나 변경에는 닫혀 있어야 한다.
+- `LSP` (Liskov substitution Principle (리스코프 치환 원칙)) : 프로그램의 객체는 프로그램의 정확성을 깨드리지 않으면서 하위 타입의 인스턴스로 바꿀 수 있어야 한다. 
+- `ISP` (Interface Segregration Pringciple (인터페이스 분리 원칙)) : 특정 클라이언트를 위한 인터페이스 여러 개가 범용 인터페이스 하나보다 낫다.
+- `DIP` (Dependency Inversion Principle (의존관계 역전 원칙)) : 프로그래머는 추상화에 의존해야지 구체화에 의존하면 안된다.
+- Reference : https://ko.wikipedia.org/wiki/SOLID_(%EA%B0%9D%EC%B2%B4_%EC%A7%80%ED%96%A5_%EC%84%A4%EA%B3%84)
 
 ### 캡슐화
 - 객체의 속성과 행위를 하나로 묶는다
@@ -3535,12 +3535,186 @@ public class Client {
     }
   }
   ```
+
 - ### Strategy Pattern
+  - 각 알고리즘(동작)이 교환 가능하도록 캡슐화해서 사용한다. 즉, 각 객체가 할 수 있는 동작들을 각각의 전략으로 만들어놓고 상황에 따라 전략만 바꿔서 사용한다.
+  - `Strategy` : 전략을 사용하기 위한 Interface
+  - `ConcreteStrategy` : 각 전략을 구현하는 Class
+  - `Context` : Strategy Class를 호출해서 사용하는 Class
+  
+  ```java
+  public interface SoundStrategy {
+    void crying();
+  }
+  ```
+  ```java
+  public class CryStrategy implements SoundStrategy {
+    @Override
+    public void crying() {
+        System.out.println("오리는 꽥꽥~!");
+    }
+  }
+  ```
+  ```java
+  public class NoCryStrategy implements SoundStrategy {
+    @Override
+    public void crying() {
+        System.out.println("울지 않음");
+    }
+  }
+  ```
+  ```java
+  public class CryContext {
+    private SoundStrategy soundStrategy;
+
+    public void crying() {
+        soundStrategy.crying();
+    }
+
+    public void setSoundStrategy(SoundStrategy soundStrategy) {
+        this.soundStrategy = soundStrategy;
+    }
+  }
+  ```
+  ```java
+  public class Person extends CryContext {
+    public Person() {
+        System.out.println("나는 사람이야~!");
+    }
+  }
+  ```
+  ```java
+  public class Duck extends CryContext {
+    public Duck() {
+        System.out.println("나는 오리야~!");
+    }
+  }
+  ```
+  ```java
+  public class StrategyPattern {
+    public static void main(String[] args) {
+        CryContext person = new Person();
+        CryContext duck = new Duck();
+
+        person.setSoundStrategy(new NoCryStrategy());
+        duck.setSoundStrategy(new CryStrategy());
+
+        person.crying();;
+        duck.crying();
+
+        person.setSoundStrategy(new CryStrategy());
+        person.crying();
+        duck.crying();
+    }
+  }
+  ```
+
 - ### Template Pattern
+  - 상속을 통해 슈퍼클래스의 기능을 확장할 때 사용하는 가장 대표적인 방법으로 변하지 않는 기능은 슈퍼클래스에 만들어두고 자주 변경되며 확장할 기능은 서브클래스에서 만들도록 한다.
+  - 알고리즘이 단계별로 나누어 지거나, 같은 역할을 하는 메소드이지만 여러곳에서 다른형태로 사용이 필요한 경우 유용한 패턴이다.
+  - 비슷한 동작을 하는 클래스가 많을 때 상위 클래스(abstract class)에 공통 동작을 정의하고 하위 클래스에서 달라지는 동작들은 각 하위 클래스에서 정의할 수 있도록 abstract 함수로 작성한다.
+  
+  ```java
+  public abstract class Pasta {
+    protected void boilWater() {
+        System.out.println("물을 끓인다.");
+    }
+
+    protected void putNoodle() {
+        System.out.println("면을 넣는다.");
+    }
+
+    protected void pickUpNoodle() {
+        System.out.println("면을 건진다.");
+    }
+
+    protected void coolNoodle() {
+        System.out.println("면을 식힌다.");
+    }
+
+    protected void mixSource() {
+        System.out.println("소스를 섞는다.");
+    }
+
+    protected void enjoyPasta() {
+        System.out.println("파스타를 먹는다.");
+    }
+
+    protected abstract void doExtra();
+
+    protected abstract void waitHotNoodle();
+
+    public abstract void cookPasta();
+  }
+  ```
+  ```java
+  public class CreamPasta extends Pasta {
+    @Override
+    protected void doExtra() {
+        System.out.println("다른 냄비에서 크림 소스를 데우고 있는다.");
+    }
+
+    @Override
+    protected void waitHotNoodle() {
+        System.out.println("15분 기다린다.");
+    }
+
+    @Override
+    public void cookPasta() {
+        System.out.println("크림 파스타를 만듭니다.");
+        boilWater();
+        putNoodle();
+        waitHotNoodle();
+        doExtra();
+        pickUpNoodle();
+        mixSource();
+        enjoyPasta();
+    }
+  }
+  ```
+  ```java
+  public class TomatoPasta extends Pasta {
+    @Override
+    protected void doExtra() {
+        System.out.println("다른 재료들을 넣는다.");
+    }
+
+    @Override
+    protected void waitHotNoodle() {
+        System.out.println("10분 기다린다.");
+    }
+
+    @Override
+    public void cookPasta() {
+        System.out.println("토마토 파스타를 만듭니다.");
+        boilWater();
+        putNoodle();
+        waitHotNoodle();
+        doExtra();
+        pickUpNoodle();
+        coolNoodle();
+        mixSource();
+        enjoyPasta();
+    }
+  }
+  ```
+  ```java
+  public class TemplatePattern {
+    public static void main(String[] args) {
+        Pasta creamPasta = new CreamPasta();
+        creamPasta.cookPasta();
+
+        System.out.println("========================");
+
+        Pasta tomatoPasta = new TomatoPasta();
+        tomatoPasta.cookPasta();
+    }
+  }
+  ```
+
 ### Reference
 - https://www.javatpoint.com/design-patterns-in-java
 - https://readystory.tistory.com/category/JAVA/Design%20Pattern
-- https://johngrib.github.io/wiki/pattern/#documents
 - https://brownbears.tistory.com/
 ### 🔰 예제코드 : https://github.com/justdoanything/self-study/tree/main/WIS/Java/src/main/java/book/pattern
 
