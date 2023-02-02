@@ -562,9 +562,9 @@ macOS | Intellij Ultimate | Java 11
 - File -> New -> Project -> AWS -> AWS Serverless Application
 - `Validation of sam failed: Not installed.` 에러가 뜰 경우, SAM CLI executable에 `which sam` 해서 나온 경로 입력
 
-### 4. Build & Test
-
-### 5. Test with SAM
+### 4. Build & Test with SAM
+- SAM 구동 후 테스트 : `sam local start-api` -> 원하는 URL 호출
+- 직접 호출하는 방법 : `sam local invoke "HelloWorldFunction" -e events/event.json`
 
 ### 6. Reference
-  - https://goateedev.tistory.com/220
+  - https://docs.aws.amazon.com/ko_kr/serverless-application-model/latest/developerguide/serverless-getting-started-hello-world.html
