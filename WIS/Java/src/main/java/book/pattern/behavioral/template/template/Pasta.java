@@ -1,4 +1,4 @@
-package book.pattern.behavioral.template.templ;
+package book.pattern.behavioral.template.template;
 
 public abstract class Pasta {
     protected void boilWater() {
