@@ -913,6 +913,7 @@ https://subicura.com/2016/06/07/zero-downtime-docker-deployment.html
 ===
 - 환경 : Macbook Pro M1 Monterey 12.2.1
 - `Rancher Desktop` 사용 (⭐️추천⭐️)
+  - Container Engine : `dockerd (moby)` 사용
   - trouble shooting
     - /var/run/docker.socket not permission
       - 👉 Rancher Desktop에 설정에서 Admin 권한 주고 Macbook 환경설정에서 모든 폴더에 접근 권한 부여하기
