@@ -349,6 +349,34 @@ AWS Certified Developer Associate
 - AWS Shared Responsibility Model에 따르면 다음 중 `AWS의 책임`은 `인프라`이다.
 - `IAM의 보안도구`는 `IAM 자격 증명 보고서`이다.
 
+Port | Protocol | Description 
+---|----------|---
+22 | SSH      | log into a Linux instance
+21 | FTP      | upload files into a file share
+22 | SFTP     | upload files using ssh
+80 | HTTP     | access unsecured websites
+443 | HTTPS    | access unsecured websites
+3389 | RDP      | log into a Windows instance
+
+ssh로 ec2에 접속하는 pem을 사용하기 전에 chmod 0400 으로 수정하고 사용해야 한다.
+
+`ssh -i mykey.pem ec2-user@{public ip}`
+
+EC2 요금 지불 방식 | 설명
+---|---
+On demand | 아무떄나 사용할 수 있고 사용한 만큼 요금을 지불
+Reserved | 1년 또는 3년동안 사용할 것을 계획하고 미리 요금을 지불 (할인이 많이됨)
+Saving plans | 일정 기간동안 일정 금액 이상을 지출하기로 약속하고 여러 자원에 자원을 쓸 수 있음
+Spot instances | 빈 자원에 대해 입찰해서 사용할 수 있고 나보다 비싸게 자원을 사용하는 사람이 있으면 자원을 반환해야 함 (일반적으로 가격이 제일 쌈)
+Dedicated hosts | 특정 영역 전체를 예약해서 나만의 영역으로 쓸 수 있음
+Capacity reservations | 언제 사용할지 모르지만 일단 전체 가격을 지불하고 필요할 때 사용
+
+`메모리 최적화` EC2 인스턴스는 메모리에 `대용량 데이터 세트가 필요한 워크로드`에 적합합니다.
+`컴퓨팅 최적화` EC2 인스턴스는 `배치 처리`, `미디어 트랜스코딩`, `고성능 웹 서버`, `고성능 컴퓨팅`, `과학 모델링` 및 `머신러닝`, `전용 게임 서버`와 같은 고성능 프로세서가 필요한 인텐시브 컴퓨팅 작업량에 적합합니다.
+`데이터베이스 기술을 배포`하려고 하며 공급업체 `라이선스는 물리적 코어 및 기본 네트워크 소켓 가시성`을 기반으로 비용을 청구 => `전용 호스트`
+
+EBS는 같은 AZ에 있는 EC2에만 연결 가능하며 하나의 EBS에 1개 이상의 EC2를 연결할 수 없다. 1개의 EC2에 2개 이상의 EBS는 연결이 가능하다.
+
 ---
 
 AWS ECS and EC2
