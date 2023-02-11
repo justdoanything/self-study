@@ -1,7 +1,9 @@
 목차
 ===
-- [무작정 정리해보는 AWS](#무작정-정리해보는-aws)
-- [기출 문제 풀이](#기출-문제-풀이)
+- AWS Certified
+  - [AWS Certified Architecture Associate](#aws-certified-architecture-associate) 
+    - [기출 문제 풀이](#기출-문제-풀이)
+  - [AWS Certified Developer Associate](#aws-certified-developer-associate)
 - [Quick Dictionary](#quick-dictionary)
   - [Storage Service](#storage-service)
   - [Global Infra](#global-infra)
@@ -13,7 +15,8 @@
 
 
 ---
-# 무작정 정리해보는 AWS
+AWS Certified Architecture Associate
+===
 ### 📖 AWS Certified Solutions Architect - Associate를 공부하면서 정리한 내용입니다.
 Reference : https://github.com/serithemage/AWSCertifiedSolutionsArchitectUnofficialStudyGuide
 
@@ -337,6 +340,14 @@ Amazon Glacier | Back-Ups
   Gateway Load Balancer | Amazon Elastic Compute Cloud(Amazon EC2) Classic 네트워크 안에 구축된 경우
   Classic Load Balancer | 서드 파티 가상 어플라이언스를 배포하고 실행해야 하는 경우
 
+---
+AWS Certified Developer Associate
+===
+### 📖 AWS Certified Developer Associate를 공부하면서 정리한 내용입니다.
+### 참고자료 : Udemy 강의
+- `IAM 정책의 문`은 Sid, Effect, Principal, Action, Resource 및 Condition으로 구성됩니다. `version은 문이 아니라` IAM 정책 자체의 일부입니다.
+- AWS Shared Responsibility Model에 따르면 다음 중 `AWS의 책임`은 `인프라`이다.
+- `IAM의 보안도구`는 `IAM 자격 증명 보고서`이다.
 
 ---
 
