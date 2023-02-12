@@ -406,8 +406,12 @@ GWLB | 6081 포트의 GENEVE Protocol | 네트워크 트래픽 분석
 - `Sticky Sessions` : 고정 세션. Cookie를 기준으로 Load Balancer가 동일한 인스턴스로 요청을 계속 보내도록 하는 것. EC2의 Target group의 속성으로 설정한다.
 - `Cross Zero Load Balancing` : AZ가 달라도 전체 인스턴스에 균일하게 분산한다. AZ1에는 2개의 인스턴스, AZ2에는 5개의 인스턴스가 있을 때, 70만큼의 트래픽이 온다고 가정하면
   - `Cross Zero Load Balancing`이 설정되어 있는 경우, 1개의 인스턴스에 10씩 분산된다. 
-  - `Cross Zero Load Balancing`이 설정이 안되어 있는 경우, AZ1에 있는 인스턴스에 17.5씩 분산되고 AZ2에는 7씩 분산된다. 
+  - `Cross Zero Load Balancing`이 설정이 안되어 있는 경우, AZ1에 있는 인스턴스에 17.5씩 분산되고 AZ2에는 7씩 분산된다.
+  - ALB : 항상 켜져있고 끌 수 없음. 비용 부과 없음.
+  - NLB : 기본값은 off. 키면 요금 부과
+  - CLB : 기본값은 off. 키면 요금 부과
 
+- `Connection Draining` : EC2가 Draining 상태가 되면 LB는 연결 중이던 Customer 연결은 유지하고 다음 요청부터는 Draining 상태로 보내지 않음. 
 
 
 ---
