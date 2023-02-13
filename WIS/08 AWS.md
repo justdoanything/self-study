@@ -413,6 +413,69 @@ GWLB | 6081 포트의 GENEVE Protocol | 네트워크 트래픽 분석
 
 - `Connection Draining` : EC2가 Draining 상태가 되면 LB는 연결 중이던 Customer 연결은 유지하고 다음 요청부터는 Draining 상태로 보내지 않음. 
 
+- `ALB`는 `URL 경로`, `호스트 이름`, `HTTP 헤더 및 쿼리 문자열`을 기반으로 트래픽을 다른 대상 그룹으로 라우팅할 수 있습니다.
+- ALB의 대상 그룹에 NLB는 들어갈 수 없지만 NLB의 대상 그룹엔 ALB가 들어갈 수 있다.
+- ALB가 사용하는 쿠키 이름은 AWSALB, AWSALBAPP, AWSALBTG
+- 각 ASG에는 각 스케일링 활동 후 쿨다운 기간이 있습니다. 이 기간 동안 ASG는 EC2 인스턴스를 시작하거나 종료하지 않습니다. 이는 메트릭이 안정화될 시간을 제공합니다. 쿨다운 기간의 기본값은 300초(5분)입니다.
+
+- RDS 읽기 복제 (RDS Read Replica)
+  - 비동기 복제가 읽어나고 Main App에 성능 영향을 미치지 않고 데이터를 활용할 수 있음
+  - 읽기 복제본은 SELECT 명령어만 동작함
+  - 일반적인 자원에선 AZ를 이동할 때 비용이 발생하지만 읽기 복제는 같은 리전 내에 있다면 비용이 발생하지 않음
+- 암호화 되지 않은 RDS 데이터베이스 암호화
+  - 스냅샷 생성 (암호화되지 않은 상태)
+  - 스냅샷 복제
+  - 복제한 스냅샷의 암호화 설정
+  - 암호화 된 스냅샷으로 데이터베이스 복원 (암호화 된 데이터베이스)
+  - 모든 App을 암호화 된 데이터베이스로 옮김
+  - 기존 데이터베이스는 삭제
+
+- Elastic Cache
+  - `Lazy Loading`, `Cache Aside`, `Lazy Population` : App이 cache를 보고 데이터가 있으면 cache 데이터를 반환, 없을 때 db를 가서 데이터 가져오기
+  - `Write Through` : 일단 db를 읽고 db가 업데이트 될 때 캐시를 추가하거나 업데이트한다. 영원히 읽지 않는 데이터가 cache에 계속 쌓일 수 있음
+  - `Time-To-Live (TTL)`
+
+어떤 RDS(Aurora 제외) 기능을 사용할 때 SQL 연결 문자열을 변경할 필요가 없습니까?
+- `다중 AZ` : 다중 AZ는 어떤 데이터베이스가 작동 중인지에 관계없이 동일한 연결 문자열을 유지합니다.
+- 복제본 읽기 : 읽기 전용 복제본은 자체 DNS 이름으로 새 엔드포인트를 추가합니다. 읽기 부하의 균형을 맞추기 위해 개별적으로 참조하도록 애플리케이션을 변경해야 합니다.
+
+
+고가용성을 보장하려는 ElastiCache Redis 클러스터를 실행 중입니다. 어떻게 해야 할까요?
+- `다중 AZ 활성화`
+
+사용자가 연결할 때 암호를 입력하도록 하여 ElastiCache Redis 클러스터의 보안을 강화할 수 있는 방법은 무엇일까요?
+- `Redis 인증 사용`
+- IAM 인증 사용 : IAM 인증은 ElastiCache Redis에 대해 지원되지 않습니다. RDS MySQL 및 RDS PostgreSQL 모두에서 작동합니다.
+- 보안 그룹 : 보안 그룹은 ElastiCache Redis 클러스터 인스턴스로 가는 트래픽을 필터링하는 데 도움이 되지만 애플리케이션 수준 인증에는 도움이 되지 않습니다.
+
+다음 중 RDS 읽기 전용 복제본과 다중 AZ의 복제에 대한 설명으로 옳지 않은 것은 무엇일까요?
+- `읽기 전용 복제는 비동기식 복제를 하고 다중 AZ는 동기식 복제를 한다.`
+
+RDS는 최대 5개의 복제본을 가질 수 있다.
+Aurora DB는 클러스터에 15개의 읽기 복제본을 생성할 수 있다.
+Elastic Cache 클러스터는 5개의 읽기 전용 복제본을 만들 수 있다.
+
+SSL 연결을 강제 적용하려는 MySQL RDS 데이터베이스 인스턴스가 있습니다. 어떻게 해야 할까요?
+- SSL 트래픽만 허용하도록 DB 보안 그룹 수정
+- DB에서 SSL 인증서를 다운로한 다음 Application에서 이 인증서를 사용하여 SSL을 통해 연결
+- MySQL RDS 데이터베이스 암호화 활성화
+- `모든 DB 사용자에게 REQUIRE SSL SQL`문을 실행
+
+- Route 53
+  - Record Type
+    - A : hostname to IPv4
+    - AAAA : hostname to IPv6
+    - CNAME : hostname to hostname
+
+| CNAME                                    | Alias                                                          |
+|------------------------------------------|----------------------------------------------------------------|
+| Only Non-root domain<br>test.example.com | Root Domain & Non-root Domain<br>example.com                   |
+| Domain Name                              | AWS Resource (A, AAAA for IPv4, IPv6)                          |
+| Can set TTL                              | Cannot set TTL                                                 |
+| -                                        | EC2 DNS 이름은 대상이 될 수 없음                                         |   
+|                                          | NS(Main Domain)에 CNAME을 줄 수 없기 때문에 Alias를 사용해서 ELB를 연결할 수 있다.  | 
+
+
 
 ---
 
