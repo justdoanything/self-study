@@ -475,7 +475,20 @@ SSL 연결을 강제 적용하려는 MySQL RDS 데이터베이스 인스턴스�
 | -                                        | EC2 DNS 이름은 대상이 될 수 없음                                         |   
 |                                          | NS(Main Domain)에 CNAME을 줄 수 없기 때문에 Alias를 사용해서 ELB를 연결할 수 있다.  | 
 
-
+- Routing Policy
+  - Simple (A): A record 여러개 설정 가능
+  - Weight (A): 각 인스턴스에 가중치를 부여해서 트래픽을 가중치에 따라 분산
+  - Latency (A, Region) : 가장 가까운 리소스로 리다이렉팅, 지연시간이 가장 짧음
+  - Health Check
+    - 각 인스턴스가 살아있는지 상태를 확인
+    - 여러 개의 Sub Health Check를 만들어서 통합된 지표로 상태를 확인
+    - Cloud Watch 알람을 확인
+  - Failover : First, Second 인스턴스를 지정해서 First가 동작하지 않으면 지정해 뒀던 Second으로 연결
+  - Geolocation : 지리적 위치에 따라 인스턴스를 구분해서 연결
+  - Geoproximity : 지리적 위치 + 평향값에 따라 트래픽을 분산 (평향값이 + 이면 더 많은 트래픽을, - 이면 더 적은 트래픽을 원할 때 설정)
+  - Traffic flow : Diagram 형태의 Flow를 그려서 트래픽을 분산
+  - Multi value : 여러 레코드를 설정하고 health한 여러개의 레코드를 Client에게 반환
+  - 타사 도메인을 DNS 공급자로 사용하기 위해선 퍼블릭 호스팅 영역을 생성하고 타사 레지스트라 NS 레코드를 업데이트 해야함.
 
 ---
 
