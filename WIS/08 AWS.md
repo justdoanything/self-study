@@ -490,6 +490,51 @@ SSL 연결을 강제 적용하려는 MySQL RDS 데이터베이스 인스턴스�
   - Multi value : 여러 레코드를 설정하고 health한 여러개의 레코드를 Client에게 반환
   - 타사 도메인을 DNS 공급자로 사용하기 위해선 퍼블릭 호스팅 영역을 생성하고 타사 레지스트라 NS 레코드를 업데이트 해야함.
 
+- VPC, Subnet, IGW, NAT
+  - Region > VPC > AZ > Public/Private Subnet
+  - www ↔ Internet Gateway ↔ EC2 in Public Subnet
+  - www ↔ Internet Gateway ↔ NAT ↔ EC2 in Private Subnet
+- NACL (Network ACL)
+  - 특정 IP를 Allow/Deny 규칙 설정
+  - Subnet 안에 설치되며 EC2 앞에서 방화벽 역할을 한다.
+  - 비슷한 리소스로 Security Group이 있는데 Allow 규칙만 정할 수 있다.
+- VPC Peering
+  - 각 VPC는 다른 IP 대역대를 갖고 있어야 하고 CIDR이 겹치면 안된다.
+  - VPC A, B, C를 연결하고 싶다면 3개의 VPC Peering이 필요하다.
+- VPC Endpoint Gateway
+  - 다른 AWS 자원들과 private network로 연결해준다.
+- Site to Site VPN : 온프로미스와 AWS를 연결할 때 사용. 암호화 (public)
+- Direct Connect : 물리적으로 연결 (비공개 회선) (private)
+
+| 용어               | 설명                                                 |
+|------------------|----------------------------------------------------|
+| VPC              | Virtual Private Cloud. 1개의 Regison에 1개의 기본 VPC가 존재 |
+| Subnet           | AZ에 속하고 VPC의 네트워크 파티션을 담당                          |
+| Internet Gateway | Public Internet과 Public Subnet을 연결                 |
+| NAT Gateway      | Public Internet과 Private subnet을 연결해줌              |
+| NACL             | Subnet의 inboud/outboud rule을 적용. (Allow/Deny)      |
+| Security Group   | EC2, ENI의 inboud/outboud rule을 적용. (Allow)         |
+| VPC Peering      | 서로 다른 VPC를 연결                                      |
+| VPC Endpoint     | VPC 내에 있는 AWS 자원들과 비공개 연결                          |
+| VPC Flow Log     | VPC 내 트래픽 로그                                       |
+| Site to Site VPN | On-promise 환경과 AWS를 연결 (Public Internet)           |
+| Direct Connect   | AWS에 Private으로 직접 연결                               |
+
+- 일반적인 3계층 아키텍처
+
+| Public Subnet   | Private Subnet   | Data Subnet                                  |
+|-----------------|------------------|----------------------------------------------|
+| ELB<br>Route 53 | ASG = 여러 AZ에 EC2 | Elastic Cache (cache, session)<br>Amazon RDS | 
+
+- LAMP Stack on EC2
+  - Linux : OS
+  - Apache : Web Server
+  - MySQL : Database
+  - PHP : Application
+  - Additional :redis, memcached, EBS
+
+- VPC Endpoint를 사용할 때 Interface Endpoint 대신 Gateway Endpoint가 있는 유일한 2개의 AWS 자원은 `S3`, `DynamoDB`
+
 ---
 
 AWS ECS and EC2
