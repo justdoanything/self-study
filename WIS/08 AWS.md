@@ -2,7 +2,6 @@
 ===
 - AWS Certified
   - [AWS Certified Architecture Associate](#aws-certified-architecture-associate) 
-    - [기출 문제 풀이](#기출-문제-풀이)
   - [AWS Certified Developer Associate](#aws-certified-developer-associate)
 - [Quick Dictionary](#quick-dictionary)
   - [Storage Service](#storage-service)
@@ -344,7 +343,8 @@ Amazon Glacier | Back-Ups
 AWS Certified Developer Associate
 ===
 ### 📖 AWS Certified Developer Associate를 공부하면서 정리한 내용입니다.
-### 참고자료 : Udemy 강의
+### 참고자료 : Udemy 강의 (best-aws-certified-developer-associate)
+
 - `IAM 정책의 문`은 Sid, Effect, Principal, Action, Resource 및 Condition으로 구성됩니다. `version은 문이 아니라` IAM 정책 자체의 일부입니다.
 - AWS Shared Responsibility Model에 따르면 다음 중 `AWS의 책임`은 `인프라`이다.
 - `IAM의 보안도구`는 `IAM 자격 증명 보고서`이다.
@@ -535,6 +535,31 @@ SSL 연결을 강제 적용하려는 MySQL RDS 데이터베이스 인스턴스�
 
 - VPC Endpoint를 사용할 때 Interface Endpoint 대신 Gateway Endpoint가 있는 유일한 2개의 AWS 자원은 `S3`, `DynamoDB`
 
+- S3 Versioning
+  - Versioning 이전의 파일은 version = null
+  - Versioning을 중단하면 기존 버전은 유지하고 이후 파일에 version = null
+- S3 Encryption
+  - SSE-S3
+    - `"x-amz-server-side-encryption" : "AE256"`
+    - S3에서 암호화 키를 관리
+    - 객체 단위로 암호화 키를 관리해서 암호화
+  - SSE-KMS
+    - `"x-amz-server-side-encryption" : "aws:kms"`
+    - KMS 서비스에서 암호화 키를 관리
+    - KMS Customer Master Key로 암호화
+    - 누가 어떤 키에 접근할 수 있는지 제어할 수 있고 누가 접근했는지 추적할 수 있다.
+  - SSE-C
+    - 외부에서 고객이 관리하는 Key를 사용. 사용한 Key는 폐기됨
+    - 객체와 Client Side Key를 담아서 `반드시 HTTPS로 전송`
+    - 객체를 받으려면 암호화 했을 때 사용한 Key를 동일하게 보내야한다. AWS는 Key를 폐기하기 때문에 Key 관리는 Client에서 해야함.
+  - Client Side Encryption
+    - AWS S3 Encryption Client Library로 암호화를 한 다음 S3로 전송
+    - Key 관리는 Client에서 해야함
+- S3 Security
+  - Bucket에 ACL 등 보안 설정을 할 수 있다.
+  - Networking : VPC Endpoint를 통해 www ↔ S3로 비공개 연결
+  - ️MFA Delete
+  - Pre-signed URL : AWS 자격 증명으로 서명된 URL로 1시간 동안 유지되고 프리미엄 회원에서 동영상을 제공하는 등에 활용할 수 있다.
 ---
 
 AWS ECS and EC2
@@ -760,8 +785,55 @@ macOS | Intellij Ultimate | Java 11
 - `Validation of sam failed: Not installed.` 에러가 뜰 경우, SAM CLI executable에 `which sam` 해서 나온 경로 입력
 
 ### 4. Build & Test with SAM
+- ⭐️Docker를 Rancher로 돌리는 경우엔 sam 사용이 불가합니다. AWS Lambda Console에 올려서 테스트 해야 합니다.
 - SAM 구동 후 테스트 : `sam local start-api` -> 원하는 URL 호출
 - 직접 호출하는 방법 : `sam local invoke "HelloWorldFunction" -e events/event.json`
 
-### 6. Reference
+### 5. 함수 개발
+- 아래 사진과 같이 Lambda Console에서 실행시킬 함수를 선택한다. (Runtime settings ➡️ Handler)
+
+<img width="1518" alt="image" src="https://user-images.githubusercontent.com/21374902/219037044-bcfaa3c8-f956-4cc2-9b16-597201c208e4.png">
+
+- 3번에서 만든 프로젝트에서 build.gradle에 필요한 dependency를 추가한다. 
+- 실행시키고자 하는 함수하고 `RequestHandler`를 상속받고 Input/Output의 Type을 지정한다.
+  - ⭐️ 응답을 String 타입의 JSON 형태로 하면 __"{\\"name\\":\\"beaver\\"}"__ 처럼 큰 따움표가 붙기 때문에 아래와 같이 Response 클래스를 생성하고 안에 Getter/Setter 메소드를 선언 후 객체 그대로를 반환해야 하면 AWS에서 Serialize를 해준다.
+  - Response 클래스는 POJO 형태로 반드시 Setter/Getter를 가져야 한다.
+  ```java
+  public class QueryTable implements RequestHandler<Input, Output> {
+    @Override
+    public Output handleRequest(Input input, Context context) {
+        return new Output("beaver");
+    }
+  }  
+  ```
+  ```java
+  public class Output {
+    private String name;
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public Output(String name) {
+        this.name = name;
+    }
+  }
+  ```
+
+### 6. Upload Jar 생성
+- build.gradle에 task 추가
+  ```yaml
+  task buildZip(type: Zip) {
+    from compileJava
+    from processResources
+    into('lib') {
+        from configurations.runtimeClasspath
+    }
+  }
+  ```
+- gradle에서 buildZip 실행
+- 생성된 Jar 파일을 AWS Lambda Console에 업로드 후 테스트 진행
+
+### 7. Reference
   - https://docs.aws.amazon.com/ko_kr/serverless-application-model/latest/developerguide/serverless-getting-started-hello-world.html
