@@ -791,6 +791,7 @@ macOS | Intellij Ultimate | Java 11
 
 ### 5. 함수 개발
 - 아래 사진과 같이 Lambda Console에서 실행시킬 함수를 선택한다. (Runtime settings ➡️ Handler)
+- 따라서 하나의 프로젝트로 여러개의 람다 함수를 관리할 수 있으며 형상관리가 용이하다.
 
 <img width="1518" alt="image" src="https://user-images.githubusercontent.com/21374902/219037044-bcfaa3c8-f956-4cc2-9b16-597201c208e4.png">
 
