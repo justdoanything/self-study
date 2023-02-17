@@ -848,9 +848,17 @@ macOS | Intellij Ultimate | Java 11
   implementation 'org.projectlombok:lombok:1.18.24'
   annotationProcessor 'org.projectlombok:lombok:1.18.24'
   ```
-
-  - Query Table
-    ```java
+- DDL
+  - Create a table
+    - Create a table with a simple primary key
+    - Create a table with a composite primary key
+  - List tables
+  - Describe (get information about) a table
+  - Modify (update) a table
+  - Delete a table
+- DML
+  - dRetrieve (get) an item from a table
+      ```java
     public class QueryTable implements RequestHandler<Object, QueryTableResponse> {
       private final Region REGION = Region.AP_NORTHEAST_2;
       private final String tableName = "table_name";
@@ -887,7 +895,10 @@ macOS | Intellij Ultimate | Java 11
       }
     }
     ```
-  
+  - Retrieve (get) an item from a table using the asynchronous client
+  - Add a new item to a table
+  - Update an existing item in a table
+  - Delete an existing item in a table
 
 # 3. Reference
 - https://docs.aws.amazon.com/ko_kr/serverless-application-model/latest/developerguide/serverless-getting-started-hello-world.html
