@@ -1,16 +1,18 @@
 목차
 ===
-- AWS Certified
+- ## AWS Certified
   - [AWS Certified Architecture Associate](#aws-certified-architecture-associate) 
   - [AWS Certified Developer Associate](#aws-certified-developer-associate)
-- [Quick Dictionary](#quick-dictionary)
+- ## [Quick Dictionary](#quick-dictionary)
   - [Storage Service](#storage-service)
   - [Global Infra](#global-infra)
   - [ELB](#elastic-load-balancing)
-- [ECS와 EC2](#aws-ecs-and-ec2)
-- [Cognito](#cognito)
-- [Amazon Connect](#amazon-connect)
-- [Amazon Lambda](#amazon-lambda)
+- ## [ECS와 EC2](#aws-ecs-and-ec2)
+- ## [Cognito](#cognito)
+- ## [Amazon Connect](#amazon-connect)
+- ## [Amazon Lambda](#amazon-lambda)
+  - [기본 개념](#1-기본개념)
+  - [DynamoDB](#2-lambda-with-dynamodb)
 
 
 ---
@@ -766,30 +768,31 @@ Amazon Connect
 
 Amazon Lambda
 ===
-### Amazon Lambda를 로컬 환경에서 개발하고 테스트할 수 있다.
+# 1. 기본개념 
+### (1) 목표 : Amazon Lambda를 로컬 환경에서 개발하고 테스트할 수 있다.
 OS | IDE | Language
 ---|---|---
 macOS | Intellij Ultimate | Java 11
 
-### 1. AWS SAM CLI 설치
+### (2) AWS SAM CLI 설치
 - `brew tap aws/tap`
 - `brew install aws-sam-cli`
 - `sam --version`
 - `brew update aws-sam-cli`
 
-### 2. Intelli에 AWS Toolkit 설치
+### (3) Intelli에 AWS Toolkit 설치
 - Preferences -> Plugins -> Martketplace -> AWS Toolkit 설치
 
-### 3. Serverless 프로젝트 생성
+### (4) Serverless 프로젝트 생성
 - File -> New -> Project -> AWS -> AWS Serverless Application
 - `Validation of sam failed: Not installed.` 에러가 뜰 경우, SAM CLI executable에 `which sam` 해서 나온 경로 입력
 
-### 4. Build & Test with SAM
+### (5) Build & Test with SAM
 - ⭐️Docker를 Rancher로 돌리는 경우엔 sam 사용이 불가합니다. AWS Lambda Console에 올려서 테스트 해야 합니다.
 - SAM 구동 후 테스트 : `sam local start-api` -> 원하는 URL 호출
 - 직접 호출하는 방법 : `sam local invoke "HelloWorldFunction" -e events/event.json`
 
-### 5. 함수 개발
+### (6) 함수 개발
 - 아래 사진과 같이 Lambda Console에서 실행시킬 함수를 선택한다. (Runtime settings ➡️ Handler)
 - 따라서 하나의 프로젝트로 여러개의 람다 함수를 관리할 수 있으며 형상관리가 용이하다.
 
@@ -822,7 +825,7 @@ macOS | Intellij Ultimate | Java 11
   }
   ```
 
-### 6. Upload Jar 생성
+### (7) Upload Jar 생성
 - build.gradle에 task 추가
   ```yaml
   task buildZip(type: Zip) {
@@ -836,5 +839,55 @@ macOS | Intellij Ultimate | Java 11
 - gradle에서 buildZip 실행
 - 생성된 Jar 파일을 AWS Lambda Console에 업로드 후 테스트 진행
 
-### 7. Reference
-  - https://docs.aws.amazon.com/ko_kr/serverless-application-model/latest/developerguide/serverless-getting-started-hello-world.html
+# 2. Lambda with DynamoDB 
+- dependencies in build.gradle
+  ```yaml
+  implementation 'com.amazonaws:aws-lambda-java-core:1.2.1'
+  implementation 'com.amazonaws:aws-lambda-java-events:3.11.0'
+  implementation 'software.amazon.awssdk:dynamodb:2.19.31'
+  implementation 'org.projectlombok:lombok:1.18.24'
+  annotationProcessor 'org.projectlombok:lombok:1.18.24'
+  ```
+
+  - Query Table
+    ```java
+    public class QueryTable implements RequestHandler<Object, QueryTableResponse> {
+      private final Region REGION = Region.AP_NORTHEAST_2;
+      private final String tableName = "table_name";
+
+      @Override
+      public QueryTableResponse handleRequest(Object input, Context context) {
+        DynamoDbClient dynamoDbClient = DynamoDbClient.builder().region(REGION).build();
+
+        HashMap<String,AttributeValue> keyToGet = new HashMap<String,AttributeValue>();
+        keyToGet.put("name",AttributeValue.builder().s("beaver").build());
+
+        GetItemRequest getItemRequest = GetItemRequest.builder()
+                  .tableName(tableName)
+                  .key(keyToGet)
+                  .build();
+
+        try{
+            Map<String,AttributeValue> returnedItem = dynamoDbClient.getItem(getItemRequest).item();
+            if(returnedItem != null) {
+                return QueryTableResponse.builder()
+                                  .name(returnedItem.get("name").toString())
+                                  .isReserved(true)
+                                  .build();
+            }else {
+                return QueryTableResponse.builder()
+                                  .isReserved(false)
+                                  .build();
+            }
+        }catch (Exception e){
+            return QueryTableResponse.builder()
+                                .isReserved(false)
+                                .build();
+        }
+      }
+    }
+    ```
+  
+
+# 3. Reference
+- https://docs.aws.amazon.com/ko_kr/serverless-application-model/latest/developerguide/serverless-getting-started-hello-world.html
