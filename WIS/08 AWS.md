@@ -685,9 +685,18 @@ Cognito
 
 Amazon Connect
 === 
-### Amazon Connect : https://aws.amazon.com/ko/connect
+### AWS Document : https://aws.amazon.com/ko/connect
 ## 1. 서비스 개요
-- #### 간단히 말하면 고객센터를 구축해주는 Amazon의 몇 안되는 완성형 서비스이다. 간단한 [데모 영상](https://www.youtube.com/watch?v=wnmXSqHlgyM)을 보고 따라해봤을 때 인스턴스를 구축하고 기본 세팅을 하는데 10분이 채 걸리지 않았다.
+- #### 간단히 말하면 고객센터를 구축해주는 Amazon의 몇 안되는 `완성형 서비스`이다. 간단한 [데모 영상](https://www.youtube.com/watch?v=wnmXSqHlgyM)을 보고 따라해봤을 때 인스턴스를 구축하고 상담원과 전화 연결을 하는데 10분이 채 걸리지 않았다.
+- #### Amazon Connect에서 제공하는 주요 서비스는 아래와 같다.
+| 주요 서비스                                             | 설명                                        |
+|----------------------------------------------------|-------------------------------------------|
+| [Amazon Polly](https://aws.amazon.com/ko/polly/)   | TTS(Text-to-speech) 서비스 제공                |
+| [Amazon Lex](https://aws.amazon.com/ko/lex/)       | AI Chatbot 서비스 제공                         |
+| [Softphone](https://github.com/aws/connect-rtc-js) | 별도의 작업 없이 바로 상담원이 전화를 받고 걸 수 있는 서비스 제공    |
+| [Amazon Lambda](https://aws.amazon.com/ko/lambda/) | 원하는 비지니스 로직을 Contact Flow에 적용할 수 있는 서비스   |
+| Contact Flow                                       | 고객 응대 흐름을 Diagram 형태로 바로 만들고 수정할 수 있는 서비스 |
+
 
 ## 2. 서비스 특징
 - #### AWS 공식 페이지에선 아래와 같이 설명을 하고 있다.
@@ -741,53 +750,83 @@ Amazon Connect
 - [Amazon Connect Lambda Guide](https://docs.aws.amazon.com/ko_kr/connect/latest/adminguide/connect-lambda-functions.html)
 
 ## 6. Amazon Connect 만들어보기
-- ### Instance 구축
+- ### (1) Instance 구축
   - [Amazon Connect](https://docs.aws.amazon.com/connect/index.html) 접속 → Amazon Connect 시작하기 → Create Instance
-
+    
     <img width="600" alt="스크린샷 2023-01-27 10 07 48" src="https://user-images.githubusercontent.com/21374902/215044965-02c2bd74-946e-444a-a375-b77c6d460625.png">
-    
-    <img width="600" alt="스크린샷 2023-01-27 10 09 43" src="https://user-images.githubusercontent.com/21374902/215044969-3af96cb8-674e-4685-9c81-d9b14ec53324.png">
-    
-    <img width="600" alt="스크린샷 2023-01-27 10 10 14" src="https://user-images.githubusercontent.com/21374902/215044972-7fb6cb56-52b6-4f24-a862-4c103ea95d9a.png">
-    
-    <img width="600" alt="스크린샷 2023-01-27 10 11 33" src="https://user-images.githubusercontent.com/21374902/215044975-76f16971-fd85-43ec-bfc8-3db894e62ee2.png">
-    
-    <img width="600" alt="스크린샷 2023-01-27 10 18 24" src="https://user-images.githubusercontent.com/21374902/215044982-8b4788bb-7b9b-4427-a38b-be23cb586669.png">
 
-- ### Amazon Connect Dashboard
+    <img width="300" alt="스크린샷 2023-01-27 10 20 03" src="https://user-images.githubusercontent.com/21374902/215044987-a8852510-79ea-4a52-9789-9b7fee63a9b4.png">
 
-  <img width="300" alt="스크린샷 2023-01-27 10 20 03" src="https://user-images.githubusercontent.com/21374902/215044987-a8852510-79ea-4a52-9789-9b7fee63a9b4.png">
+- ### (2) Amazon Connect Dashboard
   
   <img width="600" alt="스크린샷 2023-01-27 10 20 44" src="https://user-images.githubusercontent.com/21374902/215044989-d8e86809-4942-4d45-b99e-0db871bc1235.png">
 
-  - #### 통신 채널 탐색
-    
-    <img width="600" alt="스크린샷 2023-01-27 10 23 21" src="https://user-images.githubusercontent.com/21374902/215044996-45720ff9-4915-4b1d-9744-d42ebfddef41.png">
+- ### (3) Contact Flow
+  - #### ⭐️ 중요 포인트
+    - ##### TTS 기본 언어는 English로 되어 있기 때문에 한국어로 변경해줘야 한다. Flow 시작 부분에 `Set Voice` = Korean 으로 설정해야 한다. 
+    - ##### Lambda 함수 응답은 JSON 형태의 depth가 1이고 value는 기본 타입을 사용해야한다. value에 list, json 등이 오면 `Invoke AWS Lambda Function`에서 Error로 판단한다.
+    - ##### Play prompt 등에서 Flow 내 한국어로 된 변수(Lambda 응답, Contact Attribute 등)를 사용하려면 Type은 반드시 Text 이여야 한다. SSML은 한국어 변수를 제대로 인식하지 못한다. 
+  - #### 개발적인 요소가 들어가는 곳은 Contact Flow에서 `Invoke AWS Lambda Function`에서 Lambda를 개발하고 변수를 활용하는 부분이다.
+  - #### 1) Invoke AWS Lambda Function
+    - ##### Document : [Amazon Connect Lambda 활용 가이드](https://docs.aws.amazon.com/ko_kr/connect/latest/adminguide/connect-lambda-functions.html)
+    - ##### Lambda 작성하기 ([Amazon Lambda](#amazon-lambda-1) 참고)
+        - #### Instance에 Lambda 추가하기
+          - ##### Amazon Connect Console → 원하는 Instance의 alias 선택 → AWS Lambda 영역에서 Lambda 작성 또는 만들어둔 Lambda 선택
+        - #### Contact Flow에 Lambda 활용하기
+          - ##### Lambda에 Input Parameter 부여하기
+            - ###### Input Parameter로 넘기는 방법은 크게 2가지로, `Contact Attribute`로 설정해서 넘기는 방법과 `Invoke AWS Lambda Function`에서 직접 부여하는 방법이 있다.
+            - ###### `Contact Attribute` → Add another attribute → User defined로 임의의 값을 설정하거나 System value 사용
 
-    <img width="600" alt="스크린샷 2023-01-27 10 27 40" src="https://user-images.githubusercontent.com/21374902/215045000-671f32c8-e96e-4aeb-88cd-d99f1469ee14.png">
+              <img width="500" alt="스크린샷 2023-01-31 16 39 07" src="https://user-images.githubusercontent.com/21374902/215784146-f924f1e5-4a54-4d30-bc0c-6d7fbc1fc6f4.png">
+              
+            - ###### `Invoke AWS Lambda Function` → Add a parameter → User defined로 임의의 값을 설정하거나 System value 사용
 
-  - #### Chat widget
-  - #### Prompt
-  - #### Contact Flow
-    - ##### [Lambda 설정](https://docs.aws.amazon.com/ko_kr/connect/latest/adminguide/connect-lambda-functions.html)
-      - ###### Lambda 작성하기
-        - Amazon Connect Console → 원하는 Instance의 alias 선택 → AWS Lambda 영역에서 Lambda 작성 또는 만들어둔 Lambda 선택
-      - ###### Contact Flow에 Lambda 추가하기
-        - Amazon Connect Admin → Routing → Contanct Flows → 원하는 흐름 선택 → INTEGRATE → Invoke AWS Lambda Function 추가 → 설정한 Lambda 함수 설정 → Input Parameter 설정
+              <img width="500" alt="스크린샷 2023-01-31 16 41 20" src="https://user-images.githubusercontent.com/21374902/215784157-af7f3f5c-e111-4e8e-a05b-3e89084024af.png">
+          - ##### Lambda에서 Input Parameter 사용하기
+            - `Contact Attribute`로 설정한 값 : Details.ContactData.Attributes.contactName;
+            - `Invoke AWS Lambda Function`로 설정한 값 : Details.Parameters.nickname;
+            - Lambda Test를 할 때 amazonConnect 샘플을 보면 Input 데이터 형식을 볼 수 있다.
+              ```json
+              {
+                "Name": "ContactFlowEvent",
+                "Details": {
+                  "ContactData": {
+                    "Attributes": {},
+                    "Channel": "VOICE",
+                    "ContactId": "5ca32fbd-8f92-46af-92a5-6b0f970f0efe",
+                    "CustomerEndpoint": {
+                      "Address": "+11234567890",
+                      "Type": "TELEPHONE_NUMBER"
+                    },
+                    "InitialContactId": "5ca32fbd-8f92-46af-92a5-6b0f970f0efe",
+                    "InitiationMethod": "API",
+                    "InstanceARN": "arn:aws:connect:us-east-1:123456789012:instance/9308c2a1-9bc6-4cea-8290-6c0b4a6d38fa",
+                    "MediaStreams": {
+                      "Customer": {
+                        "Audio": {
+                          "StartFragmentNumber": "91343852333181432392682062622220590765191907586",
+                          "StartTimestamp": "1565781909613",
+                          "StreamARN": "arn:aws:kinesisvideo:us-east-1:123456789012:stream/connect-contact-a3d73b84-ce0e-479a-a9dc-5637c9d30ac9/1565272947806"
+                        }
+                      }
+                    },
+                    "PreviousContactId": "5ca32fbd-8f92-46af-92a5-6b0f970f0efe",
+                    "Queue": null,
+                    "SystemEndpoint": {
+                      "Address": "+11234567890",
+                      "Type": "TELEPHONE_NUMBER"
+                    }
+                  },
+                  "Parameters": {}
+                }
+              }              
+              ```         
+          - ##### Lambda의 Response를 Flow에서 사용하기
+            - `$.` 문자로 변수를 사용할 수 있다.
+            - 한국어를 사용할 경우 SSML은 사용할 수 없기 때문에 <say-as>, <speak> 태그는 사용하지 않아야 하고 interpret as = Text로 설정하고 변수를 바로 사용해야 한다. (예시 : `$.External.nickname`)
+            
+              <img width="500" alt="스크린샷 2023-01-31 16 39 32" src="https://user-images.githubusercontent.com/21374902/215784926-429b755e-6da6-4efd-8924-8cc6ef34bbca.png">
           
-          <img width="500" alt="스크린샷 2023-01-31 16 41 20" src="https://user-images.githubusercontent.com/21374902/215784157-af7f3f5c-e111-4e8e-a05b-3e89084024af.png">
-      - ###### Lambda 응답 데이터 활용하기
-        1. Lambda 응답을 직접 참조
-          
-            <img width="500" alt="스크린샷 2023-01-31 16 39 07" src="https://user-images.githubusercontent.com/21374902/215784146-f924f1e5-4a54-4d30-bc0c-6d7fbc1fc6f4.png">
-
-            <img width="500" alt="스크린샷 2023-01-31 16 39 32" src="https://user-images.githubusercontent.com/21374902/215784926-429b755e-6da6-4efd-8924-8cc6ef34bbca.png">
-
-        2. Lambda 응답을 연락처 속성으로 저장
-          - Amazon Connect Admin → SET → Set contact attributes → Add another attribute → 아래 사진처럼 설정해서 사용 가능
-          
-              <img width="500" alt="스크린샷 2023-01-31 16 41 37" src="https://user-images.githubusercontent.com/21374902/215784162-32c4dd3b-6d88-4d11-9331-c092bb271d7e.png">
-
               <img width="500" alt="스크린샷 2023-01-31 16 41 58" src="https://user-images.githubusercontent.com/21374902/215785100-32f6fab8-336a-442e-8c44-7441461dc401.png">
 
 ---
@@ -814,65 +853,97 @@ macOS | Intellij Ultimate | Java 11
 - `Validation of sam failed: Not installed.` 에러가 뜰 경우, SAM CLI executable에 `which sam` 해서 나온 경로 입력
 
 ### (5) Build & Test with SAM
-- ⭐️Docker를 Rancher로 돌리는 경우엔 sam 사용이 불가합니다. AWS Lambda Console에 올려서 테스트 해야 합니다.
-- SAM 구동 후 테스트 : `sam local start-api` -> 원하는 URL 호출
-- 직접 호출하는 방법 : `sam local invoke "HelloWorldFunction" -e events/event.json`
+- ⭐️ Docker를 Rancher로 돌리는 경우엔 sam 사용이 불가합니다. Docker Desktop을 설치하거나 AWS Lambda Console에 올려서 테스트 해야 합니다.
+- Intellij
+  - Run Configuration에서 input, aws profile 등 설정하고 실행
+- Command
+  - SAM 구동 후 테스트 : `sam local start-api` -> 원하는 URL 호출
+  - 직접 호출하는 방법 : `sam local invoke "HelloWorldFunction" -e events/event.json`
 
 ### (6) 함수 개발
-- 아래 사진과 같이 Lambda Console에서 실행시킬 함수를 선택한다. (Runtime settings ➡️ Handler)
-- 따라서 하나의 프로젝트로 여러개의 람다 함수를 관리할 수 있으며 형상관리가 용이하다.
-
-<img width="1518" alt="image" src="https://user-images.githubusercontent.com/21374902/219037044-bcfaa3c8-f956-4cc2-9b16-597201c208e4.png">
-
-- 3번에서 만든 프로젝트에서 build.gradle에 필요한 dependency를 추가한다. 
-- 실행시키고자 하는 함수하고 `RequestHandler`를 상속받고 Input/Output의 Type을 지정한다.
-  - ⭐️ 응답을 String 타입의 JSON 형태로 하면 __"{\\"name\\":\\"beaver\\"}"__ 처럼 큰 따움표가 붙기 때문에 아래와 같이 Response 클래스를 생성하고 안에 Getter/Setter 메소드를 선언 후 객체 그대로를 반환해야 하면 AWS에서 Serialize를 해준다.
-  - Response 클래스는 POJO 형태로 반드시 Setter/Getter를 가져야 한다.
+- #### ⭐ 중요 포인트
+  - ##### 함수의 응답은 String 타입이 아닌 POJO 형식의 Class를 반환해야 한다. 응답을 String 타입의 JSON 형태로 하면 __"{\\"name\\":\\"beaver\\"}"__ 처럼 큰 따움표가 붙는다.
+  - ##### POJO 형식의 Class를 반환하면 Lambda에서 알아서 Serialize를 해준다.
+  - ##### 함수는 반드시 RequestHandler Class를 상속 받아야 하고 Input/Output Parameter의 형식을 지정할 수 있다.
   ```java
-  public class QueryTable implements RequestHandler<Input, Output> {
+  public class ScanTable implements RequestHandler<Object, ScanTableResponse> {
+
+    private final Region REGION = Region.AP_NORTHEAST_2;
+    private final String tableName = "sampleTable";
+
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final DynamoDbClient dynamoDbClient = DynamoDbClient.builder().region(REGION).build();
+
     @Override
-    public Output handleRequest(Input input, Context context) {
-        return new Output("beaver");
+    public ScanTableResponse handleRequest(Object input, Context context) {
+        JsonObject json = gson.toJsonTree(input).getAsJsonObject();
+        String nickname = json.getAsJsonObject("Details").getAsJsonObject("Parameters").get("nickname").getAsString();
+        String contactName = json.getAsJsonObject("Details").getAsJsonObject("ContactData").getAsJsonObject("Attributes").get("contactName").getAsString();
+        String phoneNumber = json.getAsJsonObject("Details").getAsJsonObject("ContactData").getAsJsonObject("CustomerEndpoint").get("Address").getAsString();
+
+        Map<String, AttributeValue> where = new HashMap<>();
+        where.put(":phoneNumber", AttributeValue.builder().s(phoneNumber).build());
+
+        ScanRequest scanRequest = ScanRequest.builder()
+                .tableName(tableName)
+                .expressionAttributeValues(where)
+                .filterExpression("phoneNumber = :phoneNumber")
+                .build();
+
+        try{
+            ScanResponse response = dynamoDbClient.scan(scanRequest);
+            return ScanTableResponse.builder()
+                        .isReserved(true)
+                        .nickname(nickname)
+                        .contactName(contactName)
+                        .phoneNumber(phoneNumber)
+                        .flightNo(response.items().get(0).get("flightNo").s())
+                        .build();
+        }catch (Exception e){
+            System.out.println("Logger Exception : " + e.toString());
+            return ScanTableResponse.builder()
+                    .isReserved(false)
+                    .nickname(nickname)
+                    .contactName(contactName)
+                    .phoneNumber(phoneNumber)
+                    .build();
+        }
     }
-  }  
-  ```
-  ```java
-  public class Output {
-    private String name;
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-    public Output(String name) {
-        this.name = name;
-    }
-  }
+  }   
   ```
 
-### (7) Upload Jar 생성
-- build.gradle에 task 추가
-  ```yaml
-  task buildZip(type: Zip) {
-    from compileJava
-    from processResources
-    into('lib') {
+### (7) Lmabda 테스트
+- Lambda에 Jar 업로드하기
+  - build.gradle에 task 추가
+    ```yaml
+    task buildZip(type: Zip) {
+      from compileJava
+      from processResources
+      into('lib') {
         from configurations.runtimeClasspath
+      }
     }
-  }
-  ```
-- gradle에서 buildZip 실행
-- 생성된 Jar 파일을 AWS Lambda Console에 업로드 후 테스트 진행
+    ```
+  - gradle에서 buildZip 실행
+  - 생성된 Jar 파일을 AWS Lambda Console에 업로드
+  - 아래 사진과 같이 Lambda Console에서 실행시킬 함수의 경로를 지정한다. (Runtime settings ➡️ Handler)
+    
+    <img width="1518" alt="image" src="https://user-images.githubusercontent.com/21374902/219037044-bcfaa3c8-f956-4cc2-9b16-597201c208e4.png">
+    
+- Lambda 함수 테스트
+  - Lambda Console에서 Test 탭으로 이동 후 원하는 이벤트 타입 (Input Paramter)를 설정 후 구동해본다. 
 
 # 2. Lambda with DynamoDB 
 - dependencies in build.gradle
   ```yaml
-  implementation 'com.amazonaws:aws-lambda-java-core:1.2.1'
-  implementation 'com.amazonaws:aws-lambda-java-events:3.11.0'
-  implementation 'software.amazon.awssdk:dynamodb:2.19.31'
-  implementation 'org.projectlombok:lombok:1.18.24'
-  annotationProcessor 'org.projectlombok:lombok:1.18.24'
+  dependencies {
+    implementation 'com.amazonaws:aws-lambda-java-core:1.2.1'
+    implementation 'com.amazonaws:aws-lambda-java-events:3.11.0'
+    implementation 'software.amazon.awssdk:dynamodb:2.19.31'
+    implementation 'org.projectlombok:lombok:1.18.24'
+    implementation 'com.google.code.gson:gson:2.9.0'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+  }
   ```
 - DDL
   - Create a table
@@ -883,7 +954,7 @@ macOS | Intellij Ultimate | Java 11
   - Modify (update) a table
   - Delete a table
 - DML
-  - dRetrieve (get) an item from a table
+  - Retrieve (get) an item from a table
       ```java
     public class QueryTable implements RequestHandler<Object, QueryTableResponse> {
       private final Region REGION = Region.AP_NORTHEAST_2;
@@ -927,4 +998,5 @@ macOS | Intellij Ultimate | Java 11
   - Delete an existing item in a table
 
 # 3. Reference
-- https://docs.aws.amazon.com/ko_kr/serverless-application-model/latest/developerguide/serverless-getting-started-hello-world.html
+- https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/examples-dynamodb-items.html
+- https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.html
