@@ -1000,3 +1000,4 @@ macOS | Intellij Ultimate | Java 11
 # 3. Reference
 - https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/examples-dynamodb-items.html
 - https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.html
+- https://docs.aws.amazon.com/ko_kr/amazondynamodb/latest/developerguide/ScanJavaDocumentAPI.html
