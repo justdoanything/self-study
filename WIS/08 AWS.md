@@ -475,7 +475,7 @@ SSL 연결을 강제 적용하려는 MySQL RDS 데이터베이스 인스턴스�
 | Domain Name                              | AWS Resource (A, AAAA for IPv4, IPv6)                          |
 | Can set TTL                              | Cannot set TTL                                                 |
 | -                                        | EC2 DNS 이름은 대상이 될 수 없음                                         |   
-|                                          | NS(Main Domain)에 CNAME을 줄 수 없기 때문에 Alias를 사용해서 ELB를 연결할 수 있다.  | 
+| -                                        | NS(Main Domain)에 CNAME을 줄 수 없기 때문에 Alias를 사용해서 ELB를 연결할 수 있다.  | 
 
 - Routing Policy
   - Simple (A): A record 여러개 설정 가능
@@ -587,6 +587,31 @@ SSL 연결을 강제 적용하려는 MySQL RDS 데이터베이스 인스턴스�
 - 온프로미스 서버에도 IAM 자격 증명을 넣으면 안된다.
 - http://169.254.169.254/latest/meta-data
 - EC2에 IAM을 연결하며 AWS CLI는 인스턴스 메타데이터를 읽어서 임시 자격 증명을 사용한다.
+
+- S3 복제에서 삭제 마크는 복제되지 않는다.
+
+| S3 종류                  | 설명                                                                                                          |
+|------------------------|-------------------------------------------------------------------------------------------------------------|
+| Standard               |                                                                                                             |
+| IA (Infrequent Access) | 잘 사용하지 않는 객체 저장                                                                                             |
+| One Zone IA            | Single AZ에 데이터를 먼저 자장.<br>Multi AZ의 경우엔 IA보다 가용성이 낮다.<br>속도와 성능이 빠르다.<br>IA보다 비용이 적다.<br>썸네일과 같은 이미지 저장에 용이 |
+| Intelligent Tiering    | Standard와 IA 사이에서 자동으로 객체 교환                                                                                |
+| Glacier                | 대용량 데이터를 장기관 보관                                                                                             | 
+
+- Glacier의 복원
+  - Expedited : 1-5분
+  - Standard : 3-5시간
+  - Bulk : 5-12시간
+  - 최소 90일 보관
+- Glacier Deep Archive의 복원
+  - Standard : 12시간 이전에는 회수 못함
+  - Bulk : 48시간 이전에는 회수 못함
+  - 최소 180일 보관
+- 썸네일은 재생성하기 용이하고 45일 동안 보관된다. 45일 동안은 원본 파일을 회수할 수 있고 이후에는 6시간 후 복원해야 한다. -> 원본사진은 S3 Standard, 45일 이후에는 Glacier로 이동하도록 정책설정. 썸네일은 One Zone IA에 놓고 45일 후 삭제 정책을 설정.
+- 15일 동안은 바로 복원할 수 있어야 하고 그 이후에는 365일동안 보관하며 48시간 이내에 복원해야 한다. -> S3 versioning을 통해서 즉시 복구하도록 하고 과거 버전은 IA로 이동시키고 15일이 지나면 Deep Archive로 이동시킨다.
+- S3 업로드 가속화 (Transfer Acceleration) : 엣지 로케이션에 올리고 엣지 로케이션은 리전에 private network로 빠르게 올림
+- S3 다운로드 가속화 : 1개의 파일을 Byte Range로 나눠서 병력적으로 다운로드 받고 한 부분이 실패해도 빠르게 재실행됨
+
 
 ---
 
