@@ -613,6 +613,60 @@ SSL 연결을 강제 적용하려는 MySQL RDS 데이터베이스 인스턴스�
 - S3 다운로드 가속화 : 1개의 파일을 Byte Range로 나눠서 병력적으로 다운로드 받고 한 부분이 실패해도 빠르게 재실행됨
 
 
+## Match Keyword
+| 질문                                                                          | 답변                                                                                                                              |
+|-----------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|
+| DynamoDB 개별 사용자 다른 사용자 데이터 액세스 불가                                           | 기본 키 값을 기반으로 항목 액세스 제한                                                                                                          |      
+| CodeCommit Repository에 대한 HTTPS 복제 URL 사전 구성                                | AWS 자격 증명 프로필 사용 Git 자격 증명 도우미 설정. 도우미가 Repository로 경로를 보낼 수 있도록함                                                               |        
+| API G/W API 특정 리소스 접근 유일한 사용자. 토큰 자동 만료/새로고침                                | Cognito 사용자풀, Authorizer 구성, 자격 증명 또는 Access token                                                                              |    
+| Elastic Beanstalk 배포 오래 걸림                                                  | CodeCommit Repository 생성, 개발자가 커밋 허용, Elastic Beanstalk에 직접 배포                                                                  |
+| S3 반복 호출해서 Limit Exceeded 발생                                                | 어플리케이션에서 지수 백오프 구현                                                                                                              |
+| 서버측 암호화 블록 암호                                                               | Advanced Encryption Standard                                                                                                    |
+| DynamoDB                                                                    | 낙관적 동시성 제어 사용, 일관성을 위해 조건부 쓰기 사용                                                                                                |
+| LAMP                                                                        | EC2, Aurora                                                                                                                     |
+| 지연 이유는 DB에서 프로필 조회, 캐시 필요                                                   | ElastiCache Cluster 생성. 캐시 제외 캐싱 전략 사용                                                                                          |         
+| EC2 10개                                                                     | CloudWatch 고유한 메트릭 이름, 사용자 지정 네임스페이스                                                                                            |     
+| API G/W & Lambda                                                            | Session은 DynamoDB에 저장                                                                                                           |
+| EC2 4개, 각 고유한 권한, 메모리 예약 기반 컨테이너                                            | 각 ECS에 권한을 포함한 4개의 고유한 IAM 생성 후 IAM 역할 참조 하도록 ECS 작업 정의 구성                                                                      |               
+| 30분 걸리는 사기 탐지 솔루션                                                           | 주문을 SQS 대기열, Auto Scaling 그룹 구성, 사기 탐지 솔루션이 설치된 AZ에 EC2 집합 설정                                                                   |          
+| 보안 인프라 관리 싫음. 암호화 키는 제어                                                     | SSE-KMS                                                                                                                         | 
+| Kinesis Data Stream, ProvisionedThroyghputExceededException                 | Data Stream 샤드 수 증가, Get/PutRecords 호출에 지수 백오프 구현                                                                               |
+| SQS 5분 소요. 메세지 성공적 처리, 중복 처리 최소화하면서 메시지 제거                                  | 가시성 시간 초과가 증가한 메세지 검색, 메시지 처리, 대기열에서 삭제                                                                                         |              
+| 붕투 암호화 KMS 작동                                                               | Master Key = 암복호화용, Text Data Key = 고객 데이터 암호화                                                                                  |
+| 기존 SNS 계정 사용 게임 로그인, 데이터는 DynamoDB 저장, DynamoDB API 안전한 접근 방식               | Web ID 연합 사용, 임시 보안 자격 증명을 요청에 서명                                                                                               |       
+| AWS CLI, Serverless 시작 단계                                                   | CloudFormation Package 사용 후 배포                                                                                                  |
+| Elastic Beanstalk 배포 가능 기능                                                  | ASG, ELB, RDS                                                                                                                   |
+| 최종 사용자에게 보낼 수 있는 양 제한. 경영진은 더 큰 패키지 구매 옵션 제공                                | 기본 사용 계획 설정. 각 단계를 설정. 더 큰 패키지를 선택하면 적절한 값으로 사용자 지정 계획을 만들고 사용자와 연결.                                                            |                          
+| Provisioning 된 처리량 효율성을 위한 DynamoDB Hash Key Schema                         | Application의 사용자 ID                                                                                                             | 
+| EC2의 Public/Private IP 확인 방법                                                | Local Instance Metadata 쿼리                                                                                                      |
+| CloudFormation Template로 Lambda 배포 절차                                       | Template에서 AWS::Lambda::Function 리소스 생성 후 CloudFormation Template 내부에 코드 작성, 코드 .zip S3에 업로드 후 AWS::Lambda::Function 리소스에 참조 추가 | 
+| 민감 데이터 보호. 액세스 추적 필요.                                                       | EC2 System Manager Parameter Store에서 IAM으로 Application Access 권한 부여                                                             |
+| Lambda 핸들러 범위 밖에서 Client Instance 이점                                        | 연결 재사용 활용                                                                                                                       |
+| CPU 고사용 Lambda 배포. 런타임 최소화                                                  | 메모리 할당이 최대로 설정된 함수 배포                                                                                                           |   
+| EC2 정적 콘텐츠 때문에 높은 지연 시간                                                     | 정적 컨텐츠를 캐시할 CloudFront 배포, S3에 정적 컨텐츠 저장                                                                                        |    
+| Lambda로 Kinesis Data Stream 처리. 함수가 중복 레코드 생성. Lambda 없는 스트림은 중복 없음         | Lambda가 오류를 처리하지 않고 Lambda 서비스가 재처리를 시도                                                                                         |       
+| S3 버킷 민감 정보 저장. 모든 데이터 암호화                                                  | x-amz-server-side-encryption 헤더가 포함되지 않는 객체 업로드 방지하는 정책 설정                                                                      |                                                                        
+| KMS 암호화 100 GB                                                              | Text Key와 Data Key의 암호화된 복사본을 반환하는 API 호출 생성. Text Key를 사용해서 데이터 암호화                                                            |
+| Lambda 함수 DynamoDB 접근 두번째 계정 생성. 테이블 액세스 방법                                 | 테이블 액세스할 때 Lambda 에서 새 역할을 맡음                                                                                                   |
+| DynamoDB ProvisionedThroyghputExceededException 발생. CloudWatch에 처리량 초과하지 않음 | 특정 Hash Key에 대한 용량을 초과                                                                                                          |
+| Elastic Beanstalk 지원 플랫폼                                                    | tomcat, .NET                                                                                                                    |
+| CORS 에러 발생                                                                  | CORS 구성을 생성해서 교차 출처 요청을 허용하는 cdfonts 버킷 구성                                                                                      |
+| S3 데이터 처리 어플리케이션. 하루 10번, 1분 소요                                             | Lambda로 배포하고 S3 이벤트 알림과 같이 호출                                                                                                   |
+| 가장 저렴한 비용으로 다운로드 액세스 안전하게 제어                                                | S3 Presigned URL와 함께 CloudFront 사용                                                                                              |
+| ELB + EC2, 세션 데이터 작성하는 위치                                                   | ElasticCache에 데이터 쓰기                                                                                                            |
+| 이미징 서비스를 EC2로 마이그레이션. 이미지는 Private S3 버킷에서 가져옴                              | S3 버킷에 대한 읽기 전용 권한이 있는 EC2 서비스 역할을 생성하고 연결                                                                                      |
+| AWS SDK 기본 리전                                                               | us-east-1                                                                                                                       |
+| SQS 설명                                                                      | 메세지는 한 번 이상 배달되고 순서는 불확실                                                                                                        | 
+| Lambda 함수 테스트 해도 CloudWatch Log에 생성되지 않음                                    | Lambda 함수 실행 역할에 CloudWatch Log에 쓰기 권한이 없음                                                                                      |
+| DynamoDB에 실시간 동적 업데이트. 덮어쓰기 방지 옵션                                           | 조건부 쓰기                                                                                                                          |
+| 병렬, 순차적 실행하는 어플을 Lambda로 리팩토링. POST는 G/W에서 처리.                              | Step Functions 상태 머신을 사용해서 Lambda 함수 조정                                                                                         |
+| 주식 어플. Kinesis로 데이터 수집. 수신 데이터 따라갈 수 없음                                     | UpdateShardCount를 사용해서 스트림의 샤드 수를 증가                                                                                            |
+| Lambda 함수 오래 걸림                                                             | Lambda 함수에 할당 된 메모리를 증가                                                                                                         |
+
+
+
+
+
 ---
 
 AWS ECS and EC2
