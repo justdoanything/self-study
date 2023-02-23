@@ -1,16 +1,16 @@
 목차
 ===
-- ## AWS Certified
+- [AWS Certified](#aws-certified-architecture-associate)
   - [AWS Certified Architecture Associate](#aws-certified-architecture-associate) 
   - [AWS Certified Developer Associate](#aws-certified-developer-associate)
-- ## [Quick Dictionary](#quick-dictionary)
+- [Quick Dictionary](#quick-dictionary)
   - [Storage Service](#storage-service)
   - [Global Infra](#global-infra)
   - [ELB](#elastic-load-balancing)
-- ## [ECS와 EC2](#aws-ecs-and-ec2)
-- ## [Cognito](#cognito)
-- ## [Amazon Connect](#amazon-connect)
-- ## [Amazon Lambda](#amazon-lambda)
+- [ECS와 EC2](#aws-ecs-and-ec2)
+- [Cognito](#cognito)
+- [Amazon Connect](#amazon-connect)
+- [Amazon Lambda](#amazon-lambda)
   - [기본 개념](#1-기본개념)
   - [DynamoDB](#2-lambda-with-dynamodb)
 
@@ -230,7 +230,9 @@ Amazon Glacier | Back-Ups
 
 
 ---
-# 기출 문제 풀이
+<details>
+<summary><font size="5"><b>Match Keywords</b></font></summary>
+
 순번| 문제 | 답안
 ---|---|---
 1 | 웹사이트의 DNS 레코드가 Route 53에 호스트되어 있고 도메인이 ALB를 바라보고 있을때 정적인 에러 페이지를 보여주려면 ? | `Route 53 active-passive failover configuration`을 설정해서 ALB가 바라보는 end-point가 비정상이면 S3에 있는 정적인 에러 페이지를 보여준다.
@@ -274,9 +276,13 @@ Amazon Glacier | Back-Ups
 39 | EC2, Multi-AZ. Auto Scaling in ALB. CPU 가동률이 40%일 때 가장 잘 구동한다. 이를 지키기 위해 어떻게 해야할까? | `target tracking policy`를 사용해서 Auto Scaling 그룹을 동적으로 확장한다.
 40 | EC2, Multi-AZ. Auto Scaling in ALB. work hour엔 20 intances, 밤에 scale 내려가면 2 instances. 아침에 App이 느리다는 불만이 있다. | 아침에 20 으로 설정하는 스케쥴 액션을 설정한다.
 
+</details>
 
+---
 
-#### Quick Dictionary
+<details>
+<summary><font size="5"><b>Quick Dictionary</b></font></summary>
+
 - `Route 53 active-passive failover configuration`: Route 53의 상태를 확인해서 활성/비활성화(장애) 상태일 때의 조치 사항을 정의할 수 있다.
 - `Route 53` : 
 - `CloudFront` : 콘텐츠 전송 네트워크(CDN) 서비스
@@ -313,10 +319,9 @@ Amazon Glacier | Back-Ups
   - `simple scaling policy` :
   - `cheduled scaling actions` :
 
-
 - ###### Storage Service
   Storage | Data
-  ---|---
+    ---|---
   Amazon RDS | Structure Data
   Amazon CloudSearch | Search Indices
   DynamoDB | Meta Data
@@ -327,7 +332,7 @@ Amazon Glacier | Back-Ups
   Amazon Glacier | Back-Ups
 - ###### Global Infra
   Keyword | 개념 | 사용하는 시기와 상황
-  ---|---|---
+    ---|---|---
   Region | AWS 서버가 존재하는 위치
   Aavailable Zone | 각 Region은 여러개의 가용영역으로 나눠져 있고 가용영역은 서로 분리되어 있다.
   Local Zones | 짧은 대기 시간을 요구하는 Application을 최종 사용자와 더 가까운 위치에서 제공 | 동영상 렌더링 및 그래픽 집약적인 가상 데스크톱 애플리케이션 등 한 자릿수 밀리초 단위의 대기 시간이 요구되는 워크로드를 더 많은 위치에서 실행하도록 고안된 새로운 유형의 AWS 인프라입니다. 어떤 고객은 고유한 온프레미스 데이터 센터를 운영하길 원하지만 로컬 데이터 센터를 완전히 없애길 원하는 고객도 있을 수 있습니다. AWS Local Zones를 사용하는 고객은 자체 데이터 센터 인프라를 보유 및 운영할 필요 없이 컴퓨팅 및 스토리지 리소스를 최종 사용자에게 더 가까이에 두는 이점을 누릴 수 있습니다.
@@ -335,11 +340,15 @@ Amazon Glacier | Back-Ups
   Outposts | 하이브리드 환경을 위해 거의 모든 온프레미스 또는 엣지 로케이션에 AWS 인프라 및 서비스를 제공하는 완전관리형 솔루션 패밀리 | 대기 시간 요구 사항으로 인해 온프레미스에 유지해야 하는 워크로드를 위해 설계되었습니다. 그러나 이 경우에도 고객은 온프레미스 워크로드가 AWS 워크로드와 원활하게 실행되길 원합니다. AWS Outposts는 AWS에서 설계한 하드웨어로 제작된 구성 가능한 완전관리형 컴퓨팅 및 스토리지 랙으로, 이를 통해 고객은 컴퓨팅 및 스토리지를 온프레미스에서 실행하는 동시에 AWS의 광범위한 클라우드 서비스에 원활하게 연결할 수 있습니다
 - ###### Elastic Load Balancing
   Elastic Load Balancing | 용도
-  ---|---
+    ---|---
   Application Load Balancer | HTTP 요청을 로드 밸런싱
   Network Load Balancer | 네트워크/전송 프로토콜(4계층 - TCP, UDP) 로드 밸런싱의 경우와 고도의 성능이 요구되거나 대기 시간이 낮아야 하는 애플리케이션
   Gateway Load Balancer | Amazon Elastic Compute Cloud(Amazon EC2) Classic 네트워크 안에 구축된 경우
   Classic Load Balancer | 서드 파티 가상 어플라이언스를 배포하고 실행해야 하는 경우
+
+</details>
+
+
 
 ---
 AWS Certified Developer Associate
@@ -612,100 +621,132 @@ SSL 연결을 강제 적용하려는 MySQL RDS 데이터베이스 인스턴스�
 - S3 업로드 가속화 (Transfer Acceleration) : 엣지 로케이션에 올리고 엣지 로케이션은 리전에 private network로 빠르게 올림
 - S3 다운로드 가속화 : 1개의 파일을 Byte Range로 나눠서 병력적으로 다운로드 받고 한 부분이 실패해도 빠르게 재실행됨
 
+<details>
+<summary><font size="5"><b>Match Keywords</b></font></summary>
 
-## Match Keyword
-| 질문                                                                                                  | 답변                                                                                                                                            |
-|-----------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
-| DynamoDB 개별 사용자 다른 사용자 데이터 액세스 불가                                                                   | 기본 키 값을 기반으로 항목 액세스 제한                                                                                                                        |      
-| CodeCommit Repository에 대한 HTTPS 복제 URL 사전 구성                                                        | AWS 자격 증명 프로필 사용 Git 자격 증명 도우미 설정. 도우미가 Repository로 경로를 보낼 수 있도록함                                                                             |        
-| API G/W API 특정 리소스 접근 유일한 사용자. 토큰 자동 만료/새로고침                                                        | Cognito 사용자풀, Authorizer 구성, 자격 증명 또는 Access token                                                                                            |    
-| Elastic Beanstalk 배포 오래 걸림                                                                          | CodeCommit Repository 생성, 개발자가 커밋 허용, Elastic Beanstalk에 직접 배포                                                                                |
-| S3 반복 호출해서 Limit Exceeded 발생                                                                        | 어플리케이션에서 지수 백오프 구현                                                                                                                            |
-| 서버측 암호화 블록 암호                                                                                       | Advanced Encryption Standard                                                                                                                  |
-| DynamoDB                                                                                            | 낙관적 동시성 제어 사용, 일관성을 위해 조건부 쓰기 사용                                                                                                              |
-| LAMP                                                                                                | EC2, Aurora                                                                                                                                   |
-| 지연 이유는 DB에서 프로필 조회, 캐시 필요                                                                           | ElastiCache Cluster 생성. 캐시 제외 캐싱 전략 사용                                                                                                        |         
-| EC2 10개                                                                                             | CloudWatch 고유한 메트릭 이름, 사용자 지정 네임스페이스                                                                                                          |     
-| API G/W & Lambda                                                                                    | Session은 DynamoDB에 저장                                                                                                                         |
-| EC2 4개, 각 고유한 권한, 메모리 예약 기반 컨테이너                                                                    | 각 ECS에 권한을 포함한 4개의 고유한 IAM 생성 후 IAM 역할 참조 하도록 ECS 작업 정의 구성                                                                                    |               
-| 30분 걸리는 사기 탐지 솔루션                                                                                   | 주문을 SQS 대기열, Auto Scaling 그룹 구성, 사기 탐지 솔루션이 설치된 AZ에 EC2 집합 설정                                                                                 |          
-| 보안 인프라 관리 싫음. 암호화 키는 제어                                                                             | SSE-KMS                                                                                                                                       | 
-| Kinesis Data Stream, ProvisionedThroyghputExceededException                                         | Data Stream 샤드 수 증가, Get/PutRecords 호출에 지수 백오프 구현                                                                                             |
-| SQS 5분 소요. 메세지 성공적 처리, 중복 처리 최소화하면서 메시지 제거                                                          | 가시성 시간 초과가 증가한 메세지 검색, 메시지 처리, 대기열에서 삭제                                                                                                       |              
-| 붕투 암호화 KMS 작동                                                                                       | Master Key = 암복호화용, Text Data Key = 고객 데이터 암호화                                                                                                |
-| 기존 SNS 계정 사용 게임 로그인, 데이터는 DynamoDB 저장, DynamoDB API 안전한 접근 방식                                       | Web ID 연합 사용, 임시 보안 자격 증명을 요청에 서명                                                                                                             |       
-| AWS CLI, Serverless 시작 단계                                                                           | CloudFormation Package 사용 후 배포                                                                                                                |
-| Elastic Beanstalk 배포 가능 기능                                                                          | ASG, ELB, RDS                                                                                                                                 |
-| 최종 사용자에게 보낼 수 있는 양 제한. 경영진은 더 큰 패키지 구매 옵션 제공                                                        | 기본 사용 계획 설정. 각 단계를 설정. 더 큰 패키지를 선택하면 적절한 값으로 사용자 지정 계획을 만들고 사용자와 연결.                                                                          |                          
-| Provisioning 된 처리량 효율성을 위한 DynamoDB Hash Key Schema                                                 | Application의 사용자 ID                                                                                                                           | 
-| EC2의 Public/Private IP 확인 방법                                                                        | Local Instance Metadata 쿼리                                                                                                                    |
-| CloudFormation Template로 Lambda 배포 절차                                                               | Template에서 AWS::Lambda::Function 리소스 생성 후 CloudFormation Template 내부에 코드 작성, 코드 .zip S3에 업로드 후 AWS::Lambda::Function 리소스에 참조 추가               | 
-| 민감 데이터 보호. 액세스 추적 필요.                                                                               | EC2 System Manager Parameter Store에서 IAM으로 Application Access 권한 부여                                                                           |
-| Lambda 핸들러 범위 밖에서 Client Instance 이점                                                                | 연결 재사용 활용                                                                                                                                     |
-| CPU 고사용 Lambda 배포. 런타임 최소화                                                                          | 메모리 할당이 최대로 설정된 함수 배포                                                                                                                         |   
-| EC2 정적 콘텐츠 때문에 높은 지연 시간                                                                             | 정적 컨텐츠를 캐시할 CloudFront 배포, S3에 정적 컨텐츠 저장                                                                                                      |    
-| Lambda로 Kinesis Data Stream 처리. 함수가 중복 레코드 생성. Lambda 없는 스트림은 중복 없음                                 | Lambda가 오류를 처리하지 않고 Lambda 서비스가 재처리를 시도                                                                                                       |       
-| S3 버킷 민감 정보 저장. 모든 데이터 암호화                                                                          | x-amz-server-side-encryption 헤더가 포함되지 않는 객체 업로드 방지하는 정책 설정                                                                                    |                                                                        
-| KMS 암호화 100 GB                                                                                      | Text Key와 Data Key의 암호화된 복사본을 반환하는 API 호출 생성. Text Key를 사용해서 데이터 암호화                                                                          |
-| Lambda 함수 DynamoDB 접근 두번째 계정 생성. 테이블 액세스 방법                                                         | 테이블 액세스할 때 Lambda 에서 새 역할을 맡음                                                                                                                 |
-| DynamoDB ProvisionedThroyghputExceededException 발생. CloudWatch에 처리량 초과하지 않음                         | 특정 Hash Key에 대한 용량을 초과                                                                                                                        |
-| Elastic Beanstalk 지원 플랫폼                                                                            | tomcat, .NET                                                                                                                                  |
-| CORS 에러 발생                                                                                          | CORS 구성을 생성해서 교차 출처 요청을 허용하는 cdfonts 버킷 구성                                                                                                    |
-| S3 데이터 처리 어플리케이션. 하루 10번, 1분 소요                                                                     | Lambda로 배포하고 S3 이벤트 알림과 같이 호출                                                                                                                 |
-| 가장 저렴한 비용으로 다운로드 액세스 안전하게 제어                                                                        | S3 Presigned URL와 함께 CloudFront 사용                                                                                                            |
-| ELB + EC2, 세션 데이터 작성하는 위치                                                                           | ElasticCache에 데이터 쓰기                                                                                                                          |
-| 이미징 서비스를 EC2로 마이그레이션. 이미지는 Private S3 버킷에서 가져옴                                                      | S3 버킷에 대한 읽기 전용 권한이 있는 EC2 서비스 역할을 생성하고 연결                                                                                                    |
-| AWS SDK 기본 리전                                                                                       | us-east-1                                                                                                                                     |
-| SQS 설명                                                                                              | 메세지는 한 번 이상 배달되고 순서는 불확실                                                                                                                      | 
-| Lambda 함수 테스트 해도 CloudWatch Log에 생성되지 않음                                                            | Lambda 함수 실행 역할에 CloudWatch Log에 쓰기 권한이 없음                                                                                                    |
-| DynamoDB에 실시간 동적 업데이트. 덮어쓰기 방지 옵션                                                                   | 조건부 쓰기                                                                                                                                        |
-| 병렬, 순차적 실행하는 어플을 Lambda로 리팩토링. POST는 G/W에서 처리.                                                      | Step Functions 상태 머신을 사용해서 Lambda 함수 조정                                                                                                       |
-| 주식 어플. Kinesis로 데이터 수집. 수신 데이터 따라갈 수 없음                                                             | UpdateShardCount를 사용해서 스트림의 샤드 수를 증가                                                                                                          |
-| Lambda 함수 오래 걸림                                                                                     | Lambda 함수에 할당 된 메모리를 증가                                                                                                                       |
-| Step Function 작업 상태를 CloudWatch로 오류 표시. 원래 입려과 오류 모두 보존하는 방 법                                       | Catch문에서 ResultPath를 사용해서 원래 입력에 오류 표시                                                                                                        |
-| ElastiCache 좋은 사례                                                                                   | 읽기가 많은 어플의 워크로드 대기 시간과 처리량 개선, 컴퓨팅 집약적인 어플의 성능 향상                                                                                             |
-| 사용자 자격 증명 절대 노출 금지                                                                                  | Cognito 사용자풀 구성하고 Cognito API로 사용자 인증하고 권한 부여                                                                                                 |
-| BGP 기반 VPN으로 EC2 연결. Subnet A는 액세스, B는 액세스 불가. 트래픽이 B에 도달했는지 확인                                     | VPC 흐름 로그                                                                                                                                     |
-| 응용 프로그램을 2개의 구성요소로 나누고 독립적으로 확장. Elastic Beanstalk 사용해서 배포                                          | 각 구성 요소를 별도의 Elastic Beanstalk 환경에 배포                                                                                                         |
-| Access key를 AWS에서 관리하는 방법                                                                           | 계정 루트 사용자에 대한 모든 Access key를 삭제, Access key 대신 IAM 역할 사용                                                                                      |
-| S3 버킷에 프로필 사진 저장. 로그인할 때마다 표시. 공개적으로 액세스 불가                                                         | 사진의 S3 key를 DynamoDB에 저장. 함수를 사용해서 Presigned URL 생성 후 반환                                                                                      |
-| EC2 어플이 DynamoDB 쓰기 권한. 보안키는 사용하지 않음                                                                | EC2에 IAM 추가. DynamoDB에 쓰기 권한 IAM 역할 생성                                                                                                        |
-| Lambda가 초당 여러번 호출. 호출당 50MB 파일 다운로드                                                                 | /tmp 경로에 파일을 캐시                                                                                                                               |
-| Lambda는 VPC의 RDS Mysql 읽고 다른 싸이트에서 데이터 가져옴                                                          | Lambda 함수 기본 구성에 VPC Private Subnet 연결 추가, VPC에 NAT G/W 추가                                                                                    |
-| Elastic Beanstalk 배포. ELB가 있는 WEB 계층, RDS 계층 어플리케이션. RDS 인스턴스 분리하는 방법                               | RDS 없는 새로운 Elasic Beanstalk 환경 다시 생성                                                                                                          |
-| SQS 사용 어플리케이션. 분당 하나의 메세지가 대기열에 게시되서 비용 증가                                                          | SQS 대기열 폴링 시간 초과를 늘린다.                                                                                                                        |
-| CPU 집약 데이터 처리 Lambda nodejs 개발. 완료시간 단축 솔루션은?                                                       | Lambda 사용 가능 메모리 증가                                                                                                                           |
-| 소스 변경될 때 배포. 배포 트리거 방식                                                                              | 소스 코드를 S3에 저장하고 파일이 변경되면 시작하는 CodePipeline 구성, 소스 코드를 CodeCommit Repository에 저장하고 커밋될 때 시작하는 CodePipeline 구성                                  |
-| 배포 오류일 때 Lambda 이전 버전으로 롤백                                                                          | 현재 버전을 가리키는 별칭을 사용하도록 어플을 변경. 새 코드 배포. 별칭 업데이트해서 트래픽 10%를 새로운 버전으로 보내고 오류 시 이전 버전으로 전송                                                        |
-| 5개 쓰기 용량 단위 DynamoDB 트랜잭션. 읽기 처리량 높은 옵션                                                             | 4KB 크기 항목을 읽는 5개 읽기 용량 단위의 최종 일관된 읽기                                                                                                          |
-| S3에 저장하기 전 암호화. 암호화 키는 보안팀이 관리                                                                      | KMS 암호화 사용. 고객 마스터 키를 사용해서 클라이언트 측 암호화 구현                                                                                                     |
-| Client IP 기준으로 처리. ALB 뒤에 배치되면서 같은 IP로 들어옴                                                          | X-Forwarded-For 헤더를 검사하도록 어플 코드 변경                                                                                                            |
-| EC2 어플. AWS API 호출하도록 구성                                                                            | 필요한 권한이 있는 EC2 역할을 지정                                                                                                                         |
-| CloudWatch Logs에 예외를 계산을 위한 메트릭 필터 생성. 결과가 반영되지 않음                                                  | 필터를 만든 이후에 발생하는 데이터에만 지표를 생성                                                                                                                  |
-| ASG, EC2. 테스트를 위한 다수의 단기 Instance. CloudFormation Template 사용해서 관리자가 시작. 테스트 환경만 허용. 광범위 권한 부여하지 않음. | 환경 템플릿에서 Service Catalog 제품 생성. 기존 역할이 있는 제품에 시작 제약 조건 추가. 테스트 사용자에게 Service Catalog API만 사용할 수 있는 권한 부여. Service Catalog 콘솔에서 템플릿을 시작하도록 교육. |
-| 온프로미스 상태 저장 웹 서버를 마이그레이션. 더 큰 탄력성 원함.                                                               | DynamoDB에 세션 상태 데이터 자장. ASG이 있는 ELB 사용                                                                                                        |
-| 타사의 API 사용. 실패가 임계치면 알림                                                                             | CloudWatch에 사용자 지정 지표를 게시하고 SNS 사용                                                                                                            |
-| 인증 없는 제한된 액세스 게스트 허용                                                                                | 인증되지 않은 액세스가 활성화 된 Cognito                                                                                                                    |
-| Elastic Beanstalk 배포. 새 버전은 이전 버전과 호환 안됨. 배포 실패 시 이전 버전으로 롤백. 새 업데이트는 일괄 전환 수행                      | 새 Elastic Beanstalk 환경에 새 버전을 배포하고 환경 URL을 교체                                                                                                 |
-| Lambda 사용자 지정 라이브러리 사용 방법                                                                           | 라이브러리를 로컬에 설치하고 ZIP 파일을 업로드                                                                                                                   |
-| DynamoDB 많은 읽기 용량 소비. 속성이 매우 큼. 어플은 모든 속성이 필요하지 않음.                                                 | 최소한의 프로젝션 속성 집합으로 글로벌 보조 인덱스를 만든다.                                                                                                            |
-| API G/W를 사용해서 액세스 하는 온프로미스 Linux 환경. API 테스트 단계에서 X-Ray 추석 활성화. 온프로미스 서버에서 X-Ray 추적 활성화 방안          | 온프로미스 서버에 X-Ray 데몬을 설치하고 실행해서 데이터를 캡처하고 X-Ray 서비스에 전달                                                                                         |
-| X-Ray로 Lambda 기반 어플을 추적                                                                             | IAM 실행 역할을 사용하여 Lambda 함수 권한을 부여하고 추적을 활성화                                                                                                    |
-| 보안 문서 Private S3에 저장. 요청 된 사용자 15분 동안만 다운로드 가능                                                      | 만료 시간이 15분인 Presigned S3 URL 생성                                                                                                               |
-| DynamoDB 저장 되는 항목의 크기는 7KB, 읽기는 강력한 일관성 필요. 읽기 속도는 초당 3개 항목. 쓰기는 초당 10 항목. DynamoDB 크기는             | 6 읽기 용량 단위, 70 쓰기 용량 단위                                                                                                                       |
-| FE어플은 Congnito 사용자 풀 사용. 인증 흐름 처리. SDK 사용해서 DynamoDB 어플 통합. 비밀키 노출하지 않고 API 안전하게 호출                 | Cognito 자격 증명 풀을 구성하고 JWT을 임시 자격 증명으로 교환                                                                                                      |
-| 특정 IAM 사용자 자격 증명 사용하도록 CLI 구성. 명령어 오류 반환됨. `aws dynamodb get-item --table-name ...`                 | IAM 사용자는 테이블에 대한 읽기 액세스 권한이 있는 정책이 필요                                                                                                         |
-| ElastiCache for Redis 사용. 로드 증가. 장애 시 복원력이 필요 | ElastiCache를 수직적으로 확장 |
-| EC2 실패할 경우 세션이 손실되지 않도록 해야 한다. | DynamoDB 사용해서 확장 가능한 세션 처리를 수행 |
-| 
+질문|답변|
+----|---|
+DynamoDB 개별 사용자 다른 사용자 데이터 액세스 불가 | 기본 키 값을 기반으로 항목 액세스 제한 | 
+CodeCommit Repository에 대한 HTTPS 복제 URL 사전 구성 \ | AWS 자격 증명 프로필 사용 Git 자격 증명 도우미 설정. 도우미가 Repository로 경로를 보낼 수 있도록함 | 
+API G/W API 특정 리소스 접근 유일한 사용자. 토큰 자동 만료/새로고침 | Cognito 사용자풀, Authorizer 구성, 자격 증명 또는 Access token |    
+Elastic Beanstalk 배포 오래 걸림 | CodeCommit Repository 생성, 개발자가 커밋 허용, Elastic Beanstalk에 직접 배포 | 
+S3 반복 호출해서 Limit Exceeded 발생 | 어플리케이션에서 지수 백오프 구현 | 
+서버측 암호화 블록 암호 | Advanced Encryption Standard | 
+DynamoDB | 낙관적 동시성 제어 사용, 일관성을 위해 조건부 쓰기 사용 | 
+LAMP | EC2, Aurora | 
+지연 이유는 DB에서 프로필 조회, 캐시 필요 | ElastiCache Cluster 생성. 캐시 제외 캐싱 전략 사용 | 
+EC2 10개 | CloudWatch 고유한 메트릭 이름, 사용자 지정 네임스페이스 | 
+API G/W & Lambda | Session은 DynamoDB에 저장 | 
+EC2 4개, 각 고유한 권한, 메모리 예약 기반 컨테이너 | 각 ECS에 권한을 포함한 4개의 고유한 IAM 생성 후 IAM 역할 참조 하도록 ECS 작업 정의 구성 | 
+30분 걸리는 사기 탐지 솔루션 | 주문을 SQS 대기열, Auto Scaling 그룹 구성, 사기 탐지 솔루션이 설치된 AZ에 EC2 집합 설정 | 
+보안 인프라 관리 싫음. 암호화 키는 제어 | SSE-KMS | 
+Kinesis Data Stream, ProvisionedThroyghputExceededException | Data Stream 샤드 수 증가, Get/PutRecords 호출에 지수 백오프 구현 | 
+SQS 5분 소요. 메세지 성공적 처리, 중복 처리 최소화하면서 메시지 제거 | 가시성 시간 초과가 증가한 메세지 검색, 메시지 처리, 대기열에서 삭제 | 
+붕투 암호화 KMS 작동 | Master Key = 암복호화용, Text Data Key = 고객 데이터 암호화 | 
+기존 SNS 계정 사용 게임 로그인, 데이터는 DynamoDB 저장, DynamoDB API 안전한 접근 방식 | Web ID 연합 사용, 임시 보안 자격 증명을 요청에 서명 | 
+AWS CLI, Serverless 시작 단계 | CloudFormation Package 사용 후 배포 | 
+Elastic Beanstalk 배포 가능 기능 | ASG, ELB, RDS | 
+최종 사용자에게 보낼 수 있는 양 제한. 경영진은 더 큰 패키지 구매 옵션 제공 | 기본 사용 계획 설정. 각 단계를 설정. 더 큰 패키지를 선택하면 적절한 값으로 사용자 지정 계획을 만들고 사용자와 연결. | 
+Provisioning 된 처리량 효율성을 위한 DynamoDB Hash Key Schema | Application의 사용자 ID | 
+EC2의 Public/Private IP 확인 방법 | Local Instance Metadata 쿼리 | 
+CloudFormation Template로 Lambda 배포 절차 | Template에서 AWS::Lambda::Function 리소스 생성 후 CloudFormation Template 내부에 코드 작성, 코드 .zip S3에 업로드 후 AWS::Lambda::Function 리소스에 참조 추가 | 
+민감 데이터 보호. 액세스 추적 필요. | EC2 System Manager Parameter Store에서 IAM으로 Application Access 권한 부여 | 
+Lambda 핸들러 범위 밖에서 Client Instance 이점 | 연결 재사용 활용 | 
+CPU 고사용 Lambda 배포. 런타임 최소화 | 메모리 할당이 최대로 설정된 함수 배포 | 
+EC2 정적 콘텐츠 때문에 높은 지연 시간 | 정적 컨텐츠를 캐시할 CloudFront 배포, S3에 정적 컨텐츠 저장 | 
+Lambda로 Kinesis Data Stream 처리. 함수가 중복 레코드 생성. Lambda 없는 스트림은 중복 없음 | Lambda가 오류를 처리하지 않고 Lambda 서비스가 재처리를 시도 | 
+S3 버킷 민감 정보 저장. 모든 데이터 암호화 | x-amz-server-side-encryption 헤더가 포함되지 않는 객체 업로드 방지하는 정책 설정 | 
+KMS 암호화 100 GB | Text Key와 Data Key의 암호화된 복사본을 반환하는 API 호출 생성. Text Key를 사용해서 데이터 암호화 | 
+Lambda 함수 DynamoDB 접근 두번째 계정 생성. 테이블 액세스 방법 | 테이블 액세스할 때 Lambda 에서 새 역할을 맡음 | 
+DynamoDB ProvisionedThroyghputExceededException 발생. CloudWatch에 처리량 초과하지 않음 | 특정 Hash Key에 대한 용량을 초과 | 
+Elastic Beanstalk 지원 플랫폼 | tomcat, .NET | 
+CORS 에러 발생 | CORS 구성을 생성해서 교차 출처 요청을 허용하는 cdfonts 버킷 구성 | 
+S3 데이터 처리 어플리케이션. 하루 10번, 1분 소요 | Lambda로 배포하고 S3 이벤트 알림과 같이 호출 | 
+가장 저렴한 비용으로 다운로드 액세스 안전하게 제어 | S3 Presigned URL와 함께 CloudFront 사용 | 
+ELB + EC2, 세션 데이터 작성하는 위치 | ElasticCache에 데이터 쓰기 | 
+이미징 서비스를 EC2로 마이그레이션. 이미지는 Private S3 버킷에서 가져옴 | S3 버킷에 대한 읽기 전용 권한이 있는 EC2 서비스 역할을 생성하고 연결 | 
+AWS SDK 기본 리전 | us-east-1 | 
+SQS 설명 | 메세지는 한 번 이상 배달되고 순서는 불확실 | 
+Lambda 함수 테스트 해도 CloudWatch Log에 생성되지 않음 | Lambda 함수 실행 역할에 CloudWatch Log에 쓰기 권한이 없음 | 
+DynamoDB에 실시간 동적 업데이트. 덮어쓰기 방지 옵션 | 조건부 쓰기 | 
+병렬, 순차적 실행하는 어플을 Lambda로 리팩토링. POST는 G/W에서 처리. | Step Functions 상태 머신을 사용해서 Lambda 함수 조정 | 
+주식 어플. Kinesis로 데이터 수집. 수신 데이터 따라갈 수 없음 | UpdateShardCount를 사용해서 스트림의 샤드 수를 증가 | 
+Lambda 함수 오래 걸림 | Lambda 함수에 할당 된 메모리를 증가 | 
+Step Function 작업 상태를 CloudWatch로 오류 표시. 원래 입려과 오류 모두 보존하는 방 법 | Catch문에서 ResultPath를 사용해서 원래 입력에 오류 표시 | 
+ElastiCache 좋은 사례 | 읽기가 많은 어플의 워크로드 대기 시간과 처리량 개선, 컴퓨팅 집약적인 어플의 성능 향상 | 
+사용자 자격 증명 절대 노출 금지 | Cognito 사용자풀 구성하고 Cognito API로 사용자 인증하고 권한 부여 | 
+BGP 기반 VPN으로 EC2 연결. Subnet A는 액세스, B는 액세스 불가. 트래픽이 B에 도달했는지 확인 | VPC 흐름 로그 | 
+응용 프로그램을 2개의 구성요소로 나누고 독립적으로 확장. Elastic Beanstalk 사용해서 배포 | 각 구성 요소를 별도의 Elastic Beanstalk 환경에 배포 | 
+Access key를 AWS에서 관리하는 방법 | 계정 루트 사용자에 대한 모든 Access key를 삭제, Access key 대신 IAM 역할 사용 | 
+S3 버킷에 프로필 사진 저장. 로그인할 때마다 표시. 공개적으로 액세스 불가 | 사진의 S3 key를 DynamoDB에 저장. 함수를 사용해서 Presigned URL 생성 후 반환 | 
+EC2 어플이 DynamoDB 쓰기 권한. 보안키는 사용하지 않음 | EC2에 IAM 추가. DynamoDB에 쓰기 권한 IAM 역할 생성 | 
+Lambda가 초당 여러번 호출. 호출당 50MB 파일 다운로드 | /tmp 경로에 파일을 캐시 | 
+Lambda는 VPC의 RDS Mysql 읽고 다른 싸이트에서 데이터 가져옴 | Lambda 함수 기본 구성에 VPC Private Subnet 연결 추가, VPC에 NAT G/W 추가 | 
+Elastic Beanstalk 배포. ELB가 있는 WEB 계층, RDS 계층 어플리케이션. RDS 인스턴스 분리하는 방법 | RDS 없는 새로운 Elasic Beanstalk 환경 다시 생성 | 
+SQS 사용 어플리케이션. 분당 하나의 메세지가 대기열에 게시되서 비용 증가 | SQS 대기열 폴링 시간 초과를 늘린다. | 
+CPU 집약 데이터 처리 Lambda nodejs 개발. 완료시간 단축 솔루션은? | Lambda 사용 가능 메모리 증가 | 
+소스 변경될 때 배포. 배포 트리거 방식 | 소스 코드를 S3에 저장하고 파일이 변경되면 시작하는 CodePipeline 구성, 소스 코드를 CodeCommit Repository에 저장하고 커밋될 때 시작하는 CodePipeline 구성 | 
+배포 오류일 때 Lambda 이전 버전으로 롤백 | 현재 버전을 가리키는 별칭을 사용하도록 어플을 변경. 새 코드 배포. 별칭 업데이트해서 트래픽 10%를 새로운 버전으로 보내고 오류 시 이전 버전으로 전송 | 
+5개 쓰기 용량 단위 DynamoDB 트랜잭션. 읽기 처리량 높은 옵션 | 4KB 크기 항목을 읽는 5개 읽기 용량 단위의 최종 일관된 읽기 | 
+S3에 저장하기 전 암호화. 암호화 키는 보안팀이 관리 | KMS 암호화 사용. 고객 마스터 키를 사용해서 클라이언트 측 암호화 구현 | 
+Client IP 기준으로 처리. ALB 뒤에 배치되면서 같은 IP로 들어옴 | X-Forwarded-For 헤더를 검사하도록 어플 코드 변경 | 
+EC2 어플. AWS API 호출하도록 구성 | 필요한 권한이 있는 EC2 역할을 지정 | 
+CloudWatch Logs에 예외를 계산을 위한 메트릭 필터 생성. 결과가 반영되지 않음 | 필터를 만든 이후에 발생하는 데이터에만 지표를 생성 | 
+ASG, EC2. 테스트를 위한 다수의 단기 Instance. CloudFormation Template 사용해서 관리자가 시작. 테스트 환경만 허용. 광범위 권한 부여하지 않음. | 환경 템플릿에서 Service Catalog 제품 생성. 기존 역할이 있는 제품에 시작 제약 조건 추가. 테스트 사용자에게 Service Catalog API만 사용할 수 있는 권한 부여. Service Catalog 콘솔에서 템플릿을 시작하도록 교육. | 
+온프로미스 상태 저장 웹 서버를 마이그레이션. 더 큰 탄력성 원함. | DynamoDB에 세션 상태 데이터 자장. ASG이 있는 ELB 사용 | 
+타사의 API 사용. 실패가 임계치면 알림 | CloudWatch에 사용자 지정 지표를 게시하고 SNS 사용 | 
+인증 없는 제한된 액세스 게스트 허용 | 인증되지 않은 액세스가 활성화 된 Cognito|
+Elastic Beanstalk 배포. 새 버전은 이전 버전과 호환 안됨. 배포 실패 시 이전 버전으로 롤백. 새 업데이트는 일괄 전환 수행 | 새 Elastic Beanstalk 환경에 새 버전을 배포하고 환경 URL을 교체 | 
+Lambda 사용자 지정 라이브러리 사용 방법 | 라이브러리를 로컬에 설치하고 ZIP 파일을 업로드 | 
+DynamoDB 많은 읽기 용량 소비. 속성이 매우 큼. 어플은 모든 속성이 필요하지 않음. | 최소한의 프로젝션 속성 집합으로 글로벌 보조 인덱스를 만든다. | 
+API G/W를 사용해서 액세스 하는 온프로미스 Linux 환경. API 테스트 단계에서 X-Ray 추석 활성화. 온프로미스 서버에서 X-Ray 추적 활성화 방안 | 온프로미스 서버에 X-Ray 데몬을 설치하고 실행해서 데이터를 캡처하고 X-Ray 서비스에 전달 | 
+X-Ray로 Lambda 기반 어플을 추적 | IAM 실행 역할을 사용하여 Lambda 함수 권한을 부여하고 추적을 활성화 | 
+보안 문서 Private S3에 저장. 요청 된 사용자 15분 동안만 다운로드 가능 | 만료 시간이 15분인 Presigned S3 URL 생성 | 
+DynamoDB 저장 되는 항목의 크기는 7KB, 읽기는 강력한 일관성 필요. 읽기 속도는 초당 3개 항목. 쓰기는 초당 10 항목. DynamoDB 크기는 | 6 읽기 용량 단위, 70 쓰기 용량 단위 | 
+FE어플은 Congnito 사용자 풀 사용. 인증 흐름 처리. SDK 사용해서 DynamoDB 어플 통합. 비밀키 노출하지 않고 API 안전하게 호출 | Cognito 자격 증명 풀을 구성하고 JWT을 임시 자격 증명으로 교환 | 
+특정 IAM 사용자 자격 증명 사용하도록 CLI 구성. 명령어 오류 반환됨. `aws dynamodb get-item --table-name ...` | IAM 사용자는 테이블에 대한 읽기 액세스 권한이 있는 정책이 필요 | 
+ElastiCache for Redis 사용. 로드 증가. 장애 시 복원력이 필요 | ElastiCache를 수직적으로 확장 | 
+EC2 실패할 경우 세션이 손실되지 않도록 해야 한다. | DynamoDB 사용해서 확장 가능한 세션 처리를 수행 | 
+ELB 뒤에 여러개의 서버. 웹 서버의 메모리에 세션 데이터 저장. 세션 데이터 손실 방지. 다운타임 최소화 | Redis용 ElastiCache 클러스터 | 
+DynamoDB 초당 90개 읽기 항목. 각 항목은 3KB. 필요한 읽기 용량 단위 프로비저닝 | 45 | 
+ECS-Docker. 15초 동안 사용자 로드를 기반으로 확장  |  사용자 활동 데이터에 고해상도 지정. CludWatch 지표 5초마다 데이터 게시
+DynamoDB를 트리거하는 Labmda. 실행역할은 추가됨. Lambda 활성화 했지만 트리거되지 않음. | Lambda 함수에 대한 이벤트 소스 매핑 구성
+여러 공급업체에 요청하고 일주일 걸리는 프로세스 | Step Function을 사용해서 병행 Lambda 함수를 실행하고 결과 결합
+온프로미스 DB를 RDS Mysql로 마이그레이션. 읽기가 많은 워크로드. 최적의 읽기 성능 | 읽기 쿼리에 RDS 읽기 전용 복제본을 사용하기 위한 연결 문자열 추가
+S3 6GB 파일 업로드. 최대 크기 초과 에러 메시지 | 멀티파트 업로드 API 사용
+실수로 EC2 인스턴스 종료. 방지하는 대책 | Resource Access Manager에서 EC2 종료 보호 활성화
+CloudWatch API 호출 400 에러 | 지수 백오프로 통화 재시도
+수백만 개의 이벤트 실시간 처리. 동시에 비용 효율적으로 처리 | Kinesis Stream 사용
+EC2 인스턴스의 IPv4 주소 찾기 | 169.254.169.254/lastest/metadata/ 를 검색
+단일 인터페이스 필요 | API Gateway
+X-Ray 사용 시작 작업 | 어플이 있는 서버에 X-Ray 에이전트 설치, SDK를 사용해서 어플 추적 코드 계측
+AWS에서 추가 비용 없이 포함되는 서비스 | Auto Scaling, CloudFormation
+Github Repository -> CodeCommit HTTS를 통해서 마이그레이션 | IAM에서 생성된 Git 자격 증명 세트
+Mysql RDS. DB 자격 증명이 안전하게 저장되고 액세스 되는지 확인 방법 | 자격 증명을 Secrets Manager에 저장하고 자동 암호 교체를 활성화
+분라되있는 DB에서 다른 DB에서 거의 실시간으로 업데이트를 가져오는 방법 | DynamoDB Stream을 사용해서 다른 DB의 모든 변경 사항을 전달
+KMS 암호화를 활성화하고 성능이 느려짐. 원인은? | KMS API 호출 제한이 원하는 성능을 달성하는데 필요한 것보다 적다.
+등록된 사용자와 게스트가 있을 때 두 유형 모두에게 액세스를 제공하려면 ? | Cognito를 사용해서 인증된 역할과 인증되지 않은 역할을 사용해서 액세스 제공, IAM을 사용해서 사용자 유형에 따라 STS(Security Token Service) 작업을 사용해서 다른 역할을 맡도록 하고 위임한 역할에 대한 엑세스 제공
+읽기 쿼리에 영향을 최소화 하면서 트래픽 급증을 대응하는 방법은? | ElastiCache를 사용해서 데이터 캐시
+Lambda는 정기적으로 교체되는 사용자의 이름과 암호를 사용해서 외부 사이트에 액세스. 안전하게 보관하는 방법은 ? | System Manager Parameter Store, KMS
+로그 때문에 메모리 가득참. 로그 중앙 집중화 필요 | CloudWatch를 설치해서 로그를 CloudWatch로 보내고 전송된 로그는 인스턴스에서 삭제한다.
+SQS 대기열에 메시지 업데이트. 자주 변경되지 않지만 업데이트 시간 최소화 | 20초마다 긴 풀링을 사용하여 메시지 검색
 
-81번
-1 RCU per 4k
-2 RCU per read and we have 3 per second, so 2x3=6 read capacity. 
-Write uses 1k as its capacity, so 7k items will take 7 WCU, as we have 10 writes per second 10x7 = 70.
 
 
 
+- 81번
+1 RCU per 4k\
+2 RCU per read and we have 3 per second, so 2x3=6 read capacity.\ 
+Write uses 1k as its capacity, so 7k items will take 7 WCU,\
+as we have 10 writes per second 10x7 = 70.
+
+
+- 최대 4KB 항목의 강력히 일관된 읽기 요청에는 하나의 읽기 요청 단위가 필요합니다.\
+최대 4KB 항목의 최종 읽기 일관성 요청에는 절반의 읽기 요청 단위가 필요합니다.\
+최대 4KB 항목의 트랜잭션 읽기 요청에는 2개의 읽기 요청 단위가 필요합니다.
+
+
+</details>
 
 ---
 
