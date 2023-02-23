@@ -624,6 +624,8 @@ SSL 연결을 강제 적용하려는 MySQL RDS 데이터베이스 인스턴스�
 <details>
 <summary><font size="5"><b>Match Keywords</b></font></summary>
 
+⭐️2023년 2월 28일 개편되기 전 시험에 해당하는 정리입니다.
+
 질문|답변|
 ----|---|
 DynamoDB 개별 사용자 다른 사용자 데이터 액세스 불가 | 기본 키 값을 기반으로 항목 액세스 제한 | 
@@ -730,7 +732,39 @@ KMS 암호화를 활성화하고 성능이 느려짐. 원인은? | KMS API 호�
 Lambda는 정기적으로 교체되는 사용자의 이름과 암호를 사용해서 외부 사이트에 액세스. 안전하게 보관하는 방법은 ? | System Manager Parameter Store, KMS
 로그 때문에 메모리 가득참. 로그 중앙 집중화 필요 | CloudWatch를 설치해서 로그를 CloudWatch로 보내고 전송된 로그는 인스턴스에서 삭제한다.
 SQS 대기열에 메시지 업데이트. 자주 변경되지 않지만 업데이트 시간 최소화 | 20초마다 긴 풀링을 사용하여 메시지 검색
-
+SQS에 유료회원, 무료회원용 업로드. EC2가 SQS를 폴링. 유료회원 먼저 처리해야 함 | 2개의 SQS 대기열을 만들고 유료 회원을 먼저 폴링
+SNS 모바일 푸쉬. 개별 장치에 직접 알림을 보내려면 장치 등록 식별자 혹은 토큰을 SNS에 등록 | CreatePlatformEndPint API 함수를 호출해서 여러 장치 토큰을 등록한다.
+Elastic Beanstalk로 Python 배포. 소스 번들 생성 시 요구사항 | 최상위 디렉토리를 포함하지 않아야 하고, 단일 .zip, .war 파일로 생성되어야 한다.
+어플의 키는 온프로미스 데이터 센터에서 관리. 암호화는 S3에서 처리. | 고객이 제공한 키로 서버 측 암호화 사용
+Elastic Beanstalk의 EC2 인스턴스 특정 명령 세트 실행하려고 한다. Beanstalk의 기능은? | .ebextensions
+로그인 프로토콜을 MFA로 고도화 하려고 한다. | MFA가 포함된 Cognito
+CLI에서 aws 명령을 찾을 수 없음 | aws 실행 파일이 환경 변수에 없음
+Lambda 코드를 S3에 새로 올렸지만 이전 버전이 실행됨 | 업데이트 기능 코드 API를 호출
+각 EC2에 어플, DB 동작. 어플이 DB에 접근하기 위한 비밀키는 변경됨 | SecureString 데이터 유형과 함께 System Manager Parameter Store를 사용해서 비밀키를 저장
+API G/W, Lambda, S3 호스팅웹에서 CORS 오류 | API G/W에서 메서드에 대한 CORS 활성화
+S3에 대용량 파일 저장하고 메타 데이터를 제공해서 사용자가 선택해서 다운로드. 메타데이터를 인덱싱 하고 밀리초 내에 검색 기능 제공 | DynamoDB 를 사용해서 검색 기능 제공
+Cognito 사용자 풀 사용. 회사 로고가 있는 로그인 페이지 만들고 싶다. | Cognito에서 호스팅 사용자 인터페이스를 생성하고 회사 로고로 사용자 지정
+AMI(Amazon Machine Image) 목록을 검색할 때 사용하는 EC2 API | DescribeImages
+회사의 모든 직원 정보가 SAML 직원 디렉터리에만 남아 있어야 한다. 직원에게 승인된 액세스를 제공해서 자신의 어플에만 액세스 하도록 해야한다. | Cognito 자격 증명 풀을 사용하고 SAML 공급자와 연동해서 IAM 조건 키를 사용해서 직원에게 액세스 권한 부여
+Beanstalk 배포. 배포는 최소한의 영향. 최대한 빠른 롤백 전략 | Immutable
+DB 연결해서 동작하는 Lambda 코드가 있다. 비용 증가 없이 성능 개선 방법 | Lambda 함수에 필요한 모듈만 패키징, RDS 연결을 핸들러 함수 외부로 이동
+CLI 명령 후 에러 메세지가 암호화 되어 있다. | STS decode-authorization-message API로 디코딩
+온프로미스 세션 공유하는 어플을 마이그레이션. 내결함성, 확장성, 무중단 필요. 세션 상태 저장 옵션은? | ElastiCache에 세션 상태 저장
+SNS 전송 유형 | HTTP, SMS
+AWS 계정을 감사하는 어플리케이션. A 계정에서 실행되서 계정 B,C 서비스에 액세스 필요. 어플리케이션이 각 계정 서비스를 호출하는 방법 | 각 감사 계정에서 교차 계정 역할을 구성하고 해당 역할을 맡는 계정 A에 코드 작성
+Elastic Beanstalk 어플을 여러 리전에 배포. 각 리전에 서로 다른 AMI 필요. 리전에 대해 올바른 AMI을 지정할 CloudFormation Template Key는 ? | Mappings
+매시간 대용량 데이터 수집. 메세지는 실시간으로 전달되어야 함 | Kinesis Client Library와 함께 Kinesis Data Stream을 사용해서 메세지 수집 및 전송
+DynamoDB, Lambda, API G/W 구성. 요청 대기 시간 길어짐. 식별할 수 있는 방법 | API G/W와 Lambda에 X-Ray 추적을 활성화하고 사용자 요청 추적 및 분석
+전달 파이프라인은 CodeCommit Repository의 Master Branch에 대한 변경이 트리거.<br>CodeBuild를 사용해서 프로세스 테스트 및 빌드 단계 구현<br>CodeDeploy로 배포<br>파이프라인은 정상. CodeDeploy가 배포를 안함. 가능한 원인은? | CodeCommit Repository의 Master Branch에서 변경 사항이 적용되지 않음, 파이프라인 초기 단계 중 하나가 실패해서 파이프라인 종료
+Kinesis Data Stream의 샤드 수 4개에서 6개 됨. 데이터 처리를 위한 EC2 인스턴스 최대 수는? | 6
+The specified bucket does not exist 에러 발생. 원인 분석 시작지는? | CloudTrail에서 DeleteBucket 이벤트 확인
+어플의 기록을 조회하는 RDS. 기록 데이터 업데이트 많음. 읽기 성능 저하됨 | RDS 읽기 전용 복제본을 만들고 모든 읽기 트래픽을 복제본으로 전송
+API G/W 사용해서 WebSocket API 구축. API로 전송되는 Payload는 생성, 업데이트, 제거의 값을 가진다. 값에 따라 다른 경로와 통합해야 한다. | 경로 선택 표현식 값을 $request.body.action으로 설정
+서비스는 변경 세트를 피어 투 피어로 교환해서 여러 분산 Repository로 동기화하는지 확인해야 한다. 네트워크가 없어도 작업 가능해야 한다. | CodeCommit
+데이터 파일은 로컬로 캐싱하고 공유 이미지를 로컬 디스크에 기록. 마이그레이션할 때 수평적 확장을 허용하기 위한 것 | 공유 이미지를 제공하기 위해 S3를 사용하도록 어플을 수정하고 캐시 데이터를 로컬 디스크에 쓴다.
+S3로 사진 공유 웹사이트 운영하는데 다른 사이트에서 도용함 | S3의 공개 읽기 액세스를 제거하고 날짜가 있는 서명 URL 사용
+API G/W는 통과했지만 Lambda로 도달 안됨. 두번째 계정의 Lambda는 최대 동시성 실행 | 두번째 Lambda 함수의 동시 실행 제한 구성
+EC2에 있는 어플이 RDS로 연결. 사용자 ID/PWD를 코드에 저장히기 싫음. 자격 증명 자동 교체 필요 | Secrets Manager를 사용해서 자격 증명을 저장하고 검색
 
 
 
