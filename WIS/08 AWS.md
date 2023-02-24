@@ -783,20 +783,168 @@ Admin 그룹의 한 사용자에게만 EC2 리소스 삭제 권한이 있는지 
 데이터 저장 전 각 파일에 대한 고유 키를 사용해서 암호화해야 한다. | KMS GenerateDataKey API를 사용해서 데이터 키를 가져오고 암호화한다. 암호화 된 데이터 키와 데이터를 저장
 SQS 대기열에 메세지를 검색하는 경우 다른 사용자가 메시지에 액세스 할 수 없는 기간의 기본값 | 30초
 자체 마스터 키를 사용해서 AWS 서비스 활용 | KMS를 사용한 SSE
+Lambda 함수가 설정된 시간 제한 미만으로 완료되도 API G/W에서 시간초과가 발생. CloudWatch의 API G/W 지표 중 도움이 되는 것 | IntegrationLatency, Latency
+Kinesis Stream 내 데이터를 저장 암호화 방법 | Kinesis Stream 서버 측 암호화 활성화
+Lambda로 작성된 분산 어플리케이션 성능 문제 근본 원인을 식별하는 방법 | X-Ray를 사용해서 Segment 및 Error 검사
+DynamoDB 글로벌 보조 인덱스 항목을 찾으려고 한다. 가장 적은 수의 읽기 용량 단위를 사용하기 위해 호출하는 API | 최종 일관성 읽기를 사용한 쿼리 작업
+Lambda 함수를 사용해서 S3 이미지 처리. 썸네일을 저장해야하는 새로운 기능 필요. 기존 시간에 영향 미치지 않음 | S3 이벤트 알림을 생성하고 새 Lmabda 만들어서 처리
+S3의 us-standard region에 객체를 저장하고 성공 확인. 객체를 읽으려고 했는데 실패 | us-standard는 최종 일관성을 사용하고 bucket에서 객체를 읽기 위해선 시간이 필요하다.
+Aurora MySQL DB가 될 Lambda 함수로 코드를 마이그레이션. DB 기능을 인증하는 방법 | Secret Manager에 DB 자격 증명을 저장하고 필요에 따라 Manager가 자격 증명 교체를 처리
+10MB 미만의 파일을 생성하는 Lambda 함수 설계. 임시 파일은 여러번 액세스되고 수정됨. 나중에 필요 없는 파일. 임시 파일이 저장되야할 장소 | /temp 디렉터리
+DynamoDB 테이블에 세션 정보 캐싱. 오래된 항목을 자동으로 삭제하는 방법 | 만료 시간이 있는 속성을 추가해서 해당 속성 기반의 TTL 기능 활성화
+SWF의 설명 | 작업은 한 번 할당되고 절대 중복되지 않는다. workflow 실행은 최대 1년동안 지속. 결정자와 작업자를 사용해서 작업을 완료
+CodeDeploy를 통해 재배포 하기 위한 파일 | appspec.yml
+DynamoDB에 요금 데이터 저장. 수시로 변경. 고객한테 변경이 반영되지 않음. 원인은? | 아이템 가격 변경 시 캐시가 무효화되지 않는다.
+Java 기반 Lambda 함수. 성능 병목 현상을 격리하기 위한 조치 | X-Ray API를 사용해서 코드 내 전략적 위치에 X-Ray 추적 데이터 기록. X-Ray Console을 사용해서 결과 데이터 분석
+S3의 putObject 권한이 있는 IAM 사용자 생성. KMS 관리형 키로 암호화. IAM 사용자의 키로 putObject 했을 때 Access denied | kms:GenerateDataKey 작업을 허용하도록 IAM 사용자 정책 업데이트
+EBS 지원 Intance와 Instance Store 지원 Instance의 주요 차이 | EBS 지원 Instance를 중지하고 다시 시작할 수 있다.
+S3 데이터 암호화 저장. 누가 Master Key에 접근할 수 있는지 제어 필요. Master Key를 쉽게 생성, 교체, 비활성이 가능한 방식 | KMS
+Cognito에서 사용자를 인증하고 DynamoDB 레코드를 생성하는 흐름 | Cognito 사용자 풀에서 토큰을 인증하고 받는다. Cognito 자격증명 풀을 사용해서 토큰을 AWS 자격증명으로 바꾼다. AWS 자격증명으로 DynamoDB에 액세스한다.
+API G/W endpoint 과부하가 걸려서 트래픽을 줄여야 한다. | ElastiCache에서 API 캐싱을 활성화
+S3 KMS. AWSKMS; Status Code: 400; Error Code: ThrottlingException 발생 | AWS Support에 KMS 속도 제한 증가를 요청 문의. 응용 프로그램 코드에 지수 백오프를 사용해서 오류 재시도 수행.
+새 페이지는 CreateApiKey를 사용해서 새 API 키를 생성하고 사용한다. 기존 사용자는 정상인데 새로운 사용자는 403 Forbedden 오류 수신 | 새로 생성된 API 키를 올바른 사용 계획과 연결하려면 createUsagePlanKey 메서드를 호출
+유료 회원에게만 콘텐츠 제공. 현재는 모든 객체 비공개. 유료 회원에게만 다운로드를 제공하는 방법 | 유료 가입자가 다운로드 요청을 할 때 Pre-signed URL 생성
+DynamoDB 테이블은 주문 날짜를 기준으로 분할. 트래픽 증가. 쓰기 제한되고 소비된 처리량은 provisioning된 처리량보다 닞다. | 파티션 키 값에 난수 접미사를 추가한다.
+S3 데이터 액세스 제한 기능 | S3 버킷 정책 설정, 버킷이나 객체에 S3 ACL 설정
+Lambda 함수 코드의 로그 검사는 어디에 저장 | CloudWatch
+Docker 어플리케이션으로 작업. 다운타임 없이 자동으로 변경 및 업데이트 | Elastic Beanstalk를 사용하고 일괄 업데이트 정책 선택
+많은 파일을 처리. 파일당 4분 소요. 모든 파일 처리 방법 | 비동기식 Event Lambda 호출을 수행하고 파일을 병렬 처리
+ElastiCache를 사용해서 캐쉬 계층 구현. 반응형 어플리케이션이라 가격에 대한 업데이트는 강력한 일관성 필요 | 먼저 백엔드에 쓰고 캐시 무효화
+CLI에서 Resource List 명령 때 실행시간 초과 | Pagenation 사용
+CodeDeploy 사용해서 외부 MySQL과 연결하는 어플리케이션 배포 자동화. API Key, DB Pwd에 안전하게 액세스 하기 원함 | SSM Parameter Store를 사용해서 EC2 인스턴스 IAM 역할을 사용하여 암호를 저장하고 프로그래밍 방식으로 액세스
+Facebook 등 OpenID 자격 증명 공급자를 기반으로 인증이 필요. 사용자 지정 권한 부여 모델을 기반으로 액세스 허용 | Cognito 사용자 풀과 사용자 지정 권한 부여자를 사용해서 JWT 기반으로 사용자를 인증하고 권한을 부여
+S3 버킷은 초당 300개 이상의 GET 요청 처리 | CloudFront를 S3와 통합, S3 키 이름 접두사를 무작위로 지정
+RDS 앞에 캐싱 계층. 서비스 실패 시 재생성하는데 비용이 많이 듬 | 클러스터 모드에서 ElastiCache Redis 구현
+트래픽이 많은 동적 웹. 개발을 제외한 모든 것을 AWS로 마이그레이션 | Elastic Beanstalk 환경에서 웹 사이트 코드를 배포. ASG로 Instance 수 확장
+DynamoDB는 GSI를 사용해서 읽기 쿼리 지원. 쓰기 활동이 많을 때 작업이 제한됨. 쓰기 용량 단위는 넉넉함. 제한되는 이유 | GSI 쓰기 용량 단위가 부족
+Elastic Beanstalk를 사용해서 버전 수를 25개로 제한. 소스 번들은 S3 소스 버킷에서 삭제됨. 어플 버전 수명 주기 설정에서 무엇을 해야하나? | 연령별 어플리케이션 버전 제한 설정을 0으로 설정
+SQS 대기열이 기본 VisibilityTimeout 값으로 구성되어 있다고 가정할 때 메세지 수신 시 다른 인스턴스가 이미 처리되었거나 현재 처리 중인 메세지를 검색할 수 없도록 하는 방법 | ChangeMessageVisibility API를 사용해서 VisibilityTimeout을 늘린 다음 DeleteMessage API를 사용해서 메세지를 삭제
+CodePipeline에서 단위 테스트를 작성하고 파이프라인 일부로 실행하려면 | 단위 테스트 실행 단계를 포함하도록 CodeBuild 사양 업데이트
+DynamoDB 강력한 일관된 읽기 초당 100개 항목을 읽어야 하고 각 항목의 크기는 5KB. 프로비저닝된 읽기 처리량을 어떤 값으로 설정해야 하나? | 200 읽기 용량 단위
+모든 데이터는 전송 중에 암호화해서 S3에 저장. 모든 트래픽이 암호화되었는지 확인하는 방법 | SecureTransport가 false인 트래픽을 거부하는 버킷 정책 생성
+ECS 컨테이너 시작할 때 PortMapping은 어디에서 정의 | Task definition
+SQS 지연 대기열이 수행하는 것 | 메세지는 대기열에 처음 추가될 때 구성 가능한 시간 동안 숨겨진다.
+KMS를 사용해서 클라이언트 측 암호화 수행 단계 | GenerateDataKey API를 호출해서 데이터 암호화 키의 일반 텍스트 버전을 검색해서 데이터를 암호화
+API G/W, v1, v2 버전 배포. v1은 6개월 사용 허용 | v2용 새로운 url 만들어서 배포
+DynamoDB 한도를 높일 수 있는 항목 | 계정당 테이블 수, 프로비저닝된 처리량 단위 수
+DynamoDB 대량 트래픽 | Accelerator를 사용해서 데이터를 캐시
+개발과 운영 로깅 추가 | 코드에서 다른 로깅 로직을 구현하는 다른 Lambda 함수를 가리키고 CloudWatch Lgos에 액세스
+테스트 목적으로 다른 버전의 API 호출 | 각 버전에 맞는 다른 URL을 배포
+Stg, QA, Prod 환경이 있다. Stg 배포 후 QA, Prod에 배포하려고 한다. | CodeDeploy를 사용해서 여러 배포 그룹을 생성
+읽기 전용 레코드가 대용량 트래픽 | Redis용 ElastiCache를 배포하고 어플리케이션에 대한 데이터를 캐시
+AWS에서 보안에 대한 고객의 책임 | IAM 자격 증명의 수명 주기 관리, 보안 그룹 및 ACL 설정, EBS 볼륨의 암호화, EC2 운영체제의 패치 관리
+컨테이너 어플을 ECS Fargate에 배포. 세션 데이터로 활동 추적 | NLB에 Sticky Session 활성화하고 컨테이너에서 세션 데이터 관리
+ECS 기반 Fargate에 배포. 어플을 초기화하기 위해 컨테이너에 전달해야 하는 환경변수가 있다. 어떻게 전달할건가? | 작업 정의 내 환경 매개변수 아래에 환경 변수를 포함하는 배열을 정의
+Beanstalk 배포. 중단 최소화. 어플 액세스 로그 보관. 배포 정책은? | Rolling
+SAM을 사용해서 Lambda 어플 구축. 배포하기 위한 실행 순서 | 로컬에서 SAM Template 빌드하고 Template를 S3에 패키징하고 S3에서 Template을 배포
+각 메세지를 처리하는데 15분 이상이 걸려서 timeout 우려됨 | SQS 대기열에 메세지를 추가하고 ASG에서 EC2 설정해서 대기열을 폴링하고 메세지가 도착하면 처리된다.
+EC2에서 실행되는 어플. 중앙 집권 로그 | CloudWatch Logs
+운영 배포 전 코드를 검토하고 승인이 필요함 | 파이프라인에 승인 작업을 추가하고 승인이 필요할 때 SNS 주제에 게시해서 승인 작업을 기다린다.
+S3 버킷 읽기 성능 향상 | 20개 이상의 접두사를 생성. 접두사로 파일을 배치. 접두사를 병렬로 읽기
+MongoDB 마이그레이션 호스팅을 위한 솔루션 | MongoDB 호환 모드에서 AWS DocumentDB를 배포
+CodeDeploy로 EC2에 배포. 특정 배포 파일에 파일 권한 변경. 어떤 수명 주기 이벤트를 사용해야 하나 | AfterInstall
+EC2 인스턴스와 온프로미스에서 실행되는 가상 서버 모두에 S/W Package 배포를 자동화 | CodeDeploy 사용
+CloudFront로 글로벌 사용자 기반 어플을 새로 배포. 고객들이 새로 배포된걸 볼 수 없음 | Edge Cache에서 모든 응용 프로그램 개체를 무효화
+어플은 EBS를 사용해서 데이터 저장. 암호화 되도록 개발하려면? | 데이터 저장에 암호화된 EBS 볼륨을 사용하도록 EC2 인스턴스 집합을 구성
+DynamoDB에서 대규모 스캔 작업을 사용할 때 테이블에 프로비저닝된 처리량에 대한 스캔 영향을 최소화 하기 위한 기술 | 스캔에 대해 더 작은 페이지 크기를 설정
+stg, test, prod 환경에 배포. 관리할 리소스 수를 최소화하면서 배포하는 방법 | 여러 별칭이 있는 하나의 Lambda 함수를 사용해서 여러 단계의 API G/W 하나를 생성
+600개의 온도 게이지를 모니터링해서 1분마다 온도 샘플을 수집하고 DynamoDB에 저장. 각 샘플에는 1K 데이터 쓰기가 포함. 테이블에 필요한 쓰기 처리량 | 10 쓰기 용량
+Elastic Beanstalk 환경을 새 어플 버전으로 업데이트하는 솔루션 | 어플 코드를 .zip으로 패키징하고 Management 콘솔에서 패키징 된 어플을 업로드한 다음 배포, 어플 코드를 .zip으로 패키징하고 Management 콘솔에서 새 어플 버전을 생성한 다음 CLI 사용해서 환경을 재구축
+ECS 환경에서 컨테이너 워크로드를 실행. 로그 및 메트릭 수집을 위해 다른 컨테이너와 공유 필요 | 하나의 작업 정의를 만들어서 정의에서 두 컨테이너 모두 지정하고 컨테이너 간 공유 볼륨을 탑재
+버킷의 로깅이 활성화 되어 있고 개발자는 문서를 이동한 후 작업을 중단함. 버킷의 용량이 50GB. 원인은? | 동일한 버킷에 로그인하면 로그가 기하급수적으로 증가
+EC2 인스턴스에 CloudWatch 어플 지표를 저장하려고 한다 | CloudWatch PutMetricData API 호출을 사용해서 사용자 지정 지표를 제출한다. API 호출을 활성화하기 위한 IAM 역할로 EC2 인스턴스를 시작한다.
+X-Ray로 EC2에 있는 어플 모니터링하기 위한 절차 | X-Ray 데몬을 설치하고 어플리케이션 코드를 계측
+Beanstalk에서 지원하는 플랫폼 | Apach tomcat, .NET
+Beanstalk에서 다중 컨테이너 Docker 인스턴스를 구성하기위한 필요한 것 | ECS 작업 정의
+DynamoDB 요청의 95%가 반복 읽기. NoSQL 계층을 확장해서 캐싱하기 위한 전략 | DynamoDB Accelerator
+S3 암호화. 매년 키 교체 필요 | 자동 키 교체와 함께 KMS 사용
+Restful API 작성. endpoint 요청에 대한 충족 사항 | API G/W & Lambda, S3 & CloudFront
+DynamoDB 테이블 항목 수명 주기 활동을 기반으로 Lambda 트리거 | DynamoDB Stream을 활성화하고 Stream에서 동기적으로 Lambda 함수 트리거
+콜백 트래픽이 많음. 콜백이 지속적으로 수신되는지 확인하고 싶고 데이터를 10일 동안 유지. 콜백 수의 임계치가 초과하면 경고 받고 싶음 | 콜백 데이터를 CloudWatch에 사용자 지정 지표로 푸쉬하고 CloudWatch 알림 매커니즘을 사용해서 시스템 관리자에게 알림
+Elastic Beanstalk에서 실행할 Linux 어플리케이션. 비용을 최소솨하면서 업데이트 중 전체 용량을 유지해야함. 배포 정책은? | Roliing with additional batch
+1KB에서 최대 1GB 크기의 SQS 메세지를 사용하는 어플을 설계해야한다. SQS 메시지는 어떻게 관리해야하나? | S3 및 Java용 SQS 확장 클라이언트 라이브러리를 사용
+stg,test,prod 환경에서 API G/W는 237GB 캐시를 사용중. 효율적인 배포 전략은? | 필요할 때만 개발 및 테스트 환경용 캐시를 활성화
+여러 추적 데이터를 수집하고 시각화하기 위한 솔루션 | AWS X-Ray
+S3에 전송 중인 데이터 암호화 | KMS 암호화하고 클라이언트 측 암호화 설정, SSL 연결을 통한 데이터 전송
+여러 파일에 대한 일괄 변경 지원, 병렬 분기, 버전 추적 | CodeCommit
+Lambda로 정적 텍스트와 이미지가 모두 포함된 뉴스레터를 다수 사용자에게 보내야함. 뉴스레터에 하이퍼링크될 이미지를 저장할 수 있는 빠르고 확장성 있는 저장소 필요 | S3 Bucket과 S3 Transfer Acceleration을 사용해서 이미지 다운로드 속도 향상
+MSA 아키텍처에서 중앙 집중식 계정에서 어플의 문제를 분석하고 디버깅하기 원한다. | 역할 수임이 있는 X-ray Agent를 사용해서 중앙 집중식 계정에 데이터를 게시
+S3 Bucket에 정보를 반환하는 API가 필요하고 Lambda와 API G/W로 개발. MSA 어플이 S3 버킷에 필요한 액세스 권한을 갖도록 하려면? | S3 버킷에 액세스 할 수있는 권한이 있는 IAM 역할을 생성하고 이를 Lambda의 실행 역할로 할당
+CodeDeploy로 배포할 때 내부 배포에 대한 후크 실행 순서 | 프로그램 중지 -> 설치 전 -> 설치 후 -> 프로그램 시작
+DynamoDB에 쓰는 어플이 있다. 사용량이 많아져서 ConditionalCheckFailedException 발생. 여러 클라이언트가 동일 레코드에 쓰기 작업 개선 | jiter를 사용해서 오류 재시도 및 지수 백오프 구현
+CodePipeline을 구현하고 각 단계의 작업 상태를 Lambda로 알림을 보내려고 함. Lambda 함수를 이벤트 소스와 연결하는 단계 | CodePipeline을 이벤트 소스로 사용하는 CloudWatch Events 규칙을 생성
+많은 트래픽. 수천 개의 인스턴스. 시간당 로그파일 저장. S3에서 최적의 성능을 제공하는 명명 체계 | HH-DD-MM-YYYY-log_instanceID
+암호화 SDK를 사용할 떄 암호화에 사용된 데이터 암호화 키를 언제 추적합니까? | SDK는 데이터 암호화 키를 암호화하고 반환된 암호문의 일부로 암호화하여 저장합니다.
+ELB를 사용하고 EC2에 CPU 제약이 있다. EC2의 CPU 로드를 늘리지 않으면서 웹 사이트를 보호하는 전략 | ELB에서 SSL 구성, SSL 종료로 ELB 구성
+단일 API 호출로 DynamoDB 테이블에서 여러 항목을 검색할 수 있는 작업 | BatchGetItem
+CodeBuild는 코드 빌드 -> 도커 이미지 생성 -> ECR에 푸쉬 -> 이미지에 태그 지정. 개발자가 CLI를 구성한 경우 도커 이미지를 가져오는 방법 | aws ecr get-login의 출력을 실행한 후 docker pull repository uri:tag 실행
+Serverless에서 배포할 때 롤백할 수 있는 기능이 필요함. 자동화 방안은? | CloudFormation Template Serverless Application Model을 준수하는 구문을 사용해서 Lambda 함수 리소스를 정의
+DynamoDB 한시간에 한번씩 분석하고 더이상 필요하지 않음 | 테이블 삭제 및 시간당 새 테이블 생성
+DynamoDB 테이블에서 데이터를 읽을 때 선택한 일관성 모델이 프로비저닝된 처리량에 미치는 영향 | 강력하게 일관된 읽기는 최종 일관된 읽기보다 더 많은 처리량을 사용한다.
+S3 이미지 저장할 때 이벤트 알림으로 Lambda가 이미지 크기 조정. Lambda 추가 트래픽 처리 방안 | Lambda는 요청을 동시에 실행하도록 확장됨
+ALB에 등록된 Lambda 함수에 다중 값 헤더를 보내려고 한다. | ALB에서 다중 값 헤더를 활성화 해야함
+S3에 복사하는 Lambda 작성함. 두번째 버킷에 복사되지 않고 평균 500초정도 걸림. 원인은? | Lambda 함수 최대 실행 시간이 300초
+S3 버킷에 액세스 하기 위한 역할을 CLI로 생성. create-role 명령어. EC2 서비스가 역할을 맡도록 하기 위한 정책 | 신뢰 정책을 추가해야함
+모놀리식 아키텍처를 마이크로서비스 아키텍처로 변경하고 성능에 영향을 주지 않으면서 비동기식 통신할 수 있도록 해야 한다. 비동기식 메시지 전달이 가능한 서비스는? | SQS, SNS
+API G/W에 활성화된 캐시를 무효화하는 옵션을 요구했고 조치할 수 있는 방법 | 고객에게 Cache-control:max-age=0 이라는 HTTP 헤더를 전달하도록 요청
+EBS에 저장된 데이터 보호 방법 | EBS 볼륨 위에 암호화된 파일 시스템을 사용
+ASG 이벤트에 대한 최상의 메트릭은 동시 사용자 수 라고 결정했다. 동시 사용자를 기반으로 자동 크기 조정을 위해 무엇을 활용해야하나? | 동시 사용자를 위한 사용자 지정 CloudWatch 지표
+10분마다 Lambda 함수 호출. 트리거하는 자동화된 서비리스 방법 | 정기적인 일정에 따라 Lambda 함수를 호출하는 CloudWatch Event 규칙 생성
+개발자는 2개의 리소스에 임시 액세스 | 교차 계정 액세스 역할을 만들고 sts:AssumeRole API를 사용해서 단기 자격 증명을 얻는다
+DynamoDB API. ThrouttlingException 오류 발생. SDK와 호환되지 않는 언어로 코딩 | 어플리케이션 로직에 지수 백오프 추가
+다단계 인증이 필요한 모바일 앱 | Congnito 사용자 풀을 생성하고 사용자 생성, 사용자 풀에 대한 다단계 인증 활성화
+모바일 게임. 데이터는 로컬 저장. 여러 장치에서 사용하니까 데이터 동기화 필요 | Cognito로 데이터 동기화
+ALB. CloudFront. 소셜 미디어로 로그인 | Cognito 인증 공급자 중 하나로 사용하도록 CloudFront 구성
+주문 요청이 과부하. 비용 효율성을 유지하면서 유연성을 더하는 방법 | SQS 대기열을 구현해서 FE와 BE 분리, SQS 대기열에서 가져오도록 BE 수정
+X-Ray 구성을 하고 어플리케이션에서 X-Ray로 데이터를 보내는걸 확인. EC2에 배포하니까 추적이 안됨. 원인은? | X-Ray 데몬이 EC2에 설치되어 있지 않음, 인스턴스 역할에 xray:PutTraceSegments, xray:PutTelemetryRecords 권한이 없음.
+CLI 명령어 aws cloudformation deploy를 사용해서 배포할 수 있도록 template을 준비하려면? | aws cloudformation package를 사용해서 소스 코드를 S3 버킷에 업로드하고 수정된 CloudFormation Template를 생성한다.
+API G/W, Lambda 어플리케이션. API 호출하면 Method completed with status: 502 | API 호출에 대한 Lambda 응답 형식 변경
+높은 처리량으로 데이터 수집하고 S3 버킷에 저장해야함. 적합한 서비스는? | Kinesis Firehouse
+인메모리 저장소를 사용해서 누적된 게임 결과를 저장하는 어플. 개별 결과는 DB 저장. AWS로 마이그레이션. 일관된 결과를 위해 누적 게임 결과는 어디에 저장? | ElastiCache
+DynamoDB, Docker 기반 어플. 로컬에서 IAM 액세스 키로 테스트. ECS에 배포했을 때 어떻게 인증? | 어플이 사용할 ECS 작업 IAM 역할 구성
+Kinesis Data Stream을 처리하는 Lambda. 처리된 데이터가 포함된 알림을 받아야 한다. | 처리된 데이터를 SNS 주제에 게시
+EC2 어플리케이션에서 사용하는 IAM 자격 증명이 오용되거나 손상되었는지 확인. 자격 증명을 안전하게 유지하기 위해 사용해야 하는 것 | 인스턴스 프로필 자격 증명
+ELB로 분산처리 어플 작성. 기존 로그인 사용자들이 다시 로그인해야하는 문제 발생. 방지 대책은? | ElastiCache에 세션 상태 저장
+Serverless Restful API를 반복적이고 일관되게 배포 | 인라인 Swagger 정의를 사용해서 SAM Template 배포, Swagger 파일을 정의해서 Swagger 파일을 참조하는 SAM Template 배포
+S3에 호스팅하고 있는 웹. 초기 파일 변경하려면? | S3에 새로운 html 업로드 후 색인 문서 속성을 새로운 html로 변경
+CodeBuild 프로젝트를 실행할 때 환경 변수 길이가 결합된 문자 최대 길이 초과 | System Manager Parameter Store를 사용해서 환경 변수를 저장
+트래픽 몰림. BE에 일시적인 볼륨 급증을 완화하는 탄력적인 방법은? | 사진이 S3에 업로드되면 SQS 대기열에 게시. 대기열을 이벤트 소스로 사용해서 Lambda 함수를 트리거. Lambda 함수에서 사진을 스캔하고 구문 분석
+IAM 역할은 S3 API 작업에 대한 액세스를 거부. EC2 인스턴스 자격 증명 파일은 전체 관리 액세스를 허용하는 IAM 액세스 키와 보안 액세시 키를 지정 | EC2 인스턴스는 모든 S3 버킷에서 모든 작업을 수행 가능
+NAT 장치가 Private Subnet에 바인딩 트래픽 대상이 되도록 라우팅 테이블 수정. Private Subnet에서 인터넷으로 아웃바운드 실패. 해결 방법 | NAT 인스턴스에서 Source/Destination Check 속성 비활성화
+CLI로 ALB에 Lambda 함수 등록. Client에서 ALB 통해 Lambda 호출 실패. 이유는? | Lambda 함수 호출 권한이 없음
+API G/W로 액세스 하는 어플리케이션. 타사 SAML ID 공금자의 인증을 받아야 한다. 인증이 완료되면 AWS 자원에 액세스 가능 | SAML 자격 증명 공급자가 있는 Cognito 자격 증명 풀을 인증 공급자 중 하나로 사용
+NoSQL을 DynamoDB로 마이그레이션. 빈번한 쿼리 최적화, 읽기 지연 시간 감소, 테이블의 특정 주요 속성에 대한 빈번한 쿼리에 대한 계획 | 자주 쿼리되는 키에 글로벌 보조 인덱스를 만들고 색인에 필요한 속성을 추가
+SQS를 사용해서 독립 발신자의 메시지를 관리. 각 발신인은 메세지를 받은 순서대로 처리. SQS 기능은? | 고유한 MessageGroupId로 각 발신자를 구성
+이벤트와 Lambda 간의 매핑을 달성하는 방법 | 다른 Lambda 트리거 사용
+SAM CLI 사용해서 배포할 서버리스 어플. 개발자가 배포 전 해야할 것 | SAM 패키지를 사용해서 서버리스 어플리케이션을 번들
+10명 팀원에게 고유한 폴더 경로 S3 권한 부여. 10개의 권한을 생성하지 않고 일반화하는 방법은? | IAM 정책 변수 사용
+세션 데이터를 외부화 하는 방법 | ElastiCache Memcached 클러스터를 생성한 다음 어플리케이션 수준에서 세션 처리를 구현하여 세션 데이터 스토리지용 클러스터 활용
+비로그인 게스트가 Cognito 자원 사이트에 액세스해서 S3 파일을 다운로드 허용 | 새 자격 증명 풀을 생성하고 인증된 자격 증명에 대한 액세스를 활성화하고 S3 액세스 권한 부여
+X-Ray에 정보를 제공하도록 코드 변경. 데이터가 많이 생성되서 필터링하기 위한 인덱싱 구현 필요 | 세그먼트 문서 및 코드에 주석 추가
+특정 AWS 계정의 사용자에 대한 API 액세스를 제한하는 방법 | API G/W 리소스 정책
 
 
 
-- 81번
-1 RCU per 4k\
-2 RCU per read and we have 3 per second, so 2x3=6 read capacity.\ 
-Write uses 1k as its capacity, so 7k items will take 7 WCU,\
-as we have 10 writes per second 10x7 = 70.
+- CodeCommit
+- CodePipeline
+- CodeBuild
+- CodeDeploy
+- Beanstalk
 
+
+- 5KB를 처리하기 때문에 2 RCU가 필요하고 초당 3개를 처리하니까 읽기 처리량은 2*3 = 6\
+7KB를 처리하기 때문에 7 WCU가 필요하고 초당 10개를 처리하니까 쓰기 처리량은 7*10 = 70\
 
 - 최대 4KB 항목의 강력히 일관된 읽기 요청에는 하나의 읽기 요청 단위가 필요합니다.\
 최대 4KB 항목의 최종 읽기 일관성 요청에는 절반의 읽기 요청 단위가 필요합니다.\
 최대 4KB 항목의 트랜잭션 읽기 요청에는 2개의 읽기 요청 단위가 필요합니다.
 
+- 강력한 일관된 읽기는 1 RCU of 4KB. 5KB는 2 RCU가 필요하기 때문에 100 * 2 CRU = 200
+
+- 1분에 600 write => 초당 10 write. 1KB는 1 WCU가 필요하기 때문에 10 * 1 = 10
+
+- RCU는 4KB 단위로 늘어난다. 초당 처리 단위로 환산해서 계산해야한다.
+- WCU는 1KB 단위로 늘어난다. 초당 처리 단위로 환산해서 계산해야한다.
 
 </details>
 
