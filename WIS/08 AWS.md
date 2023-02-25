@@ -728,52 +728,52 @@ Elastic Beanstalk `전체 용량을 유지`하면서 배포하는 방법 | `Roll
 ## CodePipeline, CodeCommit, CodeBuild, CodeDeploy
 문제 | 답안 
 ---|---
-CodeCommit Repository에 대한 `HTTPS 복제 URL` 사전 구성 방법은? | AWS 자격 증명 프로필 사용하고 Git 자격 증명 도우미 설정. 도우미가 Repository로 경로를 보낼 수 있도록 구성
-소스 변경될 때 배포. 배포 트리거 방식 | 소스 코드를 S3에 저장하고 파일이 변경되면 시작하는 CodePipeline 구성, 소스 코드를 CodeCommit Repository에 저장하고 커밋될 때 시작하는 CodePipeline 구성
-Github Repository -> CodeCommit HTTS를 통해서 마이그레이션 | IAM에서 생성된 Git 자격 증명 세트
-전달 파이프라인은 CodeCommit Repository의 Master Branch에 대한 변경이 트리거.<br>CodeBuild를 사용해서 프로세스 테스트 및 빌드 단계 구현<br>CodeDeploy로 배포<br>파이프라인은 정상. CodeDeploy가 배포를 안함. 가능한 원인은? | CodeCommit Repository의 Master Branch에서 변경 사항이 적용되지 않음, 파이프라인 초기 단계 중 하나가 실패해서 파이프라인 종료
-서비스는 변경 세트를 피어 투 피어로 교환해서 여러 분산 Repository로 동기화하는지 확인해야 한다. 네트워크가 없어도 작업 가능해야 한다. | CodeCommit
-CodeDeploy를 통해 재배포 하기 위한 파일 | appspec.yml
-CodeDeploy 사용해서 외부 MySQL과 연결하는 어플리케이션 배포 자동화. API Key, DB Pwd에 안전하게 액세스 하기 원함 | SSM Parameter Store를 사용해서 EC2 인스턴스 IAM 역할을 사용하여 암호를 저장하고 프로그래밍 방식으로 액세스
-CodePipeline에서 단위 테스트를 작성하고 파이프라인 일부로 실행하려면 | 단위 테스트 실행 단계를 포함하도록 CodeBuild 사양 업데이트
-Stg, QA, Prod 환경이 있다. Stg 배포 후 QA, Prod에 배포하려고 한다. | CodeDeploy를 사용해서 여러 배포 그룹을 생성
-운영 배포 전 코드를 검토하고 승인이 필요함 | 파이프라인에 승인 작업을 추가하고 승인이 필요할 때 SNS 주제에 게시해서 승인 작업을 기다린다.
-CodeDeploy로 EC2에 배포. 특정 배포 파일에 파일 권한 변경. 어떤 수명 주기 이벤트를 사용해야 하나 | AfterInstall
-EC2 인스턴스와 온프로미스에서 실행되는 가상 서버 모두에 S/W Package 배포를 자동화 | CodeDeploy 사용
-stg, test, prod 환경에 배포. 관리할 리소스 수를 최소화하면서 배포하는 방법 | 여러 별칭이 있는 하나의 Lambda 함수를 사용해서 여러 단계의 API G/W 하나를 생성
-stg,test,prod 환경에서 API G/W는 237GB 캐시를 사용중. 효율적인 배포 전략은? | 필요할 때만 개발 및 테스트 환경용 캐시를 활성화
+`CodeCommit Repository`에 대한 `HTTPS 복제 URL` 사전 구성 방법은? | AWS `자격 증명 프로필` 사용하고 `Git 자격 증명 도우미` 설정. 도우미가 `Repository로 경로`를 보낼 수 있도록 구성
+Github Repository -> `CodeCommit` HTTS를 통해서 마이그레이션 | IAM에서 생성된 `Git 자격 증명 세트`
+`소스 변경`될 때 배포. `배포 트리거` 방식 | 소스 코드를 `S3에 저장`하고 파일이 변경되면 시작하는 `CodePipeline 구성`, 소스 코드를 `CodeCommit Repository에 저장`하고 커밋될 때 시작하는 `CodePipeline 구성`
+전달 파이프라인은 `CodeCommit Repository`의 Master Branch에 대한 `변경 트리거`<br>`CodeBuild`를 사용해서 프로세스 테스트 및 빌드 단계 구현<br>`CodeDeploy`로 배포<br>파이프라인은 정상. CodeDeploy가 `배포를 안함`. 가능한 원인은? | CodeCommit Repository의 `Master Branch에서 변경 사항이 적용되지 않음`, 파이프라인 `초기 단계 중 하나가 실패`해서 파이프라인 종료
+`CodePipeline`에서 `단위 테스트`를 작성하고 파이프라인 `일부로 실행`하려면 | 단위 테스트 `실행 단계를 포함`하도록 `CodeBuild` 사양 업데이트
+stg, test, prod 환경이 있다. Stg `배포 후` QA, Prod에 배포하려고 한다. | `CodeDeploy`를 사용해서 `여러 배포 그룹`을 생성
+stg, test, prod 환경에 배포. 관리할 `리소스 수를 최소화`하면서 배포하는 방법 | `여러 별칭`이 있는 `하나의 Lambda 함수`를 사용해서 여러 단계의 API G/W 하나를 생성
+stg, test, prod 환경에서 API G/W는 `237GB 캐시`를 사용중. 효율적인 배포 전략은? | `필요할 때`만 개발 및 테스트 환경용 `캐시를 활성화`
+운영 배포 전 코드를 검토하고 `승인이 필요`함 | `CodePipeline에 승인 작업을 추가`하고 승인이 필요할 때 `SNS 주제에 게시`해서 승인 작업을 기다린다.
+코드가 Prod에 배포 되기 전 `승인이 필요` | `CodePipeline` 단계에서 `승인 작업` 사용
+`CodeDeploy`로 배포할 때 `내부 배포`에 대한 `후크 실행 순서` | `프로그램 중지` -> `설치 전` -> `설치 후` -> `프로그램 시작`
+`CodePipeline`을 구현하고 각 단계의 작업 상태를 `Lambda로 알림`을 보내려고 함. Lambda 함수를 `이벤트 소스와 연결하는 단계` | `CodePipeline`을 이벤트 소스로 사용하는 `CloudWatch Events 규칙`을 생성
+`CodeBuild`는 코드 빌드 -> 도커 이미지 생성 -> ECR에 푸쉬 -> 이미지에 태그 지정. 개발자가 `CLI`를 구성한 경우 `도커 이미지를 가져오는 방법` | `aws ecr get-login`의 출력을 실행한 후 `docker pull repository uri:tag` 실행
+로컬에 어플의 빌드,번들,패키징. EC2에 배포해야함 | `번들을 S3`에 업로드 하고 `CodeDeploy를 사용해서 배포`를 수행할 때 `S3 위치 지정`
+`Code Repository`에서 Commit을 위한 Pipeline에서 `단위 테스트를 Trigger`하고 Pipeline의 `실패 이벤트에 대해 알림` 수신 | `CodeCommit`에 `Code를 저장`하고 `CodePipeline`을 생성해서 `단위 테스트를 자동화`하고 `CloudWatch를 사용해서 실패 이벤트 알림`을 Trigger
+`온프로미스`에서 실행되는 `EC2 인스턴스` 및 ₩가상 서버₩에 어플리케이션 패키지 `배포를 자동화` | `CodeDeploy`
+`EC2 인스턴스`와 `온프로미스₩에서 실행되는 ₩가상 서버` 모두에 S/W Package ₩배포를 자동화₩ | `₩`CodeDeploy` 사용
+여러 개발자와 `코드 공유`, 여러 버전 및 `일괄 변경 추적`과 함께 `장기간 저장` 필요. | `CodeCommit`
 여러 파일에 대한 일괄 변경 지원, 병렬 분기, 버전 추적 | CodeCommit
-CodeDeploy로 배포할 때 내부 배포에 대한 후크 실행 순서 | 프로그램 중지 -> 설치 전 -> 설치 후 -> 프로그램 시작
-CodePipeline을 구현하고 각 단계의 작업 상태를 Lambda로 알림을 보내려고 함. Lambda 함수를 이벤트 소스와 연결하는 단계 | CodePipeline을 이벤트 소스로 사용하는 CloudWatch Events 규칙을 생성
-CodeBuild는 코드 빌드 -> 도커 이미지 생성 -> ECR에 푸쉬 -> 이미지에 태그 지정. 개발자가 CLI를 구성한 경우 도커 이미지를 가져오는 방법 | aws ecr get-login의 출력을 실행한 후 docker pull repository uri:tag 실행
-CodeBuild 프로젝트를 실행할 때 환경 변수 길이가 결합된 문자 최대 길이 초과 | System Manager Parameter Store를 사용해서 환경 변수를 저장
-코드가 Prod에 배포 되기 전 승인이 필요 | CodePipeline 단계에서 승인 작업 사용
-CodeDeploy를 작동하려면 appspec.yml 파일은 어디에 배치? | 어플리케이션 소스 코드의 루트 디렉토리
-로컬에 어플의 빌드,번들,패키징. EC2에 배포해야함 | 번들을 S3에 업로드 하고 CodeDeploy를 사용해서 배포를 수행할 때 S3 위치 지정
-Code Repository에서 Commit을 위한 Pipeline에서 단위 테스트를 Trigger하고 Pipeline의 실패 이벤트에 대해 알림 수신 | CodeCommit에 Code를 저장하고 CodePipeline을 생성해서 단위 테스트를 자동화하고 CloudWatch를 사용해서 실패 이벤트 알림을 Trigger
-온프로미스에서 실행되는 EC2 인스턴스 및 가상 서버에 어플리케이션 패키지 배포를 자동화 | CodeDeploy
-여러 개발자와 코드 공유, 여러 버전 및 일괄 변경 추적과 함께 장기간 저장 필요. | CodeCommit
+`CodeDeploy`로 `EC2에 배포`. 특정 배포 파일에 `파일 권한 변경`. 어떤 `수명 주기 이벤트`를 사용해야 하나 | `AfterInstall`
+서비스는 변경 세트를 피어 투 피어로 교환해서 `여러 분산 Repository로 동기화`하는지 확인해야 한다. `네트워크가 없어`도 작업 가능해야 한다. | `CodeCommit`
+`CodeDeploy`를 통해 `재배포` 하기 위한 파일 | `appspec.yml`
+`CodeDeploy`를 작동하려면 `appspec.yml` 파일은 어디에 배치? | 어플리케이션 소스 코드의 `루트 디렉토리`
+`CodeDeploy` 사용해서 외부 MySQL과 연결하는 어플리케이션 배포 자동화. `API Key, DB Pwd`에 `안전하게` 액세스 하기 원함 | `SSM Parameter Store`를 사용해서 EC2 인스턴스 IAM 역할을 사용하여 암호를 저장하고 프로그래밍 방식으로 액세스
+`CodeBuild` 프로젝트를 실행할 때 `환경 변수 길이`가 결합된 문자 최대 길이 `초과` | `System Manager Parameter Store`를 사용해서 `환경 변수를 저장`
 
 ## Cognito
 문제 | 답안 
 ---|---
 API G/W로 액세스 하는 어플리케이션. `타사 SAML ID 공급자`의 인증을 받아야 한다. 인증이 완료되면 AWS 자원에 액세스 가능 | SAML 자격 증명 공급자가 있는 `Cognito 자격 증명 풀`을 `인증 공급자` 중 하나로 사용
-사용자 자격 증명 절대 노출 금지 | Cognito 사용자풀 구성하고 Cognito API로 사용자 인증하고 권한 부여
-인증 없는 제한된 액세스 게스트 허용 | 인증되지 않은 액세스가 활성화 된 Cognito|
-FE어플은 Congnito 사용자 풀 사용. 인증 흐름 처리. SDK 사용해서 DynamoDB 어플 통합. 비밀키 노출하지 않고 API 안전하게 호출 | Cognito 자격 증명 풀을 구성하고 JWT을 임시 자격 증명으로 교환
-등록된 사용자와 게스트가 있을 때 두 유형 모두에게 액세스를 제공하려면 ? | Cognito를 사용해서 인증된 역할과 인증되지 않은 역할을 사용해서 액세스 제공, IAM을 사용해서 사용자 유형에 따라 STS(Security Token Service) 작업을 사용해서 다른 역할을 맡도록 하고 위임한 역할에 대한 엑세스 제공
-로그인 프로토콜을 MFA로 고도화 하려고 한다. | MFA가 포함된 Cognito
-Cognito 사용자 풀 사용. 회사 로고가 있는 로그인 페이지 만들고 싶다. | Cognito에서 호스팅 사용자 인터페이스를 생성하고 회사 로고로 사용자 지정
-회사의 모든 직원 정보가 SAML 직원 디렉터리에만 남아 있어야 한다. 직원에게 승인된 액세스를 제공해서 자신의 어플에만 액세스 하도록 해야한다. | Cognito 자격 증명 풀을 사용하고 SAML 공급자와 연동해서 IAM 조건 키를 사용해서 직원에게 액세스 권한 부여
-사용자 자신이 비밀번호를 재설정하도록 허용하면서 사용자 인증 및 권한을 관리할 수 있는 것 | Cognito 사용자 풀, 자격 증명 풀
-Cognito에서 사용자를 인증하고 DynamoDB 레코드를 생성하는 흐름 | Cognito 사용자 풀에서 토큰을 인증하고 받는다. Cognito 자격증명 풀을 사용해서 토큰을 AWS 자격증명으로 바꾼다. AWS 자격증명으로 DynamoDB에 액세스한다.
-Facebook 등 OpenID 자격 증명 공급자를 기반으로 인증이 필요. 사용자 지정 권한 부여 모델을 기반으로 액세스 허용 | Cognito 사용자 풀과 사용자 지정 권한 부여자를 사용해서 JWT 기반으로 사용자를 인증하고 권한을 부여
-다단계 인증이 필요한 모바일 앱 | Congnito 사용자 풀을 생성하고 사용자 생성, 사용자 풀에 대한 다단계 인증 활성화
-모바일 게임. 데이터는 로컬 저장. 여러 장치에서 사용하니까 데이터 동기화 필요 | Cognito로 데이터 동기화
-ALB. CloudFront. 소셜 미디어로 로그인 | Cognito 인증 공급자 중 하나로 사용하도록 CloudFront 구성
-비로그인 게스트가 Cognito 자원 사이트에 액세스해서 S3 파일을 다운로드 허용 | 새 자격 증명 풀을 생성하고 인증된 자격 증명에 대한 액세스를 활성화하고 S3 액세스 권한 부여
-특정 ID에 액세스하는 모든 장치에 푸쉬하려면 프로필 데이터에 업데이트가 필요 | Cognito Sync
-Cognito 모든 장치 업데이트 자동으로 알림 기능 | 적절한 IAM 열할과 푸시 동기화 기능
+`사용자 자격 증명` 절대 노출 금지 | Cognito `사용자풀` 구성하고 Cognito API로 `사용자 인증`하고 `권한 부여`
+인증 없는 제한된 액세스 `게스트` 허용 | `인증되지 않은 액세스`가 활성화 된 Cognito
+등록된 사용자와 게스트가 있을 때 두 유형 `모두에게 액세스`를 제공하려면 ? | Cognito를 사용해서 `인증된 역할`과 `인증되지 않은 역할`을 사용해서 액세스 제공, IAM을 사용해서 사용자 유형에 따라 `STS(Security Token Service) 작업`을 사용해서 다른 역할을 맡도록 하고 `위임한 역할`에 대한 엑세스 제공
+비로그인 `게스트`가 Cognito 자원 사이트에 액세스해서 `S3 파일을 다운로드` 허용 | `새 자격 증명 풀을 생성`하고 `인증된 자격 증명에 대한 액세스를 활성화`하고 S3 액세스 권한 부여
+FE어플은 Congnito 사용자 풀 사용. 인증 흐름 처리. SDK 사용해서 DynamoDB 어플 통합. `비밀키 노출하지 않고` API 안전하게 호출 | Cognito `자격 증명 풀`을 구성하고 `JWT`을 임시 자격 증명으로 교환
+로그인 프로토콜을 `MFA로 고도화` 하려고 한다. | `MFA가 포함된 Cognito`
+Cognito `사용자 풀` 사용. 회사 로고가 있는 `로그인 페이지` 만들고 싶다. | Cognito에서 `호스팅 사용자 인터페이스`를 생성하고 `회사 로고로 사용자 지정`
+회사의 모든 직원 정보가 `SAML 직원 디렉터리에만` 남아 있어야 한다. 직원에게 승인된 액세스를 제공해서 `자신의 어플에만` 액세스 하도록 해야한다. | Cognito `자격 증명 풀`을 사용하고 `SAML 공급자와 연동`해서 `IAM 조건 키`를 사용해서 직원에게 액세스 권한 부여
+사용자 자신이 `비밀번호를 재설정`하도록 허용하면서 `사용자 인증 및 권한`을 관리할 수 있는 것 | Cognito `사용자 풀`, `자격 증명 풀`
+Cognito에서 사용자를 `인증`하고 `DynamoDB 레코드`를 생성하는 흐름 | Cognito 사용자 풀에서 `토큰을 인증`하고 받는다. Cognito 자격증명 풀을 사용해서 토큰을 `AWS 자격증명`으로 바꾼다. AWS 자격증명으로 DynamoDB에 액세스한다.
+Facebook 등 `OpenID 자격 증명 공급자`를 기반으로 인증이 필요. `사용자 지정 권한 부여` 모델을 기반으로 액세스 허용 | Cognito `사용자 풀`과 `사용자 지정 권한 부여자`를 사용해서 `JWT 기반`으로 사용자를 인증하고 권한을 부여
+`다단계 인증`이 필요한 모바일 앱 | Congnito `사용자 풀`을 생성하고 사용자 생성, 사용자 풀에 대한 `다단계 인증 활성화`
+ALB. CloudFront. `소셜 미디어`로 로그인 | Cognito `인증 공급자` 중 하나로 사용하도록 `CloudFront 구성`
+모바일 게임. 데이터는 로컬 저장. `여러 장치`에서 사용하니까 `데이터 동기화` 필요 | Cognito로 `데이터 동기화`
+특정 ID에 액세스하는 `모든 장치에 푸쉬`하려면 프로필 데이터에 업데이트가 필요 | `Cognito Sync`
+Cognito `모든 장치` 업데이트 자동으로 알림 기능 | 적절한 `IAM 역할`과 `푸시 동기화 기능`
 
 ## CloudFormation
 문제 | 답안 
