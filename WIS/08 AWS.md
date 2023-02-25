@@ -680,55 +680,50 @@ SSL 연결을 강제 적용하려는 MySQL RDS 데이터베이스 인스턴스�
 문제 | 답안 
 ---|---
 API G/W API 특정 리소스 접근이 가능하도록 `유일한 사용자 구성`. `토큰 자동 만료/새로고침`이 가능하도록 하려면? | Cognito 사용자풀 사용, Authorizer 구성, 자격 증명 또는 Access token 사용
-API G/W, Lambda, S3 호스팅웹에서 CORS 오류 | API G/W에서 메서드에 대한 CORS 활성화
-DynamoDB, Lambda, API G/W 구성. 요청 대기 시간 길어짐. 식별할 수 있는 방법 | API G/W와 Lambda에 X-Ray 추적을 활성화하고 사용자 요청 추적 및 분석
-API G/W 사용해서 WebSocket API 구축. API로 전송되는 Payload는 생성, 업데이트, 제거의 값을 가진다. 값에 따라 다른 경로와 통합해야 한다. | 경로 선택 표현식 값을 $request.body.action으로 설정
-API G/W는 통과했지만 Lambda로 도달 안됨. 두번째 계정의 Lambda는 최대 동시성 실행 | 두번째 Lambda 함수의 동시 실행 제한 구성
-API G/W, Lambda, GET 메소드 허용 | Lambda 함수가 있는 API G/W, API G/W에 노출된 GET 메소드
-API G/W endpoint 과부하가 걸려서 트래픽을 줄여야 한다. | ElastiCache에서 API 캐싱을 활성화
-새 페이지는 CreateApiKey를 사용해서 새 API 키를 생성하고 사용한다. 기존 사용자는 정상인데 새로운 사용자는 403 Forbedden 오류 수신 | 새로 생성된 API 키를 올바른 사용 계획과 연결하려면 createUsagePlanKey 메서드를 호출
-API G/W, v1, v2 버전 배포. v1은 6개월 사용 허용 | v2용 새로운 url 만들어서 배포
-DynamoDB 한도를 높일 수 있는 항목 | 계정당 테이블 수, 프로비저닝된 처리량 단위 수
-DynamoDB 대량 트래픽 | Accelerator를 사용해서 데이터를 캐시
-테스트 목적으로 다른 버전의 API 호출 | 각 버전에 맞는 다른 URL을 배포
-Restful API 작성. endpoint 요청에 대한 충족 사항 | API G/W & Lambda, S3 & CloudFront
-API G/W에 활성화된 캐시를 무효화하는 옵션을 요구했고 조치할 수 있는 방법 | 고객에게 Cache-control:max-age=0 이라는 HTTP 헤더를 전달하도록 요청
-API G/W, Lambda 어플리케이션. API 호출하면 Method completed with status: 502 | API 호출에 대한 Lambda 응답 형식 변경
-API G/W로 액세스 하는 어플리케이션. 타사 SAML ID 공금자의 인증을 받아야 한다. 인증이 완료되면 AWS 자원에 액세스 가능 | SAML 자격 증명 공급자가 있는 Cognito 자격 증명 풀을 인증 공급자 중 하나로 사용
-특정 AWS 계정의 사용자에 대한 API 액세스를 제한하는 방법 | API G/W 리소스 정책
-API G/W, Restful에 대한 인증 구현. 호출을 인증하려면 Client ID, User ID가 있는 HTTP 헤더가 포함되어야 한다. 자격 증명은 DynamoDB 인증 데이터와 비교. API G/W에 구현하려면 해야할 작업은? | DynamoDB 인증 테이블을 참조하는 Lambda 권한 부여자 구현
-EC2 인스턴스를 시작하거나 종료할 때 BotoServerError: 503 Service Unavailable 에러 수신 | EC2에 대한 API 요청 수 최적하를 위한 지수 백오프 구현
-API G/W를 업데이트 하지 않고 Code Push를 효율적으로 수행하는 방법 | Lambda에서 별칭 및 버전 생성
-XML 기반 SOAP Interface. API G/W를 사용해서 외부에 노출 필요 | API G/W Restful API 생성하고 Mapping Template를 사용해서 들어오는 JSON을 SOAP Interface에 유효한 XML Message로 변환
+API G/W, Lambda, S3 호스팅웹에서 CORS 오류 | API G/W에서 메서드에 대한 `CORS 활성화`
+DynamoDB, Lambda, API G/W 구성. `요청 대기 시간 길어짐`. 식별할 수 있는 방법 | API G/W와 Lambda에 `X-Ray 추적을 활성화`하고 사용자 요청 추적 및 분석
+API G/W 사용해서 WebSocket API 구축. API로 전송되는 `Payload`는 생성, 업데이트, 제거의 값을 가진다. `값에 따라 다른 경로와 통합`해야 한다. | 경로 선택 표현식 값을 `$request.body.action`으로 설정
+API G/W는 통과했지만 Lambda로 도달 안됨. 두번째 계정의 Lambda는 최대 동시성 실행 | 두번째 Lambda 함수의 `동시 실행 제한 구성`
+API G/W, Lambda, GET 메소드 허용 | Lambda 함수가 있는 API G/W, API G/W에 `노출된 GET 메소드`
+새 페이지는 CreateApiKey를 사용해서 새 API Key를 생성하고 사용한다. 기존 사용자는 정상인데 `새로운 사용자`는 `403 Forbedden 오류` 수신 | 새로 생성된 API Key를 `올바른 사용 계획과 연결`하려면 `createUsagePlanKey` 메서드를 호출
+API G/W, Lambda 어플리케이션. API 호출하면 `Method completed with status: 502` | API 호출에 대한 `Lambda 응답 형식 변경`
+API G/W, v1, v2 버전 배포. v1은 6개월 사용 허용 | v2용 `새로운 url` 만들어서 배포
+테스트 목적으로 `다른 버전의 API` 호출 | 각 버전에 맞는 `다른 URL`을 배포
+API G/W에 활성화된 `캐시를 무효화`하는 옵션을 요구했고 조치할 수 있는 방법 | 고객에게 `Cache-control:max-age=0` 이라는 HTTP 헤더를 전달하도록 요청
+특정 AWS 계정의 `사용자에 대한` API 액세스를 제한하는 방법 | API G/W `리소스 정책`
+API G/W, Restful에 대한 인증 구현. 호출을 인증하려면 Client ID, User ID가 있는 HTTP 헤더가 포함되어야 한다. 자격 증명은 DynamoDB 인증 데이터와 비교. API G/W에 구현하려면 해야할 작업은? | DynamoDB `인증 테이블을 참조`하는 `Lambda 권한 부여자 구현`
+API G/W를 업데이트 하지 않고 `Code Push`를 효율적으로 수행하는 방법 | Lambda에서 별칭 및 버전 생성
+`XML 기반 SOAP Interface`. API G/W를 사용해서 외부에 노출 필요 | API G/W Restful API 생성하고 `Mapping Template`를 사용해서 들어오는 `JSON을 SOAP Interface에 유효한 XML Message로 변환`
 
 ## Elastic Beanstalk
 문제 | 답안 
 ---|---
 Elastic Beanstalk `배포가 오래 걸리는 문제를 해결`하는 방법은? | CodeCommit Repository 생성, 개발자가 커밋 허용, Elastic Beanstalk에 직접 배포
 `Elastic Beanstalk`가 배포할 수 있는 AWS 서비스는? | `ASG`, `ELB`, `RDS`
-Elastic Beanstalk 지원 플랫폼 | tomcat, .NET
-응용 프로그램을 2개의 구성요소로 나누고 독립적으로 확장. Elastic Beanstalk 사용해서 배포. 어떻게 해야할까? | 각 구성 요소를 별도의 Elastic Beanstalk 환경에 배포
-Elastic Beanstalk 배포. ELB가 있는 WEB 계층, RDS 계층 어플리케이션. RDS 인스턴스 분리하는 방법 | RDS 없는 새로운 Elasic Beanstalk 환경 다시 생성
-Elastic Beanstalk 배포. 새 버전은 이전 버전과 호환 안됨. 배포 실패 시 이전 버전으로 롤백. 새 업데이트는 일괄 전환 수행 | 새 Elastic Beanstalk 환경에 새 버전을 배포하고 환경 URL을 교체
-Elastic Beanstalk로 Python 배포. 소스 번들 생성 시 요구사항 | 최상위 디렉토리를 포함하지 않아야 하고, 단일 .zip, .war 파일로 생성되어야 한다.
-Elastic Beanstalk의 EC2 인스턴스 특정 명령 세트 실행하려고 한다. Beanstalk의 기능은? | .ebextensions
-Elastic Beanstalk 어플을 여러 리전에 배포. 각 리전에 서로 다른 AMI 필요. 리전에 대해 올바른 AMI을 지정할 CloudFormation Template Key는 ? | Mappings
-Docker 어플리케이션으로 작업. 다운타임 없이 자동으로 변경 및 업데이트 | Elastic Beanstalk를 사용하고 일괄 업데이트 정책 선택
-트래픽이 많은 동적 웹. 개발을 제외한 모든 것을 AWS로 마이그레이션 | Elastic Beanstalk 환경에서 웹 사이트 코드를 배포. ASG로 Instance 수 확장
-Elastic Beanstalk를 사용해서 버전 수를 25개로 제한. 소스 번들은 S3 소스 버킷에서 삭제됨. 어플 버전 수명 주기 설정에서 무엇을 해야하나? | 연령별 어플리케이션 버전 제한 설정을 0으로 설정
-Elastic Beanstalk 환경을 새 어플 버전으로 업데이트하는 솔루션 | 어플 코드를 .zip으로 패키징하고 Management 콘솔에서 패키징 된 어플을 업로드한 다음 배포, 어플 코드를 .zip으로 패키징하고 Management 콘솔에서 새 어플 버전을 생성한 다음 CLI 사용해서 환경을 재구축
-Beanstalk에서 지원하는 플랫폼 | Apach tomcat, .NET
-Beanstalk에서 다중 컨테이너 Docker 인스턴스를 구성하기위한 필요한 것 | ECS 작업 정의
-Elastic Beanstalk 전체 용량을 유지하면서 배포하는 방법 | Rolling with additional batch
-Elastic Beanstalk CLB -> ALB로 마이그레이션. Management 콘솔에서 해야할 작업 | LB 유형을 제외하고 동일한 구성으로 새 환경 생성, 기존 환경과 동일한 버전의 어플리케이션 배포, swap-environment-cnames 작업 실행
-healthcheckurl.config는 Elastic Beanstalk 구성 파일을 어플리케이션 소스 번들의 어디에 배치? | .ebextensions 폴더에
-healthcheckurl.yaml 에러 | healthcheckurl.config로 변경해야함
-Elastic Beanstalk 새 버전의 어플 배포. 개발자 수행 작업 | Elastic Beanstalk Console에서 새 어플리케이션 버전 업로드 및 배포
-Beanstalk 배포. 배포는 최소한의 영향. 최대한 빠른 롤백 전략 | Immutable
-Beanstalk 배포. 중단 최소화. 어플 액세스 로그 보관. 배포 정책은? | Rolling
-Elastic Beanstalk에서 실행할 Linux 어플리케이션. 비용을 최소솨하면서 업데이트 중 전체 용량을 유지해야함. 배포 정책은? | Roliing with additional batch
-Beanstalk 전체 용량 유지하고 실패한 배포의 영향을 최소화 하는 정책 | Rolling with an additional batch
-Elastic Beanstalk 롤아웃을 완료하기 전 특정 기간 변경 사항을 평가해야 한다. | Immutable
+Elastic Beanstalk 지원 플랫폼 | `Tomcat`, `.NET`
+Beanstalk에서 지원하는 플랫폼 | `Apache tomcat`, `.NET`
+응용 프로그램을 2개의 구성요소로 나누고 독립적으로 확장. Elastic Beanstalk 사용해서 배포. 어떻게 해야할까? | 각 구성 요소를 `별도의` Elastic Beanstalk 환경에 배포
+Elastic Beanstalk 배포. ELB가 있는 WEB 계층, RDS 계층 어플리케이션. RDS 인스턴스 분리하는 방법 | RDS 없는 `새로운` Elasic Beanstalk 환경 다시 생성
+Elastic Beanstalk 배포. 새 버전은 이전 버전과 호환 안됨. 배포 실패 시 이전 버전으로 롤백. 새 업데이트는 일괄 전환 수행 | `새로운` Elastic Beanstalk 환경에 새 버전을 배포하고 환경 URL을 교체
+Elastic Beanstalk로 Python 배포. 소스 번들 생성 시 요구사항 | `최상위 디렉토리`를 포함하지 않아야 하고, `단일 파일`(.zip, .war)로 생성되어야 한다.
+Elastic Beanstalk의 `EC2 인스턴스 특정 명령 세트 실행`하려고 한다. Beanstalk의 기능은? | `.ebextensions`
+Elastic Beanstalk 어플을 `여러 리전`에 배포. 각 리전에 `서로 다른 AMI` 필요. 리전에 대해 올바른 AMI을 지정할 `CloudFormation Template Key`는 ? | `Mappings`
+`Docker` 어플리케이션으로 작업. 다운타임 없이 `자동으로 변경 및 업데이트` | `Elastic Beanstalk`를 사용하고 `일괄 업데이트 정책` 선택
+트래픽이 많은 `동적 웹`. `개발을 제외`한 모든 것을 AWS로 `마이그레이션` | Elastic Beanstalk 환경에서 `웹 사이트 코드를 배포`. `ASG로 Instance 수 확장`
+Elastic Beanstalk를 사용해서 버전 수를 25개로 제한. 소스 번들은 S3 소스 버킷에서 삭제됨. 어플 `버전 수명 주기` 설정에서 무엇을 해야하나? | 연령별 어플리케이션 `버전 제한 설정을 0`으로 설정
+Elastic Beanstalk 환경을 `새 어플 버전`으로 업데이트하는 솔루션 | 어플 코드를 `.zip으로 패키징`하고 Management 콘솔에서 패키징 된 어플을 `업로드`한 다음 `배포`, 어플 코드를 `.zip으로 패키징`하고 Management 콘솔에서 `새 어플 버전을 생성`한 다음 `CLI 사용해서 환경을 재구축`
+Beanstalk에서 `다중 컨테이너 Docker 인스턴스`를 구성하기위한 필요한 것 | `ECS 작업 정의`
+Elastic Beanstalk `CLB -> ALB`로 마이그레이션. Management 콘솔에서 해야할 작업 | `LB 유형을 제외`하고 동일한 구성으로 새 환경 생성, 기존 환경과 `동일한 버전의 어플리케이션 배포`, `swap-environment-cnames` 작업 실행
+`healthcheckurl.config`는 Elastic Beanstalk 구성 파일을 어플리케이션 소스 번들의 어디에 배치? | `.ebextensions 폴더`에
+`healthcheckurl.yaml` 에러 | `healthcheckurl.config`로 변경해야함
+Elastic Beanstalk 새 버전의 어플 배포. 개발자 수행 작업은? | Elastic Beanstalk Console에서 `새로운 어플리케이션` 버전 업로드 및 배포
+Beanstalk 배포. 배포는 `최소한의 영향`. 최대한 빠른 롤백 전략 | Immutable
+Elastic Beanstalk 롤아웃을 완료하기 전 `특정 기간 변경 사항을 평가`해야 한다. | Immutable
+Beanstalk 배포. `중단 최소화`. 어플 액세스 `로그 보관`. 배포 정책은? | Rolling
+Elastic Beanstalk에서 실행할 Linux 어플리케이션. `비용을 최소화`하면서 업데이트 중 `전체 용량을 유지`해야함. 배포 정책은? | Roliing with additional batch
+Beanstalk `전체 용량 유지`하고 실패한 배포의 `영향을 최소화` 하는 정책 | Rolling with an additional batch
+Elastic Beanstalk `전체 용량을 유지`하면서 배포하는 방법 | `Rolling with additional batch`
+
 
 ## CodePipeline, CodeCommit, CodeBuild, CodeDeploy
 문제 | 답안 
@@ -762,6 +757,7 @@ Code Repository에서 Commit을 위한 Pipeline에서 단위 테스트를 Trigge
 ## Cognito
 문제 | 답안 
 ---|---
+API G/W로 액세스 하는 어플리케이션. `타사 SAML ID 공급자`의 인증을 받아야 한다. 인증이 완료되면 AWS 자원에 액세스 가능 | SAML 자격 증명 공급자가 있는 `Cognito 자격 증명 풀`을 `인증 공급자` 중 하나로 사용
 사용자 자격 증명 절대 노출 금지 | Cognito 사용자풀 구성하고 Cognito API로 사용자 인증하고 권한 부여
 인증 없는 제한된 액세스 게스트 허용 | 인증되지 않은 액세스가 활성화 된 Cognito|
 FE어플은 Congnito 사용자 풀 사용. 인증 흐름 처리. SDK 사용해서 DynamoDB 어플 통합. 비밀키 노출하지 않고 API 안전하게 호출 | Cognito 자격 증명 풀을 구성하고 JWT을 임시 자격 증명으로 교환
@@ -819,6 +815,8 @@ DynamoDB 특징은? | `낙관적 동시성 제어` 사용, `일관성을 위해 
 기존 SNS 계정 사용해서 게임 로그인, 데이터는 DynamoDB 저장, DynamoDB API 안전한 접근 방식 필요. `DynamoDB API 요청에 서명`하는 방법은? | `Web ID 연합` 사용, `임시 보안 자격 증명`을 요청에 서명
 `Provisioning 된 처리량 효율성`을 위한 DynamoDB Hash Key Schema의 예시는? | Application의 `User ID`
 DynamoDB에서 `ProvisionedThroughputExceededException` 발생. CloudWatch에 처리량 초과하지 않음. 원인은? | 특정 Hash Key에 대한 용량을 초과
+DynamoDB `한도를 높일 수 있는` 항목 | 계정당 `테이블 수`, `프로비저닝된 처리량 단위 수`
+DynamoDB `대량 트래픽` | `Accelerator`를 사용해서 데이터를 캐시
 DynamoDB에 실시간 동적 업데이트. 덮어쓰기 방지 옵션은? | 조건부 쓰기
 EC2 어플이 DynamoDB 쓰기 권한. 보안키는 사용하지 않음 | EC2에 IAM 추가. DynamoDB에 쓰기 권한 IAM 역할 생성
 DynamoDB 많은 읽기 용량 소비. 속성이 매우 큼. 어플은 모든 속성이 필요하지 않음. | 최소한의 프로젝션 속성 집합으로 글로벌 보조 인덱스를 만든다.
@@ -860,6 +858,7 @@ DynamoDB 강력한 일관된 읽기 초당 100개 항목을 읽어야 하고 각
 ## ElastiCache & Load Balancer
 문제 | 답안 
 ---|---
+API G/W `endpoint 과부하`가 걸려서 트래픽을 줄여야 한다. | ElastiCache에서 `API 캐싱을 활성화`
 ELB + EC2, 세션 데이터 작성하는 위치는? | ElasticCache에 데이터 쓰기
 ElastiCache 좋은 사례 | 읽기가 많은 어플의 워크로드 대기 시간과 처리량 개선, 컴퓨팅 집약적인 어플의 성능 향상
 ElastiCache for Redis 사용. 로드 증가. 장애 시 복원력이 필요 | ElastiCache를 수직적으로 확장
@@ -1122,13 +1121,15 @@ Example Corp AWS 계정에 액세스를 허용하는 안전한 방법 | Example 
 주말 동안 트래픽 급증, 주중에는 예측 가능한 급증. 항상 조절 오류를 방지하려면? | 일주일 내내 ASG로 Provisioning 된 용량 사용
 EC2 안에 어플이 S3 버킷에 쓰기 기능 추가 | EC2 인스턴스 프로파일 역할에 IAM 정책
 EC2에 있는 어플리케이션이 AWS 서비스에 액세스하고 API 호출 | EC2 프로파일 사용
+EC2 인스턴스를 시작하거나 종료할 때 `BotoServerError: 503 Service Unavailable` 에러 수신 | EC2에 대한 API 요청 수 최적하를 위한 `지수 백오프` 구현
 실시간 처리 | Event Driven
 
 ## 기본개념
 문제 | 답안 
 ---|---
 `LAMP`를 실행할 수 있는 AWS 서비스는? | `EC2`, `Aurora`
-AWS SDK 기본 리전 | us-east-1
+`Restful API` 작성. endpoint 요청에 대한 충족 사항 | `API G/W & Lambda`, `S3 & CloudFront`
+AWS SDK `기본 리전` | `us-east-1`
 EC2 인스턴스의 IPv4 주소 찾기 | 169.254.169.254/lastest/metadata/ 를 검색
 단일 인터페이스 필요 | API Gateway
 AWS에서 추가 비용 없이 포함되는 서비스 | Auto Scaling, CloudFormation
