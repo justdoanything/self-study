@@ -41,10 +41,10 @@ Reference : https://github.com/serithemage/AWSCertifiedSolutionsArchitectUnoffic
   - 비용 효율적인 컴퓨팅 및 데이터베이스 솔루션
   - 비용에 최적화된 네트워크 솔루션
 
-### AWS Keywords
-<details>
+---
 
-  <summary>펼치기</summary>
+<details>
+<summary><font size="5"><b>AWS Keywords</b></font></summary>
   
   ### AWS 기본 기능
   - 컴퓨팅
@@ -228,8 +228,8 @@ Amazon Glacier | Back-Ups
 
 ⚠️⚠️⚠️ 개념을 공부하는 것보단 기출문제와 FAQ 위주로 봐야할 것 같다!
 
-
 ---
+
 <details>
 <summary><font size="5"><b>Match Keywords</b></font></summary>
 
@@ -621,6 +621,55 @@ SSL 연결을 강제 적용하려는 MySQL RDS 데이터베이스 인스턴스�
 - S3 업로드 가속화 (Transfer Acceleration) : 엣지 로케이션에 올리고 엣지 로케이션은 리전에 private network로 빠르게 올림
 - S3 다운로드 가속화 : 1개의 파일을 Byte Range로 나눠서 병력적으로 다운로드 받고 한 부분이 실패해도 빠르게 재실행됨
 
+---
+
+<details>
+<summary><font size="5"><b>시험에 자주 나오는 개념</b></font></summary>
+
+- ### S3 Encryption
+- ### Lambda
+- ### Kinesis Data Stream
+- ### CloudFormation
+- ### CloudFront
+- ### CodeCommit
+- ### CodePipeline
+- ### CodeBuild
+- ### CodeDeploy
+- ### Beanstalk
+  - 배포 정책
+    - Immutable
+    - All at Once
+    - Rolling
+    - Rolling with an Additional Batch
+
+- ### `SQS (Simple Queue Service)` & `SNS (Simple Notification Service)`
+  - `SNS (Simple Notification Service)`와 다른 점
+    - `SNS`는 Application에서 정기적으로 update를 확인하거나 polling할 필요 없이 push만 하면 구독자에게 메세지를 보낼 수 있다. `SQS`는 분산 Application에서 Polling 모델을 통해 메세지를 교환하는데 사용되고 송신 요소와 수신 요소를 분리해서 사용할 수 있다.
+  - `Amazon MQ`와 다른 점
+    - 기존에 사용 중인 Messaging Application을 Cloud로 이동할 때 `Amazon MQ`를 사용하는게 유리하다. 업계 표준 API와 Protocol을 지원하기 때문에 다른 Message Brocker에서 Amazon MQ로 전환할 수 있다. Cloud에 새로운 Application을 구성한다면 `SQS`, `SNS`를 사용하는 것이 좋습니다.
+  - `AKS (Amazon Kinesis Streams)`와 다른 점
+    - `SQS`는 MSA와 같은 분산 Application에서 유용하며 배달 못한 편지 대기열과 포이즌 필(poison-pill) 관리 같은 일반적 미들웨어 구성체를 제공하고 웹 서비스 API도 제공합니다.
+    - `AKS`는 빅 데이터 스트리밍을 실시간으로 처리하고 주어진 파티션 키에 대한 모든 레코드를 동일한 레코드 프로세서에 제공하므로 스트림 데이터를 읽는 여러 개의 Application를 구축할 때 용이합니다.
+  - SQS는 FIFO 대기열을 사용하기 때문에 메세지 순서를 보장한다.
+  - 표준 대기열의 각 메세지는 최소 1회 전달을 보장한다.
+  - ReceiveMessage, DeleteMessage 작업이 별도로 존재한다. 사용자가 실제로 메세지를 수신했는지 상관없이 해당 메세지를 대기열에 그대로 보관한다. 사용자의 요청에 따라 메세지를 삭제할 수 있다.
+  - SQS는 SSE(Server Side Encrpyt)를 지원합니다.
+
+- ### 읽기/쓰기 처리량 계산
+  - 강력한 일관된 일기(RCU)는 4KB 단위로 늘어나고 초당 처리 단위로 환산해서 계산한다.
+  - 강력한 일관된 쓰기(WCU)는 1KB 단위로 늘어나고 초당 처리 단위로 환산해서 계산한다.
+  - 5KB를 처리하기 때문에 2 RCU가 필요하고 초당 3개를 처리하니까 읽기 처리량은 2*3 = 6\
+    7KB를 처리하기 때문에 7 WCU가 필요하고 초당 10개를 처리하니까 쓰기 처리량은 7*10 = 70\
+  - 최대 4KB 항목의 강력히 일관된 읽기 요청에는 하나의 읽기 요청 단위가 필요합니다.\
+    최대 4KB 항목의 최종 읽기 일관성 요청에는 절반의 읽기 요청 단위가 필요합니다.\
+    최대 4KB 항목의 트랜잭션 읽기 요청에는 2개의 읽기 요청 단위가 필요합니다.
+  - 강력한 일관된 읽기는 1 RCU of 4KB. 5KB는 2 RCU가 필요하기 때문에 100 * 2 CRU = 200
+  - 1분에 600 write => 초당 10 write. 1KB는 1 WCU가 필요하기 때문에 10 * 1 = 10
+
+</details>
+
+---
+
 <details>
 <summary><font size="5"><b>Match Keywords</b></font></summary>
 
@@ -922,29 +971,110 @@ SAM CLI 사용해서 배포할 서버리스 어플. 개발자가 배포 전 해�
 비로그인 게스트가 Cognito 자원 사이트에 액세스해서 S3 파일을 다운로드 허용 | 새 자격 증명 풀을 생성하고 인증된 자격 증명에 대한 액세스를 활성화하고 S3 액세스 권한 부여
 X-Ray에 정보를 제공하도록 코드 변경. 데이터가 많이 생성되서 필터링하기 위한 인덱싱 구현 필요 | 세그먼트 문서 및 코드에 주석 추가
 특정 AWS 계정의 사용자에 대한 API 액세스를 제한하는 방법 | API G/W 리소스 정책
-
-
-
-- CodeCommit
-- CodePipeline
-- CodeBuild
-- CodeDeploy
-- Beanstalk
-
-
-- 5KB를 처리하기 때문에 2 RCU가 필요하고 초당 3개를 처리하니까 읽기 처리량은 2*3 = 6\
-7KB를 처리하기 때문에 7 WCU가 필요하고 초당 10개를 처리하니까 쓰기 처리량은 7*10 = 70\
-
-- 최대 4KB 항목의 강력히 일관된 읽기 요청에는 하나의 읽기 요청 단위가 필요합니다.\
-최대 4KB 항목의 최종 읽기 일관성 요청에는 절반의 읽기 요청 단위가 필요합니다.\
-최대 4KB 항목의 트랜잭션 읽기 요청에는 2개의 읽기 요청 단위가 필요합니다.
-
-- 강력한 일관된 읽기는 1 RCU of 4KB. 5KB는 2 RCU가 필요하기 때문에 100 * 2 CRU = 200
-
-- 1분에 600 write => 초당 10 write. 1KB는 1 WCU가 필요하기 때문에 10 * 1 = 10
-
-- RCU는 4KB 단위로 늘어난다. 초당 처리 단위로 환산해서 계산해야한다.
-- WCU는 1KB 단위로 늘어난다. 초당 처리 단위로 환산해서 계산해야한다.
+API G/W, Restful에 대한 인증 구현. 호출을 인증하려면 Client ID, User ID가 있는 HTTP 헤더가 포함되어야 한다. 자격 증명은 DynamoDB 인증 데이터와 비교. API G/W에 구현하려면 해야할 작업은? | DynamoDB 인증 테이블을 참조하는 Lambda 권한 부여자 구현
+온프로미스를 마이그레이션. 사용자가 업로드한거 서버의 로컬 경로에 저장하고 ASG의 모든 인스턴스가 바로 사용 가능해야함 | S3를 사용하고 모든 업로드를 S3에 저장하도록 어플 설계
+stg, test, prod에 Lambda 배포. 각 환경에 고유한 리소스 집함이 있는데 현재 환경에 리소스 사용하는 방법 | Lambda 함수에 환경 변수를 사용
+Serverless 어플리케이션 자동 배포 스크립트 개발. SAM template를 사용하는 방법 | aws cloudformation 패키지를 호출해서 배포 패키지를 생성하고 aws cloudformation deploy를 호출해서 패키지를 배포. sam package를 호출해서 배포 패키지를 생성하고 sam deploy를 호출해서 패키지를 배포
+EC2 인스턴스를 시작하거나 종료할 때 BotoServerError: 503 Service Unavailable 에러 수신 | EC2에 대한 API 요청 수 최적하를 위한 지수 백오프 구현
+API 호출에서 일부 액세스 거부 뜸 | 필요한 권한을 추가해서 연결된 IAM 업데이트
+EC2 인스턴스는 AMI에서 시작된다. 지정된 공개 AMI이 수행할 수 있는 것 | AMI가 저장된 동일한 AWS Region에서 EC2 인스턴스를 시작하는데 사용
+SNS에서 보내는 구조화된 알림 메시지 형식 | MessageId, unsubscriberURL, Subject, Message 및 기타 값을 포함하는 JSON
+SQS 이미지 대기열 폴링을 자주함. CPU 주기를 소모하고 빈 응답이 많음. 빈 응답을 줄이는 방법은? | 이미징 큐 ReceiveMessageWaitTimeSeconds 속성을 20초로 설정
+SLA(서비스 수준 계약)을 약속하고 각 SLA를 준수하기 위해 해야할 것 | 각 사용자에 대한 사용 계획을 만들고 API에 액세스 할 수 있는 API 키를 요청
+Lambda 평균 실행 시간 100초, 초당 50개 요청. 배포 전 해야할 작업 | 동시 실행 제한을 늘리려면 AWS Support에 문의. 기본값은 1000 이기 떄문.
+HTML, Image, Video, Javascript, Serverless | S3, CloudFront
+Kinesis Stream에서 레코드를 가져오기 위해 IAM 액세스 확인하는 방법 | --dry-run 인수를 사용해서 get 작업, IAM 정책 시뮬레이터로 IAM 역할 정책 검증
+Lambda 외부 라이브러리 사용 | 코드와 종속 라이브러리를 zip해서 올린다
+DynamoDB 테이블 스캔 실행 시간을 최소화. 워크로드는 강력하게 일관된 읽기 용량 단위의 평균 절반 | 속도를 제한하면서 병렬 스캔 사용
+Elastic Beanstalk 전체 용량을 유지하면서 배포하는 방법 | Rolling with additional batch
+Elastic Beanstalk CLB -> ALB로 마이그레이션. Management 콘솔에서 해야할 작업 | LB 유형을 제외하고 동일한 구성으로 새 환경 생성, 기존 환경과 동일한 버전의 어플리케이션 배포, swap-environment-cnames 작업 실행
+SNS 게시 요청에 대한 유효한 인수 | TopicAm, Subject, Message
+Lambda & DynamoDB. 항목을 검색, 속성 업데이트, 항목 생성, 기본 키에 액세스. 필요한 IAM 권한은? | UpdateItem, GetItem, PutItem
+S3에 대용량 파일 업로드 실패 | 멀티파트 업로드 API 사용해서 업로드
+대형 상태 머신을 호출하는 Lambda. 쉽게 꺠지는 레거시 사용자 코드. 리팩토링하는 서비스는? | Step Functions
+Lambda 코드를 수정하지 않고 DB 연결 문자열을 바꿀 수 있는 방법 | 연결 문자열을 Secrets Manager에 암호로 저장
+S3 암호화. 마스터 키 사용 이력 추적 가능해야함 | SSE-KMS
+초당 수천개의 PUT 요청을 커버하는 S3 경로는? | 파일 이름에 타임스탬프를 접두사로 붙인다. (과거엔 무작위 해쉬 문자열)
+SDK가 있는 언어 | Java, C#, Ruby, Python, JavaScript, PHP, and Objective C (iOS)
+Kinesis에서 ProvisionedThrouputExceededException 발생. | 지수 백오프로 재시도 구현, 요청의 빈도/크기 줄이기
+Kinesis 2500개 레코드 수집을 위한 4개의 샤드. Lambda 함수. 처리하는 순서 | Lambda는 FIFO 방법에 따라 샤드에 배치된 정확한 순서로 각 레코드를 수신. 샤드 간에 순서는 보장하지 않음
+Lambda 로컬 테스트 성공. 콘솔 테스트 실패. Unable to import module | Lambda 콘솔에서 LB_LIBRARY_PATH 환경을 생성하고 시스템 라이브러리 경로 값 지정
+EC2, S3. 트래픽 증가 성능 저하 | CloudFront를 사용해서 S3에 저장된 이미지 콘텐츠 제공
+Lambda 직접 배포 크기 초과 | 배포 패키지를 S3에 업로드하고 -code CLI 파라미터를 사용해서 S3를 참조
+코드가 Prod에 배포 되기 전 승인이 필요 | CodePipeline 단계에서 승인 작업 사용
+S3 상태 대시보드. S3 메타 데이터는 DynamoDB에 저장. 최적의 비용 설계 | Lambda가 지원하는 S3 이벤트 알림을 사용해서 메타데이터를 DynamoDB에 유지. 대시보드는 DynamoDB를 폴링해서 변경 사항 반영
+특정 ID에 액세스하는 모든 장치에 푸쉬하려면 프로필 데이터에 업데이트가 필요 | Cognito Sync
+CodeDeploy를 작동하려면 appspec.yml 파일은 어디에 배치? | 어플리케이션 소스 코드의 루트 디렉토리
+healthcheckurl.config는 Elastic Beanstalk 구성 파일을 어플리케이션 소스 번들의 어디에 배치? | .ebextensions 폴더에
+SQS 대기열에서 메세지를 가져옴. 모든 메세지는 암호화해야함 | SQS 대기열을 생성하고 KMS에서 SSE를 사용해서 대기열을 암호화
+S3 호스팅 웹사이트. 모든 요청을 추적하고 로깅 및 보관. 비용 효율적 솔루션 | S3 서버 액세스 로깅 활성화. 수명 주기를 90일로 설정. 90일 이내에 S3 Glacier로 데이터 이동
+개발자 로컬 CLI IAM 권한 사용 방법 | aws configure CLI 명령을 실행하고 IAM 액세스 키와 보안 액세스 키 제공
+healthcheckurl.yaml 에러 | healthcheckurl.config로 변경해야함
+SQS 대기열에서 메세지를 1개씩만 수신해서 처리함. 수신 메세지 늘리는 방법 | ReceiveMessage API를 호출해서 MaxNumberOfMessages를 1보다 큰 값으로 설정
+온프로미스 어플도 중앙 집권적으로 CloudWatch에 보고 싶음 | CloudWatch Agent를 온프로미스 서버에 설치하고 IAM 사용자 자격 증명을 사용하도록 Agent를 구성
+Key-Value 저장소는? | ElastiCache, DynamoDB, S3
+IAM 정책 평가 로직에 대한 설명 | 기본적으로 모든 요청은 거부됨, 명시적 허용은 기본 거부를 재정의함.
+객체 업로드 시 SSE 암호화 요청 헤더 | x-amz-server-side-encryption
+Lambda의 콜드 스타트로 8초 이상 소요. 개선방법은? | SDK for Java의 필요한 모듈만 포함해서 배포, 할당 메모리 늘림
+쿼리 문자열 파라미터를 Lambda 함수에 대한 인수로 변환하는 방법 | Mapping Template 생성
+반복 읽기 요청이 많다. 반복 읽기 쿼리를 위한 인메모리 저장소 | ElastiCache
+DynamoDB. 읽기/쓰기 작업에 대한 응답 시간 줄이고 싶음 | DynamoDB Accelerator
+S3 버킷 파일 추가되면 DynamoDB 레코드 삽입 | DynamoDB에 삽입하는 Lambda를 호출하는 S3 이벤트 구성
+각 개발자는 로컬 개발 | 각 개발자에 대한 IAM 사용자를 만들고 고유한 액세스 키를 제공
+파티션 키=user_id, 정렬 키=sport_name. sport_name에 대한 점수를 기반으로 최고 성과자를 표시하는 리더보드. 효율적인 추출 방법 | 파티션 키가 sprot_name이고 정렬 키가 score인 글로벌 보조 인덱스를 만들어서 결과를 가져온다.
+로컬에 어플의 빌드,번들,패키징. EC2에 배포해야함 | 번들을 S3에 업로드 하고 CodeDeploy를 사용해서 배포를 수행할 때 S3 위치 지정
+AWS 계정당 사용할 수 있는 S3 버킷 수 | 계정당 100
+DynamoDB 대용량의 작업이 일시적으로만 필요하다면 | 테이블을 생성하고 삭제한다.
+Lambda 발생하는 주요 이벤트를 기록하고 이벤트 특정 함수 호출과 연결하는 고유 식별자를 포함해야함. | Lambda Context 객체에서 요청 식별자를 얻고 콘솔에 로그를 기록하도록 어플을 설계
+Lambda의 기본 설정이고 시간 초과 예외가 발생하면 S3 이벤트는? | 2번 재시도 후 폐기
+Beanstalk 전체 용량 유지하고 실패한 배포의 영향을 최소화 하는 정책 | Rolling with an additional batch
+Example Corp AWS 계정에 액세스를 허용하는 안전한 방법 | Example Corp 계정에서 사용자 생성 및 액세스 키 제공
+CloudFront 사용해서 웹 어플 구성. 종단 간 모든 트래픽을 암호화해야 함 | Origin Protocol Policy를 HTTPS Only로 설정, HTTPS 전용 또는 HTTP를 HTTPS로 Redirection 설정
+Lambda는 파일을 추가하기 위해 CodeCommit Repository에 체크인 해야함 | SDK로 CodeCommit Client를 Instance화하고 put_file method를 호출해서 파일을 저장소에 추가
+코드 버킷에서 자산 버킷에 접근할 때 모든 사용자에게 403 오류 | 자산 버킷의 정책을 수정해서 모든 보안 주체에 대한 액세스 허용
+CloudWatch Logs의 Log Group에 중요한 로그 데이터를 게시. KMS 고객 마스터 키를 사용해서 로그 데이터를 암호화 해야함 | CLI Associate-kms-key 명령을 사용해서 ARN 지정
+API G/W를 업데이트 하지 않고 Code Push를 효율적으로 수행하는 방법 | Lambda에서 별칭 및 버전 생성
+DynamoDB에서 Client 요청에 문제가 있으면? | 4xx HTTP 응답
+AWS::ElasticLoadBalancing::LoadBalancer 리소스 이름이 "ElasticLoad Balancer"인 CloudFormation에서 생성된 로드 밸런싱된 웹 사이트의 URL을 반환하는 코드 | "Fn::Join" : ["". [ "http://", {"Fn::GetAtr" : [ "ElasticLoadBalancer","DNSName"]}]]
+EC2에 있는 어플리케이션이 AWS 서비스에 액세스하고 API 호출 | EC2 프로파일 사용
+Cognito 모든 장치 업데이트 자동으로 알림 기능 | 적절한 IAM 열할과 푸시 동기화 기능
+CloudFormation Stack의 Resource 중 하나를 생성할 수 없으면? | 기존에 생성된 Resource를 삭제하고 Stack 생성을 종료
+Lambda, DynamoDB, API G/W. 배포 준비 끝. 롤백 기능 필요. 자동화 방안 | CloudFormation Template의 Serverless Application Model을 준수하는 구문을 사용해서 Lambda Resource를 정의
+실시간 처리 | Event Driven
+Tomcat 서버에 빠르게 배포 | Elastic Beanstalk
+S3 웹 호스팅. 다른 bucket의 이미지 다운로드 실패 | S3에서 CORS 활성화
+Lambda 함수 로그에서 동일한 요청 ID를 가진 중복 항목이 존재 | Lambda 함수 실패 후 재시도
+Code Repository에서 Commit을 위한 Pipeline에서 단위 테스트를 Trigger하고 Pipeline의 실패 이벤트에 대해 알림 수신 | CodeCommit에 Code를 저장하고 CodePipeline을 생성해서 단위 테스트를 자동화하고 CloudWatch를 사용해서 실패 이벤트 알림을 Trigger
+로컬에서 Lambda 2번 호출 후 실패. 로깅 방법 | 호출 실패를 조사하도록 CloudTrail 로깅 구성
+XML 기반 SOAP Interface. API G/W를 사용해서 외부에 노출 필요 | API G/W Restful API 생성하고 Mapping Template를 사용해서 들어오는 JSON을 SOAP Interface에 유효한 XML Message로 변환
+DynamoDB에 제품 정보가 들어있는데 추가로 이미지를 포함해야 한다. | S3에 이미지를 저장하고 "제품" 테이블 항목에 S3 URL Pointer를 추가
+Lambda에서 Downstream으로 데이터를 보내기 전에 암호화해야 한다. 암호화 수행하기 위한 API? | KMS GenerateDataKey API
+DynamoDB 테이블에 있는 여러 항목에 대한 조정된 전체 변경을 수행 | TransactWriteItem 작업을 사용해서 변경 사항을 그룹화하고 테이블 항목을 업데이트
+DynamoDB 읽기 요청 성능 향상 | ElastiCache의 Creational Cluster의 데이터를 Caching 하도록 어플리케이션을 구성, 테이블의 읽기 용량 늘리기
+Lambda 함수는 2개의 DynamoDB에 액세스해야함. 병목 현상을 식별해서 성능을 개선하려고 함. DynamoDB API 호출 타이밍 검사 방법 | DynamoDB를 Lambda 함수에 이벤트 소스로 추가하고 CloudWatch 지표로 성능 확인
+Lambda와 Kinesis Data Stream. 반복자 수명 지표가 증가하고 실행 시간이 지속적으로 느림 | Kinesis의 샤드 수 줄이기. Lambda 시간 초과 늘리기.
+Elastic Beanstalk 새 버전의 어플 배포. 개발자 수행 작업 | Elastic Beanstalk Console에서 새 어플리케이션 버전 업로드 및 배포
+DynamoDB API 호출이 가장 적은 레코드를 재처리하기 위한 방법 | 성공적으로 처라된 상목을 삭제하고 새로운 BatchWriteItem 작업을 다시 실행
+SAM CLI로 어플을 재배포 하기 위한 명령어 조합 | sam init, sam deploy
+Lambda를 더 많은 CPU 성능으로 테스트 | Lambda에 할당 된 메모리 늘리기
+S3에서 400 에러 | S3 허용 용량 초과
+Lambda 함수 디버깅 | 실행 역할에 CloudWatch Logs에 쓰기 권한이 있는지 확인, CloudWatch 지표를 사용해서 알림을 생성
+CloudFormation Template으로 배포. 스택 중 하나 업데이트. 실행 중인 리소스에 미치는 영향 파악 | 변경 세트 조사
+주말 동안 트래픽 급증, 주중에는 예측 가능한 급증. 항상 조절 오류를 방지하려면? | 일주일 내내 ASG로 Provisioning 된 용량 사용
+React, 자신이 소유한 파일 저장, 검색 허용. facebook 사용. 개발 및 배포 가속화하는 CLI | Amplify CLI
+여러 개발자와 코드 공유, 여러 버전 및 일괄 변경 추적과 함께 장기간 저장 필요. | CodeCommit
+SQS 비동기 처리했는데 일부 이벤트가 여러번 처리됨 | SQS 대기열을 FIFO로 변경
+ALB 로그 파일에 Client Public IP Address를 캡쳐하기 위한 방법 | X-Forwarded-For Header를 로그 구성에 추가
+폴링 응용 프로그램. 풀 결과를 DynamoDB에 저장. 풀 데이터 제거 후 S3에 저장. | DynamoDB Stream을 활성화해서 Stream을 Lambda에 대한 Trigger로 구성. Stream 레코드가 수정되면 S3에 저장.
+nodejs 웹 사이트 호스팅. 코드 변경이 없는 솔루션 | Lambda
+CloudFormation Template 배포. DB의 이름 변경. DeletionPolicy 속성이 기본값에서 변경이 안됨. | 새 데이터베이스를 생성하고 이전 데이터베이스를 삭제한다.
+고객은 새로운 Restful API를 요청함. 가능한 구성 요소는? | ELB + EC2, API G/W + Lambda
+AWS Infra를 Code로 관리하고 배포할 수 있으며 이전 버전으로 돌릴 수 있어야 한다. | CloudFormation, CodeCommit 사용
+Lambda 다중 스레드 실행을 활용해서 서능 개선 | Lambda 함수 메모리 증가
+EC2 안에 어플이 S3 버킷에 쓰기 기능 추가 | EC2 인스턴스 프로파일 역할에 IAM 정책
+온프로미스에서 실행되는 EC2 인스턴스 및 가상 서버에 어플리케이션 패키지 배포를 자동화 | CodeDeploy
+1MB 미만 파일 S3 버킷에 업로드 시간 너무 오래 걸림 | 객체 키에 임의의 접두사 추가
+Elastic Beanstalk 롤아웃을 완료하기 전 특정 기간 변경 사항을 평가해야 한다. | Immutable
 
 </details>
 
