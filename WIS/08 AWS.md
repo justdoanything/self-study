@@ -788,6 +788,7 @@ AWS::ElasticLoadBalancing::LoadBalancer 리소스 이름이 "ElasticLoad Balance
 CloudFormation Stack의 Resource 중 `하나를 생성할 수 없으면`? | 기존에 생성된 Resource를 `삭제`하고 Stack `생성을 종료`
 CloudFormation Template으로 배포. 스택 중 `하나 업데이트`. 실행 중인 리소스에 미치는 영향 파악 | `변경 세트 조사`
 CloudFormation Template 배포. DB의 이름 `변경`. DeletionPolicy 속성이 기본값에서 변경이 안됨. | 새 데이터베이스를 `생성`하고 이전 데이터베이스를 `삭제`한다.
+AWS CLI 사용, `Serverless 시작 단계` | `CloudFormation` Package 사용 후 배포
 
 ## CloudWatch
 문제 | 답안 
@@ -1091,60 +1092,59 @@ CLI 명령 후 `에러 메세지가 암호화` 되어 있다. | `STS decode-auth
 `SWF`의 설명 | 작업은 `한 번 할당`되고 `절대 중복되지 않는다`. workflow 실행은 `최대 1년동안 지속`. `결정자`와 `작업자`를 사용해서 작업을 완료
 CLI에서 `Resource List` 명령 때 `실행시간 초과` | `Pagenation` 사용
 `ECS` 컨테이너 시작할 때 `PortMapping`은 어디에서 정의 | `Task definition`
-AWS에서 보안에 대한 고객의 책임 | IAM 자격 증명의 수명 주기 관리, 보안 그룹 및 ACL 설정, EBS 볼륨의 암호화, EC2 운영체제의 패치 관리
-모놀리식 아키텍처를 마이크로서비스 아키텍처로 변경하고 성능에 영향을 주지 않으면서 비동기식 통신할 수 있도록 해야 한다. 비동기식 메시지 전달이 가능한 서비스는? | SQS, SNS
-높은 처리량으로 데이터 수집하고 S3 버킷에 저장해야함. 적합한 서비스는? | Kinesis Firehouse
-HTML, Image, Video, Javascript, Serverless | S3, CloudFront
-SDK가 있는 언어 | Java, C#, Ruby, Python, JavaScript, PHP, and Objective C (iOS)
-EC2, S3. 트래픽 증가 성능 저하 | CloudFront를 사용해서 S3에 저장된 이미지 콘텐츠 제공
-Key-Value 저장소는? | ElastiCache, DynamoDB, S3
-CloudFront 사용해서 웹 어플 구성. 종단 간 모든 트래픽을 암호화해야 함 | Origin Protocol Policy를 HTTPS Only로 설정, HTTPS 전용 또는 HTTP를 HTTPS로 Redirection 설정
-Tomcat 서버에 빠르게 배포 | Elastic Beanstalk
-고객은 새로운 Restful API를 요청함. 가능한 구성 요소는? | ELB + EC2, API G/W + Lambda
-AWS Infra를 Code로 관리하고 배포할 수 있으며 이전 버전으로 돌릴 수 있어야 한다. | CloudFormation, CodeCommit 사용
-React, 자신이 소유한 파일 저장, 검색 허용. facebook 사용. 개발 및 배포 가속화하는 CLI | Amplify CLI
+AWS에서 보안에 대한 `고객의 책임` | `IAM 자격 증명의 수명 주기 관리`, `보안 그룹 및 ACL 설정`, `EBS 볼륨의 암호화`, `EC2 운영체제의 패치 관리`
+`모놀리식` 아키텍처를 `마이크로서비스` 아키텍처로 변경하고 성능에 영향을 주지 않으면서 `비동기식 통신`할 수 있도록 해야 한다. `비동기식 메시지 전달`이 가능한 서비스는? | `SQS`, `SNS`
+`높은 처리량`으로 `데이터 수집`하고 `S3 버킷에 저장`해야함. 적합한 서비스는? | `Kinesis Firehouse`
+`Key-Value` 저장소는? | `ElastiCache`, `DynamoDB`, `S3`
+SDK가 있는 언어 | `Java`, `C#`, `Ruby`, `Python`, `JavaScript`, `PHP`, and `Objective C (iOS)`
+EC2, S3. `트래픽 증가`. `성능 저하` | `CloudFront`를 사용해서 S3에 저장된 이미지 콘텐츠 제공
+HTML, Image, Video, Javascript, Serverless | `S3`, `CloudFront`
+`CloudFront` 사용해서 웹 어플 구성. 종단 간 모든 `트래픽을 암호화`해야 함 | Origin Protocol Policy를 `HTTPS Only`로 설정, HTTPS 전용 또는 HTTP를 `HTTPS로 Redirection` 설정
+`Tomcat 서버`에 빠르게 배포 | `Elastic Beanstalk`
+고객은 새로운 `Restful API`를 요청함. 가능한 구성 요소는? | `ELB + EC2`, `API G/W + Lambda`
+AWS `Infra를 Code로 관리`하고 `배포`할 수 있으며 `이전 버전`으로 돌릴 수 있어야 한다. | `CloudFormation`, `CodeCommit` 사용
+React, 자신이 소유한 파일 저장, 검색 허용. facebook 사용. 개발 및 배포 `가속화`하는 CLI | `Amplify CLI`
 
 ## AWS 관련
 문제 | 답안 
 ---|---
-AWS CLI 사용, `Serverless 시작 단계` | `CloudFormation` Package 사용 후 배포
 EC2의 Public/Private `IP 확인 방법`은? | Local Instance `Metadata Query`
-`NAT` 장치가 `Private Subnet`에 바인딩 트래픽 대상이 되도록 라우팅 테이블 수정. Private Subnet에서 인터넷으로 `아웃바운드 실패`. 해결 방법 | NAT 인스턴스에서 Source/Destination Check 속성 비활성화
-민감 데이터 보호. 액세스 추적 필요. | EC2 System Manager션 Parameter Store에서 IAM으로 Application Access 권한 부여
-BGP 기반 VPN으로 EC2 연결. Subnet A는 액세스, B는 액세스 불가. 트래픽이 B에 도달했는지 확인하려면? | VPC 흐름 로그 확인
-Access key를 AWS에서 관리하는 방법 | 계정 루트 사용자에 대한 모든 Access key를 삭제, Access key 대신 IAM 역할 사용
-EC2 어플. AWS API 호출하도록 구성 | 필요한 권한이 있는 EC2 역할을 지정
-특정 IAM 사용자 자격 증명 사용하도록 CLI 구성. 명령어 오류 반환됨. `aws dynamodb get-item --table-name ...` | IAM 사용자는 테이블에 대한 읽기 액세스 권한이 있는 정책이 필요
-ECS-Docker. 15초 동안 사용자 로드를 기반으로 확장  |  사용자 활동 데이터에 고해상도 지정. CludWatch 지표 5초마다 데이터 게시
-실수로 EC2 인스턴스 종료. 방지하는 대책 | Resource Access Manager에서 EC2 종료 보호 활성화
-CLI에서 aws 명령을 찾을 수 없음 | aws 실행 파일이 환경 변수에 없음
-각 EC2에 어플, DB 동작. 어플이 DB에 접근하기 위한 비밀키는 변경됨 | SecureString 데이터 유형과 함께 System Manager Parameter Store를 사용해서 비밀키를 저장
-AWS 계정을 감사하는 어플리케이션. A 계정에서 실행되서 계정 B,C 서비스에 액세스 필요. 어플리케이션이 각 계정 서비스를 호출하는 방법 | 각 감사 계정에서 교차 계정 역할을 구성하고 해당 역할을 맡는 계정 A에 코드 작성
-EC2에 있는 어플이 RDS로 연결. 사용자 ID/PWD를 코드에 저장히기 싫음. 자격 증명 자동 교체 필요 | Secrets Manager를 사용해서 자격 증명을 저장하고 검색
-어플에서 사용하는 IAM 자격 증명에는 API 호출에 대한 다단계 인증이 필요하다. 다단계 인증 보호 API에 액세스하는데 사용하는 방법 | GetSessionToken
-Admin 그룹의 한 사용자에게만 EC2 리소스 삭제 권한이 있는지 확인하려고 한다. | 인라인 정책 사용
-컨테이너 어플을 ECS Fargate에 배포. 세션 데이터로 활동 추적 | NLB에 Sticky Session 활성화하고 컨테이너에서 세션 데이터 관리
-ECS 기반 Fargate에 배포. 어플을 초기화하기 위해 컨테이너에 전달해야 하는 환경변수가 있다. 어떻게 전달할건가? | 작업 정의 내 환경 매개변수 아래에 환경 변수를 포함하는 배열을 정의
-MongoDB 마이그레이션 호스팅을 위한 솔루션 | MongoDB 호환 모드에서 AWS DocumentDB를 배포
-CloudFront로 글로벌 사용자 기반 어플을 새로 배포. 고객들이 새로 배포된걸 볼 수 없음 | Edge Cache에서 모든 응용 프로그램 개체를 무효화
-ECS 환경에서 컨테이너 워크로드를 실행. 로그 및 메트릭 수집을 위해 다른 컨테이너와 공유 필요 | 하나의 작업 정의를 만들어서 정의에서 두 컨테이너 모두 지정하고 컨테이너 간 공유 볼륨을 탑재
-ASG 이벤트에 대한 최상의 메트릭은 동시 사용자 수 라고 결정했다. 동시 사용자를 기반으로 자동 크기 조정을 위해 무엇을 활용해야하나? | 동시 사용자를 위한 사용자 지정 CloudWatch 지표
-개발자는 2개의 리소스에 임시 액세스 | 교차 계정 액세스 역할을 만들고 sts:AssumeRole API를 사용해서 단기 자격 증명을 얻는다
-DynamoDB, Docker 기반 어플. 로컬에서 IAM 액세스 키로 테스트. ECS에 배포했을 때 어떻게 인증? | 어플이 사용할 ECS 작업 IAM 역할 구성
-EC2 어플리케이션에서 사용하는 IAM 자격 증명이 오용되거나 손상되었는지 확인. 자격 증명을 안전하게 유지하기 위해 사용해야 하는 것 | 인스턴스 프로필 자격 증명
-IAM 역할은 S3 API 작업에 대한 액세스를 거부. EC2 인스턴스 자격 증명 파일은 전체 관리 액세스를 허용하는 IAM 액세스 키와 보안 액세시 키를 지정 | EC2 인스턴스는 모든 S3 버킷에서 모든 작업을 수행 가능
-API 호출에서 일부 액세스 거부 뜸 | 필요한 권한을 추가해서 연결된 IAM 업데이트
-EC2 인스턴스는 AMI에서 시작된다. 지정된 공개 AMI이 수행할 수 있는 것 | AMI가 저장된 동일한 AWS Region에서 EC2 인스턴스를 시작하는데 사용
-SLA(서비스 수준 계약)을 약속하고 각 SLA를 준수하기 위해 해야할 것 | 각 사용자에 대한 사용 계획을 만들고 API에 액세스 할 수 있는 API 키를 요청
-개발자 로컬 CLI IAM 권한 사용 방법 | aws configure CLI 명령을 실행하고 IAM 액세스 키와 보안 액세스 키 제공
-IAM 정책 평가 로직에 대한 설명 | 기본적으로 모든 요청은 거부됨, 명시적 허용은 기본 거부를 재정의함.
-각 개발자는 로컬 개발 | 각 개발자에 대한 IAM 사용자를 만들고 고유한 액세스 키를 제공
-Example Corp AWS 계정에 액세스를 허용하는 안전한 방법 | Example Corp 계정에서 사용자 생성 및 액세스 키 제공
-주말 동안 트래픽 급증, 주중에는 예측 가능한 급증. 항상 조절 오류를 방지하려면? | 일주일 내내 ASG로 Provisioning 된 용량 사용
-EC2 안에 어플이 S3 버킷에 쓰기 기능 추가 | EC2 인스턴스 프로파일 역할에 IAM 정책
-EC2에 있는 어플리케이션이 AWS 서비스에 액세스하고 API 호출 | EC2 프로파일 사용
+`NAT` 장치가 `Private Subnet`에 바인딩 트래픽 대상이 되도록 라우팅 테이블 수정. Private Subnet에서 인터넷으로 `아웃바운드 실패`. 해결 방법 | NAT 인스턴스에서 `Source/Destination Check` 속성 비활성화
+`민감 데이터 보호`. `액세스 추적` 필요. | EC2 `System Manager Parameter Store`에서 IAM으로 Application Access 권한 부여
+각 EC2에 어플, DB 동작. 어플이 DB에 접근하기 위한 비밀키는 변경됨 | `SecureString` 데이터 유형과 함께 `System Manager Parameter Store`를 사용해서 비밀키를 저장
+BGP 기반 VPN으로 EC2 연결. Subnet A는 액세스, B는 액세스 불가. 트래픽이 B에 도달했는지 확인하려면? | `VPC 흐름 로그 확인`
+`Access key`를 AWS에서 관리하는 방법 | 계정 루트 사용자에 대한 모든 Access key를 삭제, `Access key 대신 IAM 역할 사용`
+EC2 어플. AWS API 호출하도록 구성 | `필요한 권한`이 있는 EC2 역할을 지정
+특정 IAM 사용자 자격 증명 사용하도록 CLI 구성. 명령어 오류 반환됨. `aws dynamodb get-item --table-name ...` | IAM 사용자는 테이블에 대한 `읽기 액세스 권한`이 있는 정책이 필요
+ECS-Docker. `15초 동안 사용자 로드를 기반`으로 확장 | `사용자 활동 데이터`에 고해상도 지정. CludWatch 지표 5초마다 데이터 게시
+실수로 `EC2 인스턴스 종료`. 방지하는 대책 | `Resource Access Manager에서 EC2 종료 보호 활성화`
+CLI에서 `aws` 명령을 찾을 수 없음 | aws 실행 파일이 `환경 변수`에 없음
+AWS 계정을 감사하는 어플리케이션. A 계정에서 실행되서 계정 B,C 서비스에 액세스 필요. 어플리케이션이 각 계정 서비스를 호출하는 방법 | 각 감사 계정에서 `교차 계정 역할`을 구성하고 해당 역할을 맡는 `계정 A에 코드 작성`
+EC2에 있는 어플이 RDS로 연결. 사용자 `ID/PWD를 코드에 저장`히기 싫음. `자격 증명 자동 교체` 필요 | `Secrets Manager`를 사용해서 자격 증명을 저장하고 검색
+어플에서 사용하는 IAM 자격 증명에는 API 호출에 대한 `다단계 인증`₩`이 필요하다. 다단계 인증 보호 API에 액세스하는데 사용하는 방법 | `GetSessionToken`
+Admin 그룹의 한 사용자에게만 `EC2 리소스 삭제 권한`이 있는지 확인하려고 한다. | `인라인 정책 사용`
+컨테이너 어플을 `ECS Fargate에 배포`. 세션 데이터로 활동 추적 | NLB에 `Sticky Session 활성화`하고 컨테이너에서 `세션 데이터 관리`
+`ECS 기반 Fargate에 배포`. 어플을 초기화하기 위해 컨테이너에 전달해야 하는 `환경변수`가 있다. 어떻게 전달할건가? | `작업 정의 내 환경 매개변수` 아래에 환경 변수를 포함하는 배열을 정의
+`MongoDB 마이그레이션` 호스팅을 위한 솔루션 | MongoDB 호환 모드에서 `AWS DocumentDB`를 배포
+`CloudFront`로 글로벌 사용자 기반 어플을 새로 배포. 고객들이 새로 배포된걸 볼 수 없음 | `Edge Cache`에서 모든 응용 프로그램 개체를 `무효화`
+`ECS 환경`에서 컨테이너 워크로드를 실행. 로그 및 메트릭 수집을 위해 다른 `컨테이너와 공유` 필요 | `하나의 작업 정의`를 만들어서 정의에서 두 컨테이너 `모두 지정`하고 컨테이너 간 `공유 볼륨`을 탑재
+ASG 이벤트에 대한 최상의 메트릭은 `동시 사용자 수` 라고 결정했다. 동시 사용자를 기반으로 `자동 크기 조정`을 위해 무엇을 활용해야하나? | 동시 사용자를 위한 사용자 지정 `CloudWatch 지표`
+개발자는 2개의 리소스에 `임시 액세스` | `교차 계정 액세스 역할`을 만들고 `sts:AssumeRole` API를 사용해서 `단기 자격 증명`을 얻는다
+DynamoDB, Docker 기반 어플. 로컬에서 IAM 액세스 키로 테스트. ECS에 배포했을 때 어떻게 인증? | 어플이 사용할 `ECS 작업 IAM 역할 구성`
+EC2 어플리케이션에서 사용하는 IAM 자격 증명이 오용되거나 손상되었는지 확인. `자격 증명을 안전하게 유지`하기 위해 사용해야 하는 것 | `인스턴스 프로필 자격 증명`
+IAM 역할은 S3 API 작업에 대한 액세스를 거부. EC2 인스턴스 자격 증명 파일은 `전체 관리 액세스를 허용`하는 IAM 액세스 키와 보안 액세시 키를 지정 | EC2 인스턴스는 `모든` S3 버킷에서 모든 작업을 수행 가능
+API 호출에서 일부 액세스 거부 뜸 | `필요한 권한을 추가`해서 연결된 IAM 업데이트
+EC2 인스턴스는 AMI에서 시작된다. `지정된 공개 AMI`이 수행할 수 있는 것 | AMI가 저장된 `동일한 AWS Region`에서 `EC2 인스턴스를 시작`하는데 사용
+SLA(서비스 수준 계약)을 약속하고 각 SLA를 준수하기 위해 해야할 것 | 각 사용자에 대한 `사용 계획`을 만들고 API에 액세스 할 수 있는 `API 키`를 요청
+개발자 로컬 `CLI IAM 권한` 사용 방법 | `aws configure` CLI 명령을 실행하고 `IAM 액세스 키`와 `보안 액세스 키` 제공
+IAM 정책 평가 로직에 대한 설명 | 기본적으로 `모든 요청은 거부`됨, `명시적 허용은 기본 거부를 재정의함`.
+각 개발자는 로컬 개발 | 각 개발자에 대한 `IAM 사용자`를 만들고 고유한 액세스 키를 제공
+Example Corp AWS 계정에 액세스를 허용하는 안전한 방법 | Example Corp 계정에서 `사용자 생성 및 액세스 키` 제공
+주말 동안 트래픽 급증, 주중에는 예측 가능한 급증. 항상 조절 오류를 방지하려면? | 일주일 내내 `ASG`로 `Provisioning 된 용량 사용`
+EC2 안에 어플이 S3 버킷에 쓰기 기능 추가 | `EC2 인스턴스 프로파일` 역할에 IAM 정책
+EC2에 있는 어플리케이션이 AWS 서비스에 액세스하고 API 호출 | `EC2 프로파일 사용`
 EC2 인스턴스를 시작하거나 종료할 때 `BotoServerError: 503 Service Unavailable` 에러 수신 | EC2에 대한 API 요청 수 최적하를 위한 `지수 백오프` 구현
-실시간 처리 | Event Driven
+실시간 처리 | `Event Driven`
 
 ## 아키텍처 구성
 문제 | 답안 
