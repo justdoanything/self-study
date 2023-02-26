@@ -778,34 +778,33 @@ Cognito `모든 장치` 업데이트 자동으로 알림 기능 | 적절한 `IAM
 ## CloudFormation
 문제 | 답안 
 ---|---
-CloudFormation Template로 Lambda 배포 절차는? | Template에서 AWS::Lambda::Function `리소스 생성` 후 CloudFormation Template `내부에 코드 작성`, 코드 .zip `S3에 업로드` 후 AWS::Lambda::Function 리소스에 `참조 추가`
-ASG, EC2. 테스트를 위한 다수의 단기 Instance. CloudFormation Template 사용해서 관리자가 시작. 테스터에게 테스트 환경만 허용. 광범위 권한 부여하지 않음. | 환경 템플릿에서 Service Catalog 제품 생성. 기존 역할이 있는 제품에 시작 제약 조건 추가. 테스트 사용자에게 Service Catalog API만 사용할 수 있는 권한 부여. Service Catalog 콘솔에서 템플릿을 시작하도록 교육.
-CloudFormation Template에 Serverless Model에 의해 정의된 객체를 포함하려면 문서 루트에 포함해야 하는 섹션 | Transform
-Serverless에서 배포할 때 롤백할 수 있는 기능이 필요함. 자동화 방안은? | CloudFormation Template Serverless Application Model을 준수하는 구문을 사용해서 Lambda 함수 리소스를 정의
-CLI 명령어 aws cloudformation deploy를 사용해서 배포할 수 있도록 template을 준비하려면? | aws cloudformation package를 사용해서 소스 코드를 S3 버킷에 업로드하고 수정된 CloudFormation Template를 생성한다.
-AWS::ElasticLoadBalancing::LoadBalancer 리소스 이름이 "ElasticLoad Balancer"인 CloudFormation에서 생성된 로드 밸런싱된 웹 사이트의 URL을 반환하는 코드 | "Fn::Join" : ["". [ "http://", {"Fn::GetAtr" : [ "ElasticLoadBalancer","DNSName"]}]]
-CloudFormation Stack의 Resource 중 하나를 생성할 수 없으면? | 기존에 생성된 Resource를 삭제하고 Stack 생성을 종료
-Lambda, DynamoDB, API G/W. 배포 준비 끝. 롤백 기능 필요. 자동화 방안 | CloudFormation Template의 Serverless Application Model을 준수하는 구문을 사용해서 Lambda Resource를 정의
-CloudFormation Template으로 배포. 스택 중 하나 업데이트. 실행 중인 리소스에 미치는 영향 파악 | 변경 세트 조사
-CloudFormation Template 배포. DB의 이름 변경. DeletionPolicy 속성이 기본값에서 변경이 안됨. | 새 데이터베이스를 생성하고 이전 데이터베이스를 삭제한다.
+CloudFormation Template로 `Lambda 배포 절차`는? | Template에서 AWS::Lambda::Function `리소스 생성` 후 CloudFormation Template `내부에 코드 작성`, 코드 .zip `S3에 업로드` 후 AWS::Lambda::Function 리소스에 `참조 추가`
+ASG, EC2. 테스트를 위한 다수의 단기 Instance. CloudFormation Template 사용해서 관리자가 시작. `테스터에게 테스트 환경만` 허용. `광범위 권한 부여하지 않음.` | 환경 템플릿에서 `Service Catalog` 제품 생성. 기존 역할이 있는 제품에 `시작 제약 조건` 추가. 테스트 사용자에게 `Service Catalog API`만 사용할 수 있는 권한 부여. `Service Catalog` 콘솔에서 템플릿을 시작하도록 교육.
+CloudFormation Template에 `Serverless Model`에 의해 정의된 객체를 포함하려면 `문서 루트`에 포함해야 하는 섹션 | `Transform`
+Serverless에서 배포할 때 `롤백`할 수 있는 기능이 필요함. `자동화` 방안은? | CloudFormation Template `Serverless Application Model`을 준수하는 구문을 사용해서 `Lambda` 함수 리소스를 정의
+Lambda, DynamoDB, API G/W. 배포 준비 끝. `롤백 기능` 필요. 자동화 방안 | CloudFormation Template의 `Serverless Application Model`을 준수하는 구문을 사용해서 `Lambda` Resource를 정의
+CLI 명령어 `aws cloudformation deploy`를 사용해서 배포할 수 있도록 `template`을 준비하려면? | `aws cloudformation package`를 사용해서 `소스 코드를 S3 버킷`에 업로드하고 수정된 `CloudFormation Template를 생성`한다.
+AWS::ElasticLoadBalancing::LoadBalancer 리소스 이름이 "ElasticLoad Balancer"인 CloudFormation에서 생성된 `로드 밸런싱`된 `웹 사이트의 URL을 반환`하는 코드 | "Fn::Join" : ["". [ "http://", {"Fn::GetAtr" : [ "ElasticLoadBalancer","DNSName"]}]]
+CloudFormation Stack의 Resource 중 `하나를 생성할 수 없으면`? | 기존에 생성된 Resource를 `삭제`하고 Stack `생성을 종료`
+CloudFormation Template으로 배포. 스택 중 `하나 업데이트`. 실행 중인 리소스에 미치는 영향 파악 | `변경 세트 조사`
+CloudFormation Template 배포. DB의 이름 `변경`. DeletionPolicy 속성이 기본값에서 변경이 안됨. | 새 데이터베이스를 `생성`하고 이전 데이터베이스를 `삭제`한다.
 
 ## CloudWatch
 문제 | 답안 
 ---|---
-Step Function 작업 상태를 CloudWatch로 오류 표시. 원래 입려과 오류 모두 보존하는 방법 | Catch문에서 ResultPath를 사용해서 원래 입력에 오류 표시
-CloudWatch Logs에 예외를 계산을 위한 메트릭 필터 생성. 결과가 반영되지 않음. 원인은? | 필터를 만든 이후에 발생하는 데이터에만 지표를 생성
-타사의 API 사용. 실패가 임계치면 알림. | CloudWatch에 사용자 지정 지표를 게시하고 SNS 사용
-CloudWatch API 호출 400 에러 | 지수 백오프로 통화 재시도
-로그 때문에 메모리 가득참. 로그 중앙 집중화 필요 | CloudWatch를 설치해서 로그를 CloudWatch로 보내고 전송된 로그는 인스턴스에서 삭제한다.
-EC2에서 실행중인 어플의 로그 데이터를 액세스 하고 싶다. | EC2에서 CloudWatch Logs Agent를 설치
-Lambda 함수가 설정된 시간 제한 미만으로 완료되도 API G/W에서 시간초과가 발생. CloudWatch의 API G/W 지표 중 도움이 되는 것 | IntegrationLatency, Latency
-개발과 운영 로깅 추가 | 코드에서 다른 로깅 로직을 구현하는 다른 Lambda 함수를 가리키고 CloudWatch Lgos에 액세스
-EC2에서 실행되는 어플. 중앙 집권 로그 | CloudWatch Logs
-EC2 인스턴스에 CloudWatch 어플 지표를 저장하려고 한다 | CloudWatch PutMetricData API 호출을 사용해서 사용자 지정 지표를 제출한다. API 호출을 활성화하기 위한 IAM 역할로 EC2 인스턴스를 시작한다.
-콜백 트래픽이 많음. 콜백이 지속적으로 수신되는지 확인하고 싶고 데이터를 10일 동안 유지. 콜백 수의 임계치가 초과하면 경고 받고 싶음 | 콜백 데이터를 CloudWatch에 사용자 지정 지표로 푸쉬하고 CloudWatch 알림 매커니즘을 사용해서 시스템 관리자에게 알림
-온프로미스 어플도 중앙 집권적으로 CloudWatch에 보고 싶음 | CloudWatch Agent를 온프로미스 서버에 설치하고 IAM 사용자 자격 증명을 사용하도록 Agent를 구성
-CloudWatch Logs의 Log Group에 중요한 로그 데이터를 게시. KMS 고객 마스터 키를 사용해서 로그 데이터를 암호화 해야함 | CLI Associate-kms-key 명령을 사용해서 ARN 지정
-
+`Step Function` 작업 상태를 CloudWatch로 `오류 표시`. `원래 입려`과 `오류` 모두 보존하는 방법 | `Catch문`에서 `ResultPath`를 사용해서 원래 입력에 오류 표시
+CloudWatch Logs에 `예외를 계산을 위한 메트릭 필터` 생성. 결과가 반영되지 않음. `원인`은? | 필터를 만든 `이후에 발생하는 데이터에만` 지표를 생성
+타사의 API 사용. 실패가 임계치면 알림. | CloudWatch에 `사용자 지정 지표`를 게시하고 `SNS` 사용
+CloudWatch API 호출 `400 에러` | `지수 백오프`로 통화 재시도
+로그 때문에 메모리 가득참. `로그 중앙 집중화` 필요 | `CloudWatch`를 설치해서 로그를 CloudWatch로 보내고 전송된 로그는 `인스턴스에서 삭제`한다.
+EC2에서 실행되는 어플. `중앙 집권 로`그 | `CloudWatch Logs`
+`온프로미스` 어플도 중앙 집권적으로 CloudWatch에 보고 싶음 | CloudWatch `Agent를 온프로미스 서버에 설치`하고 `IAM 사용자 자격 증명`을 사용하도록 Agent를 구성
+EC2에서 실행중인 어플의 `로그 데이터를 액세스` 하고 싶다. | EC2에서 CloudWatch Logs `Agent를 설치`
+EC2 인스턴스에 CloudWatch `어플 지표를 저장`하려고 한다 | CloudWatch `PutMetricData API` 호출을 사용해서 사용자 지정 지표를 제출한다. API 호출을 활성화하기 위한 `IAM 역할로 EC2 인스턴스를 시작`한다.
+Lambda 함수가 설정된 시간 제한 미만으로 완료되도 `API G/W에서 시간초과`가 발생. CloudWatch의 `API G/W 지표` 중 도움이 되는 것 | `IntegrationLatency`, `Latency`
+개발과 운영 `로깅 추가` | 코드에서 다른 로깅 로직을 구현하는 다른 `Lambda 함수`를 가리키고 `CloudWatch Lgos에 액세스`
+`콜백 트래픽`이 많음. 콜백이 지속적으로 수신되는지 확인하고 싶고 데이터를 `10일 동안 유지`. 콜백 수의 임계치가 초과하면 `경고` 받고 싶음 | 콜백 데이터를 CloudWatch에 `사용자 지정 지표`로 푸쉬하고 CloudWatch `알림 매커니즘`을 사용해서 시스템 관리자에게 알림
+CloudWatch Logs의 Log Group에 중요한 로그 데이터를 게시. KMS 고객 마스터 키를 사용해서 로그 데이터를 `암호화` 해야함 | CLI `Associate-kms-key` 명령을 사용해서 ARN 지정
 
 ## DynamoDB
 문제 | 답안 
@@ -817,176 +816,175 @@ DynamoDB 특징은? | `낙관적 동시성 제어` 사용, `일관성을 위해 
 DynamoDB에서 `ProvisionedThroughputExceededException` 발생. CloudWatch에 처리량 초과하지 않음. 원인은? | 특정 Hash Key에 대한 용량을 초과
 DynamoDB `한도를 높일 수 있는` 항목 | 계정당 `테이블 수`, `프로비저닝된 처리량 단위 수`
 DynamoDB `대량 트래픽` | `Accelerator`를 사용해서 데이터를 캐시
-DynamoDB에 실시간 동적 업데이트. 덮어쓰기 방지 옵션은? | 조건부 쓰기
-EC2 어플이 DynamoDB 쓰기 권한. 보안키는 사용하지 않음 | EC2에 IAM 추가. DynamoDB에 쓰기 권한 IAM 역할 생성
-DynamoDB 많은 읽기 용량 소비. 속성이 매우 큼. 어플은 모든 속성이 필요하지 않음. | 최소한의 프로젝션 속성 집합으로 글로벌 보조 인덱스를 만든다.
-EC2 실패할 경우 세션이 손실되지 않도록 해야 한다. | DynamoDB 사용해서 확장 가능한 세션 처리를 수행
-분라되있는 DB에서 다른 DB에서 거의 실시간으로 업데이트를 가져오는 방법 | DynamoDB Stream을 사용해서 다른 DB의 모든 변경 사항을 전달
-설문조사 결과를 DynamoDB에 저장. 데이터 처리 후 레코드를 S3에 저장. 각 설문 조사의 데이터를 보관할 수 있는 방식 | 테이블 DynamoDB Stream을 활성화하고 Stream을 Lambda 트리거로 작성. Stream 레코드가 수정되면 S3에 저장
-여러 EC2에 어플이 있고 DynamoDB에 데이터 저장. 읽기가 강력하게 일관성이 있는지 확인 | GetItem을 호출할 때 ConsistentRead를 true로 설정
-아이템 거래. 두 사용자 레코드를 단일 트랜잭션으로 업데이트하거나 롤백해야 한다. 이런 기능을 위한 DB 옵션 | 트랜잭션 블록 내에서 수행되는 작업이 있는 MYSQL, Transact* 작업을 사용하여 읽기 쓰기를 수행하는 DynamoDB
-DynamoDB 글로벌 보조 인덱스 항목을 찾으려고 한다. 가장 적은 수의 읽기 용량 단위를 사용하기 위해 호출하는 API | 최종 일관성 읽기를 사용한 쿼리 작업
-DynamoDB 테이블에 세션 정보 캐싱. 오래된 항목을 자동으로 삭제하는 방법 | 만료 시간이 있는 속성을 추가해서 해당 속성 기반의 TTL 기능 활성화
-DynamoDB에 요금 데이터 저장. 수시로 변경. 고객한테 변경이 반영되지 않음. 원인은? | 아이템 가격 변경 시 캐시가 무효화되지 않는다.
-DynamoDB 테이블은 주문 날짜를 기준으로 분할. 트래픽 증가. 쓰기 제한되고 소비된 처리량은 provisioning된 처리량보다 닞다. | 파티션 키 값에 난수 접미사를 추가한다.
-DynamoDB는 GSI를 사용해서 읽기 쿼리 지원. 쓰기 활동이 많을 때 작업이 제한됨. 쓰기 용량 단위는 넉넉함. 제한되는 이유 | GSI 쓰기 용량 단위가 부족
-DynamoDB에서 대규모 스캔 작업을 사용할 때 테이블에 프로비저닝된 처리량에 대한 스캔 영향을 최소화 하기 위한 기술 | 스캔에 대해 더 작은 페이지 크기를 설정
-DynamoDB 요청의 95%가 반복 읽기. NoSQL 계층을 확장해서 캐싱하기 위한 전략 | DynamoDB Accelerator
-DynamoDB에 쓰는 어플이 있다. 사용량이 많아져서 ConditionalCheckFailedException 발생. 여러 클라이언트가 동일 레코드에 쓰기 작업 개선 | jiter를 사용해서 오류 재시도 및 지수 백오프 구현
-단일 API 호출로 DynamoDB 테이블에서 여러 항목을 검색할 수 있는 작업 | BatchGetItem
-DynamoDB 한시간에 한번씩 분석하고 더이상 필요하지 않음 | 테이블 삭제 및 시간당 새 테이블 생성
-DynamoDB 테이블에서 데이터를 읽을 때 선택한 일관성 모델이 프로비저닝된 처리량에 미치는 영향 | 강력하게 일관된 읽기는 최종 일관된 읽기보다 더 많은 처리량을 사용한다.
-DynamoDB API. ThrouttlingException 오류 발생. SDK와 호환되지 않는 언어로 코딩 | 어플리케이션 로직에 지수 백오프 추가
-NoSQL을 DynamoDB로 마이그레이션. 빈번한 쿼리 최적화, 읽기 지연 시간 감소, 테이블의 특정 주요 속성에 대한 빈번한 쿼리에 대한 계획 | 자주 쿼리되는 키에 글로벌 보조 인덱스를 만들고 색인에 필요한 속성을 추가
-DynamoDB 테이블 스캔 실행 시간을 최소화. 워크로드는 강력하게 일관된 읽기 용량 단위의 평균 절반 | 속도를 제한하면서 병렬 스캔 사용
-Lambda & DynamoDB. 항목을 검색, 속성 업데이트, 항목 생성, 기본 키에 액세스. 필요한 IAM 권한은? | UpdateItem, GetItem, PutItem
-DynamoDB. 읽기/쓰기 작업에 대한 응답 시간 줄이고 싶음 | DynamoDB Accelerator
-파티션 키=user_id, 정렬 키=sport_name. sport_name에 대한 점수를 기반으로 최고 성과자를 표시하는 리더보드. 효율적인 추출 방법 | 파티션 키가 sprot_name이고 정렬 키가 score인 글로벌 보조 인덱스를 만들어서 결과를 가져온다.
-DynamoDB 대용량의 작업이 일시적으로만 필요하다면 | 테이블을 생성하고 삭제한다.
-DynamoDB에서 Client 요청에 문제가 있으면? | 4xx HTTP 응답
-DynamoDB API 호출이 가장 적은 레코드를 재처리하기 위한 방법 | 성공적으로 처라된 상목을 삭제하고 새로운 BatchWriteItem 작업을 다시 실행
-DynamoDB에 제품 정보가 들어있는데 추가로 이미지를 포함해야 한다. | S3에 이미지를 저장하고 "제품" 테이블 항목에 S3 URL Pointer를 추가
-DynamoDB 테이블에 있는 여러 항목에 대한 조정된 전체 변경을 수행 | TransactWriteItem 작업을 사용해서 변경 사항을 그룹화하고 테이블 항목을 업데이트
-DynamoDB 읽기 요청 성능 향상 | ElastiCache의 Creational Cluster의 데이터를 Caching 하도록 어플리케이션을 구성, 테이블의 읽기 용량 늘리기
-폴링 응용 프로그램. 풀 결과를 DynamoDB에 저장. 풀 데이터 제거 후 S3에 저장. | DynamoDB Stream을 활성화해서 Stream을 Lambda에 대한 Trigger로 구성. Stream 레코드가 수정되면 S3에 저장.
-5개 쓰기 용량 단위가 있는 DynamoDB 테이블에 트랜잭션을 쓰고 있음. 읽기 처리량 높은 옵션은? | 4KB 크기 항목을 읽는 5개 읽기 용량 단위의 최종 일관된 읽기
-DynamoDB 저장 되는 항목의 크기는 7KB, 읽기는 강력한 일관성 필요. 읽기 속도는 초당 3개 항목. 쓰기는 초당 10 항목. DynamoDB 크기는 | 6 읽기 용량 단위, 70 쓰기 용량 단위
-DynamoDB 초당 90개 읽기 항목. 각 항목은 3KB. 필요한 읽기 용량 단위 프로비저닝 | 45
-DynamoDB 강력한 일관된 읽기 초당 100개 항목을 읽어야 하고 각 항목의 크기는 5KB. 프로비저닝된 읽기 처리량을 어떤 값으로 설정해야 하나? | 200 읽기 용량 단위
-600개의 온도 게이지를 모니터링해서 1분마다 온도 샘플을 수집하고 DynamoDB에 저장. 각 샘플에는 1K 데이터 쓰기가 포함. 테이블에 필요한 쓰기 처리량 | 10 쓰기 용량
+DynamoDB 요청의 95%가 `반복 읽기`. NoSQL 계층을 확장해서 캐싱하기 위한 전략 | DynamoDB `Accelerator`
+DynamoDB. 읽기/쓰기 작업에 대한 `응답 시간 줄이고 싶음` | DynamoDB `Accelerator`
+DynamoDB에 `실시간 동적 업데이트`. `덮어쓰기 방지` 옵션은? | `조건부 쓰기`
+EC2 어플이 DynamoDB `쓰기` 권한. `보안키`는 사용하지 않음 | EC2에 `IAM 추가`. DynamoDB에 `쓰기 권한 IAM 역할 생성`
+DynamoDB `많은 읽기` 용량 소비. 속성이 매우 큼. 어플은 모든 속성이 필요하지 않음. | 최소한의 `프로젝션 속성 집합`으로 `글로벌 보조 인덱스`를 만든다.
+EC2 실패할 경우 `세션이 손실`되지 않도록 해야 한다. | DynamoDB 사용해서 `확장 가능한 세션 처리`를 수행
+`분라`되있는 DB에서 다른 DB에서 거의 `실시간으로 업데이트`를 가져오는 방법 | DynamoDB `Stream`을 사용해서 다른 DB의 모든 변경 사항을 전달
+설문조사 결과를 DynamoDB에 저장. 데이터 처리 후 레코드를 S3에 저장. 각 설문 조사의 데이터를 보관할 수 있는 방식 | 테이블 DynamoDB `Stream을 활성화`하고 Stream을 `Lambda 트리거`로 작성. Stream 레코드가 수정되면 S3에 저장
+폴링 응용 프로그램. 풀 결과를 `DynamoDB에 저장`. 풀 데이터 제거 후 `S3에 저장`. | DynamoDB `Stream`을 활성화해서 Stream을 `Lambda에 대한 Trigger`로 구성. Stream 레코드가 수정되면 `S3에 저장`.
+여러 EC2에 어플이 있고 DynamoDB에 데이터 저장. `읽기가 강력하게 일관성`이 있는지 확인 | GetItem을 호출할 때 `ConsistentRead`를 true로 설정
+아이템 거래. `두 사용자 레코드를 단일 트랜잭션`으로 업데이트하거나 롤백해야 한다. 이런 기능을 위한 DB 옵션 | `트랜잭션 블록` 내에서 수행되는 작업이 있는 MYSQL, `Transact* 작업`을 사용하여 읽기 쓰기를 수행하는 DynamoDB
+DynamoDB 글로벌 보조 인덱스 항목을 찾으려고 한다. `가장 적은 수의 읽기 용량 단위`를 사용하기 위해 호출하는 API | `최종 일관성 읽기를 사용한 쿼리 작업`
+DynamoDB 테이블에 `세션 정보 캐싱`. 오래된 항목을 자동으로 삭제하는 방법 | 만료 시간이 있는 속성을 추가해서 해당 속성 기반의 `TTL 기능 활성화`
+DynamoDB에 요금 데이터 저장. 수시로 변경. 고객한테 변경이 반영되지 않음. 원인은? | 아이템 가격 변경 시 `캐시가 무효화`되지 않는다.
+DynamoDB 테이블은 주문 날짜를 기준으로 분할. 트래픽 증가. 쓰기 제한되고 소비된 처리량은 `provisioning된 처리량보다 낮다.` | 파티션 키 값에 `난수 접미사를 추가`한다.
+DynamoDB는 `GSI`를 사용해서 읽기 쿼리 지원. 쓰기 활동이 많을 때 작업이 제한됨. `쓰기 용량` 단위는 넉넉함. 제한되는 이유 | `GSI 쓰기 용량` 단위가 부족
+DynamoDB에서 대규모 스캔 작업을 사용할 때 테이블에 `프로비저닝된 처리량`에 대한 스캔 영향을 최소화 하기 위한 기술 | 스캔에 대해 더 작은 `페이지` 크기를 설정
+DynamoDB에 쓰는 어플이 있다. 사용량이 많아져서 `ConditionalCheckFailedException` 발생. 여러 클라이언트가 동일 레코드에 쓰기 작업 개선 | jiter를 사용해서 `오류 재시도` 및 `지수 백오프` 구현
+DynamoDB API. `ThrouttlingException` 오류 발생. SDK와 호환되지 않는 언어로 코딩 | 어플리케이션 로직에 `지수 백오프` 추가
+단일 API 호출로 DynamoDB 테이블에서 `여러 항목을 검색`할 수 있는 작업 | `BatchGetItem`
+DynamoDB 한시간에 한번씩 분석하고 더이상 필요하지 않음 | 테이블 `삭제` 및 시간당 새 테이블 `생성`
+DynamoDB 테이블에서 데이터를 읽을 때 선택한 `일관성 모델`이 `프로비저닝된 처리량`에 미치는 영향 | `강력하게 일관된 읽기`는 `최종 일관된 읽기`보다 더 많은 처리량을 사용한다.
+NoSQL을 DynamoDB로 마이그레이션. `빈번한 쿼리` 최적화, 읽기 지연 시간 감소, 테이블의 특정 `주요 속성`에 대한 빈번한 쿼리에 대한 계획 | 자주 쿼리되는 키에 `글로벌 보조 인덱스`를 만들고 `색인`에 필요한 `속성을 추가`
+DynamoDB 테이블 스캔 실행 시간을 최소화. 워크로드는 `강력하게 일관된 읽기 용량` 단위의 평균 절반 | 속도를 제한하면서 `병렬 스캔` 사용
+Lambda & DynamoDB. 항목을 `검색`, 속성 `업데이트`, 항목 `생성`, 기본 키에 액세스. 필요한 IAM 권한은? | `UpdateItem`, `GetItem`, `PutItem`
+파티션 키=user_id, 정렬 키=sport_name. sport_name에 대한 점수를 기반으로 최고 성과자를 표시하는 리더보드. 효율적인 추출 방법 | `파티션 키`가 sprot_name이고 `정렬 키`가 score인 `글로벌 보조 인덱스`를 만들어서 결과를 가져온다.
+DynamoDB 대용량의 작업이 `일시적으로만 필요`하다면 | 테이블을 `생성`하고 `삭제`한다.
+DynamoDB에서 `Client 요청`에 문제가 있으면? | `4xx` HTTP 응답
+DynamoDB API 호출이 `가장 적은` 레코드를 `재처리`하기 위한 방법 | 성공적으로 처라된 항목을 `삭제`하고 새로운 `BatchWriteItem 작업을 다시 실행`
+DynamoDB에 제품 정보가 들어있는데 `추가로 이미지`를 포함해야 한다. | `S3`에 이미지를 저장하고 "제품" 테이블 항목에 `S3 URL Pointer`를 추가
+DynamoDB 테이블에 있는 여러 항목에 대한 `조정된 전체 변경`을 수행 | `TransactWriteItem` 작업을 사용해서 `변경 사항을 그룹화`하고 테이블 항목을 `업데이트`
+DynamoDB `읽기 요청 성능` 향상 | `ElastiCache`의 Creational Cluster의 데이터를 Caching 하도록 어플리케이션을 구성, 테이블의 `읽기 용량` 늘리기
+5개 `쓰기 용량 단위`가 있는 DynamoDB 테이블에 트랜잭션을 쓰고 있음. 읽기 처리량 높은 옵션은? | 4KB 크기 항목을 읽는 5개 `읽기 용량 단위`의 `최종 일관된 읽기`
+DynamoDB 저장 되는 항목의 크기는 `7KB`, 읽기는 강력한 일관성 필요. 읽기 속도는 `초당 3개` 항목. 쓰기는 `초당 10` 항목. DynamoDB 크기는 | 6 읽기 용량 단위, 70 쓰기 용량 단위
+DynamoDB `초당 90개` 읽기 항목. 각 항목은 3KB. 필요한 `읽기 용량 단위` 프로비저닝 | 45
+DynamoDB `강력한 일관된 읽기` `초당 100`개 항목을 읽어야 하고 각 항목의 크기는 `5KB`. 프로비저닝된 읽기 처리량을 어떤 값으로 설정해야 하나? | 200 읽기 용량 단위
+`600개`의 온도 게이지를 모니터링해서 1분마다 온도 샘플을 수집하고 DynamoDB에 저장. 각 샘플에는 1K 데이터 쓰기가 포함. 테이블에 필요한 쓰기 처리량 | 10 쓰기 용량
 
 ## ElastiCache & Load Balancer
 문제 | 답안 
 ---|---
 API G/W `endpoint 과부하`가 걸려서 트래픽을 줄여야 한다. | ElastiCache에서 `API 캐싱을 활성화`
-ELB + EC2, 세션 데이터 작성하는 위치는? | ElasticCache에 데이터 쓰기
-ElastiCache 좋은 사례 | 읽기가 많은 어플의 워크로드 대기 시간과 처리량 개선, 컴퓨팅 집약적인 어플의 성능 향상
-ElastiCache for Redis 사용. 로드 증가. 장애 시 복원력이 필요 | ElastiCache를 수직적으로 확장
-ELB 뒤에 여러개의 서버. 웹 서버의 메모리에 세션 데이터 저장. 세션 데이터 손실 방지. 다운타임 최소화 | Redis용 ElastiCache 클러스터
-읽기 쿼리에 영향을 최소화 하면서 트래픽 급증을 대응하는 방법은? | ElastiCache를 사용해서 데이터 캐시
-온프로미스 세션 공유하는 어플을 마이그레이션. 내결함성, 확장성, 무중단 필요. 세션 상태 저장 옵션은? | ElastiCache에 세션 상태 저장
-ElastiCache를 사용해서 캐쉬 계층 구현. 반응형 어플리케이션이라 가격에 대한 업데이트는 강력한 일관성 필요 | 먼저 백엔드에 쓰고 캐시 무효화
-RDS 앞에 캐싱 계층. 서비스 실패 시 재생성하는데 비용이 많이 듬 | 클러스터 모드에서 ElastiCache Redis 구현
-읽기 전용 레코드가 대용량 트래픽 | Redis용 ElastiCache를 배포하고 어플리케이션에 대한 데이터를 캐시
-인메모리 저장소를 사용해서 누적된 게임 결과를 저장하는 어플. 개별 결과는 DB 저장. AWS로 마이그레이션. 일관된 결과를 위해 누적 게임 결과는 어디에 저장? | ElastiCache
-ELB로 분산처리 어플 작성. 기존 로그인 사용자들이 다시 로그인해야하는 문제 발생. 방지 대책은? | ElastiCache에 세션 상태 저장
-NAT 장치가 Private Subnet에 바인딩 트래픽 대상이 되도록 라우팅 테이블 수정. Private Subnet에서 인터넷으로 아웃바운드 실패. 해결 방법 | NAT 인스턴스에서 Source/Destination Check 속성 비활성화
-세션 데이터를 외부화 하는 방법 | ElastiCache Memcached 클러스터를 생성한 다음 어플리케이션 수준에서 세션 처리를 구현하여 세션 데이터 스토리지용 클러스터 활용
-반복 읽기 요청이 많다. 반복 읽기 쿼리를 위한 인메모리 저장소 | ElastiCache
-ALB 로그 파일에 Client Public IP Address를 캡쳐하기 위한 방법 | X-Forwarded-For Header를 로그 구성에 추가
-Client IP 기준으로 처리. ALB 뒤에 배치되면서 같은 IP로 들어옴 | X-Forwarded-For 헤더를 검사하도록 어플 코드 변경
-ELB를 사용하고 EC2에 CPU 제약이 있다. EC2의 CPU 로드를 늘리지 않으면서 웹 사이트를 보호하는 전략 | ELB에서 SSL 구성, SSL 종료로 ELB 구성
-ALB에 등록된 Lambda 함수에 다중 값 헤더를 보내려고 한다. | ALB에서 다중 값 헤더를 활성화 해야함
-CLI로 ALB에 Lambda 함수 등록. Client에서 ALB 통해 Lambda 호출 실패. 이유는? | Lambda 함수 호출 권한이 없음
+ELB + EC2, `세션 데이터` 작성하는 위치는? | `ElasticCache`에 데이터 쓰기
+ElastiCache for Redis 사용. 로드 증가. 장애 시 복원력이 필요 | ElastiCache를 `수직적으로 확장`
+ELB 뒤에 여러개의 서버. `웹 서버`의 메모리에 세션 데이터 `저장`. 세션 데이터 `손실 방지`. `다운타임` 최소화 | `Redis용 ElastiCache Cluster`
+ElastiCache 좋은 사례 | `읽기가 많은` 어플의 워크로드 대기 시간과 처리량 개선, `컴퓨팅 집약적인` 어플의 성능 향상
+`읽기 쿼리에 영향을 최소화` 하면서 트래픽 급증을 대응하는 방법은? | `ElastiCache를 사용해서 데이터 캐시`
+`읽기 전용` 레코드가 대용량 트래픽 | `Redis용 ElastiCache`를 배포하고 어플리케이션에 대한 `데이터를 캐시`
+`반복 읽기 요청`이 많다. 반복 읽기 쿼리를 위한 인메모리 저장소 | `ElastiCache`
+온프로미스 `세션 공유`하는 어플을 마이그레이션. `내결함성`, `확장성`, `무중단` 필요. 세션 상태 저장 옵션은? | `ElastiCache에 세션 상태 저장`
+ElastiCache를 사용해서 캐쉬 계층 구현. 반응형 어플리케이션이라 가격에 대한 업데이트는 `강력한 일관성` 필요 | 먼저 `백엔드`에 쓰고 캐시 `무효화`
+RDS `앞에 캐싱` 계층. 서비스 실패 시 `재생성`하는데 비용이 많이 듬 | `클러스터 모드`에서 `ElastiCache Redis` 구현
+인메모리 저장소를 사용해서 누적된 게임 결과를 저장하는 어플. 개별 결과는 DB 저장. AWS로 마이그레이션. 일관된 결과를 위해 `누적 게임 결과`는 어디에 저장? | `ElastiCache`
+ELB로 분산처리 어플 작성. 기존 로그인 사용자들이 `다시 로그인`해야하는 문제 발생. 방지 대책은? | `ElastiCache에 세션 상태 저장`
+세션 데이터를 `외부화` 하는 방법 | `ElastiCache Memcached Cluster`를 생성한 다음 어플리케이션 수준에서 `세션 처리를 구현`하여 세션 데이터 스토리지용 클러스터 활용
+ALB 로그 파일에 `Client Public IP Address`를 캡쳐하기 위한 방법 | `X-Forwarded-For` Header를 로그 구성에 추가
+Client IP 기준으로 처리. ALB 뒤에 배치되면서 같은 IP로 들어옴 | `X-Forwarded-For` 헤더를 검사하도록 어플 코드 변경
+ELB를 사용하고 EC2에 CPU 제약이 있다. `EC2의 CPU 로드`를 늘리지 않으면서 `웹 사이트를 보호`하는 전략 | ELB에서 `SSL 구성`, SSL 종료로 `ELB 구성`
+ALB에 등록된 Lambda 함수에 `다중 값 헤더`를 보내려고 한다. | ALB에서` 다중 값 헤더를 활성화` 해야함
+CLI로 ALB에 Lambda 함수 등록. Client에서 ALB 통해 `Lambda 호출 실패`. 이유는? | Lambda 함수 `호출 권한이 없음`
 
 ## S3 & Encryption
 문제 | 답안 
 ---|---
 S3 반복 호출해서 `Limit Exceeded` 발생. 해결방법은? | 어플리케이션에서 `지수 백오프 구현`
-S3 웹 호스팅. CORS 에러 발생 | CORS 구성을 생성해서 교차 출처 요청을 허용하는 cdfonts 버킷 구성
-S3에서 가장 저렴한 비용으로 다운로드 액세스 안전하게 제어하는 방법은? | S3 Presigned URL와 함께 CloudFront 사용
-S3에 저장하기 전 암호화. 암호화 키는 보안팀이 관리 | KMS 암호화 사용. 고객 마스터 키를 사용해서 클라이언트 측 암호화 구현
-S3 서버측 암호화를 위헤 제공하는 블록 암호 유형은? | `Advanced Encryption Standard`
-S3 보안 인프라 관리 싫음. 암호화 키는 제어하고 싶음. | SSE-KMS 사용
+S3 KMS. `AWSKMS; Status Code: 400; Error Code: ThrottlingException` 발생 | AWS Support에 `KMS 속도 제한 증가`를 요청 문의. 응용 프로그램 코드에 `지수 백오프`를 사용해서 오류 재시도 수행.
+`The specified bucket does not exist` 에러 발생. 원인 분석 시작지는? | `CloudTrail`에서 `DeleteBucket` 이벤트 확인
+`코드 버킷`에서 `자산 버킷`에 접근할 때 모든 사용자에게 `403 오류` | `자산 버킷`의 정책을 수정해서 `모든 보안 주체에 대한 액세스 허용`
+S3에서 `400 에러` | `S3 허용 용량 초과`
+S3 웹 호스팅. `CORS 에러` 발생 | `CORS 구성을 생성`해서 교차 출처 요청을 허용하는 `cdfonts 버킷` 구성
+S3 웹 호스팅. `다른 bucket`의 이미지 다운로드 실패 | S3에서 `CORS 활성화`
+S3에서 `가장 저렴한 비용`으로 `다운로드 액세스` 안전하게 제어하는 방법은? | `S3 Presigned URL`와 함께 `CloudFront` 사용
+S3 버킷에 프로필 사진 저장. 로그인할 때마다 표시. 공개적으로 `액세스 불가` | 사진의 `S3 key를 DynamoDB에 저장`. 함수를 사용해서 `Presigned URL` 생성 후 반환
+보안 문서 `Private S3`에 저장. 요청 된 사용자 `15분 동안만 다운로드` 가능 | 만료 시간이 15분인 `Presigned S3 URL` 생성
+S3로 사진 공유 웹사이트 운영하는데 다른 사이트에서 도용함 | S3의 `공개 읽기 액세스를 제거`하고 날짜가 있는 `Presigned URL` 사용
+유료 회원에게만 콘텐츠 제공. 현재는 모든 객체 `비공개`. 유료 회원에게만 다운로드를 제공하는 방법 | 유료 가입자가 다운로드 요청을 할 때 `Pre-signed URL 생성`
+S3 데이터 처리 어플리케이션. 하루 10번, 1분 소요. `배포`하고 `호출`하는 방법은? | `Lambda로 배포`하고 `S3 이벤트 알림`과 같이 호출
+S3 상태 대시보드. S3 메타 데이터는 `DynamoDB에 저장`. `최적의 비용` 설계 | `Lambda`가 지원하는 `S3 이벤트 알림`을 사용해서 메타데이터를 `DynamoDB에 유지`. 대시보드는 `DynamoDB를 폴링`해서 변경 사항 반영
+S3 버킷 `파일 추가`되면 DynamoDB 레코드 삽입 | DynamoDB에 삽입하는 `Lambda`를 호출하는 `S3 이벤트` 구성
+이미징 서비스를 EC2로 마이그레이션. 이미지는 `Private S3 버킷`에서 가져옴. 해야할 설정은? | `S3 버킷`에 대한 `읽기 전용 권한`이 있는 `EC2 서비스 역할`을 생성하고 연결
+KMS 암호화를 활성화하고 `성능이 느려짐`. 원인은? | KMS API `호출 제한`이 원하는 성능을 달성하는데 필요한 것보다 적다.
+S3에 `대용량 파일 저장`하고 메타 데이터를 제공해서 사용자가 선택해서 다운로드. `메타데이터를 인덱싱` 하고 밀리초 내에 검색 기능 제공 | `DynamoDB`를 사용해서 검색 기능 제공
+데이터 파일은 `로컬로 캐싱`하고 공유 이미지를 `로컬 디스크에 기록`. 마이그레이션할 때 `수평적 확장`을 허용하기 위한 것 | 공유 이미지를 제공하기 위해 `S3를 사용`하도록 어플을 수정하고 캐시 데이터를 `로컬 디스크`에 쓴다.
+S3의 `us-standard` region에 객체를 저장하고 성공 확인. 객체를 읽으려고 했는데 `실패` | us-standard는 `최종 일관성을 사용`하고 bucket에서 객체를 읽기 위해선 `시간이 필요하다.`
+S3의 putObject 권한이 있는 `IAM 사용자 생성`. KMS 관리형 키로 `암호화`. IAM 사용자의 키로 putObject 했을 때 `Access denied` | `kms:GenerateDataKey` 작업을 허용하도록 `IAM 사용자 정책 업데이트`
+`EBS 지원 Instance`와 `Instance Store 지원`의 주요 차이 | `EBS 지원 Instance`는 `중지하고 다시 시작`할 수 있다.
+S3 데이터 `액세스 제한` 기능 | S3 버킷 `정책 설정`, 버킷이나 객체에 `S3 ACL 설정`
+버킷의 `로깅이 활성화` 되어 있고 개발자는 `문서를 이동`한 후 작업을 중단함. 버킷의 용량이 `50GB`. 원인은? | `동일한 버킷에 로그인`하면 로그가 기하급수적으로 증가
+S3 Bucket에 정보를 반환하는 API가 필요하고 Lambda와 API G/W로 개발. `MSA 어플`이 S3 버킷에 필요한 `액세스 권한`을 갖도록 하려면? | S3 버킷에 액세스 할 수있는 권한이 있는 `IAM 역할을 생성`하고 이를 `Lambda의 실행 역할`로 할당
+S3 이미지 저장할 때 `이벤트 알림`으로 Lambda가 이미지 `크기 조정`. Lambda `추가 트래픽 처리 방안` | Lambda는 요청을 `동시에 실행`하도록 확장됨
+S3에 복사하는 Lambda 작성함. 두번째 버킷에 복사되지 않고 평균 `500초정도` 걸림. 원인은? | `Lambda 함수 최대 실행 시간`이 `300초`
+S3 버킷에 액세스 하기 위한 역할을 CLI로 생성. `create-role` 명령어. `EC2 서비스`가 역할을 맡도록 하기 위한 정책 | `신뢰 정책을 추가`해야함
+S3에 호스팅하고 있는 웹. `초기 파일 변경`하려면? | S3에 `새로운 html` 업로드 후 색인 문서 속성을 `새로운 html로 변경`
+10명 팀원에게 `고유한 폴더 경로` S3 권한 부여. 10개의 권한을 생성하지 않고 `일반화하는 방법`은? | `IAM 정책 변수 사용`
+S3 버킷은 `초당 300개 이상`의 `GET 요청` 처리 | `CloudFront`를 `S3와 통합`, S3 `키 이름 접두사`를 무작위로 지정
+S3 버킷 `읽기 성능 향상` | 20개 이상의 `접두사`를 생성. 접두사로 파일을 배치. 접두사를 `병렬로 읽기`
+`많은 트래픽`. `수천 개의 인스턴스`. 시간당 로그파일 `저장`. S3에서 최적의 성능을 제공하는 `명명 체계` | `HH-DD-MM-YYYY-log_instanceID`
+초당 수천개의 `PUT 요청`을 커버하는 S3 경로는? | 파일 이름에 `타임스탬프를 접두사`로 붙인다. (과거엔 무작위 해쉬 문자열)
+`1MB 미만` 파일 S3 버킷에 `업로드 시간` 너무 오래 걸림 | 객체 키에 `임의의 접두사` 추가
+S3 보안 인프라 `관리 싫음`. `암호화 키는 제어`하고 싶음. | `SSE-KMS` 사용
+`자체 마스터 키`를 사용해서 AWS 서비스 활용 | `KMS를 사용한 SSE`
+S3 암호화. 마스터 키 `사용 이력 추적` 가능해야함 | `SSE-KMS`
+암호화 키는 온프로미스 `데이터 센터에서 관리`. 암호화는 `S3에서` 처리. | 고객이 제공한 키로 `서버 측 암호화` 사용
+S3에 저장하기 전 `암호화`. 암호화 키는 보안팀이 관리 | `KMS 암호화` 사용. 고객 마스터 키를 사용해서 `클라이언트 측 암호화` 구현
 Envelope 암호화 KMS 작동 방법은? | `Master Key`는 `암복호화`용, `Text Data Key`는 `고객 데이터 암호화`용
-S3 버킷 민감 정보 저장. 모든 데이터 암호화. 구현하는 방법은? | x-amz-server-side-encryption 헤더가 포함되지 않는 객체 업로드 방지하는 정책 설정
-100 GB를 KMS 암호화하는 방법은? | Plain Text Key와 Data Key의 암호화된 복사본을 반환하는 GenerateDataKey API 호출 생성. Plain Text Key를 사용해서 데이터 암호화
-S3 데이터 처리 어플리케이션. 하루 10번, 1분 소요. 배포하고 호출하는 방법은? | Lambda로 배포하고 S3 이벤트 알림과 같이 호출
-이미징 서비스를 EC2로 마이그레이션. 이미지는 Private S3 버킷에서 가져옴. 해야할 설정은? | S3 버킷에 대한 읽기 전용 권한이 있는 EC2 서비스 역할을 생성하고 연결
-S3 버킷에 프로필 사진 저장. 로그인할 때마다 표시. 공개적으로 액세스 불가 | 사진의 S3 key를 DynamoDB에 저장. 함수를 사용해서 Presigned URL 생성 후 반환
-보안 문서 Private S3에 저장. 요청 된 사용자 15분 동안만 다운로드 가능 | 만료 시간이 15분인 Presigned S3 URL 생성
-KMS 암호화를 활성화하고 성능이 느려짐. 원인은? | KMS API 호출 제한이 원하는 성능을 달성하는데 필요한 것보다 적다.
-어플의 키는 온프로미스 데이터 센터에서 관리. 암호화는 S3에서 처리. | 고객이 제공한 키로 서버 측 암호화 사용
-S3에 대용량 파일 저장하고 메타 데이터를 제공해서 사용자가 선택해서 다운로드. 메타데이터를 인덱싱 하고 밀리초 내에 검색 기능 제공 | DynamoDB 를 사용해서 검색 기능 제공
-The specified bucket does not exist 에러 발생. 원인 분석 시작지는? | CloudTrail에서 DeleteBucket 이벤트 확인
-데이터 파일은 로컬로 캐싱하고 공유 이미지를 로컬 디스크에 기록. 마이그레이션할 때 수평적 확장을 허용하기 위한 것 | 공유 이미지를 제공하기 위해 S3를 사용하도록 어플을 수정하고 캐시 데이터를 로컬 디스크에 쓴다.
-S3로 사진 공유 웹사이트 운영하는데 다른 사이트에서 도용함 | S3의 공개 읽기 액세스를 제거하고 날짜가 있는 서명 URL 사용
-S3에 업로드 하기 전에 파일이 암호화되었는지 확인 | GenerateDateKey API를 사용한 다음 해당 데이터 키를 사용해서 Lambda 함수 코드의 파일을 암호화
-KMS 암호화 S3. 어플은 고객 마스터 키(CMK)에 액세스. 어플에 액세스 권한 부여하는 단계 | 어플이 있는 EC2에 연결된 IAM EC2 역할의 키에 대한 액세스 권한 부여. IAM 정책이 키에 대한 액세스 권한을 부여할 수 있도록 키 정책 작성.
-데이터 저장 전 각 파일에 대한 고유 키를 사용해서 암호화해야 한다. | KMS GenerateDataKey API를 사용해서 데이터 키를 가져오고 암호화한다. 암호화 된 데이터 키와 데이터를 저장
-자체 마스터 키를 사용해서 AWS 서비스 활용 | KMS를 사용한 SSE
-S3의 us-standard region에 객체를 저장하고 성공 확인. 객체를 읽으려고 했는데 실패 | us-standard는 최종 일관성을 사용하고 bucket에서 객체를 읽기 위해선 시간이 필요하다.
-S3의 putObject 권한이 있는 IAM 사용자 생성. KMS 관리형 키로 암호화. IAM 사용자의 키로 putObject 했을 때 Access denied | kms:GenerateDataKey 작업을 허용하도록 IAM 사용자 정책 업데이트
-EBS 지원 Intance와 Instance Store 지원 Instance의 주요 차이 | EBS 지원 Instance를 중지하고 다시 시작할 수 있다.
-S3 데이터 암호화 저장. 누가 Master Key에 접근할 수 있는지 제어 필요. Master Key를 쉽게 생성, 교체, 비활성이 가능한 방식 | KMS
-S3 KMS. AWSKMS; Status Code: 400; Error Code: ThrottlingException 발생 | AWS Support에 KMS 속도 제한 증가를 요청 문의. 응용 프로그램 코드에 지수 백오프를 사용해서 오류 재시도 수행.
-유료 회원에게만 콘텐츠 제공. 현재는 모든 객체 비공개. 유료 회원에게만 다운로드를 제공하는 방법 | 유료 가입자가 다운로드 요청을 할 때 Pre-signed URL 생성
-S3 데이터 액세스 제한 기능 | S3 버킷 정책 설정, 버킷이나 객체에 S3 ACL 설정
-S3 버킷은 초당 300개 이상의 GET 요청 처리 | CloudFront를 S3와 통합, S3 키 이름 접두사를 무작위로 지정
-모든 데이터는 전송 중에 암호화해서 S3에 저장. 모든 트래픽이 암호화되었는지 확인하는 방법 | SecureTransport가 false인 트래픽을 거부하는 버킷 정책 생성
-KMS를 사용해서 클라이언트 측 암호화 수행 단계 | GenerateDataKey API를 호출해서 데이터 암호화 키의 일반 텍스트 버전을 검색해서 데이터를 암호화
-S3 버킷 읽기 성능 향상 | 20개 이상의 접두사를 생성. 접두사로 파일을 배치. 접두사를 병렬로 읽기
-어플은 EBS를 사용해서 데이터 저장. 암호화 되도록 개발하려면? | 데이터 저장에 암호화된 EBS 볼륨을 사용하도록 EC2 인스턴스 집합을 구성
-버킷의 로깅이 활성화 되어 있고 개발자는 문서를 이동한 후 작업을 중단함. 버킷의 용량이 50GB. 원인은? | 동일한 버킷에 로그인하면 로그가 기하급수적으로 증가
-S3 암호화. 매년 키 교체 필요 | 자동 키 교체와 함께 KMS 사용
-S3에 전송 중인 데이터 암호화 | KMS 암호화하고 클라이언트 측 암호화 설정, SSL 연결을 통한 데이터 전송
-S3 Bucket에 정보를 반환하는 API가 필요하고 Lambda와 API G/W로 개발. MSA 어플이 S3 버킷에 필요한 액세스 권한을 갖도록 하려면? | S3 버킷에 액세스 할 수있는 권한이 있는 IAM 역할을 생성하고 이를 Lambda의 실행 역할로 할당
-많은 트래픽. 수천 개의 인스턴스. 시간당 로그파일 저장. S3에서 최적의 성능을 제공하는 명명 체계 | HH-DD-MM-YYYY-log_instanceID
-암호화 SDK를 사용할 떄 암호화에 사용된 데이터 암호화 키를 언제 추적합니까? | SDK는 데이터 암호화 키를 암호화하고 반환된 암호문의 일부로 암호화하여 저장합니다.
-S3 이미지 저장할 때 이벤트 알림으로 Lambda가 이미지 크기 조정. Lambda 추가 트래픽 처리 방안 | Lambda는 요청을 동시에 실행하도록 확장됨
-S3에 복사하는 Lambda 작성함. 두번째 버킷에 복사되지 않고 평균 500초정도 걸림. 원인은? | Lambda 함수 최대 실행 시간이 300초
-S3 버킷에 액세스 하기 위한 역할을 CLI로 생성. create-role 명령어. EC2 서비스가 역할을 맡도록 하기 위한 정책 | 신뢰 정책을 추가해야함
-EBS에 저장된 데이터 보호 방법 | EBS 볼륨 위에 암호화된 파일 시스템을 사용
-S3에 호스팅하고 있는 웹. 초기 파일 변경하려면? | S3에 새로운 html 업로드 후 색인 문서 속성을 새로운 html로 변경
-10명 팀원에게 고유한 폴더 경로 S3 권한 부여. 10개의 권한을 생성하지 않고 일반화하는 방법은? | IAM 정책 변수 사용
-S3 암호화. 마스터 키 사용 이력 추적 가능해야함 | SSE-KMS
-초당 수천개의 PUT 요청을 커버하는 S3 경로는? | 파일 이름에 타임스탬프를 접두사로 붙인다. (과거엔 무작위 해쉬 문자열)
-S3 상태 대시보드. S3 메타 데이터는 DynamoDB에 저장. 최적의 비용 설계 | Lambda가 지원하는 S3 이벤트 알림을 사용해서 메타데이터를 DynamoDB에 유지. 대시보드는 DynamoDB를 폴링해서 변경 사항 반영
-S3 호스팅 웹사이트. 모든 요청을 추적하고 로깅 및 보관. 비용 효율적 솔루션 | S3 서버 액세스 로깅 활성화. 수명 주기를 90일로 설정. 90일 이내에 S3 Glacier로 데이터 이동
-객체 업로드 시 SSE 암호화 요청 헤더 | x-amz-server-side-encryption
-S3 버킷 파일 추가되면 DynamoDB 레코드 삽입 | DynamoDB에 삽입하는 Lambda를 호출하는 S3 이벤트 구성
-AWS 계정당 사용할 수 있는 S3 버킷 수 | 계정당 100
-코드 버킷에서 자산 버킷에 접근할 때 모든 사용자에게 403 오류 | 자산 버킷의 정책을 수정해서 모든 보안 주체에 대한 액세스 허용
-S3 웹 호스팅. 다른 bucket의 이미지 다운로드 실패 | S3에서 CORS 활성화
-S3에서 400 에러 | S3 허용 용량 초과
-1MB 미만 파일 S3 버킷에 업로드 시간 너무 오래 걸림 | 객체 키에 임의의 접두사 추가
-S3 6GB 파일 업로드. 최대 크기 초과 에러 메시지 | 멀티파트 업로드 API 사용
-S3에 대용량 파일 업로드 실패 | 멀티파트 업로드 API 사용해서 업로드
+S3 서버측 암호화를 위헤 제공하는 블록 암호 유형은? | `Advanced Encryption Standard`
+객체 업로드 시 `SSE 암호화 요청 헤더` | `x-amz-server-side-encryption`
+`S3 버킷` 민감 정보 저장. 모든 데이터 `암호화`. 구현하는 방법은? | `x-amz-server-side-encryption` 헤더가 포함되지 `않는` 객체 업로드 방지하는 정책 설정
+`100 GB`를 KMS 암호화하는 방법은? | `Plain Text Key`와 `Data Key`의 암호화된 복사본을 반환하는 `GenerateDataKey API` 호출 생성. `Plain Text Key`를 사용해서 데이터 암호화
+S3에 업로드 하기 전에 파일이 `암호화되었는지 확인` | `GenerateDateKey API`를 사용한 다음 해당 데이터 키를 사용해서 `Lambda 함수` 코드의 파일을 암호화
+KMS 암호화 S3. 어플은 `고객 마스터 키(CMK)`에 액세스. 어플에 `액세스 권한` 부여하는 단계 | 어플이 있는 EC2에 연결된 `IAM EC2 역할`의 키에 대한 액세스 권한 부여. IAM 정책이 `키에 대한 액세스 권한`을 부여할 수 있도록 키 정책 작성.
+데이터 저장 전 각 파일에 대한 `고유 키를 사용`해서 `암호화`해야 한다. | KMS `GenerateDataKey API`를 사용해서 `데이터 키를 가져오고` 암호화한다. 암호화 된 데이터 키와 데이터를 저장
+S3 데이터 `암호화` 저장. 누가 Master Key에 `접근할 수 있는지 제어` 필요. Master Key를 쉽게 생성, 교체, 비활성이 가능한 방식 | `KMS`
+모든 데이터는 전송 중에 `암호화`해서 S3에 저장. 모든 트래픽이 암호화되었는지 `확인하는 방법` | `SecureTransport`가 `false`인 트래픽을 거부하는 버킷 정책 생성
+KMS를 사용해서 `클라이언트 측 암호화 수행 단계` | `GenerateDataKey API`를 호출해서 `데이터 암호화 키`의 `일반 텍스트 버전`을 검색해서 데이터를 암호화
+S3 암호화. 매년 키 교체 필요 | `자동 키 교체`와 함께 `KMS` 사용
+어플은 `EBS`를 사용해서 데이터 저장. `암호화` 되도록 개발하려면? | 데이터 저장에 `암호화된 EBS 볼륨`을 사용하도록 `EC2 인스턴스 집합을 구성`
+`EBS`에 저장된 `데이터 보호` 방법 | EBS 볼륨 위에 `암호화된 파일 시스템`을 사용
+S3에 전송 중인 데이터 `암호화` | `KMS 암호화`하고 클라이언트 측 암호화 설정, `SSL 연결`을 통한 데이터 전송
+암호화 SDK를 사용할 떄 암호화에 사용된 `데이터 암호화 키를 언제 추적`합니까? | SDK는 `데이터 암호화 키`를 `암호화`하고 반환된 `암호문의 일부로 암호화하여 저장`합니다.
+S3 호스팅 웹사이트. 모든 `요청`을 `추적하고 로깅` 및 보관. `비용 효율적` 솔루션 | S3 서버 `액세스 로깅 활성화`. `수명 주기`를 90일로 설정. 90일 이내에 `S3 Glacier`로 데이터 이동
+AWS 계정당 사용할 수 있는 `S3 버킷 `수 | 계정당 `100`
+S3 `6GB` 파일 업로드. 최대 크기 초과 에러 메시지 | `멀티파트 업로드` API 사용
+S3에 `대용량 파일` 업로드 실패 | `멀티파트 업로드` API 사용해서 업로드
 
 ## StepFunction
 문제 | 답안 
 ---|---
-여러 공급업체에 요청하고 일주일 걸리는 프로세스 | Step Function을 사용해서 병행 Lambda 함수를 실행하고 결과 결합
-대형 상태 머신을 호출하는 Lambda. 쉽게 꺠지는 레거시 사용자 코드. 리팩토링하는 서비스는? | Step Functions
+여러 공급업체에 요청하고 `일주일 걸리는 프로세스` | `Step Function`을 사용해서 `병행 Lambda 함수`를 실행하고 `결과 결합`
+`대형 상태 머신을 호출`하는 Lambda. `쉽게 꺠지는` 레거시 사용자 코드. 리팩토링하는 서비스는? | `Step Functions`
 
 ## SAM
 문제 | 답안 
 ---|---
-SAM을 사용해서 Lambda 어플 구축. 배포하기 위한 실행 순서 | 로컬에서 SAM Template 빌드하고 Template를 S3에 패키징하고 S3에서 Template을 배포
-Serverless Restful API를 반복적이고 일관되게 배포 | 인라인 Swagger 정의를 사용해서 SAM Template 배포, Swagger 파일을 정의해서 Swagger 파일을 참조하는 SAM Template 배포
-SAM CLI 사용해서 배포할 서버리스 어플. 개발자가 배포 전 해야할 것 | SAM 패키지를 사용해서 서버리스 어플리케이션을 번들
-Serverless 어플리케이션 자동 배포 스크립트 개발. SAM template를 사용하는 방법 | aws cloudformation 패키지를 호출해서 배포 패키지를 생성하고 aws cloudformation deploy를 호출해서 패키지를 배포. sam package를 호출해서 배포 패키지를 생성하고 sam deploy를 호출해서 패키지를 배포
-SAM CLI로 어플을 재배포 하기 위한 명령어 조합 | sam init, sam deploy
+SAM을 사용해서 Lambda 어플 구축. `배포하기 위한 실행 순서` | 로컬에서 `SAM Template 빌드`하고 Template를 `S3에 패키징`하고 S3에서 `Template을 배포`
+Serverless Restful API를 `반복적이고 일관되게 배포` | `인라인 Swagger 정의`를 사용해서 `SAM Template 배포`, `Swagger 파일을 정의`해서 `Swagger 파일을 참조하는 SAM Template 배포`
+SAM CLI 사용해서 배포할 서버리스 어플. 개발자가 `배포 전 해야할 것` | `SAM 패키지`를 사용해서 서버리스 어플리케이션을 `번들`
+Serverless 어플리케이션 `자동 배포 스크립트` 개발. `SAM template를 사용하는 방법` | `aws cloudformation` 패키지를 호출해서 `배포 패키지를 생성`<br>`aws cloudformation deploy`를 호출해서 `패키지를 배포`<br>`sam package`를 호출해서 `배포 패키지를 생성`<br>`sam deploy`를 호출해서 `패키지를 배포`
+SAM CLI로 어플을 `재배포` 하기 위한 명령어 조합 | `sam init`, `sam deploy`
 
 ## SQS
 문제 | 답안 
 ---|---
-SQS 메시지 완료하는데 5분 소요. 메세지 성공적 처리하고 중복 처리 최소화하면서 메시지 제거하는 방안은? | `가시성 시간 초과`가 `증가한 메세지 검색`, 메시지 `처리`, 대기열에서 `삭제`
-SQS 설명 | 메세지는 한 번 이상 배달되고 순서는 불확실
-SQS 사용 어플리케이션. 분당 하나의 메세지가 대기열에 게시되서 비용 증가 | SQS 대기열 폴링 시간 초과를 늘린다.
-SQS 대기열에 메시지 업데이트. 자주 변경되지 않지만 업데이트 시간 최소화 | 20초마다 긴 풀링을 사용하여 메시지 검색
-SQS에 유료회원, 무료회원용 업로드. EC2가 SQS를 폴링. 유료회원 먼저 처리해야 함 | 2개의 SQS 대기열을 만들고 유료 회원을 먼저 폴링
-SQS 대기열에 메세지를 검색하는 경우 다른 사용자가 메시지에 액세스 할 수 없는 기간의 기본값 | 30초
-SQS 대기열이 기본 VisibilityTimeout 값으로 구성되어 있다고 가정할 때 메세지 수신 시 다른 인스턴스가 이미 처리되었거나 현재 처리 중인 메세지를 검색할 수 없도록 하는 방법 | ChangeMessageVisibility API를 사용해서 VisibilityTimeout을 늘린 다음 DeleteMessage API를 사용해서 메세지를 삭제
-SQS 지연 대기열이 수행하는 것 | 메세지는 대기열에 처음 추가될 때 구성 가능한 시간 동안 숨겨진다.
-각 메세지를 처리하는데 15분 이상이 걸려서 timeout 우려됨 | SQS 대기열에 메세지를 추가하고 ASG에서 EC2 설정해서 대기열을 폴링하고 메세지가 도착하면 처리된다.
-1KB에서 최대 1GB 크기의 SQS 메세지를 사용하는 어플을 설계해야한다. SQS 메시지는 어떻게 관리해야하나? | S3 및 Java용 SQS 확장 클라이언트 라이브러리를 사용
-주문 요청이 과부하. 비용 효율성을 유지하면서 유연성을 더하는 방법 | SQS 대기열을 구현해서 FE와 BE 분리, SQS 대기열에서 가져오도록 BE 수정
-트래픽 몰림. BE에 일시적인 볼륨 급증을 완화하는 탄력적인 방법은? | 사진이 S3에 업로드되면 SQS 대기열에 게시. 대기열을 이벤트 소스로 사용해서 Lambda 함수를 트리거. Lambda 함수에서 사진을 스캔하고 구문 분석
-SQS를 사용해서 독립 발신자의 메시지를 관리. 각 발신인은 메세지를 받은 순서대로 처리. SQS 기능은? | 고유한 MessageGroupId로 각 발신자를 구성
-SQS 이미지 대기열 폴링을 자주함. CPU 주기를 소모하고 빈 응답이 많음. 빈 응답을 줄이는 방법은? | 이미징 큐 ReceiveMessageWaitTimeSeconds 속성을 20초로 설정
-SQS 대기열에서 메세지를 가져옴. 모든 메세지는 암호화해야함 | SQS 대기열을 생성하고 KMS에서 SSE를 사용해서 대기열을 암호화
-SQS 대기열에서 메세지를 1개씩만 수신해서 처리함. 수신 메세지 늘리는 방법 | ReceiveMessage API를 호출해서 MaxNumberOfMessages를 1보다 큰 값으로 설정
-SQS 비동기 처리했는데 일부 이벤트가 여러번 처리됨 | SQS 대기열을 FIFO로 변경
+SQS 메시지 완료하는데 `5분 소요`. 메세지 성공적 처리하고 `중복 처리 최소화`하면서 메시지 제거하는 방안은? | `가시성 시간 초과`가 `증가한 메세지 검색`, 메시지 `처리`, 대기열에서 `삭제`
+SQS 설명 | 메세지는 `한 번 이상` 배달되고 순서는 `불확실`
+SQS 사용 어플리케이션. `분당 하나`의 메세지가 대기열에 게시되서 `비용 증가` | SQS 대기열 `폴링 시간 초과`를 늘린다.
+SQS 대기열에 메시지 업데이트. 자주 변경되지 않지만 `업데이트 시간 최소화` | 20초마다 `긴 풀링을 사용`하여 메시지 검색
+SQS에 유료회원, 무료회원용 업로드. EC2가 SQS를 폴링. 유료회원 먼저 처리해야 함 | `2개의 SQS 대기열`을 만들고 유료 회원을 `먼저 폴링`
+SQS 대기열에 `메세지를 검색`하는 경우 다른 사용자가 메시지에 `액세스 할 수 없는 기간의 기본값` | `30초`
+SQS 대기열이 기본 `VisibilityTimeout` 값으로 구성되어 있다고 가정할 때 메세지 수신 시 다른 인스턴스가 `이미 처리`되었거나 현재 `처리 중`인 메세지를 검색할 수 없도록 하는 방법 | `ChangeMessageVisibility` API를 사용해서 `VisibilityTimeout`을 늘린 다음 `DeleteMessage` API를 사용해서 메세지를 `삭제`
+SQS `지연 대기열`이 수행하는 것 | 메세지는 대기열에 `처음 추가`될 때 구성 가능한 시간 동안 `숨겨진다.`
+각 메세지를 처리하는데 15분 이상이 걸려서 `timeout 우려`됨 | SQS 대기열에 메세지를 추가하고 `ASG`에서 EC2 설정해서 `대기열을 폴링`하고 메세지가 도착하면 처리된다.
+`1KB에서 최대 1GB` 크기의 SQS 메세지를 사용하는 어플을 설계해야한다. SQS 메시지는 어떻게 `관리`해야하나? | `S3` 및 Java용 `SQS 확장 클라이언트 라이브러리`를 사용
+주문 요청이 `과부하`. `비용 효율성`을 유지하면서 `유연성`을 더하는 방법 | SQS 대기열을 구현해서 `FE와 BE 분리`, SQS 대기열에서 가져오도록 `BE 수정`
+`트래픽 몰림`. BE에 일시적인 볼륨 급증을 완화하는 `탄력적인 방법`은? | 사진이 S3에 `업로드`되면 SQS 대기열에 `게시`. 대기열을 이벤트 소스로 사용해서 `Lambda 함수를 트리거`. Lambda 함수에서 사진을 `스캔하고 구문 분석`
+SQS를 사용해서 `독립 발신자`의 메시지를 관리. 각 발신인은 메세지를 받은 순서대로 처리. SQS 기능은? | 고유한 `MessageGroupId`로 각 발신자를 구성
+SQS 이미지 대기열 `폴링을 자주`함. CPU 주기를 소모하고 `빈 응답`이 많음. 빈 응답을 줄이는 방법은? | 이미징 큐 `ReceiveMessageWaitTimeSeconds` 속성을 20초로 설정
+SQS 대기열에서 메세지를 가져옴. 모든 메세지는 `암호화`해야함 | SQS 대기열을 생성하고 `KMS에서 SSE`를 사용해서 `대기열을 암호화`
+SQS 대기열에서 메세지를 `1개씩만 수신해서 처리`함. 수신 메세지 늘리는 방법 | `ReceiveMessage` API를 호출해서 `MaxNumberOfMessages`를 1보다 큰 값으로 설정
+SQS `비동기 처리`했는데 일부 이벤트가 `여러번` 처리됨 | SQS 대기열을 `FIFO`로 변경
 
 ## SNS
 문제 | 답안 
 ---|---
-SNS 모바일 푸쉬. 개별 장치에 직접 알림을 보내려면 장치 등록 식별자 혹은 토큰을 SNS에 등록 | CreatePlatformEndPint API 함수를 호출해서 여러 장치 토큰을 등록한다.
-SNS 전송 유형 | HTTP, SMS
-Kinesis Data Stream을 처리하는 Lambda. 처리된 데이터가 포함된 알림을 받아야 한다. | 처리된 데이터를 SNS 주제에 게시
-SNS에서 보내는 구조화된 알림 메시지 형식 | MessageId, unsubscriberURL, Subject, Message 및 기타 값을 포함하는 JSON
-SNS 게시 요청에 대한 유효한 인수 | TopicAm, Subject, Message
+SNS 모바일 푸쉬. 개별 장치에 직접 알림을 보내려면 `장치 등록 식별자` 혹은 `토큰`을 SNS에 등록 | `CreatePlatformEndPint` API 함수를 호출해서 `여러 장치 토큰을 등록`한다.
+`SNS 전송 유형` | `HTTP`, `SMS`
+Kinesis Data Stream을 처리하는 Lambda. `처리된 데이터가 포함된 알림`을 받아야 한다. | 처리된 데이터를 `SNS 주제`에 게시
+SNS에서 보내는 `구조화된 알림 메시지 형식` | `MessageId`, `unsubscriberURL`, `Subject`, `Message` 및 `기타 값`을 포함하는 `JSON`
+SNS 게시 요청에 대한 `유효한 인수` | `TopicAm`, `Subject`, `Message`
 
 ## Lambda
 문제 | 답안 
@@ -1088,6 +1086,7 @@ EC2 `정적 콘텐츠` 때문에 높은 지연 시간 발생. 해결방안은?| 
 ---|---
 AWS CLI 사용, `Serverless 시작 단계` | `CloudFormation` Package 사용 후 배포
 EC2의 Public/Private `IP 확인 방법`은? | Local Instance `Metadata Query`
+`NAT` 장치가 `Private Subnet`에 바인딩 트래픽 대상이 되도록 라우팅 테이블 수정. Private Subnet에서 인터넷으로 `아웃바운드 실패`. 해결 방법 | NAT 인스턴스에서 Source/Destination Check 속성 비활성화
 민감 데이터 보호. 액세스 추적 필요. | EC2 System Manager Parameter Store에서 IAM으로 Application Access 권한 부여
 BGP 기반 VPN으로 EC2 연결. Subnet A는 액세스, B는 액세스 불가. 트래픽이 B에 도달했는지 확인하려면? | VPC 흐름 로그 확인
 Access key를 AWS에서 관리하는 방법 | 계정 루트 사용자에 대한 모든 Access key를 삭제, Access key 대신 IAM 역할 사용
