@@ -809,6 +809,7 @@ CloudWatch Logs의 Log Group에 중요한 로그 데이터를 게시. KMS 고객
 ## DynamoDB
 문제 | 답안 
 ---|---
+온프로미스 상태 저장 웹 서버를 마이그레이션. 더 큰 `탄력성` 원함. | `DynamoDB에 세션 상태 데이터 저장`. `ASG이 있는 ELB 사용`
 DynamoDB. 개별 사용자로 구성. `다른 사용자 데이터 액세스 불가`하도록 하려면? | `기본 키 값을 기반`으로 항목 액세스 제한
 DynamoDB 특징은? | `낙관적 동시성 제어` 사용, `일관성을 위해 조건부 쓰기` 사용
 기존 SNS 계정 사용해서 게임 로그인, 데이터는 DynamoDB 저장, DynamoDB API 안전한 접근 방식 필요. `DynamoDB API 요청에 서명`하는 방법은? | `Web ID 연합` 사용, `임시 보안 자격 증명`을 요청에 서명
@@ -818,6 +819,7 @@ DynamoDB `한도를 높일 수 있는` 항목 | 계정당 `테이블 수`, `프�
 DynamoDB `대량 트래픽` | `Accelerator`를 사용해서 데이터를 캐시
 DynamoDB 요청의 95%가 `반복 읽기`. NoSQL 계층을 확장해서 캐싱하기 위한 전략 | DynamoDB `Accelerator`
 DynamoDB. 읽기/쓰기 작업에 대한 `응답 시간 줄이고 싶음` | DynamoDB `Accelerator`
+Lambda로 `정적 텍스트`와 `이미지`가 모두 포함된 뉴스레터를 다수 사용자에게 보내야함. 뉴스레터에 `하이퍼링크될 이미지를 저장`할 수 있는 빠르고 확장성 있는 저장소 필요 | `S3 Bucket`과 `S3 Transfer Acceleration`을 사용해서 이미지 다운로드 속도 향상
 DynamoDB에 `실시간 동적 업데이트`. `덮어쓰기 방지` 옵션은? | `조건부 쓰기`
 EC2 어플이 DynamoDB `쓰기` 권한. `보안키`는 사용하지 않음 | EC2에 `IAM 추가`. DynamoDB에 `쓰기 권한 IAM 역할 생성`
 DynamoDB `많은 읽기` 용량 소비. 속성이 매우 큼. 어플은 모든 속성이 필요하지 않음. | 최소한의 `프로젝션 속성 집합`으로 `글로벌 보조 인덱스`를 만든다.
@@ -861,6 +863,7 @@ API G/W `endpoint 과부하`가 걸려서 트래픽을 줄여야 한다. | Elast
 ELB + EC2, `세션 데이터` 작성하는 위치는? | `ElasticCache`에 데이터 쓰기
 ElastiCache for Redis 사용. 로드 증가. 장애 시 복원력이 필요 | ElastiCache를 `수직적으로 확장`
 ELB 뒤에 여러개의 서버. `웹 서버`의 메모리에 세션 데이터 `저장`. 세션 데이터 `손실 방지`. `다운타임` 최소화 | `Redis용 ElastiCache Cluster`
+성능 지연 이유는 `모든 페이지에서 DB 프로필 조회`가 발생. 캐시 필요하다. 해결방법은? | `ElastiCache Cluster` 생성. `cache-aside caching` 전략 사용
 ElastiCache 좋은 사례 | `읽기가 많은` 어플의 워크로드 대기 시간과 처리량 개선, `컴퓨팅 집약적인` 어플의 성능 향상
 `읽기 쿼리에 영향을 최소화` 하면서 트래픽 급증을 대응하는 방법은? | `ElastiCache를 사용해서 데이터 캐시`
 `읽기 전용` 레코드가 대용량 트래픽 | `Redis용 ElastiCache`를 배포하고 어플리케이션에 대한 `데이터를 캐시`
@@ -887,6 +890,7 @@ S3 KMS. `AWSKMS; Status Code: 400; Error Code: ThrottlingException` 발생 | AWS
 S3에서 `400 에러` | `S3 허용 용량 초과`
 S3 웹 호스팅. `CORS 에러` 발생 | `CORS 구성을 생성`해서 교차 출처 요청을 허용하는 `cdfonts 버킷` 구성
 S3 웹 호스팅. `다른 bucket`의 이미지 다운로드 실패 | S3에서 `CORS 활성화`
+EC2 `정적 콘텐츠` 때문에 높은 지연 시간 발생. 해결방안은?| 정적 컨텐츠를 캐시할 `CloudFront 배포`, `S3에 정적 컨텐츠 저장`
 S3에서 `가장 저렴한 비용`으로 `다운로드 액세스` 안전하게 제어하는 방법은? | `S3 Presigned URL`와 함께 `CloudFront` 사용
 S3 버킷에 프로필 사진 저장. 로그인할 때마다 표시. 공개적으로 `액세스 불가` | 사진의 `S3 key를 DynamoDB에 저장`. 함수를 사용해서 `Presigned URL` 생성 후 반환
 보안 문서 `Private S3`에 저장. 요청 된 사용자 `15분 동안만 다운로드` 가능 | 만료 시간이 15분인 `Presigned S3 URL` 생성
@@ -989,97 +993,116 @@ SNS 게시 요청에 대한 `유효한 인수` | `TopicAm`, `Subject`, `Message`
 ## Lambda
 문제 | 답안 
 ---|---
-API G/W & Lambda로 구성. Lambda는 Session 정보를 어디에 저장? | DynamoDB에 저장
+API G/W & Lambda로 구성. Lambda는 `Session 정보`를 어디에 저장? | `DynamoDB`에 저장
 Lambda를 사용할 때 Handler 범위 밖에서 Client를 Instance화 하면 얻는 이점 | `연결 재사용` 활용
+DB 연결해서 동작하는 Lambda 코드가 있다. 비용 증가 없이 `성능 개선 방법` | Lambda 함수에 `필요한 모듈만 패키징`, RDS 연결을 `핸들러 함수 외부로 이동`
 `CPU 고사용` Lambda 배포. 런타임 최소화하고 싶으면? | `메모리` 할당이 최대로 설정된 함수 배포
-CPU 집약 데이터 처리 Lambda nodejs 개발. 완료시간 단축 솔루션은? | Lambda 사용 가능 메모리 증가
-Lambda 함수 오래 걸림. 어떤 컴퓨팅 리소스를 증가시켜야할까? | Lambda 함수에 할당 된 메모리를 증가
-`Lambda` 함수로 `Kinesis Data Stream` 처리. Lambda 함수가 Kinesis Stream에서 중복 레코드 생성. Lambda 함수가 없는 Stream은 중복 없음. 원인은? | Lambda가 오류를 처리하지 않고 Lambda 서비스가 재처리를 시도
-Lambda 함수. 두번째 계정의 있는 DynamoDB 테이블 액세스 방법은? | 테이블 액세스할 때 Lambda 에서 새 역할을 맡음
-Lambda 함수 테스트 해도 CloudWatch Log에 생성되지 않음. 원인은? | Lambda 함수 실행 역할에 CloudWatch Log에 쓰기 권한이 없음
-병렬, 순차적 실행하는 어플을 Lambda로 리팩토링. POST는 G/W에서 처리. 동일한 순서로 호출하기 위한 Lambda 호출 방식은? | Step Functions 상태 머신을 사용해서 Lambda 함수 조정
-Lambda가 초당 여러번 호출. 호출당 50MB 파일 다운로드 | /tmp 경로에 파일을 캐시
-Lambda는 VPC의 RDS Mysql 읽고 다른 싸이트에서 데이터 가져옴 | Lambda 함수 기본 구성에 VPC Private Subnet 연결 추가, VPC에 NAT G/W 추가
-배포 오류일 때 Lambda 이전 버전으로 롤백 | 현재 버전을 가리키는 별칭을 사용하도록 어플을 변경. 새 코드 배포. 별칭 업데이트해서 트래픽 10%를 새로운 버전으로 보내고 오류 시 이전 버전으로 전송
-DynamoDB를 트리거하는 Labmda. 실행역할은 추가됨. Lambda 활성화 했지만 트리거되지 않음. | Lambda 함수에 대한 이벤트 소스 매핑 구성
-Lambda는 정기적으로 교체되는 사용자의 이름과 암호를 사용해서 외부 사이트에 액세스. 안전하게 보관하는 방법은 ? | System Manager Parameter Store, KMS
-Lambda 코드를 S3에 새로 올렸지만 이전 버전이 실행됨 | 업데이트 기능 코드 API를 호출
-DB 연결해서 동작하는 Lambda 코드가 있다. 비용 증가 없이 성능 개선 방법 | Lambda 함수에 필요한 모듈만 패키징, RDS 연결을 핸들러 함수 외부로 이동
-하나의 시작 지점을 하나의 계정으로 중앙 집중화하고 이벤트가 발생하면 모든 Lambda 함수 호출 | 모든 다중 계정 Lambda를 SNS 주제에 구독하고 SNS 주제에 대한 페이로드를 사용해서 SNS Publish API를 호출
-Lambda 함수 오류 기록 | Lambda 함수 코드의 로깅 문을 통해 오류 보고
-Lambda 함수를 사용해서 S3 이미지 처리. 썸네일을 저장해야하는 새로운 기능 필요. 기존 시간에 영향 미치지 않음 | S3 이벤트 알림을 생성하고 새 Lmabda 만들어서 처리
-10MB 미만의 파일을 생성하는 Lambda 함수 설계. 임시 파일은 여러번 액세스되고 수정됨. 나중에 필요 없는 파일. 임시 파일이 저장되야할 장소 | /temp 디렉터리
-Lambda 함수 코드의 로그 검사는 어디에 저장 | CloudWatch
-많은 파일을 처리. 파일당 4분 소요. 모든 파일 처리 방법 | 비동기식 Event Lambda 호출을 수행하고 파일을 병렬 처리
-DynamoDB 테이블 항목 수명 주기 활동을 기반으로 Lambda 트리거 | DynamoDB Stream을 활성화하고 Stream에서 동기적으로 Lambda 함수 트리거
-Lambda로 정적 텍스트와 이미지가 모두 포함된 뉴스레터를 다수 사용자에게 보내야함. 뉴스레터에 하이퍼링크될 이미지를 저장할 수 있는 빠르고 확장성 있는 저장소 필요 | S3 Bucket과 S3 Transfer Acceleration을 사용해서 이미지 다운로드 속도 향상
-10분마다 Lambda 함수 호출. 트리거하는 자동화된 서비리스 방법 | 정기적인 일정에 따라 Lambda 함수를 호출하는 CloudWatch Event 규칙 생성
-이벤트와 Lambda 간의 매핑을 달성하는 방법 | 다른 Lambda 트리거 사용
-stg, test, prod에 Lambda 배포. 각 환경에 고유한 리소스 집함이 있는데 현재 환경에 리소스 사용하는 방법 | Lambda 함수에 환경 변수를 사용
-Lambda 평균 실행 시간 100초, 초당 50개 요청. 배포 전 해야할 작업 | 동시 실행 제한을 늘리려면 AWS Support에 문의. 기본값은 1000 이기 떄문.
-Lambda 코드를 수정하지 않고 DB 연결 문자열을 바꿀 수 있는 방법 | 연결 문자열을 Secrets Manager에 암호로 저장
-Lambda 로컬 테스트 성공. 콘솔 테스트 실패. Unable to import module | Lambda 콘솔에서 LB_LIBRARY_PATH 환경을 생성하고 시스템 라이브러리 경로 값 지정
-Lambda 직접 배포 크기 초과 | 배포 패키지를 S3에 업로드하고 -code CLI 파라미터를 사용해서 S3를 참조
-Lambda의 콜드 스타트로 8초 이상 소요. 개선방법은? | SDK for Java의 필요한 모듈만 포함해서 배포, 할당 메모리 늘림
-Lambda 발생하는 주요 이벤트를 기록하고 이벤트 특정 함수 호출과 연결하는 고유 식별자를 포함해야함. | Lambda Context 객체에서 요청 식별자를 얻고 콘솔에 로그를 기록하도록 어플을 설계
-Lambda의 기본 설정이고 시간 초과 예외가 발생하면 S3 이벤트는? | 2번 재시도 후 폐기
-Lambda는 파일을 추가하기 위해 CodeCommit Repository에 체크인 해야함 | SDK로 CodeCommit Client를 Instance화하고 put_file method를 호출해서 파일을 저장소에 추가
-쿼리 문자열 파라미터를 Lambda 함수에 대한 인수로 변환하는 방법 | Mapping Template 생성
-Lambda에서 Downstream으로 데이터를 보내기 전에 암호화해야 한다. 암호화 수행하기 위한 API? | KMS GenerateDataKey API
-Lambda를 더 많은 CPU 성능으로 테스트 | Lambda에 할당 된 메모리 늘리기
-Lambda 함수 로그에서 동일한 요청 ID를 가진 중복 항목이 존재 | Lambda 함수 실패 후 재시도
-Lambda 함수는 2개의 DynamoDB에 액세스해야함. 병목 현상을 식별해서 성능을 개선하려고 함. DynamoDB API 호출 타이밍 검사 방법 | DynamoDB를 Lambda 함수에 이벤트 소스로 추가하고 CloudWatch 지표로 성능 확인
-Lambda 함수 디버깅 | 실행 역할에 CloudWatch Logs에 쓰기 권한이 있는지 확인, CloudWatch 지표를 사용해서 알림을 생성
-Lambda 사용자 지정 라이브러리 사용 방법 | 라이브러리를 로컬에 설치하고 ZIP 파일을 업로드
-Lambda 외부 라이브러리 사용 | 코드와 종속 라이브러리를 zip해서 올린다
-nodejs 웹 사이트 호스팅. 코드 변경이 없는 솔루션 | Lambda
-Lambda 다중 스레드 실행을 활용해서 서능 개선 | Lambda 함수 메모리 증가
-로컬에서 Lambda 2번 호출 후 실패. 로깅 방법 | 호출 실패를 조사하도록 CloudTrail 로깅 구성
+`CPU 집약` 데이터 처리 Lambda nodejs 개발. 완료시간 단축 솔루션은? | Lambda 사용 가능 `메모리 증가`
+Lambda 함수 오래 걸림. 어떤 `컴퓨팅 리소스`를 증가시켜야할까? | Lambda 함수에 할당 된 `메모리를 증가`
+Lambda의 `콜드 스타트`로 8초 이상 소요. 개선방법은? | SDK for Java의 `필요한 모듈만` 포함해서 배포, 할당 `메모리 늘림`
+Lambda를 더 많은 `CPU 성능`으로 테스트 | Lambda에 할당 된 `메모리 늘리기`
+Lambda `다중 스레드 실행`을 활용해서 성능 개선 | Lambda 함수 `메모리 증가`
+`Lambda` 함수로 `Kinesis Data Stream` 처리. Lambda 함수가 Kinesis Stream에서 `중복 레코드 생성`. Lambda 함수가 없는 Stream은 중복 없음. 원인은? | Lambda가 오류를 처리하지 않고 `Lambda 서비스가 재처리를 시도`
+Lambda 함수. 두번째 계정의 있는 DynamoDB 테이블 액세스 방법은? | 테이블 액세스할 때 Lambda 에서 `새 역할을 맡음`
+Lambda 함수 테스트 해도 CloudWatch Log에 `생성되지 않음`. 원인은? | Lambda 함수 `실행 역할`에 CloudWatch Log에 쓰기 권한이 없음
+병렬, 순차적 실행하는 어플을 Lambda로 리팩토링. POST는 G/W에서 처리. `동일한 순서로 호출`하기 위한 Lambda 호출 방식은? | `Step Functions` 상태 머신을 사용해서 Lambda 함수 조정
+Lambda가 `초당 여러번 호출`. 호출당 `50MB` 파일 다운로드 | `/tmp 경로`에 파일을 `캐시`
+10MB 미만의 파일을 생성하는 Lambda 함수 설계. 임시 파일은 `여러번 액세스되고 수정`됨. 나중에 필요 없는 파일. 임시 파일이 저장되야할 장소 | `/temp 디렉터리`
+Lambda는 VPC의 RDS Mysql 읽고 `다른 싸이트에서 데이터` 가져옴 | Lambda 함수 기본 구성에 `VPC Private Subnet 연결` 추가, VPC에 `NAT G/W` 추가
+배포 오류일 때 Lambda `이전 버전으로 롤백` | 현재 버전을 가리키는 `별칭을 사용`하도록 어플을 변경. `새 코드 배포`. 별칭 업데이트해서 트래픽 `10%를 새로운 버전`으로 보내고 `오류 시 이전 버전으로 전송`
+DynamoDB를 트리거하는 Labmda. 실행역할은 추가됨. Lambda 활성화 했지만 `트리거되지 않음`. | Lambda 함수에 대한 `이벤트 소스 매핑 구성`
+Lambda는 정기적으로 교체되는 사용자의 이름과 암호를 사용해서 외부 사이트에 액세스. 안전하게 `보관하는 방법`은 ? | `System Manager Parameter Store`, `KMS`
+Lambda 코드를 `S3`에 새로 올렸지만 `이전 버전`이 실행됨 | `업데이트 기능 코드 API를 호출`
+하나의 `시작 지점`을 하나의 `계정`으로 `중앙 집중화`하고 이벤트가 발생하면 `모든 Lambda 함수 호출` | 모든 다중 계정 Lambda를 `SNS 주제에 구독`하고 SNS 주제에 대한 페이로드를 사용해서 `SNS Publish API`를 호출
+Lambda 함수 `오류 기록` | Lambda 함수 `코드의 로깅 문`을 통해 오류 보고
+Lambda 함수를 사용해서 S3 이미지 처리. `썸네일을 저장`해야하는 새로운 기능 필요. 기존 시간에 영향 미치지 않음 | `S3 이벤트 알림`을 생성하고 `새 Lmabda` 만들어서 처리
+Lambda 함수 코드의 `로그 검사`는 어디에 저장 | `CloudWatch`
+많은 파일을 처리. 파일당 4분 소요. `모든 파일 처리 방법` | `비동기식` Event Lambda 호출을 수행하고 파일을 `병렬 처리`
+DynamoDB 테이블 `항목 수명 주기 활동`을 기반으로 Lambda 트리거 | `DynamoDB Stream`을 활성화하고 Stream에서 `동기적`으로 Lambda 함수 `트리거`
+10분마다 Lambda 함수 호출. `트리거하는 자동화된 서비리스 방법` | 정기적인 일정에 따라 Lambda 함수를 호출하는 `CloudWatch Event 규칙 생성`
+이벤트와 Lambda 간의 `매핑을 달성`하는 방법 | `다른 Lambda 트리거` 사용
+stg, test, prod에 Lambda 배포. 각 환경에 고유한 리소스 집함이 있는데 `현재 환경에 리소스 사용`하는 방법 | Lambda 함수에 `환경 변수`를 사용
+Lambda 평균 실행 시간 `100초`, `초당 50개` 요청. 배포 전 해야할 작업 | `동시 실행 제한`을 늘리려면 `AWS Support`에 문의. (기본값은 1000 이기 떄문)
+Lambda `코드를 수정하지 않고` DB 연결 문자열을 바꿀 수 있는 방법 | 연결 문자열을 `Secrets Manager`에 암호로 저장
+Lambda `로컬 테스트 성공`. `콘솔 테스트 실패`. `Unable to import module` | Lambda 콘솔에서 `LB_LIBRARY_PATH` 환경을 생성하고 시스템 라이브러리 경로 값 지정
+Lambda `직접 배포 크기 초과` | 배포 패키지를 `S3에 업로드`하고 `--code CLI` 파라미터를 사용해서 S3를 참조
+Lambda 발생하는 주요 이벤트를 `기록`하고 이벤트 특정 `함수 호출`과 `연결`하는 `고유 식별자`를 포함해야함. | Lambda `Context 객체`에서 `요청 식별자`를 얻고 `콘솔에 로그를 기록`하도록 어플을 설계
+Lambda의 `기본 설정`이고 `시간 초과 예외`가 발생하면 S3 이벤트는? | `2번 재시도 후 폐기`
+Lambda 함수 로그에서 `동일한 요청 ID`를 가진 `중복 항목`이 존재 | Lambda `함수 실패 후 재시도`
+Lambda 함수는 2개의 DynamoDB에 액세스해야함. `병목 현상`을 식별해서 성능을 개선하려고 함. DynamoDB API `호출 타이밍 검사 방법` | DynamoDB를 Lambda 함수에 `이벤트 소스로 추가`하고 `CloudWatch 지표`로 성능 확인
+Lambda 함수 `디버깅` | `실행 역할`에 `CloudWatch Logs`에 쓰기 권한이 있는지 확인, `CloudWatch 지표를 사용`해서 알림을 생성
+로컬에서 Lambda 2번 호출 후 실패. `로깅 방법` | 호출 실패를 조사하도록 `CloudTrail` 로깅 구성
+Lambda는 `파일을 추가`하기 위해 `CodeCommit Repository`에 체크인 해야함 | SDK로 `CodeCommit 클라이언트`를 `Instance화`하고 `put_file` method를 호출해서 `파일을 저장소에 추가`
+`Query 문자열 파라미터`를 Lambda 함수에 대한 `인수`로 변환하는 방법 | `Mapping Template 생성`
+Lambda에서 Downstream으로 데이터를 보내기 전에 `암호화`해야 한다. 암호화 수행하기 위한 API? | `KMS GenerateDataKey API`
+Lambda `사용자 지정 라이브러리` 사용 방법 | 라이브러리를 로컬에 설치하고 `ZIP 파일을 업로드`
+Lambda `외부 라이브러리` 사용 | 코드와 종속 라이브러리를 `zip해서 올린다`
+nodejs 웹 사이트 호스팅. `코드 변경이 없는 솔루션` | `Lambda`
 
 ## Kinesis Data Stream
 문제 | 답안 
 ---|---
 Kinesis Data Stream, `ProvisionedThroyghputExceededException` 발생. 대처방안은? | Data Stream `샤드 수 증가`, Get/PutRecords 호출에 `지수 백오프 구현`
-주식 어플. Kinesis로 데이터 수집. 수신 데이터 따라갈 수 없음 | UpdateShardCount를 사용해서 스트림의 샤드 수를 증가
-수백만 개의 이벤트 실시간 처리. 동시에 비용 효율적으로 처리 | Kinesis Stream 사용
-매시간 대용량 데이터 수집. 메세지는 실시간으로 전달되어야 함 | Kinesis Client Library와 함께 Kinesis Data Stream을 사용해서 메세지 수집 및 전송
-Kinesis Data Stream의 샤드 수 4개에서 6개 됨. 데이터 처리를 위한 EC2 인스턴스 최대 수는? | 6
-Kinesis Stream 내 데이터를 저장 암호화 방법 | Kinesis Stream 서버 측 암호화 활성화
-Kinesis Stream에서 레코드를 가져오기 위해 IAM 액세스 확인하는 방법 | --dry-run 인수를 사용해서 get 작업, IAM 정책 시뮬레이터로 IAM 역할 정책 검증
-Kinesis에서 ProvisionedThrouputExceededException 발생. | 지수 백오프로 재시도 구현, 요청의 빈도/크기 줄이기
-Kinesis 2500개 레코드 수집을 위한 4개의 샤드. Lambda 함수. 처리하는 순서 | Lambda는 FIFO 방법에 따라 샤드에 배치된 정확한 순서로 각 레코드를 수신. 샤드 간에 순서는 보장하지 않음
-Lambda와 Kinesis Data Stream. 반복자 수명 지표가 증가하고 실행 시간이 지속적으로 느림 | Kinesis의 샤드 수 줄이기. Lambda 시간 초과 늘리기.
+Kinesis에서 `ProvisionedThrouputExceededException` 발생. | `지수 백오프`로 재시도 구현, 요청의 `빈도/크기 줄이기`
+주식 어플. Kinesis로 데이터 수집. `수신 데이터 따라갈 수 없음` | `UpdateShardCount`를 사용해서 스트림의 `샤드 수를 증가`
+`수백만 개`의 이벤트 실시간 처리. 동시에 `비용 효율적`으로 처리 | `Kinesis Stream` 사용
+매시간 `대용량 데이터 수집`. 메세지는 `실시간으로 전달`되어야 함 | `Kinesis Client Library`와 함께 `Kinesis Data Stream`을 사용해서 메세지 수집 및 전송
+`Kinesis Data Stream`의 샤드 수 `4개에서 6개` 됨. 데이터 처리를 위한 `EC2 인스턴스 최대 수`는? | `6` (샤드 수와 EC2 인스턴스 수는 같다.)
+Kinesis Stream 내 데이터를 저장 `암호화` 방법 | Kinesis Stream `서버 측 암호화 활성화`
+Kinesis Stream에서 `레코드를 가져오기 위해 IAM 액세스` 확인하는 방법 | `--dry-run` 인수를 사용해서 `get 작업`, `IAM 정책 시뮬레이터`로 IAM 역할 정책 검증
+Kinesis `2500개 레코드` 수집을 위한 `4개`의 샤드. Lambda 함수. `처리하는 순서` | Lambda는 `FIFO` 방법에 따라 샤드에 배치된 `정확한 순서로 각 레코드를 수신`. 샤드 간에 `순서는 보장하지 않음`
+Lambda와 Kinesis Data Stream. `반복자 수명 지표가 증가`하고 `실행 시간`이 지속적으로 느림 | Kinesis의 `샤드 수 줄이기`. Lambda `시간 초과 늘리기`.
 
 
 ## RDS
 문제 | 답안 
 ---|---
-Mysql RDS. DB 자격 증명이 안전하게 저장되고 액세스 되는지 확인 방법 | 자격 증명을 Secrets Manager에 저장하고 자동 암호 교체를 활성화
-어플의 기록을 조회하는 RDS. 기록 데이터 업데이트 많음. 읽기 성능 저하됨 | RDS 읽기 전용 복제본을 만들고 모든 읽기 트래픽을 복제본으로 전송
-Aurora MySQL DB가 될 Lambda 함수로 코드를 마이그레이션. DB 기능을 인증하는 방법 | Secret Manager에 DB 자격 증명을 저장하고 필요에 따라 Manager가 자격 증명 교체를 처리
+Mysql RDS. DB `자격 증명`이 안전하게 저장되고 액세스 되는지 확인 방법 | 자격 증명을 `Secrets Manager`에 저장하고 `자동 암호 교체를 활성화`
+어플의 기록을 조회하는 RDS. 기록 데이터 `업데이트 많음`. `읽기 성능 저하`됨 | RDS `읽기 전용 복제본`을 만들고 모든 읽기 트래픽을 `복제본으로 전송`
+온프로미스 DB를 RDS Mysql로 마이그레이션. `읽기가 많은` 워크로드. `최적의 읽기 성능` | 읽기 쿼리에 `RDS 읽기 전용 복제본`을 사용하기 위한 연결 문자열 추가
+Aurora MySQL DB가 될 Lambda 함수로 코드를 마이그레이션. `DB 기능을 인증`하는 방법 | `Secret Manager`에 DB `자격 증명을 저장`하고 필요에 따라 Manager가 `자격 증명 교체`를 처리
 
 ## X-Ray
 문제 | 답안 
 ---|---
-API G/W를 사용해서 액세스 하는 온프로미스 Linux 환경. API 테스트 단계에서 X-Ray 추적 활성화. 온프로미스 서버에서 X-Ray 추적 활성화 방안 | 온프로미스 서버에 X-Ray 데몬을 설치하고 실행해서 데이터를 캡처하고 X-Ray 서비스에 전달
-X-Ray로 Lambda 기반 어플을 추적 | IAM 실행 역할을 사용하여 Lambda 함수 권한을 부여하고 추적을 활성화
-X-Ray 사용 시작 작업 | 어플이 있는 서버에 X-Ray 에이전트 설치, SDK를 사용해서 어플 추적 코드 계측
-ECS 환경에서 X-Ray 활성화 방안 | X-Ray 데몬을 실행하는 Docker 이미지 생성, X-Ray용 어플리케이션 코드에 계측을 추가, 작업에 대한 IAM 역할을 구성하고 사용
-Lambda로 작성된 분산 어플리케이션 성능 문제 근본 원인을 식별하는 방법 | X-Ray를 사용해서 Segment 및 Error 검사
-Java 기반 Lambda 함수. 성능 병목 현상을 격리하기 위한 조치 | X-Ray API를 사용해서 코드 내 전략적 위치에 X-Ray 추적 데이터 기록. X-Ray Console을 사용해서 결과 데이터 분석
-X-Ray로 EC2에 있는 어플 모니터링하기 위한 절차 | X-Ray 데몬을 설치하고 어플리케이션 코드를 계측
-여러 추적 데이터를 수집하고 시각화하기 위한 솔루션 | AWS X-Ray
-MSA 아키텍처에서 중앙 집중식 계정에서 어플의 문제를 분석하고 디버깅하기 원한다. | 역할 수임이 있는 X-ray Agent를 사용해서 중앙 집중식 계정에 데이터를 게시
-X-Ray 구성을 하고 어플리케이션에서 X-Ray로 데이터를 보내는걸 확인. EC2에 배포하니까 추적이 안됨. 원인은? | X-Ray 데몬이 EC2에 설치되어 있지 않음, 인스턴스 역할에 xray:PutTraceSegments, xray:PutTelemetryRecords 권한이 없음.
-X-Ray에 정보를 제공하도록 코드 변경. 데이터가 많이 생성되서 필터링하기 위한 인덱싱 구현 필요 | 세그먼트 문서 및 코드에 주석 추가
+API G/W를 사용해서 액세스 하는 온프로미스 Linux 환경. API 테스트 단계에서 `X-Ray 추적 활성화`. 온프로미스 서버에서 X-Ray 추적 활성화 방안 | 온프로미스 서버에 `X-Ray 데몬`을 설치하고 실행해서 데이터를 캡처하고 X-Ray 서비스에 전달
+X-Ray로 `Lambda 기반 어플을 추적` | `IAM 실행 역할을 사용`하여 Lambda 함수 `권한을 부여하고 추적을 활성화`
+Lambda로 작성된 분산 어플리케이션 `성능 문제` 근본 원인을 식별하는 방법 | `X-Ray`를 사용해서 `Segment 및 Error 검사`
+X-Ray `사용 시작 작업` | 어플이 있는 서버에 `X-Ray 에이전트 설치`, SDK를 사용해서 `어플리케이션 추적 코드 계측`
+X-Ray로 `EC2`에 있는 어플 모니터링하기 위한 절차 | `X-Ray 데몬을 설치`하고 `어플리케이션 코드를 계측`
+ECS 환경에서 `X-Ray 활성화 방안` | `X-Ray 데몬을 실행`하는 Docker 이미지 생성, X-Ray용 `어플리케이션 코드에 계측`을 추가, 작업에 대한 `IAM 역할을 구성`하고 사용
+X-Ray 구성을 하고 어플리케이션에서 X-Ray로 데이터를 보내는걸 확인. `EC2에 배포하니까 추적이 안됨`. 원인은? | `X-Ray 데몬`이 EC2에 설치되어 있지 않음, `인스턴스 역할`에 `xray:PutTraceSegments`, `xray:PutTelemetryRecords` 권한이 없음.
+Java 기반 Lambda 함수. 성능 `병목 현상`을 격리하기 위한 조치 | `X-Ray API`를 사용해서 `코드 내 전략적 위치에 X-Ray 추적 데이터 기록`. `X-Ray Console`을 사용해서 결과 데이터 분석
+여러 `추적 데이터를 수집`하고 `시각화`하기 위한 솔루션 | `X-Ray`
+MSA 아키텍처에서 `중앙 집중식 계정`에서 어플의 문제를 `분석하고 디버깅`하기 원한다. | 역할 수임이 있는 `X-ray Agent를 사용`해서 `중앙 집중식 계정`에 데이터를 게시
+X-Ray에 정보를 제공하도록 코드 변경. 데이터가 많이 생성되서 `필터링하기 위한 인덱싱` 구현 필요 | `세그먼트 문서` 및 `코드에 주석 추가`
 
-## 성능개선
+## 기본개념
 문제 | 답안 
 ---|---
-EC2 `정적 콘텐츠` 때문에 높은 지연 시간 발생. 해결방안은?| 정적 컨텐츠를 캐시할 `CloudFront 배포`, `S3에 정적 컨텐츠 저장`
-성능 지연 이유는 모든 페이지에서 DB 프로필 조회가 발생. 캐시 필요하다. 해결방법은? | `ElastiCache Cluster` 생성. `cache-aside caching` 전략 사용
-온프로미스 상태 저장 웹 서버를 마이그레이션. 더 큰 탄력성 원함. | DynamoDB에 세션 상태 데이터 자장. ASG이 있는 ELB 사용
-온프로미스 DB를 RDS Mysql로 마이그레이션. 읽기가 많은 워크로드. 최적의 읽기 성능 | 읽기 쿼리에 RDS 읽기 전용 복제본을 사용하기 위한 연결 문자열 추가
+`LAMP`를 실행할 수 있는 AWS 서비스는? | `EC2`, `Aurora`
+`Restful API` 작성. endpoint 요청에 대한 충족 사항 | `API G/W & Lambda`, `S3 & CloudFront`
+AWS SDK `기본 리전` | `us-east-1`
+EC2 인스턴스의 `IPv4` 주소 찾기 | `169.254.169.254/lastest/metadata/` 를 검색
+`단일 인터페이스` 필요 | `API Gateway`
+AWS에서 `추가 비용 없이` 포함되는 서비스 | `Auto Scaling`, `CloudFormation`
+`AMI(Amazon Machine Image) 목록을 검색`할 때 사용하는 EC2 API | `DescribeImages`
+CLI 명령 후 `에러 메세지가 암호화` 되어 있다. | `STS decode-authorization-message` API로 디코딩
+`SWF`의 설명 | 작업은 `한 번 할당`되고 `절대 중복되지 않는다`. workflow 실행은 `최대 1년동안 지속`. `결정자`와 `작업자`를 사용해서 작업을 완료
+CLI에서 `Resource List` 명령 때 `실행시간 초과` | `Pagenation` 사용
+`ECS` 컨테이너 시작할 때 `PortMapping`은 어디에서 정의 | `Task definition`
+AWS에서 보안에 대한 고객의 책임 | IAM 자격 증명의 수명 주기 관리, 보안 그룹 및 ACL 설정, EBS 볼륨의 암호화, EC2 운영체제의 패치 관리
+모놀리식 아키텍처를 마이크로서비스 아키텍처로 변경하고 성능에 영향을 주지 않으면서 비동기식 통신할 수 있도록 해야 한다. 비동기식 메시지 전달이 가능한 서비스는? | SQS, SNS
+높은 처리량으로 데이터 수집하고 S3 버킷에 저장해야함. 적합한 서비스는? | Kinesis Firehouse
+HTML, Image, Video, Javascript, Serverless | S3, CloudFront
+SDK가 있는 언어 | Java, C#, Ruby, Python, JavaScript, PHP, and Objective C (iOS)
+EC2, S3. 트래픽 증가 성능 저하 | CloudFront를 사용해서 S3에 저장된 이미지 콘텐츠 제공
+Key-Value 저장소는? | ElastiCache, DynamoDB, S3
+CloudFront 사용해서 웹 어플 구성. 종단 간 모든 트래픽을 암호화해야 함 | Origin Protocol Policy를 HTTPS Only로 설정, HTTPS 전용 또는 HTTP를 HTTPS로 Redirection 설정
+Tomcat 서버에 빠르게 배포 | Elastic Beanstalk
+고객은 새로운 Restful API를 요청함. 가능한 구성 요소는? | ELB + EC2, API G/W + Lambda
+AWS Infra를 Code로 관리하고 배포할 수 있으며 이전 버전으로 돌릴 수 있어야 한다. | CloudFormation, CodeCommit 사용
+React, 자신이 소유한 파일 저장, 검색 허용. facebook 사용. 개발 및 배포 가속화하는 CLI | Amplify CLI
 
 ## AWS 관련
 문제 | 답안 
@@ -1087,7 +1110,7 @@ EC2 `정적 콘텐츠` 때문에 높은 지연 시간 발생. 해결방안은?| 
 AWS CLI 사용, `Serverless 시작 단계` | `CloudFormation` Package 사용 후 배포
 EC2의 Public/Private `IP 확인 방법`은? | Local Instance `Metadata Query`
 `NAT` 장치가 `Private Subnet`에 바인딩 트래픽 대상이 되도록 라우팅 테이블 수정. Private Subnet에서 인터넷으로 `아웃바운드 실패`. 해결 방법 | NAT 인스턴스에서 Source/Destination Check 속성 비활성화
-민감 데이터 보호. 액세스 추적 필요. | EC2 System Manager Parameter Store에서 IAM으로 Application Access 권한 부여
+민감 데이터 보호. 액세스 추적 필요. | EC2 System Manager션 Parameter Store에서 IAM으로 Application Access 권한 부여
 BGP 기반 VPN으로 EC2 연결. Subnet A는 액세스, B는 액세스 불가. 트래픽이 B에 도달했는지 확인하려면? | VPC 흐름 로그 확인
 Access key를 AWS에서 관리하는 방법 | 계정 루트 사용자에 대한 모든 Access key를 삭제, Access key 대신 IAM 역할 사용
 EC2 어플. AWS API 호출하도록 구성 | 필요한 권한이 있는 EC2 역할을 지정
@@ -1122,33 +1145,6 @@ EC2 안에 어플이 S3 버킷에 쓰기 기능 추가 | EC2 인스턴스 프로
 EC2에 있는 어플리케이션이 AWS 서비스에 액세스하고 API 호출 | EC2 프로파일 사용
 EC2 인스턴스를 시작하거나 종료할 때 `BotoServerError: 503 Service Unavailable` 에러 수신 | EC2에 대한 API 요청 수 최적하를 위한 `지수 백오프` 구현
 실시간 처리 | Event Driven
-
-## 기본개념
-문제 | 답안 
----|---
-`LAMP`를 실행할 수 있는 AWS 서비스는? | `EC2`, `Aurora`
-`Restful API` 작성. endpoint 요청에 대한 충족 사항 | `API G/W & Lambda`, `S3 & CloudFront`
-AWS SDK `기본 리전` | `us-east-1`
-EC2 인스턴스의 IPv4 주소 찾기 | 169.254.169.254/lastest/metadata/ 를 검색
-단일 인터페이스 필요 | API Gateway
-AWS에서 추가 비용 없이 포함되는 서비스 | Auto Scaling, CloudFormation
-AMI(Amazon Machine Image) 목록을 검색할 때 사용하는 EC2 API | DescribeImages
-CLI 명령 후 에러 메세지가 암호화 되어 있다. | STS decode-authorization-message API로 디코딩
-SWF의 설명 | 작업은 한 번 할당되고 절대 중복되지 않는다. workflow 실행은 최대 1년동안 지속. 결정자와 작업자를 사용해서 작업을 완료
-CLI에서 Resource List 명령 때 실행시간 초과 | Pagenation 사용
-ECS 컨테이너 시작할 때 PortMapping은 어디에서 정의 | Task definition
-AWS에서 보안에 대한 고객의 책임 | IAM 자격 증명의 수명 주기 관리, 보안 그룹 및 ACL 설정, EBS 볼륨의 암호화, EC2 운영체제의 패치 관리
-모놀리식 아키텍처를 마이크로서비스 아키텍처로 변경하고 성능에 영향을 주지 않으면서 비동기식 통신할 수 있도록 해야 한다. 비동기식 메시지 전달이 가능한 서비스는? | SQS, SNS
-높은 처리량으로 데이터 수집하고 S3 버킷에 저장해야함. 적합한 서비스는? | Kinesis Firehouse
-HTML, Image, Video, Javascript, Serverless | S3, CloudFront
-SDK가 있는 언어 | Java, C#, Ruby, Python, JavaScript, PHP, and Objective C (iOS)
-EC2, S3. 트래픽 증가 성능 저하 | CloudFront를 사용해서 S3에 저장된 이미지 콘텐츠 제공
-Key-Value 저장소는? | ElastiCache, DynamoDB, S3
-CloudFront 사용해서 웹 어플 구성. 종단 간 모든 트래픽을 암호화해야 함 | Origin Protocol Policy를 HTTPS Only로 설정, HTTPS 전용 또는 HTTP를 HTTPS로 Redirection 설정
-Tomcat 서버에 빠르게 배포 | Elastic Beanstalk
-고객은 새로운 Restful API를 요청함. 가능한 구성 요소는? | ELB + EC2, API G/W + Lambda
-AWS Infra를 Code로 관리하고 배포할 수 있으며 이전 버전으로 돌릴 수 있어야 한다. | CloudFormation, CodeCommit 사용
-React, 자신이 소유한 파일 저장, 검색 허용. facebook 사용. 개발 및 배포 가속화하는 CLI | Amplify CLI
 
 ## 아키텍처 구성
 문제 | 답안 
