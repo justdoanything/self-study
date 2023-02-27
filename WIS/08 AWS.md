@@ -623,6 +623,9 @@ SSL 연결을 강제 적용하려는 MySQL RDS 데이터베이스 인스턴스�
 
 ---
 
+카테고리 그룹화를 해서 Key-Value 매핑해서 외울 것
+문제에 없는 단어는 웬만하면 거를것
+
 <details>
 <summary><font size="5"><b>시험에 자주 나오는 개념</b></font></summary>
 
@@ -635,6 +638,10 @@ SSL 연결을 강제 적용하려는 MySQL RDS 데이터베이스 인스턴스�
 - ### CodePipeline
 - ### CodeBuild
 - ### CodeDeploy
+- ### ECS
+- ### Fargate
+- ### X-Ray와  CloudWatch
+- ### SNS(Simple Notification Service)와 SQS(Simple Queue Service)
 - ### Beanstalk
   - 배포 정책
     - Immutable
@@ -659,7 +666,7 @@ SSL 연결을 강제 적용하려는 MySQL RDS 데이터베이스 인스턴스�
   - 강력한 일관된 일기(RCU)는 4KB 단위로 늘어나고 초당 처리 단위로 환산해서 계산한다.
   - 강력한 일관된 쓰기(WCU)는 1KB 단위로 늘어나고 초당 처리 단위로 환산해서 계산한다.
   - 5KB를 처리하기 때문에 2 RCU가 필요하고 초당 3개를 처리하니까 읽기 처리량은 2*3 = 6\
-    7KB를 처리하기 때문에 7 WCU가 필요하고 초당 10개를 처리하니까 쓰기 처리량은 7*10 = 70\
+    7KB를 처리하기 때문에 7 WCU가 필요하고 초당 10개를 처리하니까 쓰기 처리량은 7*10 = 70
   - 최대 4KB 항목의 강력히 일관된 읽기 요청에는 하나의 읽기 요청 단위가 필요합니다.\
     최대 4KB 항목의 최종 읽기 일관성 요청에는 절반의 읽기 요청 단위가 필요합니다.\
     최대 4KB 항목의 트랜잭션 읽기 요청에는 2개의 읽기 요청 단위가 필요합니다.
@@ -744,15 +751,15 @@ stg, test, prod 환경에서 API G/W는 `237GB 캐시`를 사용중. 효율적�
 `CodeBuild`는 코드 빌드 -> 도커 이미지 생성 -> ECR에 푸쉬 -> 이미지에 태그 지정. 개발자가 `CLI`를 구성한 경우 `도커 이미지를 가져오는 방법` | `aws ecr get-login`의 출력을 실행한 후 `docker pull repository uri:tag` 실행
 로컬에 어플의 빌드,번들,패키징. EC2에 배포해야함 | `번들을 S3`에 업로드 하고 `CodeDeploy를 사용해서 배포`를 수행할 때 `S3 위치 지정`
 `Code Repository`에서 Commit을 위한 Pipeline에서 `단위 테스트를 Trigger`하고 Pipeline의 `실패 이벤트에 대해 알림` 수신 | `CodeCommit`에 `Code를 저장`하고 `CodePipeline`을 생성해서 `단위 테스트를 자동화`하고 `CloudWatch를 사용해서 실패 이벤트 알림`을 Trigger
-`온프로미스`에서 실행되는 `EC2 인스턴스` 및 ₩가상 서버₩에 어플리케이션 패키지 `배포를 자동화` | `CodeDeploy`
-`EC2 인스턴스`와 `온프로미스₩에서 실행되는 ₩가상 서버` 모두에 S/W Package ₩배포를 자동화₩ | `₩`CodeDeploy` 사용
+`온프로미스`에서 실행되는 `EC2 인스턴스` 및 `가상 서버`에 어플리케이션 패키지 `배포를 자동화` | `CodeDeploy`
+`EC2 인스턴스`와 `온프로미스`에서 실행되는 `가상 서버` 모두에 S/W Package `배포를 자동화` | `CodeDeploy` 사용
 여러 개발자와 `코드 공유`, 여러 버전 및 `일괄 변경 추적`과 함께 `장기간 저장` 필요. | `CodeCommit`
 여러 파일에 대한 일괄 변경 지원, 병렬 분기, 버전 추적 | CodeCommit
 `CodeDeploy`로 `EC2에 배포`. 특정 배포 파일에 `파일 권한 변경`. 어떤 `수명 주기 이벤트`를 사용해야 하나 | `AfterInstall`
 서비스는 변경 세트를 피어 투 피어로 교환해서 `여러 분산 Repository로 동기화`하는지 확인해야 한다. `네트워크가 없어`도 작업 가능해야 한다. | `CodeCommit`
 `CodeDeploy`를 통해 `재배포` 하기 위한 파일 | `appspec.yml`
 `CodeDeploy`를 작동하려면 `appspec.yml` 파일은 어디에 배치? | 어플리케이션 소스 코드의 `루트 디렉토리`
-`CodeDeploy` 사용해서 외부 MySQL과 연결하는 어플리케이션 배포 자동화. `API Key, DB Pwd`에 `안전하게` 액세스 하기 원함 | `SSM Parameter Store`를 사용해서 EC2 인스턴스 IAM 역할을 사용하여 암호를 저장하고 프로그래밍 방식으로 액세스
+`CodeDeploy` 사용해서 외부 MySQL과 연결하는 어플리케이션 배포 자동화. `API Key, DB Pwd`에 `안전하게` 액세스 하기 원함 | `System Manager Parameter Store`를 사용해서 EC2 인스턴스 IAM 역할을 사용하여 암호를 저장하고 프로그래밍 방식으로 액세스
 `CodeBuild` 프로젝트를 실행할 때 `환경 변수 길이`가 결합된 문자 최대 길이 `초과` | `System Manager Parameter Store`를 사용해서 `환경 변수를 저장`
 
 ## Cognito
@@ -911,7 +918,6 @@ S3의 putObject 권한이 있는 `IAM 사용자 생성`. KMS 관리형 키로 `�
 S3 데이터 `액세스 제한` 기능 | S3 버킷 `정책 설정`, 버킷이나 객체에 `S3 ACL 설정`
 버킷의 `로깅이 활성화` 되어 있고 개발자는 `문서를 이동`한 후 작업을 중단함. 버킷의 용량이 `50GB`. 원인은? | `동일한 버킷에 로그인`하면 로그가 기하급수적으로 증가
 S3 Bucket에 정보를 반환하는 API가 필요하고 Lambda와 API G/W로 개발. `MSA 어플`이 S3 버킷에 필요한 `액세스 권한`을 갖도록 하려면? | S3 버킷에 액세스 할 수있는 권한이 있는 `IAM 역할을 생성`하고 이를 `Lambda의 실행 역할`로 할당
-S3 이미지 저장할 때 `이벤트 알림`으로 Lambda가 이미지 `크기 조정`. Lambda `추가 트래픽 처리 방안` | Lambda는 요청을 `동시에 실행`하도록 확장됨
 S3에 복사하는 Lambda 작성함. 두번째 버킷에 복사되지 않고 평균 `500초정도` 걸림. 원인은? | `Lambda 함수 최대 실행 시간`이 `300초`
 S3 버킷에 액세스 하기 위한 역할을 CLI로 생성. `create-role` 명령어. `EC2 서비스`가 역할을 맡도록 하기 위한 정책 | `신뢰 정책을 추가`해야함
 S3에 호스팅하고 있는 웹. `초기 파일 변경`하려면? | S3에 `새로운 html` 업로드 후 색인 문서 속성을 `새로운 html로 변경`
@@ -959,7 +965,7 @@ S3에 `대용량 파일` 업로드 실패 | `멀티파트 업로드` API 사용�
 SAM을 사용해서 Lambda 어플 구축. `배포하기 위한 실행 순서` | 로컬에서 `SAM Template 빌드`하고 Template를 `S3에 패키징`하고 S3에서 `Template을 배포`
 Serverless Restful API를 `반복적이고 일관되게 배포` | `인라인 Swagger 정의`를 사용해서 `SAM Template 배포`, `Swagger 파일을 정의`해서 `Swagger 파일을 참조하는 SAM Template 배포`
 SAM CLI 사용해서 배포할 서버리스 어플. 개발자가 `배포 전 해야할 것` | `SAM 패키지`를 사용해서 서버리스 어플리케이션을 `번들`
-Serverless 어플리케이션 `자동 배포 스크립트` 개발. `SAM template를 사용하는 방법` | `aws cloudformation` 패키지를 호출해서 `배포 패키지를 생성`<br>`aws cloudformation deploy`를 호출해서 `패키지를 배포`<br>`sam package`를 호출해서 `배포 패키지를 생성`<br>`sam deploy`를 호출해서 `패키지를 배포`
+Serverless 어플리케이션 `자동 배포 스크립트` 개발. `SAM template를 사용하는 방법` | `aws cloudformation` 패키지를 호출해서 `배포 패키지를 생성`<br>`aws cloudformation deploy`를 호출해서 `패키지를 배포`,<br>`sam package`를 호출해서 `배포 패키지를 생성`<br>`sam deploy`를 호출해서 `패키지를 배포`
 SAM CLI로 어플을 `재배포` 하기 위한 명령어 조합 | `sam init`, `sam deploy`
 
 ## SQS
@@ -1020,10 +1026,11 @@ Lambda 함수 `오류 기록` | Lambda 함수 `코드의 로깅 문`을 통해 �
 Lambda 함수를 사용해서 S3 이미지 처리. `썸네일을 저장`해야하는 새로운 기능 필요. 기존 시간에 영향 미치지 않음 | `S3 이벤트 알림`을 생성하고 `새 Lmabda` 만들어서 처리
 Lambda 함수 코드의 `로그 검사`는 어디에 저장 | `CloudWatch`
 많은 파일을 처리. 파일당 4분 소요. `모든 파일 처리 방법` | `비동기식` Event Lambda 호출을 수행하고 파일을 `병렬 처리`
+S3 이미지 저장할 때 `이벤트 알림`으로 Lambda가 이미지 `크기 조정`. Lambda `추가 트래픽 처리 방안` | Lambda는 요청을 `동시에 실행`하도록 확장됨
 DynamoDB 테이블 `항목 수명 주기 활동`을 기반으로 Lambda 트리거 | `DynamoDB Stream`을 활성화하고 Stream에서 `동기적`으로 Lambda 함수 `트리거`
 10분마다 Lambda 함수 호출. `트리거하는 자동화된 서비리스 방법` | 정기적인 일정에 따라 Lambda 함수를 호출하는 `CloudWatch Event 규칙 생성`
 이벤트와 Lambda 간의 `매핑을 달성`하는 방법 | `다른 Lambda 트리거` 사용
-stg, test, prod에 Lambda 배포. 각 환경에 고유한 리소스 집함이 있는데 `현재 환경에 리소스 사용`하는 방법 | Lambda 함수에 `환경 변수`를 사용
+stg, test, prod에 Lambda 배포. 각 환경에 고유한 리소스 집합이 있는데 `현재 환경에 리소스 사용`하는 방법 | Lambda 함수에 `환경 변수`를 사용
 Lambda 평균 실행 시간 `100초`, `초당 50개` 요청. 배포 전 해야할 작업 | `동시 실행 제한`을 늘리려면 `AWS Support`에 문의. (기본값은 1000 이기 떄문)
 Lambda `코드를 수정하지 않고` DB 연결 문자열을 바꿀 수 있는 방법 | 연결 문자열을 `Secrets Manager`에 암호로 저장
 Lambda `로컬 테스트 성공`. `콘솔 테스트 실패`. `Unable to import module` | Lambda 콘솔에서 `LB_LIBRARY_PATH` 환경을 생성하고 시스템 라이브러리 경로 값 지정
@@ -1090,7 +1097,7 @@ EC2 인스턴스의 `IPv4` 주소 찾기 | `169.254.169.254/lastest/metadata/` �
 AWS에서 `추가 비용 없이` 포함되는 서비스 | `Auto Scaling`, `CloudFormation`
 `AMI(Amazon Machine Image) 목록을 검색`할 때 사용하는 EC2 API | `DescribeImages`
 CLI 명령 후 `에러 메세지가 암호화` 되어 있다. | `STS decode-authorization-message` API로 디코딩
-`SWF`의 설명 | 작업은 `한 번 할당`되고 `절대 중복되지 않는다`. workflow 실행은 `최대 1년동안 지속`. `결정자`와 `작업자`를 사용해서 작업을 완료
+`SWF`(Simple Workflow Service)의 설명 | 작업은 `한 번 할당`되고 `절대 중복되지 않는다`. workflow 실행은 `최대 1년동안 지속`. `결정자`와 `작업자`를 사용해서 작업을 완료
 CLI에서 `Resource List` 명령 때 `실행시간 초과` | `Pagenation` 사용
 `ECS` 컨테이너 시작할 때 `PortMapping`은 어디에서 정의 | `Task definition`
 AWS에서 보안에 대한 `고객의 책임` | `IAM 자격 증명의 수명 주기 관리`, `보안 그룹 및 ACL 설정`, `EBS 볼륨의 암호화`, `EC2 운영체제의 패치 관리`
@@ -1117,12 +1124,12 @@ BGP 기반 VPN으로 EC2 연결. Subnet A는 액세스, B는 액세스 불가. �
 `Access key`를 AWS에서 관리하는 방법 | 계정 루트 사용자에 대한 모든 Access key를 삭제, `Access key 대신 IAM 역할 사용`
 EC2 어플. AWS API 호출하도록 구성 | `필요한 권한`이 있는 EC2 역할을 지정
 특정 IAM 사용자 자격 증명 사용하도록 CLI 구성. 명령어 오류 반환됨. `aws dynamodb get-item --table-name ...` | IAM 사용자는 테이블에 대한 `읽기 액세스 권한`이 있는 정책이 필요
-ECS-Docker. `15초 동안 사용자 로드를 기반`으로 확장 | `사용자 활동 데이터`에 고해상도 지정. CludWatch 지표 5초마다 데이터 게시
+ECS-Docker. `15초 동안 사용자 로드를 기반`으로 확장 | `사용자 활동 데이터`에 고해상도 지정. `CludWatch` 지표 `5초`마다 데이터 게시
 실수로 `EC2 인스턴스 종료`. 방지하는 대책 | `Resource Access Manager에서 EC2 종료 보호 활성화`
 CLI에서 `aws` 명령을 찾을 수 없음 | aws 실행 파일이 `환경 변수`에 없음
 AWS 계정을 감사하는 어플리케이션. A 계정에서 실행되서 계정 B,C 서비스에 액세스 필요. 어플리케이션이 각 계정 서비스를 호출하는 방법 | 각 감사 계정에서 `교차 계정 역할`을 구성하고 해당 역할을 맡는 `계정 A에 코드 작성`
 EC2에 있는 어플이 RDS로 연결. 사용자 `ID/PWD를 코드에 저장`히기 싫음. `자격 증명 자동 교체` 필요 | `Secrets Manager`를 사용해서 자격 증명을 저장하고 검색
-어플에서 사용하는 IAM 자격 증명에는 API 호출에 대한 `다단계 인증`₩`이 필요하다. 다단계 인증 보호 API에 액세스하는데 사용하는 방법 | `GetSessionToken`
+어플에서 사용하는 IAM 자격 증명에는 API 호출에 대한 `다단계 인증`이 필요하다. 다단계 인증 보호 API에 액세스하는데 사용하는 방법 | `GetSessionToken`
 Admin 그룹의 한 사용자에게만 `EC2 리소스 삭제 권한`이 있는지 확인하려고 한다. | `인라인 정책 사용`
 컨테이너 어플을 `ECS Fargate에 배포`. 세션 데이터로 활동 추적 | NLB에 `Sticky Session 활성화`하고 컨테이너에서 `세션 데이터 관리`
 `ECS 기반 Fargate에 배포`. 어플을 초기화하기 위해 컨테이너에 전달해야 하는 `환경변수`가 있다. 어떻게 전달할건가? | `작업 정의 내 환경 매개변수` 아래에 환경 변수를 포함하는 배열을 정의
@@ -1133,7 +1140,7 @@ ASG 이벤트에 대한 최상의 메트릭은 `동시 사용자 수` 라고 결
 개발자는 2개의 리소스에 `임시 액세스` | `교차 계정 액세스 역할`을 만들고 `sts:AssumeRole` API를 사용해서 `단기 자격 증명`을 얻는다
 DynamoDB, Docker 기반 어플. 로컬에서 IAM 액세스 키로 테스트. ECS에 배포했을 때 어떻게 인증? | 어플이 사용할 `ECS 작업 IAM 역할 구성`
 EC2 어플리케이션에서 사용하는 IAM 자격 증명이 오용되거나 손상되었는지 확인. `자격 증명을 안전하게 유지`하기 위해 사용해야 하는 것 | `인스턴스 프로필 자격 증명`
-IAM 역할은 S3 API 작업에 대한 액세스를 거부. EC2 인스턴스 자격 증명 파일은 `전체 관리 액세스를 허용`하는 IAM 액세스 키와 보안 액세시 키를 지정 | EC2 인스턴스는 `모든` S3 버킷에서 모든 작업을 수행 가능
+IAM 역할은 S3 API 작업에 대한 액세스를 거부. EC2 인스턴스 자격 증명 파일은 `전체 관리 액세스를 허용`하는 IAM 액세스 키와 보안 액세스 키를 지정 | EC2 인스턴스는 `모든` S3 버킷에서 모든 작업을 수행 가능
 API 호출에서 일부 액세스 거부 뜸 | `필요한 권한을 추가`해서 연결된 IAM 업데이트
 EC2 인스턴스는 AMI에서 시작된다. `지정된 공개 AMI`이 수행할 수 있는 것 | AMI가 저장된 `동일한 AWS Region`에서 `EC2 인스턴스를 시작`하는데 사용
 SLA(서비스 수준 계약)을 약속하고 각 SLA를 준수하기 위해 해야할 것 | 각 사용자에 대한 `사용 계획`을 만들고 API에 액세스 할 수 있는 `API 키`를 요청
