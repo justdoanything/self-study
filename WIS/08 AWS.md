@@ -674,6 +674,7 @@ SSL 연결을 강제 적용하려는 MySQL RDS 데이터베이스 인스턴스�
 <summary><font size="5"><b>Match Keywords</b></font></summary>
 
 ⭐️ 2023년 2월 28일 개편되기 전 시험에 해당하는 정리입니다.
+
 ⭐ 자주 사용되는 Keyword로 Grouping
 
 ## API Gateway
@@ -1141,7 +1142,7 @@ IAM 정책 평가 로직에 대한 설명 | 기본적으로 `모든 요청은 �
 각 개발자는 로컬 개발 | 각 개발자에 대한 `IAM 사용자`를 만들고 고유한 액세스 키를 제공
 Example Corp AWS 계정에 액세스를 허용하는 안전한 방법 | Example Corp 계정에서 `사용자 생성 및 액세스 키` 제공
 주말 동안 트래픽 급증, 주중에는 예측 가능한 급증. 항상 조절 오류를 방지하려면? | 일주일 내내 `ASG`로 `Provisioning 된 용량 사용`
-EC2 안에 어플이 S3 버킷에 쓰기 기능 추가 | `EC2 인스턴스 프로파일` 역할에 IAM 정책
+EC2 안에 어플리케이션이 S3 버킷에 쓰기 기능 추가 | `EC2 인스턴스 프로파일` 역할에 IAM 정책
 EC2에 있는 어플리케이션이 AWS 서비스에 액세스하고 API 호출 | `EC2 프로파일 사용`
 EC2 인스턴스를 시작하거나 종료할 때 `BotoServerError: 503 Service Unavailable` 에러 수신 | EC2에 대한 API 요청 수 최적하를 위한 `지수 백오프` 구현
 실시간 처리 | `Event Driven`
@@ -1156,6 +1157,27 @@ EC2 4개로 구성. 각 고유한 권한. 메모리 예약 기반 컨테이너. 
 VPC 내 배포되는 웹 어플리케이션. 온프로미스 LDAP 서버에 인증을 해야함. 인증 후 로그인한 사용자는 관련된 S3 Key Space에만 액세스할 수 있도록 해야한다. | LDAP에 대한 인증 후 사용자와 연결된 IAM 역할의 이름을 검색하고 IAM 보안 토큰 서비스를 호출해서 해당 IAM 역할을 수임한다. 어플은 임시 자격 증명을 사용해서 S3에 액세스, LDAP에 대한 인증 후 IAM 보안 토큰 서비스를 호출해서 IAM 연동 사용자 자격 증명을 가져오는 자격 증명 브로커를 개발하고 어플은 자격 증명 브로커를 호출해서 S3에 대한 액세스 권한이 있는 IAM 연동 사용자 자격 증명을 가여온다.
 온프로미스를 마이그레이션. 사용자가 업로드한거 서버의 로컬 경로에 저장하고 ASG의 모든 인스턴스가 바로 사용 가능해야함 | S3를 사용하고 모든 업로드를 S3에 저장하도록 어플 설계
 
+## 오답노트
+14, 18, 21, 25, 34, 44, 47 51, 62, 69, 75, 79 102, 109, 113, 115, 118, 119
+
+문제 | 답안
+---|---
+사기 탐지 솔루션은 주문을 확인하는데 10~30분 소요. 주문 처리 파이프라인에 사기 탐지 솔루션을 넣는 방법은? | 모든 주문을 SQS에 넣는다. 대기열 지표를 규모 단위로 ASG 그룹을 구성하고 SQS 대기열에서 주문를 가져오기 위해 사기 탐지 솔루이 설치된 여러 AZ에 걸쳐 동적으로 크기가 조정된 EC2 집합을 시작한다. 통과 또는 실패 상태를 업데이트 한다.
+봉투 암호화 동작 방식은? | Customer Master Key는 `Data Key를 암/복호화`하는데 사용.<br>Plain Text Key는 `Customer Data를 암호화`하는데 사용.
+Elastic Beanstalk 배포할 수 있는 AWS 서비스는? | ASG, ELB, RDS
+CloudFormation Template을 사용해서 Lambda 함수 배포 절차는? | `AWS::Lambda::Function` 리소스를 생성한 다음 CloudFormation Template 내부에 `직접 코드를 작성`.<br>함수 코드가 포함된 `.ZIP 파일`을 `S3`에 업로드한 다음 Template의 `AWS::Lambda::Function` 리소스에 파일에 대한 참조를 추가
+Lambda가 지원하는 Alexa 스킬을 수정해서 두번째 계정의 DynamoDB 테이블에 액세스해야 한다. 테이블에 액세스할 수 있는 두번째 계정의 역할이 생성됐다. 액세스 하는 방법은? Lambda 함수에서 `새 역할`을 지정합니다.
+SQS의 설명은? | 메세지는 `한 번 이상` 배달되며 배달 순서는 `불확실`하다.
+API G/W를 사용해서 `동일한 순서로 Lambda를 호출`하는 방법은? | `Step Function 상태 머신`을 사용해서 Lambda 함수 조정
+`ElastiCache`가 좋은 사례는? | `읽기`가 많은 어플리케이션의 `대기 시간과 처리량 개선`, `컴퓨팅 집약적인` 어플리케이션의 성능 향상
+CloudFormation Template에서 `S3 Bucket을 참조`하는 효율적인 방법은? | `원본` Template의 `출력` Section에서 `Export` 선언을 추가하고 `다른` Template에서 `ImportValue`를 사용한다.
+EC2에서 실행되는 어플리케이션을 구성할 때 `API를 안전하게 호출`하도록 EC2를 구성하는 방법은? | 필요한 권한이 있는 `역할을 지정`
+Elastic Beanstalk 배포 된 어플리케이션이 새 버전과 이전 버전이 호환되지 않는다. 새 버전 배포 실패 시 `롤백`이 되어야 하고 모든 인스턴스에서 새 버전으로 `전체 전환` 되어야 합니다. 최소한의 `가동 중지 시간`으로 수행하는 방법은? | `새로운` Elastic Beanstalk 환경에 새 버전을 배포하고 `환경 URL을 교체`
+`X-Ray`로 `Lambda` 기반 어플리케이션을 추적하는 방법은? | IAM `실행 역할`을 사용해서 Lambda 함수 권한을 부여하고 추적을 활성화
+Serverless Resource를 표현하기 위한 `단순화된 구문을 정의`하기 위한 도구는? | `Serverless Application Model`
+SQS 대기열이 자주 변경되지 않지만 `메세지가 도착`하면 대시보드가 `빠르게 반영`해야 합니다. 짧은 지연 시간 제공하는 기술은? | 20초마다 `긴 풀링`을 사용해서 대기열 메세지를 검색
+Lambda 함수에서 `ClientError: An error occurred (InvalidParameterValueException)`. `압축을 푼 크기가 초과`했습니다. 해결하기 위한 방법은? | 함수를 여러 개의 `더 작은 Lambda 함수`로 나눈다.
+Elastic Beanstalk의 EC2 인스턴스에 `특정 명령을 실행`하려고 한다. 이를 위한 기능은? | `.ebextensions`
 
 </details>
 
