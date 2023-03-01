@@ -367,8 +367,12 @@ AWS Certified Developer Associate
 <summary><font size="5"><b>합격 후기</b></font></summary>
 
 - ### 시험 신청
-  - 서울에는 시험장이 4곳이 있고 날짜를 선택하면 시험 시간도 정할 수 있다.
-  - 시험 일정 변경은 2회까지 가능하다.
+  - 서울에는 시험장이 `4곳`이 있고 날짜를 선택하면 `시험 시간`도 시간 단위로 선택할 수 있다.
+  - 시험 일정 변경은 `2회`까지 가능하다.
+  - 시험을 보는 언어를 선택할 수 있는데 한국어로 선택하면 번역 문제 때문에 최신 유형이 안나온다는 소문이 있었다.
+  - 영어로 시험을 볼 때 `시험 편의 지원`에서 신청을 하면 시험 시간을 30분 더 받을 수 있다. (대체로 시험 시간이 부족하지는 않다.)
+  - 한국어로 시험을 신청해도 시험볼 때 영어로 문제를 볼 수 있는 기능이 있기 때문에 굳이 영어로 신청하지 않아도 된다.
+  - 시험 준비물로 `신분증`과 `신용카드`가 있는데 신용카드에 적혀있는 `영어 이름`과 `시험 신청서에 있는 이름`이 반드시 똑같아야 한다.
 - ### 시험 공부
   - AWS 공부보다 시험 합격이 목표라면 기출문제만 봐도 무관하다.
   - 시험 관련 강의는 메가존클우드, 인프런, 유데미를 봤었는데 유데미가 강의가 가장 길지만 WEB 전반적인 내용까지 같이 다뤄주고 간단한 실습도 포함되어 있어서 가장 유익했고 시험을 합격한 후에도 완강할 예정이다.
@@ -376,13 +380,21 @@ AWS Certified Developer Associate
     1. [기출 문제](https://exam.ogu45.com/#/study/1)의 답이 나오게 켜놓고 모든 문제를 key-value로 정리했다.\
       문제 : 회사에서는 시스템 관리자가 문제를 보다 효과적으로 해결할 수 있도록 개발자가 작성한 AWS `Lambda 함수가 오류를 기록`하도록 요구합니다. 개발자는 이 요구 사항을 충족하기 위해 무엇을 구현해야 합니까?\
       정답 : Lambda 함수 코드의 `로깅 문`을 통해 오류를 보고합니다.\
-      ➡ Lambda 함수 오류 기록 / 로깅
-    2. key-value로 정리한 문제를 
-    3. [ㅅㄷㄴㅅ](#api-gateway)
+      ➡ key-value : Lambda 함수 오류 기록 / 로깅\
+      🔗 아래에 있는 `Match Keywords` 영역에 모든 문제를 정리했다.
+    2. key-value로 정리한 문제를 자주 나오는 keyword로 grouping해서 정리하고 비슷한 문제를 붙여놓았다.\
+       자주 나오는 keyword는 Lambda, DynamoDB, Kinesis Stream 등이 있다.
+    3. 정리한 내용에서 중요한 단어 위주로 `마스킹`을 했다.
+    4. `마스킹`한 내용 위주로 전체를 한 번 읽는다.
+    5. 이정도까지 정리하면 자연스럽게 대부분의 기출이 외워지기 때문에 기출 문제를 빠르게 풀면서 틀린 것만 오답노트로 간단하게 정리한다. 
 - ### 시험
-
-카테고리 그룹화를 해서 Key-Value 매핑해서 외울 것
-문제에 없는 단어는 웬만하면 거를것
+  - ️신분증과 ⭐신용카드⭐를 반드시 챙겨야 한다. (신용카드에 있는 영어 이름과 시험 신청서에 있는 이름을 대조한다.)
+  - 시험장에 입장하면 손을 씻고 신분증, 신용카드 제출을 하고 몇가지 시험 안내를 받는다.
+  - 모든 짐과 겉옷과 악세사리 등은 시험장에 들어가기 전에 사물함에 보관한다.
+  - 시험은 학동역쪽 경복빌딩에서 14시에 봤었고 40분쯤 가니까 미리 입장에서 바로 시험을 볼 수 있었다.
+  - 시험 문제는 총 65문제로 기출에서 60%정도가 그대로 나와서 바로 풀 수 있었고 몇몇 문제는 기출 문제에서 비슷하게 나와서 쉽게 풀 수 있었다.
+  - 시험 문제마다 버튼이 있어서 문제와 보기를 영어로 볼 수 있었다.
+  - 40분 정도 시험을 보고 나왔고 당일날 밤에 결과를 확인할 수 있었다. (결과까지 최대 5일 소요)
 
 </details>
 
@@ -663,39 +675,19 @@ SSL 연결을 강제 적용하려는 MySQL RDS 데이터베이스 인스턴스�
 <details>
 <summary><font size="5"><b>시험에 자주 나오는 개념</b></font></summary>
 
-- ### S3 Encryption
-- ### Lambda
-- ### Kinesis Data Stream
+- ### API Gateway
+- ### Elastic Beanstalk
+- ### CodeCommit & CodePipeline & CodeBuild & CodeDeploy
+- ### Cognito
 - ### CloudFormation
-- ### CloudFront
-- ### CodeCommit
-- ### CodePipeline
-- ### CodeBuild
-- ### CodeDeploy
-- ### ECS
-- ### Fargate
-- ### X-Ray와  CloudWatch
-- ### SNS(Simple Notification Service)와 SQS(Simple Queue Service)
+- ### CloudWatch
+- ### DynamoDB
+- ### ElastiCache & Load Balancer
+- ### S3 & Encryption
+- ### SNS & SQS
+- ### Lambda
+- ### X-Ray와
 - ### Beanstalk
-  - 배포 정책
-    - Immutable
-    - All at Once
-    - Rolling
-    - Rolling with an Additional Batch
-
-- ### `SQS (Simple Queue Service)` & `SNS (Simple Notification Service)`
-  - `SNS (Simple Notification Service)`와 다른 점
-    - `SNS`는 Application에서 정기적으로 update를 확인하거나 polling할 필요 없이 push만 하면 구독자에게 메세지를 보낼 수 있다. `SQS`는 분산 Application에서 Polling 모델을 통해 메세지를 교환하는데 사용되고 송신 요소와 수신 요소를 분리해서 사용할 수 있다.
-  - `Amazon MQ`와 다른 점
-    - 기존에 사용 중인 Messaging Application을 Cloud로 이동할 때 `Amazon MQ`를 사용하는게 유리하다. 업계 표준 API와 Protocol을 지원하기 때문에 다른 Message Brocker에서 Amazon MQ로 전환할 수 있다. Cloud에 새로운 Application을 구성한다면 `SQS`, `SNS`를 사용하는 것이 좋습니다.
-  - `AKS (Amazon Kinesis Streams)`와 다른 점
-    - `SQS`는 MSA와 같은 분산 Application에서 유용하며 배달 못한 편지 대기열과 포이즌 필(poison-pill) 관리 같은 일반적 미들웨어 구성체를 제공하고 웹 서비스 API도 제공합니다.
-    - `AKS`는 빅 데이터 스트리밍을 실시간으로 처리하고 주어진 파티션 키에 대한 모든 레코드를 동일한 레코드 프로세서에 제공하므로 스트림 데이터를 읽는 여러 개의 Application를 구축할 때 용이합니다.
-  - SQS는 FIFO 대기열을 사용하기 때문에 메세지 순서를 보장한다.
-  - 표준 대기열의 각 메세지는 최소 1회 전달을 보장한다.
-  - ReceiveMessage, DeleteMessage 작업이 별도로 존재한다. 사용자가 실제로 메세지를 수신했는지 상관없이 해당 메세지를 대기열에 그대로 보관한다. 사용자의 요청에 따라 메세지를 삭제할 수 있다.
-  - SQS는 SSE(Server Side Encrpyt)를 지원합니다.
-
 - ### 읽기/쓰기 처리량 계산
   - 강력한 일관된 일기(RCU)는 4KB 단위로 늘어나고 초당 처리 단위로 환산해서 계산한다.
   - 강력한 일관된 쓰기(WCU)는 1KB 단위로 늘어나고 초당 처리 단위로 환산해서 계산한다.
