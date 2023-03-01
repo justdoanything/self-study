@@ -21,32 +21,32 @@ AWS Certified Architecture Associate
 ### 📖 AWS Certified Solutions Architect - Associate를 공부하면서 정리한 내용입니다.
 Reference : https://github.com/serithemage/AWSCertifiedSolutionsArchitectUnofficialStudyGuide
 
-### 아키텍처에 따른 고려사항
-- ### `복원력`을 갖춘 아키텍처
-  - 멀티 티어 아키텍처
-  - 고가용성 및 내결함성 아키텍처
-  - AWS 서비스를 사용하여 결합 해제 메커니즘
-  - 적절한 복원력을 갖춘 스토리지 선택
-- ### `고성능` 아키텍처
-  - 워크로드를 위한 탄력적이고 확장 가능한 컴퓨팅 솔루션
-  - 워크로드를 위한 확장 가능한 고성능 스토리지 솔루션
-  - 워크로드를 위한 고성능 네트워킹 솔루션
-  - 워크로드를 위한 고성능 데이터베이스 솔루션
-- ### `안전한` 아키텍처
-  - AWS 리소스에 대한 보안 액세스 설계
-  - 보안 어플리케이션 계층 설계
-  - 적절한 데이터 보안 옵션 선택
-- ### `비용`에 최적화된 아키텍처
-  - 비용 효율적인 스토리지 솔루션
-  - 비용 효율적인 컴퓨팅 및 데이터베이스 솔루션
-  - 비용에 최적화된 네트워크 솔루션
-
 ---
 
 <details>
 <summary><font size="5"><b>AWS Keywords</b></font></summary>
+
+### 아키텍처에 따른 고려사항
+- ### `복원력`을 갖춘 아키텍처
+    - 멀티 티어 아키텍처
+    - 고가용성 및 내결함성 아키텍처
+    - AWS 서비스를 사용하여 결합 해제 메커니즘
+    - 적절한 복원력을 갖춘 스토리지 선택
+- ### `고성능` 아키텍처
+    - 워크로드를 위한 탄력적이고 확장 가능한 컴퓨팅 솔루션
+    - 워크로드를 위한 확장 가능한 고성능 스토리지 솔루션
+    - 워크로드를 위한 고성능 네트워킹 솔루션
+    - 워크로드를 위한 고성능 데이터베이스 솔루션
+- ### `안전한` 아키텍처
+    - AWS 리소스에 대한 보안 액세스 설계
+    - 보안 어플리케이션 계층 설계
+    - 적절한 데이터 보안 옵션 선택
+- ### `비용`에 최적화된 아키텍처
+    - 비용 효율적인 스토리지 솔루션
+    - 비용 효율적인 컴퓨팅 및 데이터베이스 솔루션
+    - 비용에 최적화된 네트워크 솔루션
   
-  ### AWS 기본 기능
+### AWS 기본 기능
   - 컴퓨팅
   - 비용 관리
   - 데이터베이스
@@ -59,7 +59,7 @@ Reference : https://github.com/serithemage/AWSCertifiedSolutionsArchitectUnoffic
   - 보안
   - 서버리스 설계 원칙
   - 스토리지
-  ### AWS 서비스 및 기능
+### AWS 서비스 및 기능
   - ##### 분석
     - Amazon Athena
     - Amazon ES(Amazon Elasticsearch Service)
@@ -135,6 +135,10 @@ Reference : https://github.com/serithemage/AWSCertifiedSolutionsArchitectUnoffic
 </details>
 
 ---
+
+<details>
+<summary><font size="5"><b>AWS 내용 정리</b></font></summary>
+
 
 ### AWS 글로벌 인프라의 이해
 
@@ -226,7 +230,7 @@ Amazon Glacier | Back-Ups
   - 이 외에는 `S3`를 사용한다. 
   - Reference : [ebs-efs-fsx-s3-how-these-storage-options-differ](https://pilotcoresystems.com/insights/ebs-efs-fsx-s3-how-these-storage-options-differ/)
 
-⚠️⚠️⚠️ 개념을 공부하는 것보단 기출문제와 FAQ 위주로 봐야할 것 같다!
+</details>
 
 ---
 
@@ -354,7 +358,38 @@ Amazon Glacier | Back-Ups
 AWS Certified Developer Associate
 ===
 ### 📖 AWS Certified Developer Associate를 공부하면서 정리한 내용입니다.
-### 참고자료 : Udemy 강의 (best-aws-certified-developer-associate)
+### 참고자료 : [Udemy 강의](https://udemy.com/course/best-aws-certified-developer-associate), [기출문제](https://exam.ogu45.com/#/study/1)
+### 👨‍🎓 2023.02.27 취득 완료
+
+---
+
+<details>
+<summary><font size="5"><b>합격 후기</b></font></summary>
+
+- ### 시험 신청
+  - 서울에는 시험장이 4곳이 있고 날짜를 선택하면 시험 시간도 정할 수 있다.
+  - 시험 일정 변경은 2회까지 가능하다.
+- ### 시험 공부
+  - AWS 공부보다 시험 합격이 목표라면 기출문제만 봐도 무관하다.
+  - 시험 관련 강의는 메가존클우드, 인프런, 유데미를 봤었는데 유데미가 강의가 가장 길지만 WEB 전반적인 내용까지 같이 다뤄주고 간단한 실습도 포함되어 있어서 가장 유익했고 시험을 합격한 후에도 완강할 예정이다.
+  - 기출 공부는 아래와 같은 순서로 진행했다.
+    1. [기출 문제](https://exam.ogu45.com/#/study/1)의 답이 나오게 켜놓고 모든 문제를 key-value로 정리했다.\
+      문제 : 회사에서는 시스템 관리자가 문제를 보다 효과적으로 해결할 수 있도록 개발자가 작성한 AWS `Lambda 함수가 오류를 기록`하도록 요구합니다. 개발자는 이 요구 사항을 충족하기 위해 무엇을 구현해야 합니까?\
+      정답 : Lambda 함수 코드의 `로깅 문`을 통해 오류를 보고합니다.\
+      ➡ Lambda 함수 오류 기록 / 로깅
+    2. key-value로 정리한 문제를 
+    3. [ㅅㄷㄴㅅ](#api-gateway)
+- ### 시험
+
+카테고리 그룹화를 해서 Key-Value 매핑해서 외울 것
+문제에 없는 단어는 웬만하면 거를것
+
+</details>
+
+---
+
+<details>
+<summary><font size="5"><b>AWS 내용 정리</b></font></summary>
 
 - `IAM 정책의 문`은 Sid, Effect, Principal, Action, Resource 및 Condition으로 구성됩니다. `version은 문이 아니라` IAM 정책 자체의 일부입니다.
 - AWS Shared Responsibility Model에 따르면 다음 중 `AWS의 책임`은 `인프라`이다.
@@ -621,10 +656,9 @@ SSL 연결을 강제 적용하려는 MySQL RDS 데이터베이스 인스턴스�
 - S3 업로드 가속화 (Transfer Acceleration) : 엣지 로케이션에 올리고 엣지 로케이션은 리전에 private network로 빠르게 올림
 - S3 다운로드 가속화 : 1개의 파일을 Byte Range로 나눠서 병력적으로 다운로드 받고 한 부분이 실패해도 빠르게 재실행됨
 
----
+</details>
 
-카테고리 그룹화를 해서 Key-Value 매핑해서 외울 것
-문제에 없는 단어는 웬만하면 거를것
+---
 
 <details>
 <summary><font size="5"><b>시험에 자주 나오는 개념</b></font></summary>
