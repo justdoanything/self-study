@@ -1,0 +1,11 @@
+Resources:
+  Function:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 300
+      MemorySize: 2048
+      Handler: connect.QueryTable
+      CodeUri: /Users/yongwoolee/Documents/justdoanything/lambdaTest/HelloWorldFunction
+      Runtime: java11
+      Architectures:
+        - arm64

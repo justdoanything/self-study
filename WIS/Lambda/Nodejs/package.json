@@ -1,0 +1,10 @@
+{
+  "name": "amazon-connect-lambda",
+  "version": "1.0.0",
+  "author": "beaver",
+  "type": "module",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.210.0",
+    "@aws-sdk/lib-dynamodb": "^3.210.0"
+  }
+}
