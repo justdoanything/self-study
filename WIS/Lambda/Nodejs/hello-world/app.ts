@@ -1,23 +1,14 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { getReservation } from './src/scan.js';
 
-/**
- *
- * Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
- * @param {Object} event - API Gateway Lambda Proxy Input Format
- *
- * Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
- * @returns {Object} object - API Gateway Lambda Proxy Output Format
- *
- */
-
-export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    let response: APIGatewayProxyResult;
+export const lambdaHandler = async (event: any): Promise<any> => {
+    const customerPhoneNumber = event.Details.ContactData.CustomerEndpoint.Address;
+    let response;
     try {
+        console.log(customerPhoneNumber);
+        const responseBody = getReservation(customerPhoneNumber);
         response = {
             statusCode: 200,
-            body: JSON.stringify({
-                message: 'hello world',
-            }),
+            body: responseBody,
         };
     } catch (err: unknown) {
         console.log(err);
