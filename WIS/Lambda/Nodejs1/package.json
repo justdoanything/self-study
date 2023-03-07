@@ -6,5 +6,8 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.210.0",
     "@aws-sdk/lib-dynamodb": "^3.210.0"
+  },
+  "scripts": {
+    "locally": "node -e \"console.log(require('./index').handler(require('./event.json')));\""
   }
 }

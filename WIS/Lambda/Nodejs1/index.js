@@ -6,5 +6,6 @@ exports.handler = (event, context, callback) => {
 
   const response = getReservation(customerPhoneNumber);
 
-  callback(null, response);
+  return response;
+  // callback(null, response);
 };

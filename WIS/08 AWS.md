@@ -139,7 +139,6 @@ Reference : https://github.com/serithemage/AWSCertifiedSolutionsArchitectUnoffic
 <details>
 <summary><font size="5"><b>AWS 내용 정리</b></font></summary>
 
-
 ### AWS 글로벌 인프라의 이해
 
 Keyword | 개념 | 사용하는 시기와 상황
@@ -1464,33 +1463,38 @@ Amazon Lambda
 OS | IDE | Language
 ---|---|---
 macOS | Intellij Ultimate | Java 11
+macOS | Intellij Ultimate | Typescript
 
-### (2) AWS SAM CLI 설치
+### (2) 공통 : AWS SAM CLI 설치
 - `brew tap aws/tap`
 - `brew install aws-sam-cli`
 - `sam --version`
 - `brew update aws-sam-cli`
 
-### (3) Intelli에 AWS Toolkit 설치
+<details>
+<summary><font size="5"><b> 1️⃣ Java 11 </b></font></summary>
+
+### (1) Intellij에 AWS Toolkit 설치
 - Preferences -> Plugins -> Martketplace -> AWS Toolkit 설치
 
-### (4) Serverless 프로젝트 생성
+### (2) Serverless 프로젝트 생성
 - File -> New -> Project -> AWS -> AWS Serverless Application
 - `Validation of sam failed: Not installed.` 에러가 뜰 경우, SAM CLI executable에 `which sam` 해서 나온 경로 입력
 
-### (5) Build & Test with SAM
+### (3) Build & Test with SAM
 - ⭐️ Docker를 Rancher로 돌리는 경우엔 sam 사용이 불가합니다. Docker Desktop을 설치하거나 AWS Lambda Console에 올려서 테스트 해야 합니다.
 - Intellij
-  - Run Configuration에서 input, aws profile 등 설정하고 실행
+    - Run Configuration에서 input, aws profile 등 설정하고 실행
 - Command
-  - SAM 구동 후 테스트 : `sam local start-api` -> 원하는 URL 호출
-  - 직접 호출하는 방법 : `sam local invoke "HelloWorldFunction" -e events/event.json`
+    - SAM 구동 후 테스트 : `sam local start-api` -> 원하는 URL 호출
+    - 직접 호출하는 방법 : `sam local invoke "HelloWorldFunction" -e events/event.json`
 
-### (6) 함수 개발
+### (4) 함수 개발
 - #### ⭐ 중요 포인트
-  - ##### 함수의 응답은 String 타입이 아닌 POJO 형식의 Class를 반환해야 한다. 응답을 String 타입의 JSON 형태로 하면 __"{\\"name\\":\\"beaver\\"}"__ 처럼 큰 따움표가 붙는다.
-  - ##### POJO 형식의 Class를 반환하면 Lambda에서 알아서 Serialize를 해준다.
-  - ##### 함수는 반드시 RequestHandler Class를 상속 받아야 하고 Input/Output Parameter의 형식을 지정할 수 있다.
+    - ##### 함수의 응답은 String 타입이 아닌 POJO 형식의 Class를 반환해야 한다. 응답을 String 타입의 JSON 형태로 하면 __"{\\"name\\":\\"beaver\\"}"__ 처럼 큰 따움표가 붙는다. POJO 형식의 Class를 반환하면 Lambda에서 알아서 Serialize를 해준다.
+    - ##### 함수는 반드시 RequestHandler Class를 상속 받아야 하고 Input/Output Parameter의 형식을 지정할 수 있다.
+    - ##### Input으로 사용하는 event.json과 같은 형식은 AWS에 Sample이 많이 있으므로 참조해서 사용한다.
+
   ```java
   public class ScanTable implements RequestHandler<Object, ScanTableResponse> {
 
@@ -1538,28 +1542,61 @@ macOS | Intellij Ultimate | Java 11
   }   
   ```
 
-### (7) Lmabda 테스트
+### (5) Lmabda 테스트
 - Lambda에 Jar 업로드하기
-  - build.gradle에 task 추가
-    ```yaml
-    task buildZip(type: Zip) {
-      from compileJava
-      from processResources
-      into('lib') {
-        from configurations.runtimeClasspath
+    - build.gradle에 task 추가
+      ```yaml
+      task buildZip(type: Zip) {
+        from compileJava
+        from processResources
+        into('lib') {
+          from configurations.runtimeClasspath
+        }
       }
-    }
-    ```
-  - gradle에서 buildZip 실행
-  - 생성된 Jar 파일을 AWS Lambda Console에 업로드
-  - 아래 사진과 같이 Lambda Console에서 실행시킬 함수의 경로를 지정한다. (Runtime settings ➡️ Handler)
-    
-    <img width="1518" alt="image" src="https://user-images.githubusercontent.com/21374902/219037044-bcfaa3c8-f956-4cc2-9b16-597201c208e4.png">
-    
+      ```
+    - gradle에서 buildZip 실행
+    - 생성된 Jar 파일을 AWS Lambda Console에 업로드
+    - 아래 사진과 같이 Lambda Console에서 실행시킬 함수의 경로를 지정한다. (Runtime settings ➡️ Handler)
+
+      <img width="1518" alt="image" src="https://user-images.githubusercontent.com/21374902/219037044-bcfaa3c8-f956-4cc2-9b16-597201c208e4.png">
+
 - Lambda 함수 테스트
-  - Lambda Console에서 Test 탭으로 이동 후 원하는 이벤트 타입 (Input Paramter)를 설정 후 구동해본다. 
+    - Lambda Console에서 Test 탭으로 이동 후 원하는 이벤트 타입 (Input Paramter)를 설정 후 구동해본다.
+
+</details>
+
+<details>
+<summary><font size="5"><b> 2️⃣ Typescript </b></font></summary>
+
+### (1) 원하는 경로에 SAM 프로젝트 설치
+- `sam init`
+- `1 - AWS Quick Start Templates`
+- `1 - Hello World Example`
+- Use the most popular runtime and package type? (Python and zip) [y/N]: `N`
+- `14 - nodejs14.x`
+- `1 - Zip`
+- `2 - Hello World Example TypeScript`
+- Would you like to enable X-Ray tracing on the function(s) in your application?  [y/N]: `N`
+- Would you like to enable monitoring using CloudWatch Application Insights? [y/N]: `N`
+- Project name [sam-app]: `demo`
+
+### (2) Architectures 변경
+- Mac을 사용하고 있다면 `template.yaml`을 열어서 Architectures를 `arm64`으로 변경
+
+### (3) 필요한 Module 및 Build
+- `demo/hello-world$ yarn install`
+- `demo$ sam build`
+
+### (4) 함수 테스트
+- `demo$ sam local invoke HelloWorldFunction --event events/event.json`
+
+</details>
+
 
 # 2. Lambda with DynamoDB 
+<details>
+<summary><font size="5"><b> 2️⃣ Java 11 </b></font></summary>
+
 - dependencies in build.gradle
   ```yaml
   dependencies {
@@ -1572,56 +1609,63 @@ macOS | Intellij Ultimate | Java 11
   }
   ```
 - DDL
-  - Create a table
-    - Create a table with a simple primary key
-    - Create a table with a composite primary key
-  - List tables
-  - Describe (get information about) a table
-  - Modify (update) a table
-  - Delete a table
+    - Create a table
+        - Create a table with a simple primary key
+        - Create a table with a composite primary key
+    - List tables
+    - Describe (get information about) a table
+    - Modify (update) a table
+    - Delete a table
 - DML
-  - Retrieve (get) an item from a table
-      ```java
-    public class QueryTable implements RequestHandler<Object, QueryTableResponse> {
-      private final Region REGION = Region.AP_NORTHEAST_2;
-      private final String tableName = "table_name";
-
-      @Override
-      public QueryTableResponse handleRequest(Object input, Context context) {
-        DynamoDbClient dynamoDbClient = DynamoDbClient.builder().region(REGION).build();
-
-        HashMap<String,AttributeValue> keyToGet = new HashMap<String,AttributeValue>();
-        keyToGet.put("name",AttributeValue.builder().s("beaver").build());
-
-        GetItemRequest getItemRequest = GetItemRequest.builder()
-                  .tableName(tableName)
-                  .key(keyToGet)
-                  .build();
-
-        try{
-            Map<String,AttributeValue> returnedItem = dynamoDbClient.getItem(getItemRequest).item();
-            if(returnedItem != null) {
-                return QueryTableResponse.builder()
-                                  .name(returnedItem.get("name").toString())
-                                  .isReserved(true)
-                                  .build();
-            }else {
-                return QueryTableResponse.builder()
+    - Retrieve (get) an item from a table
+        ```java
+      public class QueryTable implements RequestHandler<Object, QueryTableResponse> {
+        private final Region REGION = Region.AP_NORTHEAST_2;
+        private final String tableName = "table_name";
+  
+        @Override
+        public QueryTableResponse handleRequest(Object input, Context context) {
+          DynamoDbClient dynamoDbClient = DynamoDbClient.builder().region(REGION).build();
+  
+          HashMap<String,AttributeValue> keyToGet = new HashMap<String,AttributeValue>();
+          keyToGet.put("name",AttributeValue.builder().s("beaver").build());
+  
+          GetItemRequest getItemRequest = GetItemRequest.builder()
+                    .tableName(tableName)
+                    .key(keyToGet)
+                    .build();
+  
+          try{
+              Map<String,AttributeValue> returnedItem = dynamoDbClient.getItem(getItemRequest).item();
+              if(returnedItem != null) {
+                  return QueryTableResponse.builder()
+                                    .name(returnedItem.get("name").toString())
+                                    .isReserved(true)
+                                    .build();
+              }else {
+                  return QueryTableResponse.builder()
+                                    .isReserved(false)
+                                    .build();
+              }
+          }catch (Exception e){
+              return QueryTableResponse.builder()
                                   .isReserved(false)
                                   .build();
-            }
-        }catch (Exception e){
-            return QueryTableResponse.builder()
-                                .isReserved(false)
-                                .build();
+          }
         }
       }
-    }
-    ```
-  - Retrieve (get) an item from a table using the asynchronous client
-  - Add a new item to a table
-  - Update an existing item in a table
-  - Delete an existing item in a table
+      ```
+    - Retrieve (get) an item from a table using the asynchronous client
+    - Add a new item to a table
+    - Update an existing item in a table
+    - Delete an existing item in a table
+
+</details>
+
+<details>
+<summary><font size="5"><b> 2️⃣ Typescript </b></font></summary>
+</details>
+
 
 # 3. Reference
 - https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/examples-dynamodb-items.html
