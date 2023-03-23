@@ -167,6 +167,39 @@
     }
     ```
 
+- ### GET Parameter에서 한글 깨지는 문제
+  ```java
+  public class KakaoServiceImpl {
+    public KakaoBlogResponseDTO getKakaoBlog(KakaoBlogRequestDTO kakaoBlogRequestDTO) {
+      try {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "KakaoAK " + kakaoToken);
+      
+        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(kakaoHost + kakaoUrlBlog)
+                        .queryParam("sort", kakaoBlogRequestDTO.getSort())
+                        .queryParam("page", kakaoBlogRequestDTO.getPage())
+                        .queryParam("size", kakaoBlogRequestDTO.getSize())
+                        .queryParam("query", UriUtils.encode(kakaoBlogRequestDTO.getQuery(),"UTF-8"));
+        
+        HttpEntity<String> kakaoSearchBlogRequest = new HttpEntity<>(headers);
+        ResponseEntity<KakaoBlogResponseDTO> kakaoSearchBlogResponse = restTemplate.exchange(
+          uriComponentsBuilder.build(true).encode().toUri()
+            , HttpMethod.GET
+            , kakaoSearchBlogRequest
+            , KakaoBlogResponseDTO.class
+        );
+        
+        if (kakaoSearchBlogResponse.getStatusCode() != HttpStatus.OK)
+            throw new ApplicationException("Fail to request Kakao API (" + kakaoUrlBlog + ") : StatusCode is " + kakaoSearchBlogResponse.getStatusCode(), StatusCodeMessageConstant.FAIL);
+          else
+            return kakaoSearchBlogResponse.getBody();
+      } catch (Exception e) {
+        throw new ApplicationException("Exception in requesting Kakao API (" + kakaoUrlBlog + ")");
+      }
+    }
+  }
+  ```
+
 Insert - 1 (여러개인 경우 1) 
 Update - 업데이트 된 행의 개수 (없으면 0) 
 Delete - 삭제 된 행의 개수 (없으면 0)

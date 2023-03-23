@@ -145,34 +145,49 @@ MSA
       - `spring-cloud-starter-netflix-hystrix` 라이브러리 추가
       - Main Application에 `@EnableCircuitBreaker` 추가
       - Circuit Breaker를 추가하고자 하는 메소드에 `@HystrixCommand` 추가
-      ```java
-      @HystrixCommand(fallbackMethod = "doFallbackProcess")
-      public String getOtherServiceMessage(String param) {
-        return this.restTemplate.getForObject(url, String.class);
-      }
+        ```java
+        @HystrixCommand(fallbackMethod = "doFallbackProcess")
+        public String getOtherServiceMessage(String param) {
+          return this.restTemplate.getForObject(url, String.class);
+        }
 
-      public String doFallbackProces() {
-        return "Process you want";
-      }
-      ```
+        public String doFallbackProces() {
+          return "Process you want";
+        }
+        ```
     - Hystrix 설정 변경
       - `@HystrixCommand`에 `@HystrixProperty`를 추가해서 상세한 제어 가능
-      ```java
-      @HystrixCommand(commandKey = "commandKeyExample", fallbackMethod = "doFallbackProcess", commandProperties = {
-        @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "2000")
-        }
-      )
-      ```
+        - commandKey :  안쓰면 자동으로 메소드 명으로 지정됨
+        - execution.isolation.thread.timeoutInMilliseconds : 해당 시간 동안 메서드가 끝나지 않으면 circuit open
+        - metrics.rollingStats.timeInMilliseconds : (circuit open 조건) 해당 시간 동안
+        - circuitBreaker.errorThresholdPercentage : (circuit open 조건) 해당 에러 퍼센트만큼 실패시 오픈
+        - circuitBreaker.requestVolumeThreshold : (circuit open 조건) 최소 판단 하기 위해 해당 요청 건수만큼 들어와야 한다.
+        - circuitBreaker.sleepWindowInMilliseconds : circuit open 시 지속 될 시간
+        ```java
+        // 10 초 동안 10번 호출 중 20% 실패시(2번 실패시) 10초간 fallback 메소드 호출
+        // 단, 해당 메소드가 3초 안에 끝나지 않을시 fallback 메소드 호출
+        @HystrixCommand(
+                commandKey = "commandKeyExample"
+                , fallbackMethod = "doFallbackProcess"
+                , commandProperties = {
+                            @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "2000"),
+                            @HystrixProperty(name = "metrics.rollingStats.timeInMilliseconds", value = "10000"),
+                            @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "20"),
+                            @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "10"),
+                            @HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "10000")
+                }
+        )
+        ```
       - `@HystrixCommand` 대신 application.yml을 통해 설정 가능
-      ```yml
-      hystrix:
-        command:
-          commandKeyExample:
-            execution:
-              isolation:
-                thread:
-                  timeoutInMilliseconds: 3000
-      ```
+        ```yml
+        hystrix:
+          command:
+            commandKeyExample:
+              execution:
+                isolation:
+                  thread:
+                    timeoutInMilliseconds: 3000
+        ```
 
 ---
 
