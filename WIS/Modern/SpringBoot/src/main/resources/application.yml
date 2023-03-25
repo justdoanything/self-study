@@ -52,6 +52,10 @@ spring:
   h2:
     console:
       enabled: true
+  redis:
+    host: localhost
+    port: 6789
+    ttl: 1000
 api:
   kakao:
     token: temp # Change to value you want!

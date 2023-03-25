@@ -29,6 +29,7 @@ dependencies {
 	implementation 'com.google.code.gson:gson:2.8.9'
 	implementation 'org.springframework.cloud:spring-cloud-netflix-hystrix:2.2.5.RELEASE'
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-hystrix:2.2.9.RELEASE'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.h2database:h2'
