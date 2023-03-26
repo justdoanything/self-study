@@ -67,8 +67,8 @@
 - 카카오 API/네이버 API에 장애가 있을 경우 네이버 API/카카오 API를 사용하도록 구현했습니다. (추가적으로 네이버 블로그를 검색할 수 있는 API도 별도로 구현했습니다.)
 - 실제 환경을 고려해서 profile을 local/dev/stg/prd로 나누고 flyway도 환경마다 적용할 수 있게 구현했습니다.
 - 공통처리를 위한 Interceptor Class를 만들어서 처리했고 필요한 로직을 추가할 수 있도록 TODO 표시했습니다.
-  - `prj.searching.config.InterceptorConfig.java`
-  - `prj.searching.interceptor.AuthInterceptor.java`
+  - `prj.modern.config.InterceptorConfig.java`
+  - `prj.modern.interceptor.AuthInterceptor.java`
 - Dockerfile를 사용해서 docker image를 생성해서 사용할 수 있습니다.
 - Swagger UI 화면을 통해서 태스트를 할 수 있습니다. (http://localhost:8080/swagger-ui/index.html)
 
