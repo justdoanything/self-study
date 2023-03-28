@@ -1465,7 +1465,17 @@ OS | IDE | Language
 macOS | Intellij Ultimate | Java 11
 macOS | Intellij Ultimate | Typescript
 
-### (2) 공통 : AWS SAM CLI 설치
+### (2) Java와 Nodejs 중 어떤 언어로 개발해야할까?
+- `ORM을 사용한 Java`는 GET은 제일 느리고 POST는 가장 빠르다. 
+- `ORM을 사용하지 않은 Java`는 GET이 가장 빠르고 POST는 가장 느리다. 
+- `Nodejs`는 그 중간값을 가진다.
+
+  <img width="631" alt="image" src="https://user-images.githubusercontent.com/21374902/228151976-ccb406ec-0861-4f82-85d9-baedeee6dde5.png">
+  
+  - Reference : https://varteq.com/java-vs-nodejs-on-aws-lambda-benchmark-survey/
+- Java는 `Cold Start` 문제를 갖고 있다. `Cold Start`란 함수가 처음 실행될 때 함수 코드와 런타임 환경을 초기화하는 과정이다. 코드가 배포되면 새로운 컨테이너가 생성되고 최초 실행 시 초기화 과정인 `Cold Start` 시간이 필요한 것이다. 이후에 호출될 때는 초기화 시간이 필요하지 않지만 Lambda는 일정 시간 동안 호출되지 않으면 삭제되기 때문에 언제 다시 `Cold Start` 시간이 필요할지 모른다. 이를 해결하기 위해서 Lambda에 할당하는 메모리 크기를 늘려서 초기화 시간을 단축하거나 Previsioned Concurrency를 사용하는 방법이 있다.
+
+### (3) 공통 : AWS SAM CLI 설치
 - `brew tap aws/tap`
 - `brew install aws-sam-cli`
 - `sam --version`
