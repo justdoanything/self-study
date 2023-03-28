@@ -1377,10 +1377,10 @@ Amazon Connect
 ## 6. Amazon Connect 만들어보기
 - ### (1) Instance 구축
   - [Amazon Connect](https://docs.aws.amazon.com/connect/index.html) 접속 → Amazon Connect 시작하기 → Create Instance
-    
-    <img width="600" alt="스크린샷 2023-01-27 10 07 48" src="https://user-images.githubusercontent.com/21374902/215044965-02c2bd74-946e-444a-a375-b77c6d460625.png">
-
-    <img width="300" alt="스크린샷 2023-01-27 10 20 03" src="https://user-images.githubusercontent.com/21374902/215044987-a8852510-79ea-4a52-9789-9b7fee63a9b4.png">
+  
+  <img width="600" height="484" alt="스크린샷 2023-01-27 10 07 48" src="https://user-images.githubusercontent.com/21374902/215044965-02c2bd74-946e-444a-a375-b77c6d460625.png">
+  
+  <img width="300" alt="스크린샷 2023-01-27 10 20 03" src="https://user-images.githubusercontent.com/21374902/215044987-a8852510-79ea-4a52-9789-9b7fee63a9b4.png">
 
 - ### (2) Amazon Connect Dashboard
   
