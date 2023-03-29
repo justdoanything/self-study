@@ -1474,6 +1474,37 @@ macOS | Intellij Ultimate | Typescript
   
   - Reference : https://varteq.com/java-vs-nodejs-on-aws-lambda-benchmark-survey/
 - Java는 `Cold Start` 문제를 갖고 있다. `Cold Start`란 함수가 처음 실행될 때 함수 코드와 런타임 환경을 초기화하는 과정이다. 코드가 배포되면 새로운 컨테이너가 생성되고 최초 실행 시 초기화 과정인 `Cold Start` 시간이 필요한 것이다. 이후에 호출될 때는 초기화 시간이 필요하지 않지만 Lambda는 일정 시간 동안 호출되지 않으면 삭제되기 때문에 언제 다시 `Cold Start` 시간이 필요할지 모른다. 이를 해결하기 위해서 Lambda에 할당하는 메모리 크기를 늘려서 초기화 시간을 단축하거나 Previsioned Concurrency를 사용하는 방법이 있다.
+  - `Cold Start` 문제를 해결하기 위해 AWS는 `SnapStart`라는 기능을 개발했다.
+  - Lambda의 수명주기는 아래와 같다.
+    - init
+      - 함수의 runtime을 bootstrap하고 정적 코드를 실행하는 과정
+      - 대부분의 경우 밀리초 안으로 완료되지만 SpringBoot, Quarkus, Micronual과 같은 Framework와 함께 Java Runtime 중 하나를 사용하는 Lambda 함수의 init 시간은 10초 이상이 소요될 수 있다.
+      - 종속성 삽입, 함수 코드 컴파일, Class Path 구성 요소 스캔 등에 시간이 소요되기 떄문이다.
+      - 다른 이유로는 정적 코드에서 일부 기계 학습 모델을 다운로드하거나 일부 참조 데이터를 미리 계산하거나 다른 AWS 서비스에 대한 네트워크 연결을 설정할 때에도 시간이 오래 소요될 수 있다. 
+    - invoke
+    - shutdown
+  - SnapStart 동작 방식
+    - 특정 Lambda에서 SnapStart를 활성화하고 새 버전을 게시하면 최적화된 프로세스가 실행된다.
+    - init 단계를 수행하고 메모리 및 디스크 상태의 변경 불가능한 암호화된 스냅샷을 가져와서 다시 사용할 수 있도록 캐싱한다.
+    - 이후에 함수가 호출되면 상태에 따라 캐시에서 청크 단위로 검색되어 실행 환경을 채우는데 사용된다.
+    - 새로운 환경을 만드는데 init 단계가 필요하지 않게 되고 최적화를 통해 호출 시간이 단축된다.
+  - SnapStart 필요 조건
+    - Java 11 이상
+    - 미국 동부(오하이오, 버지니아 북부), 미국 서부(오레곤), 아시아 태평양(싱가포르, 시드니, 도쿄) 및 유럽(프랑크푸르트, 아일랜드, 스톡홀름) 리전에서 사용 가능
+  - SnapStart 장점
+
+    |장점|설명|
+    |---|---|
+    |스냅 복원력 강화|Lambda SnapStart는 초기화된 단일 스냅샷을 재사용하여 여러 실행 환경을 재개함으로써 애플리케이션 속도를 높입니다. 이는 코드에 몇 가지 흥미로운 영향을 미칩니다.|
+    |고유성|napStart를 사용하는 경우 고유성을 유지하려면 초기화 중에 생성되었던 모든 고유 컨텐츠를 초기화 후에 생성해야 합니다. 사용자(또는 사용자가 참조하는 라이브러리)가 유사 난수 생성기를 사용하는 경우 Init 단계에서 얻은 시드를 기반으로 해서는 안됩니다. SnapStart와 함께 사용할 때 임의성을 보장하기 위해 OpenSSL의 Rand_bytes를 업데이트했고java.security.SecureRandom이 이미 스냅 복원력이 있음을 확인했습니다. Amazon Linux의 /dev/random 및 /dev/urandom도 스냅 복원력이 뛰어납니다.|
+    |네트워크 연결|코드가 Init 단계에서 네트워크 서비스에 대한 장기 연결을 만들어 Invoke 단계에서 사용하는 경우 필요 시 연결을 다시 설정할 수 있는지 확인하세요. 이를 위해 AWS SDK가 이미 업데이트되었습니다.|
+    |임시 데이터|이는 사실상 위 항목의 보다 일반적인 형태입니다. Init 단계에서 코드가 참조 정보를 다운로드하거나 계산하는 경우 캐싱 기간 동안 참조 정보가 오래되지 않았는지 빠르게 확인하는 것이 좋습니다.|
+    |캐싱|캐싱된 스냅샷은 14일 동안 사용하지 않으면 제거됩니다. 업데이트되거나 패치된 런타임에 따라 스냅샷이 달라지는 경우 Lambda는 자동으로 캐시를 새로 고칩니다.|
+    |요금|Lambda SnapStart를 사용하는 데는 추가 요금이 부과되지 않습니다.|
+    |기능 호환성|더 큰 임시 스토리지, Elastic File Systems, Provisioned Concurrency 또는 Graviton2에서는 Lambda SnapStart를 사용할 수 없습니다. 일반적으로 범용 Lambda 함수에는 SnapStart를 사용하고 지연 시간에 매우 민감한 함수의 하위 집합에는 Provisioned Concurrency를 사용하는 것이 좋습니다.|
+    |Firecracker|이 기능은 Firecracker 스냅샷 생성을 사용합니다.|
+
+  - Reference : https://aws.amazon.com/ko/blogs/korea/new-accelerate-your-lambda-functions-with-lambda-snapstart/
 
 ### (3) 공통 : AWS SAM CLI 설치
 - `brew tap aws/tap`
