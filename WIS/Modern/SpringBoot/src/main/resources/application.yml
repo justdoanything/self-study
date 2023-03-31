@@ -44,6 +44,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        # Hibernate가 출력하는 SQL 쿼리가 보다 가독성이 좋은 형태로 출력
   rest-template:
     connection-timeout: 5000
     read-timeout: 5000

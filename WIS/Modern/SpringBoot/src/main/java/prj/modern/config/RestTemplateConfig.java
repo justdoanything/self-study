@@ -40,6 +40,9 @@ public class RestTemplateConfig {
                 .setConnectTimeout(Duration.ofMillis(connectionTimeout))
                 .setReadTimeout(Duration.ofMillis(readTimeout))
                 .additionalMessageConverters(new StringHttpMessageConverter(Charset.forName("UTF-8")))
+                // StringHttpMessageConverter : HTTP 응답 본문을 문자열로 변환
+                // MappingJackson2HttpMessageConverter : HTTP 응답 본문을 자바 객체로 변환
+                // XML을 처리할 경우엔 MappingJackson2XmlHttpMessageConverter을 사용해야 한다.
                 .build();
     }
 }
