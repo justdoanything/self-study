@@ -3865,6 +3865,105 @@ public class Client {
     ```
 
 ---
+# 7️⃣️ 기타 간단한 질문들
+- Java에서 equals()가 있고 hashCode()가 없는 클래스를 Key로 HashMap을 사용하면 어떻게 동작하는가?
+  ```
+  hashCode()가 없을 경우 HashMap은 기본 Object.hashCode()를 사용해서 코드를 생성한다.
+  따라서 equals()가 같은 값을 반환하더라도 HashMap은 항상 다른 객체로 인식한다.
+  HashMap의 Key로 사용하고 싶다면 반드시 equals()와 hashCode()를 둘 다 정의해야 한다.
+  ```
+
+- JPA Entity가 Serializable을 구현하기를 권장하는 이유는?
+  ```
+  우선 직렬화란, 객체를 파일이나 네트워크 전송 등 외부 시스템에서 사용할 수 있도록 이진 데이터 형태(byte)로 변환하는 것을 의미한다.
+  주로 분산 환경에서 저장, 복원을 할 때 사용되는 개념이다.
+  
+  JPA Entity는 Persistence Context에서 관리가 되는데 Serializable을 구현하면 객체의 상태를 저장하고 복원할 때 사용할 수 있다.
+  서로 다른 트랜잭션에서 같은 Entity를 조회하고 수정할 때 Serializable가 없으면 상태를 저장하고 복원할 수 없어서 변경된 상태가 적용되지 않을 수 있다. (데이터 불일치 방지)
+  분산 환경에서 여러 서버에서 같은 데이터베이스를 사용할 경우 Entity의 상태가 공유되야 할 때 사용된다.
+  Spring Security와 JPA가 같이 사용될 때 JPA Entity를 Session에 저장할 때 사용된다.
+  ```
+
+- Java의 Syncronized
+  ```java
+  Syncronized는 멀티 스레딩 환경에서 공유 자원에 대한 접근을 동기화(synchronization)할 수 있는 기능을 제공한다.
+  1. Instance Method 동기화
+     public synchronized void method() { ... }
+    
+     Instance Method에 synchronized 키워드를 붙이면 해당 객체에 대한 동기화가 이루어집니다. 즉, 한 번에 하나의 스레드만 해당 객체의 synchronized 메서드에 접근할 수 있습니다.
+     해당 Method를 호출하는 thread는 해당 객체의 Monitor lock을 획득하고 끝나면 반환한다. 이 때 다른 thread가 접근하려 할 경우, lock이 풀릴 때까지 대기합니다.
+  
+  2. Block 동기화
+     public void method() {
+       synchronized (this) { ... }
+     }
+  
+  멀티 스레딩 환경에서 공유 자원에 대한 접근을 동기화함으로써, 스레드 간의 경합 조건(race condition)과 같은 문제를 방지할 수 있습니다.
+  ```
+
+- SpringBoot의 비동기 처리 방식
+
+Spring Boot에서 비동기 처리 방식은 다양한 방법으로 제공됩니다. 이 중에서 가장 많이 사용되는 방법은 Spring Framework에서 제공하는 비동기 처리 방식을 활용하는 것입니다.
+
+Spring Framework는 Java에서 비동기 처리를 위한 다양한 방식을 제공합니다. 그 중에서도 가장 많이 사용되는 방법은 다음과 같습니다.
+
+`CompletableFuture`
+Java 8부터 제공되는 CompletableFuture는 비동기 처리를 위한 가장 간단하고 유용한 방법 중 하나입니다. 
+CompletableFuture는 CompletableFuture.supplyAsync()나 CompletableFuture.runAsync() 메소드를 사용하여 비동기 작업을 생성하고, 
+thenApply(), thenAccept() 등의 메소드를 사용하여 처리 결과를 핸들링할 수 있습니다.
+```java
+@Service
+public class MyService {
+    
+    public CompletableFuture<String> asyncMethod() {
+        return CompletableFuture.supplyAsync(() -> {
+            // 비동기 처리 작업 수행
+            // ...
+            return "비동기 작업 결과";
+        });
+    }
+}
+```
+`@Async 어노테이션`
+Spring Framework에서는 @Async 어노테이션을 사용하여 메소드를 비동기적으로 실행할 수 있습니다. 
+이 어노테이션을 사용하면 메소드 실행 시 새로운 스레드를 생성하여 비동기적으로 실행됩니다.
+```java
+@Service
+public class MyService {
+    
+    @Async
+    // 반드시 public
+    public CompletableFuture<String> asyncMethod() {
+        // 비동기 처리 작업 수행
+        // ...
+        return CompletableFuture.completedFuture("비동기 작업 결과");
+    }
+}
+```
+`WebFlux`
+Spring 5부터는 WebFlux라는 새로운 웹 프레임워크를 제공합니다. 
+WebFlux는 기존의 Spring MVC와 달리 Reactive Programming을 지원합니다. 
+Reactive Programming은 비동기적으로 데이터 스트림을 처리하는 방식을 지원합니다.
+```java
+@Service
+public class MyService {
+  public Mono<String> asyncMethod() {
+    return Mono.fromCallable(() -> {
+      // 비동기 처리 작업 수행
+      // ...
+      return "비동기 작업 결과";
+    });
+  }
+}
+```
+`Callable과 DeferredResult`
+Spring Framework에서는 Callable과 DeferredResult를 사용하여 비동기 처리를 할 수 있습니다. 
+Callable은 일반적인 자바에서 제공하는 Callable 인터페이스와 동일하며, DeferredResult는 비동기 처리 결과를 담아두는 객체입니다. 
+이 두 가지를 함께 사용하면 비동기 처리 결과를 쉽게 핸들링할 수 있습니다.
+이러한 방법을 사용하여 Spring Boot에서 비동기 처리를 구현할 수 있습니다. 
+비동기 처리를 활용하면 I/O 처리와 같은 블로킹 작업이 많은 서비스에서도 높은 성능을 유지할 수 있습니다.
+
+---
 
 - 알고리즘
 - 지원 동기
