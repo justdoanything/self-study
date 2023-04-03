@@ -3866,14 +3866,14 @@ public class Client {
 
 ---
 # 7️⃣️ 기타 간단한 질문들
-- Java에서 equals()가 있고 hashCode()가 없는 클래스를 Key로 HashMap을 사용하면 어떻게 동작하는가?
+- ### Java에서 equals()가 있고 hashCode()가 없는 클래스를 Key로 HashMap을 사용하면 어떻게 동작하는가?
   ```
   hashCode()가 없을 경우 HashMap은 기본 Object.hashCode()를 사용해서 코드를 생성한다.
   따라서 equals()가 같은 값을 반환하더라도 HashMap은 항상 다른 객체로 인식한다.
   HashMap의 Key로 사용하고 싶다면 반드시 equals()와 hashCode()를 둘 다 정의해야 한다.
   ```
 
-- JPA Entity가 Serializable을 구현하기를 권장하는 이유는?
+- ### JPA Entity가 Serializable을 구현하기를 권장하는 이유는?
   ```
   우선 직렬화란, 객체를 파일이나 네트워크 전송 등 외부 시스템에서 사용할 수 있도록 이진 데이터 형태(byte)로 변환하는 것을 의미한다.
   주로 분산 환경에서 저장, 복원을 할 때 사용되는 개념이다.
@@ -3884,7 +3884,7 @@ public class Client {
   Spring Security와 JPA가 같이 사용될 때 JPA Entity를 Session에 저장할 때 사용된다.
   ```
 
-- Java의 Syncronized
+- ### Java의 Syncronized
   ```java
   Syncronized는 멀티 스레딩 환경에서 공유 자원에 대한 접근을 동기화(synchronization)할 수 있는 기능을 제공한다.
   1. Instance Method 동기화
@@ -3901,67 +3901,102 @@ public class Client {
   멀티 스레딩 환경에서 공유 자원에 대한 접근을 동기화함으로써, 스레드 간의 경합 조건(race condition)과 같은 문제를 방지할 수 있습니다.
   ```
 
-- SpringBoot의 비동기 처리 방식
+- ### SpringBoot의 비동기 처리 방식
+  - `CompletableFuture`
+    - Java 8부터 제공되는 기능으로 SpringBoot에서 제공하는 기능은 아니다.
+    - `supplyAsync()`, `runAsync()`를 사용하여 비동기 작업을 생성하고 `thenApply()`, `thenAccept()`를 사용하여 처리 결과를 핸들링할 수 있습니다.
 
-Spring Boot에서 비동기 처리 방식은 다양한 방법으로 제공됩니다. 이 중에서 가장 많이 사용되는 방법은 Spring Framework에서 제공하는 비동기 처리 방식을 활용하는 것입니다.
+      ```java
+      @Service
+      public class MyService {
+        public CompletableFuture<String> asyncMethod() {
+          return CompletableFuture.supplyAsync(() -> {
+              // 비동기 처리 작업 수행
+              // ...
+              return "비동기 작업 결과";
+          });
+        }
+      }
+      ```
 
-Spring Framework는 Java에서 비동기 처리를 위한 다양한 방식을 제공합니다. 그 중에서도 가장 많이 사용되는 방법은 다음과 같습니다.
+  - `@Async 어노테이션`
+    - SpringBoot에서 제공하는 기능으로 세모드를 비동기적으로 실행할 수 있다. 
+    - 메소드 실행 시 새로운 스레드를 생성하여 비동기적으로 실행한다.
+    - 메소는 반드시 public 이어야 한다.
 
-`CompletableFuture`
-Java 8부터 제공되는 CompletableFuture는 비동기 처리를 위한 가장 간단하고 유용한 방법 중 하나입니다. 
-CompletableFuture는 CompletableFuture.supplyAsync()나 CompletableFuture.runAsync() 메소드를 사용하여 비동기 작업을 생성하고, 
-thenApply(), thenAccept() 등의 메소드를 사용하여 처리 결과를 핸들링할 수 있습니다.
-```java
-@Service
-public class MyService {
-    
-    public CompletableFuture<String> asyncMethod() {
-        return CompletableFuture.supplyAsync(() -> {
+      ```java
+      @Service
+      public class MyService {
+        @Async
+        public CompletableFuture<String> asyncMethod() {
+          // 비동기 처리 작업 수행
+          // ...
+          return CompletableFuture.completedFuture("비동기 작업 결과");
+        }
+      }
+      ```
+
+  - `WebFlux`
+    - Spring 5부터는 WebFlux라는 새로운 웹 프레임워크를 제공한다. 
+    - WebFlux는 기존의 Spring MVC와 달리 Reactive Programming을 지원하고 Reactive Programming은 비동기적으로 데이터 스트림을 처리하는 방식을 지원한다.
+
+      ```java
+      @Service
+      public class MyService {
+        public Mono<String> asyncMethod() {
+          return Mono.fromCallable(() -> {
             // 비동기 처리 작업 수행
             // ...
             return "비동기 작업 결과";
-        });
-    }
-}
-```
-`@Async 어노테이션`
-Spring Framework에서는 @Async 어노테이션을 사용하여 메소드를 비동기적으로 실행할 수 있습니다. 
-이 어노테이션을 사용하면 메소드 실행 시 새로운 스레드를 생성하여 비동기적으로 실행됩니다.
-```java
-@Service
-public class MyService {
-    
-    @Async
-    // 반드시 public
-    public CompletableFuture<String> asyncMethod() {
-        // 비동기 처리 작업 수행
-        // ...
-        return CompletableFuture.completedFuture("비동기 작업 결과");
-    }
-}
-```
-`WebFlux`
-Spring 5부터는 WebFlux라는 새로운 웹 프레임워크를 제공합니다. 
-WebFlux는 기존의 Spring MVC와 달리 Reactive Programming을 지원합니다. 
-Reactive Programming은 비동기적으로 데이터 스트림을 처리하는 방식을 지원합니다.
-```java
-@Service
-public class MyService {
-  public Mono<String> asyncMethod() {
-    return Mono.fromCallable(() -> {
-      // 비동기 처리 작업 수행
-      // ...
-      return "비동기 작업 결과";
-    });
-  }
-}
-```
-`Callable과 DeferredResult`
-Spring Framework에서는 Callable과 DeferredResult를 사용하여 비동기 처리를 할 수 있습니다. 
-Callable은 일반적인 자바에서 제공하는 Callable 인터페이스와 동일하며, DeferredResult는 비동기 처리 결과를 담아두는 객체입니다. 
-이 두 가지를 함께 사용하면 비동기 처리 결과를 쉽게 핸들링할 수 있습니다.
-이러한 방법을 사용하여 Spring Boot에서 비동기 처리를 구현할 수 있습니다. 
-비동기 처리를 활용하면 I/O 처리와 같은 블로킹 작업이 많은 서비스에서도 높은 성능을 유지할 수 있습니다.
+          });
+        }
+      }
+      ```
+
+  - `Callable`과 `DeferredResult`
+    - `Callable`은 일반적인 자바에서 제공하는 Callable 인터페이스와 동일하며 비동기 처리 결과를 반환하는데 사용된다.
+    - `DeferredResult`는 비동기 처리 결과를 담아두는 있다가 나중에 반환할 수 있도록 한다. `DeferredResult` 객체를 반환하면, 요청 스레드는 즉시 반환되고, 비동기 처리는 백그라운드에서 수행된다.
+    - 비동기 처리를 위해 스레드 풀을 사용하려면, `taskExecutor`라는 스프링 프레임워크에서 제공하는 TaskExecutor 인터페이스를 사용해야 한다.
+    - `ListenableFuture` 또는 `CompletableFuture`는 더욱 강력한 기능을 제공하며, 비동기 처리를 보다 효율적으로 수행할 수 있다.
+    - `Callable`은 요청 스레드에서 작업을 처리하고 결과를 반환하는 반면, `DeferredResult`는 비동기적으로 작업을 처리하고 결과를 반환하는 방식이다. 따라서 `DeferredResult`는 스레드 풀을 사용하여 더 많은 요청을 처리할 수 있다.
+
+      ```java
+      @RestController
+      public class AsyncController {
+        @Autowired
+        private TaskExecutor taskExecutor;
+      
+        /**
+        * 반환되는 Callable 객체는 call() 메소드가 호출되면 비동기 처리가 시작되며 Callable 객체는 실행이 완료될 때까지 block 된다.
+        * 실행이 종료되면 call() 메소드가 결과를 반환한다.
+        */
+        @RequestMapping("/callable")
+        public Callable<String> callable() {
+          return () -> {
+            Thread.sleep(5000);
+            return "Callable Result";
+          };
+        }
+        /**
+        * 반환되는 DeferredResult 객체는 비동기 처리 결과를 나중에 반환할 수 있도록 해준다.
+        * DeferredResult 객체를 반환하면 클라이언트 요청이 즉시 반환되고 비동기 처리는 백그라운드에서 수행된다.
+        * 비동기 처리가 완료되면 DeferredResult 객체의 setResult() 메소드를 호출하여 결과를 반환하고 클라이언트로 전송된다.
+        */
+        @RequestMapping("/deferred")
+        public DeferredResult<String> deferred() {
+          DeferredResult<String> result = new DeferredResult<>();
+          taskExecutor.execute(() -> {
+            try {
+              Thread.sleep(5000);
+              result.setResult("DeferredResult Result");
+            } catch (InterruptedException e) {
+              result.setErrorResult(e.getMessage());
+            }
+            });
+            return result;
+        }
+      }
+      ```
 
 ---
 
