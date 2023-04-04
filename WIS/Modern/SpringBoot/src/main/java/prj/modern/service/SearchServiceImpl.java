@@ -32,6 +32,38 @@ public class SearchServiceImpl implements SearchService {
     private final KakaoService kakaoService;
     private final NaverService naverService;
 
+    /**
+     * @Description Hystrix
+     *   1. Java Source에서 설정
+     *     - commandKey :  안쓰면 자동으로 메소드 명으로 지정됨
+     *     - execution.isolation.thread.timeoutInMilliseconds : 해당 시간 동안 메서드가 끝나지 않으면 circuit open
+     *     - metrics.rollingStats.timeInMilliseconds : (circuit open 조건) 해당 시간 동안
+     *     - circuitBreaker.errorThresholdPercentage : (circuit open 조건) 해당 에러 퍼센트만큼 실패시 오픈
+     *     - circuitBreaker.requestVolumeThreshold : (circuit open 조건) 최소 판단 하기 위해 해당 요청 건수만큼 들어와야 한다.
+     *     - circuitBreaker.sleepWindowInMilliseconds : circuit open 시 지속 될 시간
+     *
+     *     // 10 초 동안 10번 호출 중 20% 실패시(2번 실패시) 10초간 fallback 메소드 호출
+     *     // 단, 해당 메소드가 3초 안에 끝나지 않을시 fallback 메소드 호출
+     *     @HystrixCommand(
+     *       commandKey = "commandKeyExample"
+     *       , fallbackMethod = "doFallbackProcess"
+     *       , commandProperties = {
+     *             @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "2000"),
+     *             @HystrixProperty(name = "metrics.rollingStats.timeInMilliseconds", value = "10000"),
+     *             @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "20"),
+     *             @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "10"),
+     *             @HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "10000")
+     *         }
+     *     )
+     *   2. applica.yml에서 설정
+     *   hystrix:
+     *     command:
+     *       commandKeyExample:
+     *         execution:
+     *           isolation:
+     *             thread:
+     *               timeoutInMilliseconds: 3000
+     */
     @Override
     @HystrixCommand(fallbackMethod = "fallbackGetKakaoBlogs")
     public PaginationResponseVO getKakaoBlogs(SearchKakaoBlogRequestVO searchKakaoBlogRequestVO) {
