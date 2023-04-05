@@ -4031,3 +4031,75 @@ public class Client {
   4. 클린코드(그냥 스키밍, 이런게 있구나 정도로)
   5. 모던 자바 (Stream, Optional, Lambda, Functional interface 등의 개념 공부)
   6. 친절한 SQL 튜닝 (안 친절함, 근데 공부할 것들 많음)
+
+면접 대비 공부한 것들 복습 및 요약
+- NGNIX : 웹서버 역할, Event-Driven 방식, 다수의 연결을 효과적으로 처리, 여러개의 Connection을 모두 Event Handler에서 비동기 방식으로 처리
+- Apache : Thread 방식, Connection과 Thread가 1대1 매핑, Connection이 증가하면 CPU, Memory 낭비 심함
+  
+- Redis : key-value 구조의 data store, in-memory(disk가 아니라 memory에 저장), Sorted-set 구조로 실시간 순위표
+  
+- Flyway의 out-of-order : 여러 브랜치에서 서로 다른 버전으로 만들어도 작동하도록 함. 이미 실행된 마이그레이션 파일의 실행 이력을 삭제하고 이전의 실행된 마이그레이션보다 높은 버전의 마이그레이션을 실행하는 경우 용이하다. Prod에선 사용하지 않아야 한다.
+  
+- HTTP
+  - GET / 조회 / 200 OK / 404 Not Found
+  - PUT / 전체 변경 / 201 Created / 400 Bad Request
+  - POST / 생성 / 200 OK, 204 No-Content / 409 Conflict
+  - DELETE / 삭제 / 204 No-Content / 404 Not Found
+  - HEAD / 응답헤더조회 / 200 OK
+  - OPTIONS / 사용 가능한 메소드 표기 / 200 OK
+  - PATCH / 일부 변경 / 201 Created / 400 Bad Request
+  - PUT은 수정하지 않을 속성값도 모두 기존값을 보내줘야 한다.
+    
+- SQL 실행계획 : SQL 해석 -> 실행계획 수립 -> 실행
+  - Extra 필드를 보고 Query 수정 여부 판단
+  - type 필드를 보고 Index 참조 여부 판단
+    
+- JVM
+  - byte code를 Interpreter 방식으로 읽다가 일정 기준이 지나면 JIT Compile 방식(빠르지만 자원소모가 큼)으로 읽음.
+  - java compiler : .java -> .class
+  - class loader : Runtime Data Area로 loading
+  - execution engine : .class를 해석하고 해석된 byte code는 data area에 각 영역에 배치되서 수행. 이 때 GC과 Thread 동기화가 이뤄짐
+  - runtime data area : static, heap, stack
+    - heap : new 키워드로 생성된 객체와 배열이 생성
+      - Young Generation : Eden, Survivor0, Survivor1
+    - stack : 지역 변수, 파라미터 값
+      
+- Java GC
+  - Mark And Sweep
+    - 식별 Mark
+    - 제거 Sweep
+    - 재구성 Compact
+  - MinorGC : Young 영역
+    - Eden 영역에 Mark 된 객체를 Survivor 0으로 이동
+    - Eden 영역을 Sweep (Survivor 0에 있는 객체 age+1) age는 일반적으로 31이 임계값
+    - Eden, Survivor 0 영역에 Mark 된 객체를 Survivor1 으로 이동
+    - 반복
+      
+- ThreadLocal
+  - 1개의 Thread가 사용하는 변수는 다른 Thread가 접근할 수 없다.
+  - Thread에 의해서만 read/write가 가능한 변수. set(), get()을 사용해서 데이터를 사용하고 반드시 remve() 해야 한다.
+    
+- JPA
+  - 쓰기지연 : SQL 한번에 실행
+  - 지연로딩 : 값이 실제로 필요한 시점에 조회.
+  - 즉시로딩 : Entity 조회 시 연관된 데이터 모두 조회. 쿼리가 많이 수행되서 성능 문제.
+  - Life Cycle
+    - new : 순서 객체 상태로 컨텍스트와 관련 없는 상태
+    - managed : 컨텍스트가 관리하는 상태
+    - detached : 컨텍스트에 있다가 분리된 상태
+      - detach, clear, close, merged
+    - removed : 컨텍스트와 데이터베이스에서 삭제된 상태
+      
+- Kafka
+  - 순차적 처리
+  - 대용량 실시간 처리 대용량의 Batch Job 처리
+  - RabbitMQ는 장시간 실행되는 작업, 안정적인 백그라운드 작업
+    
+- MSA
+  - Load Balancing : Feign Client는 기본적으로 Load Balancing을 담고 있음.
+  - N2PC : Not Two Phase Commit
+  - SAGA : 서비스 간 트랜잭션을 묶어주는 개념
+    - 결재해지 방식 : 에러가 발생한 서비스가 처리
+    - 3자 위임 방식 : Kafka나 다른 서비스에 알리고 처리 안함.
+  - API Composition : 각 마이크로 서비스 앞단에서 데이터를 취합하고 하나의 UI로 보여줌. CQRS에 비해서 복잡함
+  - CQRS : 데이터를 집계해서 취합하는 기능을 하고 보여줌.
