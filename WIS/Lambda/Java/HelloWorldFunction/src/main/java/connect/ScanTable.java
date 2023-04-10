@@ -28,6 +28,8 @@ public class ScanTable implements RequestHandler<Object, ScanTableResponse> {
         JsonObject json = gson.toJsonTree(input).getAsJsonObject();
         String phoneNumber = json.getAsJsonObject("Details").getAsJsonObject("Parameters").get("customerNumber").getAsString();
 
+        System.out.println("Logger : phoneNumber = " + phoneNumber);
+
         Map<String, AttributeValue> where = new HashMap<>();
         where.put(":phoneNumber", AttributeValue.builder().s(phoneNumber).build());
 
@@ -39,17 +41,20 @@ public class ScanTable implements RequestHandler<Object, ScanTableResponse> {
 
         try{
             ScanResponse response = dynamoDbClient.scan(scanRequest);
-            System.out.println(response.items().toString());
-            if(!response.hasItems())
-                return ScanTableResponse.builder()
-                    .isReserved(false)
-                    .build();
-            else
+
+            System.out.println("Logger : query result : " + response.toString());
+            if(response.count() > 0)
                 return ScanTableResponse.builder()
                         .isReserved(true)
                         .name(response.items().get(0).get("name").s())
+                        .localName(response.items().get(0).get("localName").s())
                         .flightNo(response.items().get(0).get("flightNo").s())
+                        .reservedNo(response.items().get(0).get("reservedNo").s())
                         .build();
+            else
+                return ScanTableResponse.builder()
+                    .isReserved(false)
+                    .build();
         }catch (Exception e){
             System.out.println("Logger Exception : " + e.toString());
             return ScanTableResponse.builder()

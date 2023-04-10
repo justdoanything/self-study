@@ -14,9 +14,11 @@ public class ScanTableResponse {
     private String grade;
     private String membership;
     private String name;
+    private String localName;
     private String phoneNumber;
     private String sitNo;
     private String toCountry;
     private String toDate;
     private boolean isReserved;
+    private String reservedNo;
 }

@@ -1,5 +1,4 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
-import {Endpoint, EndpointPort} from "../models/api/ApiModel";
 
 export enum Method {
     GET = "GET",

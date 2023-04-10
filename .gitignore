@@ -132,5 +132,7 @@ dmypy.json
 
 *launch.json
 
-.idea/*
-.vscode/*
+**/.idea/
+**/.vscode/
+**/.aws-sam/
+**/node_modules/
