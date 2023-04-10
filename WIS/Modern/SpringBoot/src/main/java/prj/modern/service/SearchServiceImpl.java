@@ -114,6 +114,43 @@ public class SearchServiceImpl implements SearchService {
         }
         List<Object[]> historyObjects = searchKeywordHistoryRepository.findTopKeywordByPeriod(limitSize, startDate, endDate);
         List<PopularKeywordDTO> topKeywords = historyObjects.stream().map(PopularKeywordDTO::new).collect(Collectors.toList());
+
+        /**
+         *
+         * Object[]를 쓰지 않고 Query 결과를 Mapping 하는 방법
+         *
+         * @PersistenceContext
+         *     private EntityManager em;
+         *
+         * @SqlResultSetMapping(
+         *         name = "MappingPopularKeyword",
+         *         classes = {
+         *                 @ConstructorResult(
+         *                         targetClass = PopularKeywordDTO.class,
+         *                         columns = {
+         *                                 @ColumnResult(name = "keyword", type=String.class),
+         *                                 @ColumnResult(name = "keywordCount", type = BigInteger.class)
+         *                         }
+         *                 )
+         *         }
+         * )
+         * @NamedNativeQuery(
+         *         name = "findTopKeywordByPeriod",
+         *         query =  "SELECT keyword as keyword, COUNT(*) as keywordCount " +
+         *                 "FROM search_keyword_history " +
+         *                 "WHERE created_datetime BETWEEN :startDate AND :endDate " +
+         *                 "GROUP BY keyword " +
+         *                 "ORDER BY keywordCount DESC " +
+         *                 "LIMIT :limitSize",
+         *         resultSetMapping = "MappingPopularKeyword"
+         * )
+         *
+         * List<PopularKeywordDTO> historyObjects = em.createNamedQuery("findTopKeywordByPeriod")
+         *                 .setParameter("limitSize",limitSize)
+         *                 .setParameter("startDate",startDate)
+         *                 .setParameter("endDate",endDate)
+         *                 .getResultList();
+         */
         return topKeywords.stream().map(SearchPopularKeywordResponseVO::new).collect(Collectors.toList());
     }
 
