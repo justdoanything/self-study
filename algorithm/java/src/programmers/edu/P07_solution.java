@@ -1,4 +1,4 @@
-package programmers;
+package programmers.edu;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package programmers;
+package programmers.edu;
 
 class P06_debug {
 	

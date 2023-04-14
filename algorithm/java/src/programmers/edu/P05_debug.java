@@ -1,4 +1,4 @@
-package programmers;
+package programmers.edu;
 
 class Liquid {
 	protected Integer amount;

@@ -1,4 +1,4 @@
-package programmers;
+package programmers.edu;
 
 class P02_empty {
     int[] dy = /**/ {-1, 1, 0, 0}; 

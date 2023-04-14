@@ -1,4 +1,4 @@
-package programmers;
+package programmers.edu;
 
 public class P10_solution {
   
