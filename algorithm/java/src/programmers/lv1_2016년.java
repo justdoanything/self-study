@@ -3,7 +3,7 @@ package programmers;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-public class lv1_2016 {
+public class lv1_2016년 {
     public static void main(String[] args) {
         System.out.println(solution(1, 1));
     }

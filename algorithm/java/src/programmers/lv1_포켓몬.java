@@ -3,7 +3,7 @@ package programmers;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-public class lv1_pokemon {
+public class lv1_포켓몬 {
     public int solution(int[] nums) {
         int answer = 0;
         int pick = nums.length / 2;
