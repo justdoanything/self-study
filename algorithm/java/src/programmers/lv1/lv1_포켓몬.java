@@ -1,4 +1,4 @@
-package programmers;
+package programmers.lv1;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;

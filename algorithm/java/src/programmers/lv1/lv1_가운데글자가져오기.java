@@ -1,4 +1,4 @@
-package programmers;
+package programmers.lv1;
 
 public class lv1_가운데글자가져오기 {
     public static void main(String[] args) {

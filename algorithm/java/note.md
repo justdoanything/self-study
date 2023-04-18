@@ -29,3 +29,28 @@ class Solution {
     }
 }
 ```
+```java
+// List -> Array
+list.stream().mapToInt(i -> i).toArray();
+list.toArray(new Integer[0]);
+list.toArray(new String[0]);
+    
+// String -> IntStream
+str.chars().filter( e -> 'P'== e).count() == s.chars().filter( e -> 'Y'== e).count();
+```
+```java
+// sort + compare
+list.sort((str1, str2) -> {
+    if(str1.charAt(n) > str2.charAt(n))
+        return 1;
+    else if(str1.charAt(n) == str2.charAt(n))
+        return str1.compareTo(str2);    // String 비교
+    else
+        return -1;
+});
+
+// string sort
+return Stream.of(s.split(""))
+    .sorted(Comparator.reverseOrder())
+    .collect(Collectors.joining());
+```

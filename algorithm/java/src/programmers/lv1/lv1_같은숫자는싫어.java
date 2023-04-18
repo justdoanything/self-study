@@ -1,11 +1,7 @@
-package programmers;
+package programmers.lv1;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class lv1_같은숫자는싫어 {
     public int[] solution(int []arr) {
@@ -16,6 +12,7 @@ public class lv1_같은숫자는싫어 {
                 list.add(i);
             before = i;
         }
+        list.toArray(new Integer[0]);
         return list.stream().mapToInt(i -> i).toArray();
     }
 }
