@@ -414,3 +414,96 @@ public static void dfs(int[][] graph, int v, boolean[] visited, int n){
 	}
 }
 ```
+---
+- ### 문제 풀면서 정리
+```java
+// array에서 중복 제거 후 사용
+// HashSet, HashMap 사용
+// Stream 사용
+class Solution {
+    public void solution() {
+        int[] array = {2, 2, 1, 3, 4};
+        int answer;
+
+        HashSet<Integer> hashSet = new HashSet<>();
+        for(int i =0; i<nums.length;i++)
+            hs.add(nums[i]);
+        if(hs.size()>nums.length/2)
+            answer = nums.length/2;
+        else
+            answer = hs.size();
+
+        HashMap<Integer, Integer> map = new HashMap<Integer,Integer>();
+        for (int i = 0; i < nums.length; i++)
+            map.put(nums[i], 1);
+        answer = map.size() > nums.length / 2 ? nums.length / 2 : map.size();
+
+        answer = Arrays.stream(nums)
+                .boxed()
+                .collect(Collectors.collectingAndThen(Collectors.toSet(),
+                        phonekemons -> Integer.min(phonekemons.size(), nums.length / 2)));
+    }
+}
+```
+```java
+// List -> Array
+list.stream().mapToInt(i -> i).toArray();
+list.toArray(new Integer[0]);
+list.toArray(new String[0]);
+    
+// String -> IntStream
+str.chars().filter( e -> 'P'== e).count() == s.chars().filter( e -> 'Y'== e).count();
+```
+```java
+// sort + compare
+list.sort((str1, str2) -> {
+    if(str1.charAt(n) > str2.charAt(n))
+        return 1;
+    else if(str1.charAt(n) == str2.charAt(n))
+        return str1.compareTo(str2);    // String 비교
+    else
+        return -1;
+});
+
+// string sort
+return Stream.of(s.split(""))
+    .sorted(Comparator.reverseOrder())
+    .collect(Collectors.joining());
+```
+```java
+// 약수는 대칭을 갖기 때문에 제곱근까지만 돌리면 된다.
+public static int solution(int n){
+    int answer = 0;
+    for(int i=1;i<=Math.sqrt(n);i++){
+        if(n%i==0){
+            if(i*i==n)
+                answer+=i;
+            else{
+                answer+=i;
+                answer+=n/i;
+            }
+        }
+    }
+    return answer;
+}
+
+// 비슷한 예로 소수 찾기도 제곱근까지만 돌린다.
+public static int solution(int n) {
+    if(n==2)
+        return 1;
+
+    int answer = 1;
+    for(int i=3; i<=n; i++){
+        boolean flag = true;
+        for(int j=2; j<=Math.sqrt(i); j++){
+            if(i%j == 0){
+                flag = false;
+                break;
+            }
+        }
+        if (flag)
+            answer++;
+    }
+    return answer;
+}
+```
