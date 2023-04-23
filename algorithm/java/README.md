@@ -507,3 +507,19 @@ public static int solution(int n) {
     return answer;
 }
 ```
+```java
+// n자리의 수는 %10으로 구한다. 
+while (n != 0) {
+    answer += n % 10;
+    n /= 10;
+}
+
+// n자리 숫자를 거꾸로 돌리기
+new StringBuilder().append(n).reverse().chars().map(Character::getNumericValue).toArray();
+
+// 소수점 아래 값이 있는지 없는지 확인
+num % 1 == 0
+
+// x를 n번만큼 반복해서 변환
+return LongStream.iterate(x, i->i+x).limit(n).toArray();
+```
