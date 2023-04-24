@@ -27,3 +27,6 @@
   - 📁 [10 Javascript](https://github.com/justdoanything/self-study/blob/main/WIS/10%20Javascript.md)
   - 📁 [11 Testing](https://github.com/justdoanything/self-study/blob/main/WIS/11%20Testing.md)
   - 📁 [12 Spring](https://github.com/justdoanything/self-study/blob/main/WIS/12%20Spring.md)
+  - 📁 [13 Java](https://github.com/justdoanything/self-study/blob/main/WIS/13%20Java.md)
+  - 📁 [14 Web](https://github.com/justdoanything/self-study/blob/main/WIS/14%20Web.md)
+  - 📁 [15 SQL](https://github.com/justdoanything/self-study/blob/main/WIS/15%20SQL.md)
