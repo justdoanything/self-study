@@ -469,6 +469,9 @@ list.sort((str1, str2) -> {
 return Stream.of(s.split(""))
     .sorted(Comparator.reverseOrder())
     .collect(Collectors.joining());
+
+// int[] 정렬은 Arrays.sort() 사용
+Arrays.sort(arr);
 ```
 ```java
 // 약수는 대칭을 갖기 때문에 제곱근까지만 돌리면 된다.
