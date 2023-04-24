@@ -13,12 +13,8 @@
   - 🗂 [Spring Boot](https://github.com/justdoanything/self-study/tree/main/WIS/Spring%20Boot)
   - 🗂 [Spring Data JPA](https://github.com/justdoanything/self-study/tree/main/WIS/Spring%20Data%20JPA)
   - 🗂 [Book](https://github.com/justdoanything/self-study/tree/main/WIS/%F0%9F%93%9A%20Book)
-    - 📕 토비의 스프링 3.1 Vol 1
-    - 📕 토비의 스프링 3.1 Vol 2
-    - 📗 클린코드
-    - 📘 모던 자바 인 액션
-    - 📘 Effective Java 3E
-    - 📙 리액트를 다루는 기술(개정판)
+    - 📘 [모던 자바 인 액션](https://github.com/justdoanything/self-study/blob/main/WIS/📚%20Book/📘%20모던%20자바%20인%20액션.md)
+    - 📘 [Effective Java 3E](https://github.com/justdoanything/self-study/blob/main/WIS/📚%20Book/📘%20Effective%20Java%203E.md)
   - 📁 [01 Docker](https://github.com/justdoanything/self-study/blob/main/WIS/01%20Docker.md)
   - 📁 [02 Kubernetes](https://github.com/justdoanything/self-study/blob/main/WIS/02%20Kubernetes.md)
   - 📁 [03 Application Modernization](https://github.com/justdoanything/self-study/blob/main/WIS/03%20ApplicationModernization.md)
