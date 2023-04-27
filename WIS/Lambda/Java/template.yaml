@@ -1,9 +1,9 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  lambdaTest
+  Java
 
-  Sample SAM Template for lambdaTest
+  Sample SAM Template for Java
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
@@ -15,15 +15,11 @@ Resources:
   HelloWorldFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: HelloWorldFunction
-      Handler: connect.ScanTable::handleRequest
-      Runtime: java11
+      PackageType: Image
       Architectures:
         - x86_64
-      MemorySize: 512
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
-          PARAM1: VALUE
           JAVA_TOOL_OPTIONS: -XX:+TieredCompilation -XX:TieredStopAtLevel=1 # More info about tiered compilation https://aws.amazon.com/blogs/compute/optimizing-aws-lambda-function-performance-for-java/
       Events:
         HelloWorld:
@@ -31,6 +27,10 @@ Resources:
           Properties:
             Path: /hello
             Method: get
+    Metadata:
+      DockerTag: java11-gradle-v1
+      DockerContext: ./HelloWorldFunction
+      Dockerfile: Dockerfile
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
