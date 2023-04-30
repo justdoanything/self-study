@@ -27,6 +27,9 @@
   String b1 = Integer.toBinaryString(8); // 10진수 -> 2진수
   String b2 = Integer.toOctalString(8); // 10진수 -> 8진수
   String b3 = Integer.toHexString(8);   // 10진수 -> 16진수
+  
+  // 앞에 0 채우는 방법
+    String.format("%0"+n+"d", Integer.toBinaryString(8)); // 0001
 
   int t1 = Integer.parseInt(a1, 2);  // 2진수 -> 10진수
   int t2 = Integer.parseInt(a2, 8);  // 8진수 -> 10진수
@@ -525,4 +528,9 @@ num % 1 == 0
 
 // x를 n번만큼 반복해서 변환
 return LongStream.iterate(x, i->i+x).limit(n).toArray();
+```
+```java
+String[] strArr = new String[n];
+Arrays.fill(strArr, "");
+
 ```
