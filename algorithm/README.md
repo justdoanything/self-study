@@ -530,7 +530,11 @@ num % 1 == 0
 return LongStream.iterate(x, i->i+x).limit(n).toArray();
 ```
 ```java
+// String Array 공백으로 초기화
 String[] strArr = new String[n];
 Arrays.fill(strArr, "");
-
+```
+```java
+// Array 복사하기
+Arrays.copyOfRange(array, 2, 3);
 ```
