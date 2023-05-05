@@ -1,7 +1,6 @@
 <!-- TOC -->
 * [SQL 실행계획](#sql-실행계획)
 * [SQL Indexing](#sql-indexing)
-* [Flyway](#flyway)
 <!-- TOC -->
 
 
@@ -21,8 +20,9 @@ SQL 실행계획
         - SELECT 쿼리를 구분하기 위한 용도로 JOIN으로 연결되어 있는 쿼리는 하나로 보기 때문에 같은 id 값을 가진다.
     - `select_type`
         - SELECT 쿼리가 어떤 타입인지 나타낸다.
-        - | 타입                     | 설명                                                                                                                                                                                                                                                            |
-                |------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+      
+          | 타입                     | 설명                                                                                                                                                                                                                                                            |
+          |------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
           | `SIMPLE`               | UNION 이나 Sub Query를 사용하지 않은 단순 SELECT. JOIN하고 있는 쿼리도 따로 보지 않고 하나의 `SIMPLE`로 본다.                                                                                                                                                                               |
           | `PRIMARY`              | UNION 이나 Sub Query가 포함된 SELECT에서 가장 바깥쪽에 있는 SELECT. PRIMARY인 쿼리는 반드시 하나만 존재한다.                                                                                                                                                                                |
           | `UNION`                | UNION을 사용한 SELECT에서 두번째 이후 쿼리는 모두 UNION 으로 표시된다. (첫번째 쿼리는 `DERIVED` 이다.)                                                                                                                                                                                      |
@@ -42,8 +42,9 @@ SQL 실행계획
     - `type`
         - ⭐️ index를 참조했는지 알려주는 중요한 컬럼이다.
         - ALL 을 빼면 index를 사용했다고 볼 수 있고 type 컬럼의 종류는 아래와 같다. (성능이 좋은 순으로 정렬되어 있다.)
-        - | 타입                | 설명                                                                                                                                                                                                                                                             |
-                |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---|
+      
+          | 타입                | 설명                                                                                                                                                                                                                                                             |
+          |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---|
           | `system`          | record가 0건 또는 1건만 존재하는 테이블을 접근할 때 표시된다.                                                                                                                                                                                                                        |
           | `const`           | Query에 Primary/Unique Key를 이용하는 WHERE 조건이 있으면거 결과가 반드시 1건을 반환하는 쿼리로 접근할 때 표시된다. (=UNIQUE INDEX SCAN) 단, DBMS가 결과가 1개인 것을 예측할 수 있어야 한다. QUERY 결과가 1건인 것이랑은 별개이다.                                                                                                |
           | `eq_ref`          | 여러 테이블이 JOIN 되는 QUERY 에서만 발생한다. JOIN에서 처음 읽은 테이블의 컬럼 값을 두번째 읽는 테이블의 Primary/Unique Index Column(NOT NULL)의 동등 조건에 사용될 때 (=반드시 1건만 존재한다는 보장이 있을 때) 사용되는 접근 방법                                                                                                   |
@@ -76,7 +77,7 @@ SQL 실행계획
     - `Extra`
         - MySQL이 Query를 어떻게 풀었는지 부가 정보를 표시해준다.
         - | 타입                                                                       | 설명                                                                                                                                                                                                                                                   |
-                |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---|
+          |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---|
           | `const row not found`                                                    | const 접근 방식으로 읽었으나 레코드가 0개인 것을 의미                                                                                                                                                                                                                    |
           | `distinct`                                                               | JOIN 할 때 중복된 값을 제거하고 필요한 필드만 JOIN 했음을 의미                                                                                                                                                                                                             |
           | `Full scan on NULL key`                                                  | WHERE 조건에 nullable 컬럼이 있는 경우 null 일 때 Full Scan을 하겠다는 의미                                                                                                                                                                                             |
@@ -161,185 +162,5 @@ SQL Indexing
           SELECT * FROM employee WHERE age = to_number('30') -- 인덱스를 사용
           ```
 - Reference : https://hckcksrl.medium.com/index를-타지않는-쿼리-41f0417bfe03
-
----
-
-Flyway
-===
-- ### Flyway 란?
-    - Git으로 Source Code를 형상관리하면서 여러 환경에 동일하게 배포 및 관리를 할 수 있듯이 Flyway는 Database Schema와 Data를 형상관리를 할 수 있게 해줍니다.
-    - Code 기반으로 관리하며 Data Migration에도 용이합니다.
-    - 개발자가 Local에서 변경한 Database Schema와 Data를 실제 환경(개발, 운영)에 누락없이 안전하게 반영할 수 있게 됩니다.\
-      ![image](https://user-images.githubusercontent.com/21374902/153998066-6a914dc7-58e9-4e2c-b035-dcd04dab4dc1.png)
-    - Flyway는 Meta Table을 만들고 사용자가 정의한 SQL을 실행하여 Migration을 하고 History를 Meta Table에 저장합니다.
-    - History Table을 통해 이전의 이력(DDL/DML)을 관리해서 database 중복 작업을 방지하고 이전에 수행했던 작업을 재수행하기 쉽고 동일한 결과를 보장합니다.
-    - 별도로 설정하지 않는 경우 비워져있지않으면 'Found non-empty schema(s) "tableName" without schema history table!' 이와 같은 에러 발생한다.
-    - Target Schema(Database)에 flyway_schema_history(flyway 변경 이력 관리 meta table)을 생성합니다.
-- ### Flyway 동작방식
-    - 기본적인 시작 조건은 2가지 이다.
-        - Migration file (Database Schema 변경에 대한 SQL 파일)이 있어야 한다.
-
-          ![image](https://user-images.githubusercontent.com/21374902/153998100-3613f969-b32a-4b09-9ee5-9311cbc362a6.png)
-
-        - 기본적으로 Migration을 하려는 Schema(Database)는 비워져있어야한다.
-
-          ![image](https://user-images.githubusercontent.com/21374902/153998380-31cbe6d8-2275-48b7-ac8e-5181340bcdf1.png)
-
-    - flyway의 `schema_version` 테이블이 생성되거나 기존재한다면 flyway는 지정된 classpath에서 `SQL 파일` 혹은 `Java 파일`을 탐색하여 버전 순서대로 실행한다.
-
-  ![image](https://user-images.githubusercontent.com/21374902/153998388-c5b50387-bbd9-4802-b31d-075d4f7dbd14.png)
-
-    - 이때 실행해야하는 순서, version, description, checksum 등은 schema_version 테이블에 저장된다.
-
-  ![image](https://user-images.githubusercontent.com/21374902/153998396-eca9bd45-a57d-4bd4-9f92-8a3e3a1c6620.png)
-
-    - flyway는 Migration 대상 파일의 version을 파일명 기준으로 판단하는데 Naming Rule은 아래와 같다.
-
-  ![image](https://user-images.githubusercontent.com/21374902/153998406-8044eacd-ff55-4b1a-81cb-3dfcbf25d18a.png)
-
-
-- ### SQL Naming Rule
-    - prefix
-        - V : default 값으로 Version Migration용 접두사
-        - R : 반복 Migration용 접두사
-    - version : `Version Migration(prefix=V)`에서만 사용되며 숫자, 마침표(.), 언더바(_) 조합으로 구성할 수 있습니다.
-    - separator : 설명 구문을 구분하기 위한 값이며 언더바 2개(__)로 사용합니다.
-    - description : schema_version 테이블에 저장할 때 설명으로 사용됩니다.
-    - suffix : 기본 확장자는 .sql 입니다.
-    - 예시 : V1_1_022_member.sql, R__Create_view.sql
-
-- ### Flyway Command
-    - 6개의 명령을 지원하며 Execution Mode에 따라 다르게 동작한다.
-
-    - Migrate : database를 migration 합니다.\
-      ![image](https://user-images.githubusercontent.com/21374902/153998132-4dce9b27-c1bd-4e28-a680-b6d67e23c77a.png)
-
-    - Info : 모든 migration 상세정보를 출력합니다.\
-      ![image](https://user-images.githubusercontent.com/21374902/153998148-b0edea83-3384-4820-9fca-69f3a6f0ba87.png)
-
-    - Validate : database에 적용된 migration 정보의 유효성을 검증합니다.\
-      ![image](https://user-images.githubusercontent.com/21374902/153998164-f07c3121-f23f-41e7-a1a0-04b9dfd34ecc.png)
-
-    - Baseline : flyway로 관리되기 이전의 database가 존재하면 해당 database를 flyway baseline으로 설정할 수 있습니다.\
-      ![image](https://user-images.githubusercontent.com/21374902/153998188-6003d2b6-a113-4f61-809c-cf0a61e79cf4.png)
-
-    - Repair : Meta Table 문제를 해결할 때 사용합니다. 메타 데이터 테이블 문제를 해결하기 위해 사용하는데 두가지 용법이 존재한다.
-        - 실패한 Migration 항목 제거 (DDL Transaction을 지원하지 않는 database에만 해당)
-        - 적용된 Migration의 체크섬을 사용 가능한 Migration의 Checksum으로 재정렬. \
-          ![image](https://user-images.githubusercontent.com/21374902/153998205-9d5111ce-dcb5-48e3-a0b7-bd89716ae43b.png)
-
-    - Clean : database의 schema_version 테이블을 포함한 모든 요소를(table, view, procedure, ...)\
-      ![image](https://user-images.githubusercontent.com/21374902/153998219-14a5a9c2-6e46-423a-94f4-5ab6d70d102e.png)
-- ### Flyway 실행방법
-    - Command-line : 콘솔에서 명령을 입력하여 실행하는 방법
-    - API(Java/Android) : Java로 작성된 프로그램내에서 API를 이용하여 실행.
-    - Maven : Maven에 통합하여 실행.
-    - Gradle : Gradle에 통합하여 실행.
-    - Ant : Ant에 통합하여 실행.
-    - SBT : SBT(Scala 빌드 도구)에 통합하여 실행.
-
-- ### Flyway 실습예제(Gradle 기반) with SpringBoot
-    - build.gradle
-      ```yml
-      plugins{
-        ...
-        id 'org.flywaydb.flyway' version '6.5.5'
-        ...
-      }
-  
-      dependencies {
-        ...
-        implementation 'org.flywaydb:flyway-core'
-        ...
-      }
-  
-      flyway {
-        // database source 입력
-        url = 'jdbc:mariadb://localhost:3330/spring?useUnicode=yes&characterEncoding=UTF-8&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false'
-        user = 'root'
-        password = 'yongwoo'
-        schemas = ['spring']
-        // sql 파일 경로 명시
-        locations = ['filesystem:./src/main/resources/db/migration/common', 'filesystem:./src/main/resources/db/migration/env/local']
-        sqlMigrationSuffixes = ['.sql']
-        outOfOrder = true
-      }
-      ```
-    - FlywayConfig.java
-      ```java
-      @Configuration
-      public class FlywayConfig {
-          @Value(value = "${spring.profiles.active}")
-          private String profile;
-  
-          @Bean
-          public FlywayMigrationStrategy cleanMigrationStrategy() {
-              return flyway -> {
-                  if (profile.equals("feature") || profile.equals("dev")) {
-                      flyway.clean();
-                  }
-                  flyway.migrate();
-              };
-          }
-      }
-      ```
-    - application.yml
-      ```yml
-      spring:
-        flyway:
-          url: jdbc:mariadb://localhost:3330/spring?useUnicode=yes&characterEncoding=UTF-8&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
-          schema: spring
-          user: root
-          password: yongwoo
-          locations: classpath:/db/migration
-          out-of-order: true
-      ```
-    - SQL 폴더 구성
-        - resources/db/migration/common : DDL과 같은 SQL Versioing
-        - resources/db/migration/env/local : DML과 같은 SQL Versioning, spring profile 별로 나눌 수 있다.
-
-- ### Flyway 실습예제(Maven 기반)
-    - flayway dependency 추가 & build 설정 추가
-  ```xml
-  <dependencies>
-   <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <version>1.4.193</version>
-   </dependency>
-  </dependencies>
-  <build>
-    <plugins>
-        <plugin>
-          <groupId>org.flywaydb</groupId>
-          <artifactId>flyway-maven-plugin</artifactId>
-          <version>4.0.3</version>
-          <configuration>
-              <url>jdbc:h2:tcp://192.168.56.101:9092/~/test,h2.version=1.4.193</url>
-              <user>sa</user>
-              <locations>
-                <location>classpath:db/migration</location>
-              </locations>
-          </configuration>
-        </plugin>
-    </plugins>
-  </build>
-  ```
-    - Migration SQL 생성
-        - 원하는 경로에 SQL 파일 생성\    
-          ![image](https://user-images.githubusercontent.com/21374902/154786923-6b9960c3-6472-4a74-8511-ddd036e59812.png)
-    - Migration 수행
-        - `mvn flyway:migrate`를 실행하면 db/migration 하위에 있는 sql 파일들이 version에 따라 실행된다.\
-          ![image](https://user-images.githubusercontent.com/21374902/154786952-e2a9f14e-b8e6-4ad1-a065-a0fee2b7a873.png)
-    - Migration 확인
-        - `mvn flyway:info` 명령어를 통해 Schema_version에 실행한 이력을 확인할 수 있다.\
-          ![image](https://user-images.githubusercontent.com/21374902/154786978-b9298012-cbeb-48c2-aa65-a3eb78cb3735.png)
-
-- ### 잔여과제
-    - Docker, AWS 배포 환경에서 자동으로 migration을 수행하려면 어떤 작업이 필요한가?
-    - 수동으로 해야하면 어떤 시점에 어떻게 수동으로 해야하며 자동으로 하려면 어떻게 해야하고 어떤 점들을 챙겨야 하는가 ?
-- ### Reference
-    - https://flywaydb.org/documentation/
-    - https://www.popit.kr/%EB%82%98%EB%A7%8C-%EB%AA%A8%EB%A5%B4%EA%B3%A0-%EC%9E%88%EB%8D%98-flyway-db-%EB%A7%88%EC%9D%B4%EA%B7%B8%EB%A0%88%EC%9D%B4%EC%85%98-tool/
 
 ---

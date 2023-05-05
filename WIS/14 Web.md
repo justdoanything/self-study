@@ -94,9 +94,9 @@ REST API
     - HTTP 메소드 종류
       값 | 의미  
       ---|:---:
-      `GET` | 조회
-      `PUT` | 정보 변경
-      `POST` | 정보 생성
+      `GET` | 정보 조회
+      `PUT` | 정보 생성
+      `POST` | 정보 변경
       `DELETE` | 정보 삭제
     - Customer 예제
         - URI : `/customers`
