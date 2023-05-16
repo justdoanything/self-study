@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class lv1_실패율_2019KakaoBlind {
+public class lv1_실패율_2019카카오블라인드 {
     public static void main(String[] args) {
         for (int i : solution(5, new int[]{2, 1, 2, 1, 2, 1, 3, 3})) {
             System.out.println(i);

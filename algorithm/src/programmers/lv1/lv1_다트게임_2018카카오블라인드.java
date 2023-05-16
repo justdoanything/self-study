@@ -1,6 +1,6 @@
 package programmers.lv1;
 
-public class lv1_다트게임_2018KakaoBlind {
+public class lv1_다트게임_2018카카오블라인드 {
     public static void main(String[] args) {
         System.out.println(solution("1S2D*3T"));
         System.out.println(solution("1D2S#10S"));
