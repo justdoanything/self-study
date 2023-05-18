@@ -1,66 +1,50 @@
 import grammer.array.Array;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Stack;
+
 public class Temp {
 
     public static void main(String[] args) {
+        Stack<Integer> stack = new Stack<>();
+        stack.addAll(Arrays.asList(1,2,3,4,5));
+        System.out.println("stack : " + stack);
 
-        int x = 0;
-        int y = 0;
-        int depth = 6;
-        int[][] map = new int[4][6];
+        System.out.println(stack.isEmpty());
+        System.out.println(stack.size());
 
-//        way4(x, y, depth, map);
-        way8(x, y, depth, map);
-        Array.printArray(map);
+        System.out.println(stack.add(6)); // 마지막에 요소 추가 (boolean)
+        System.out.println(stack.push(7)); // 마지막에 요소 추가 (넣은 요소 반환)
 
-        int[] dx = {1, 1, 0, -1, -1, -1, 0, 1};
-        int[] dy = {0, 1, 1, 1, 0, -1, -1, -1};
+        System.out.println(stack.peek()); // 마지막 요소 반환
+
+        System.out.println(stack.pop()); // 마지막에 요소 추출
+
+        System.out.println(stack.capacity()); // Stack의 용량으로 기본값은 0이고 초과하면 자동으로 더 큰 용량으로 복사된다.
+
+        System.out.println("stack : " + stack);
+        System.out.println(stack.search(2)); // 요소의 위치 (뒤에서 부터)
+        System.out.println(stack.get(2)); // n번째 요소 반환 (앞에서 부터)
+
+        Queue<Integer> queue = new LinkedList<>();
+        queue.addAll(Arrays.asList(1,2,3,4,5));
+        System.out.println("queue : " + queue);
+
+        System.out.println(queue.isEmpty());
+        System.out.println(queue.size()); // Queue 크기
+
+        System.out.println(queue.add(6)); // 마지막에 요소 추가 (boolean)
+        System.out.println(queue.offer(7)); // 마지막에 요소 추가 (boolean)
+
+        System.out.println(queue.peek()); // 첫번째 요소 반환
+        System.out.println(queue.element()); // 첫번째 요소 반환
+
+        System.out.println(queue.poll()); // 첫번째 요소 추출
+        System.out.println(queue.remove()); // 첫번째 인자 추출
+
+
     }
-
-    public static void way4(int x, int y, int depth, int[][] map) {
-        int[] dx = {-1, 1, 0, 0};
-        int[] dy = {0, 0, -1, 1};
-
-        map[x][y] = 1;
-        int index = 2;
-
-        for (int d = 1; d <= depth; d++) {
-            for (int i = 0; i < 4; i++) {
-                int nextX = x + dx[i] * d;
-                int nextY = y + dy[i] * d;
-
-//                if(nextX >= 0 && nextX < map.length && nextY >= 0 && nextY < map[0].length)
-//                    map[nextX][nextY] = index++;
-
-                // 한방향부터 탐색
-                while (nextX >= 0 && nextX < map.length && nextY >= 0 && nextY < map[0].length) {
-                    map[nextX][nextY] = index++;
-                    nextX = nextX + dx[i] * d;
-                    nextY = nextY + dy[i] * d;
-                }
-            }
-        }
-    }
-
-    public static void way8(int x, int y, int depth, int[][] map) {
-//        int[] dx = {-1, -1, 0, 1, 1, 1, 0, -1};
-//        int[] dy = {0, 1, 1, 1, 0, -1, -1, -1};
-
-        int[] dx = {1, 1, 0, -1, -1, -1, 0, 1};
-        int[] dy = {0, 1, 1, 1, 0, -1, -1, -1};
-
-        map[x][y] = 1;
-        int index = 2;
-
-        for (int d = 1; d < depth; d++) {
-            for (int i = 0; i < 8; i++) {
-                int nextX = x + dx[i] * d;
-                int nextY = y + dy[i] * d;
-
-                if (nextX >= 0 && nextX < map.length && nextY >= 0 && nextY < map[0].length)
-                    map[nextX][nextY] = index++;
-            }
-        }
-    }
-
 }
