@@ -1,3 +1,5 @@
+# TODO
+
 Netty와 NIO
 
 redis와 순위표 개발하기
@@ -15,6 +17,7 @@ Lambda 코드 정리
 
 
 ---
+# Quick
 
 - ### Java에서 equals()가 있고 hashCode()가 없는 클래스를 Key로 HashMap을 사용하면 어떻게 동작하는가?
   ```
@@ -51,6 +54,7 @@ Lambda 코드 정리
   멀티 스레딩 환경에서 공유 자원에 대한 접근을 동기화함으로써, 스레드 간의 경합 조건(race condition)과 같은 문제를 방지할 수 있습니다.
   ```
 ---
+# 면접대비
 
 - 알고리즘
 - 지원 동기
@@ -84,7 +88,10 @@ Lambda 코드 정리
     5. 모던 자바 (Stream, Optional, Lambda, Functional interface 등의 개념 공부)
     6. 친절한 SQL 튜닝 (안 친절함, 근데 공부할 것들 많음)
 
-면접 대비 공부한 것들 복습 및 요약
+---
+
+# 면접 대비 공부한 것들 복습 및 요약
+
 - NGNIX : 웹서버 역할, Event-Driven 방식, 다수의 연결을 효과적으로 처리, 여러개의 Connection을 모두 Event Handler에서 비동기 방식으로 처리
 - Apache : Thread 방식, Connection과 Thread가 1대1 매핑, Connection이 증가하면 CPU, Memory 낭비 심함
 

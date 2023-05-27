@@ -1,4 +1,7 @@
-# React
+React
+===
+
+# 목차
 - [실제 프로젝트에서 경험했던 기술과 고민](#실제-프로젝트에서-경험했던-기술과-고민)
 - [React 시작지점](#react의-시작지점-파악해보기)
 - [React 기본지식](#react-기본지식)
@@ -459,8 +462,8 @@ fetch("https://url", {
 - Reference
   - https://ko.reactjs.org/docs/higher-order-components.html
 ---
-# next.js
-- ### next.js 의 개념과 주요 기능
+# Next.js
+- ### Next.js 의 개념과 주요 기능
   - next.js는 React로 만드는 SSR Framework 이다.
   - CSR은 모든 js 파일을 loading하고 화면을 표시하는데 많은 시간을 소요하게 된다. 반면에 SSR은 서버에서 js 파일을 loading해서 client에선 js를 loading하는 시간을 절약할 수 있다.
   - 검색엔진에 용이하고 SEO를 용이하게 할 수 있다.
@@ -1738,3 +1741,80 @@ return (
                       repeatCss={{ marginTop: '12px' }}
                     />
       ```
+# Memo
+```js
+/*
+* javascript의 map은 java stream의 map과는 다르다.
+* 객체의 속성값을 변경하거나 일괄 처리를 하고 싶을 때 아래와 같이 사용한다.  
+*/
+const data = File[];
+data.files
+  .filter((item) => item.fileUrl.startsWith('/IMAGE'))
+  .map((item) => {
+    return { ...item, fileUrl: bucketBaseUrl + item.fileUrl };
+  })
+```
+```js
+/*
+* .map과 await 같이 쓰기 (Notion & SSR)
+*/
+interface NotionPageContents {
+  title: string;
+  contents: ExtendedRecordMap;
+}
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  const notionApi = new NotionAPI();
+  const notionPageList: NotionPageContents[] = await backApi.getContents(ContentsTypeCode.FEED).then((response) => {
+    if (response) {
+      return Promise.all(
+        response
+          .filter((item) => item.notionPageUrl)
+          .map(async (item) => {
+            const notionPageContents = item.notionPageUrl ? await notionApi.getPage(item.notionPageUrl);
+            return {
+              title: item.title,
+              contents: notionPageContents,
+            } as NotionPageContents;
+          })
+      );
+    } else {
+      return [];
+    }
+  });
+  return { props: { notionPageList } };
+}
+```
+```js
+interface NotionPageContents {
+  title: string;
+  contents: ExtendedRecordMap;
+}
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  if (!context.query.contents) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
+  }
+  const notionApi = new NotionAPI();
+  const contentsList: Contents[] = JSON.parse(context.query.contents as string);
+  const notionPageList: NotionPageContents[] = await Promise.all(
+    contentsList.map(async (item) => {
+      const recordMap = item.notionPageUrl ? await notionApi.getPage(item.notionPageUrl) : '';
+      return {
+        title: item.title,
+        contents: notionPageContents,
+      } as NotionPageContents;
+    })
+  );
+  return { props: { notionPageList } };
+}
+```
+---
+
+# React Admin
+- https://marmelab.com/react-admin/Readme.html

@@ -1,4 +1,19 @@
-# JPA (Java Persistence API)
+JPA (Java Persistence API)
+===
+
+# 목차
+<!-- TOC -->
+* [JPA (Java Persistence API)](#jpa--java-persistence-api-)
+  * [JPA 특징](#jpa-특징)
+  * [JPA Hibernate](#jpa-hibernate)
+  * [Persistence Framework](#persistence-framework)
+  * [JPA's Persistence](#jpas-persistence)
+  * [JPA 성능 최적화](#jpa-성능-최적화)
+  * [JPA Entity LifeCycle](#jpa-entity-lifecycle)
+* [관련 Repository](#관련-repository)
+<!-- TOC -->
+
+---
 
 ![image](https://user-images.githubusercontent.com/21374902/148677553-e1d6501f-6716-4c47-9565-cc474bf2dbd8.png)
 

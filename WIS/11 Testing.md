@@ -1,5 +1,7 @@
-Test-Automation
+Testing
 ===
+
+# 목차
 - [TDD vs BDD vs ADD vs ATDD](#tdd-bdd-ddd-atdd)
   - [TDD](#tdd-test-driven-development)
   - [BDD](#bdd-behavior-driven-development)

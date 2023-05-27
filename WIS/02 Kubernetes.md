@@ -1,8 +1,7 @@
-kubernetes
+Kubernetes (K8S)
 ===
 
-목차
----
+# 목차
 - [학습목표](#학습목표)
 - [Why Container Orchestration](#why-container-orchestration)
 - [Kubernetes](#what-kubernetes)

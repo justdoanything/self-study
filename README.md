@@ -7,7 +7,7 @@
   - 🗂 [Lambda](https://github.com/justdoanything/self-study/tree/main/WIS/Lambda)
     - 🗂 [Java](https://github.com/justdoanything/self-study/tree/main/WIS/Lambda/Java)
     - 🗂 [Nodejs](https://github.com/justdoanything/self-study/tree/main/WIS/Lambda/Nodejs)
-  - 🗂 [Modern](https://github.com/justdoanything/self-study/tree/main/WIS/Lambda)
+  - 🗂 [Modern](https://github.com/justdoanything/self-study/tree/main/WIS/Modern)
     - 🗂 [React](https://github.com/justdoanything/self-study/tree/main/WIS/Modern/React)
     - 🗂 [SpringBoot](https://github.com/justdoanything/self-study/tree/main/WIS/Modern/SpringBoot)
   - 🗂 [Spring Boot](https://github.com/justdoanything/self-study/tree/main/WIS/Spring%20Boot)
