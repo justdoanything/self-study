@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+spec:
+  selector:
+    matchLabels:
+      app: counter
+      tier: db
+  template:
+    metadata:
+      labels:
+        app: counter
+        tier: db
+    spec:
+      containers:
+      - name: redis
+        image: redis
+        ports:
+        - containerPort: 6379
+          protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+spec:
+  ports:
+  - port: 6379  # Service가 생성할 Port
+    protocol: TCP
+    # targetPort: Service가 접근할 Pod의 Port (안적으면 위 port와 동일)
+  selector: # Service가 접근할 Pod의 label 조건
+    app: counter
+    tier: db
