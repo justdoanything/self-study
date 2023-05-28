@@ -1,0 +1,68 @@
+spring:
+  profiles:
+    group:
+      default: common, local
+      dev: common, dev
+      prod: common, prod
+    active: default
+
+---
+spring:
+  config:
+    activate:
+      on-profile: common
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+mybatis:
+  type-aliases-package: modern.model
+  mapper-locations: classpath:/sql/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+api:
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://localhost:3330/spring
+    username: root
+    password: yongwoo
+  flyway:
+    url: jdbc:mariadb://localhost:3330/spring?useUnicode=yes&characterEncoding=UTF-8&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
+    schema: spring
+    user: root
+    password: yongwoo
+    locations: classpath:/db/migration
+    out-of-order: true
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    session-ttl: 1800   # time-to-live : redis의 key가 살아있는 시간
+  rest-template:
+    connection-timeout: 5000
+    read-timeout: 5000
+    max-connection: 100
+    max-per-route: 50
+
+cloud:
+  token:
+    connect:
+      timeout: 1800
+    read:
+      timeout: 1800
+
+logging:
+  level:
+    modern: info

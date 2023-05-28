@@ -1,0 +1,211 @@
+plugins {
+	id 'org.springframework.boot' version '2.6.6'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+	id 'com.diffplug.spotless' version '6.3.0'
+//    id 'org.sonarqube' version '3.0'
+	id 'jacoco'
+	id 'org.flywaydb.flyway' version '6.5.5'
+	id 'com.google.cloud.tools.jib' version '3.3.0'
+}
+
+group = 'prj.yong'
+version = '0.0.1-SNAPSHOT'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+	maven { url 'https://repo.spring.io/milestone' }
+	maven { url 'https://repo.spring.io/snapshot' }
+}
+
+ext {
+	set('springCloudVersion', "2021.0.1")
+}
+
+dependencies {
+	// spring
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.2'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'io.springfox:springfox-boot-starter:3.0.0'
+	implementation 'javax.xml.bind:jaxb-api'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+//    implementation 'ca.pjer:logback-awslogs-appender:1.6.0'
+
+	//flyway
+	implementation 'org.flywaydb:flyway-core'
+
+	//feign
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+	//aws
+//    implementation platform('com.amazonaws:aws-java-sdk-bom:1.12.154')
+//    implementation 'com.amazonaws:aws-java-sdk-sts'
+//    implementation 'com.amazonaws:aws-java-sdk-s3'
+//    implementation 'com.amazonaws:aws-java-sdk-ses'
+//    implementation 'com.amazonaws:aws-java-sdk-cognitoidp'
+//    implementation 'com.amazonaws:aws-java-sdk-sqs'
+//    implementation 'com.amazonaws:aws-java-sdk-sns'
+//    implementation 'com.amazonaws:aws-java-sdk-kms'
+//    implementation 'com.amazonaws:amazon-sqs-java-messaging-lib:1.0.8'
+
+	//jwt
+	implementation "com.nimbusds:nimbus-jose-jwt:9.1.5"
+
+	//gson
+	implementation 'com.google.code.gson:gson:2.8.9'
+
+	implementation 'org.apache.httpcomponents:httpclient:4.5'
+
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.mockito:mockito-inline'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
+flyway {
+	url = 'jdbc:mariadb://localhost:3330/spring?useUnicode=yes&characterEncoding=UTF-8&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false'
+	locations = ['filesystem:./src/main/resources/db/migration/common', 'filesystem:./src/main/resources/db/migration/env/local']
+	user = 'root'
+	password = 'yongwoo'
+	schemas = ['spring']
+	sqlMigrationSuffixes = ['.sql']
+	outOfOrder = true
+}
+
+def jacocoExclude = [
+		'**/aop/**',
+		'**/client/**',
+		'**/config/**',
+		'**/constants/**',
+		'**/controller/EncryptController*',
+		'**/exception/**',
+		'**/handler/**',
+		'**/interceptor/**',
+		'**/model/**',
+		'**/repository/**',
+		'**/ModernBeApplication*'
+]
+
+jacoco {
+	toolVersion = '0.8.5'
+}
+
+//jacocoTestReport {
+//    reports {
+//        html.enabled true
+//        csv.enabled false
+//        xml.enabled true
+//    }
+//
+//    afterEvaluate {
+//        classDirectories.setFrom(files(classDirectories.files.collect {
+//            fileTree(dir: it, exclude: jacocoExclude)
+//        }))
+//    }
+//
+//    finalizedBy 'jacocoTestCoverageVerification'
+//}
+//
+//jacocoTestCoverageVerification {
+//    violationRules {
+//        rule {
+//            element = 'CLASS'
+//            limit {
+//                counter = 'LINE'
+//                value = 'COVEREDRATIO'
+//                minimum = 0.00
+//            }
+//            limit {
+//                counter = 'BRANCH'
+//                value = 'COVEREDRATIO'
+//                minimum = 0.00
+//            }
+//        }
+//    }
+//}
+//
+//sonarqube {
+//    properties {
+//        property 'sonar.sourceEncoding', 'UTF-8'
+//        property 'sonar.projectKey', 'cherrytomato-be'
+//        property 'sonar.exclusions', jacocoExclude
+//        property 'sonar.coverage.exclusions', jacocoExclude
+//    }
+//}
+//
+//task testCoverage(type: JacocoReport) {
+//    group 'verificaton'
+//    description 'Runs the unit tests with coverage'
+//
+//    dependsOn(':jacocoTestReport',
+//            ':jacocoTestCoverageVerification')
+//
+//    tasks['jacocoTestCoverageVerification'].mustRunAfter(tasks['jacocoTestReport'])
+//}
+//
+//tasks.named('test') {
+//    useJUnitPlatform()
+//    jacoco {
+//        destinationFile = file("$buildDir/jacoco/${name}.exec")
+//    }
+//    finalizedBy 'jacocoTestReport'
+//}
+//
+//task copyGitHooks(type: Copy) {
+//    from("${rootDir}/git-hooks/") {
+//        include '**/*'
+//        rename '(.*)', '$1'
+//    }
+//    into "${rootDir}/.git/hooks"
+//}
+
+//jib {
+//    container.mainClass = "modern.ModernBeApplication"
+//}
+//
+//jar {
+//    enabled = false
+//}
+
+spotless {
+	java {
+		importOrder 'java', 'javax', 'org', 'com', ''
+		removeUnusedImports()
+		palantirJavaFormat("2.27.0")
+		trimTrailingWhitespace()
+		endWithNewline()
+	}
+	format 'misc', {
+		target '**/*.yml', '**/*.gradle', '**/*.md', '**/.gitignore'
+		indentWithSpaces(2)
+		trimTrailingWhitespace()
+		endWithNewline()
+	}
+}
+
+//check.dependsOn testCoverage
+//build.dependsOn copyGitHooks
+
+
+/*
+Jacoco(Java Code Coverage)
+Code Coverage : 테스트 코드가 얼마나 많은 코드를 충족시키는지에 대한 지표 중 하나
+ */
