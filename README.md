@@ -1,5 +1,5 @@
 # 📚 self-study
-- 🗂 [ES5](https://github.com/justdoanything/self-study/tree/main/WIS/ES5)
+- 🗂 [ES5](https://github.com/justdoanything/self-study/tree/main/ES5)
 - 🗂 [Java](https://github.com/justdoanything/self-study/tree/main/Java)
 - 🗂 [Kubernetes](https://github.com/justdoanything/self-study/tree/main/Kubernetes)
 - 🗂 [Lambda](https://github.com/justdoanything/self-study/tree/main/Lambda)
