@@ -1082,13 +1082,136 @@ fetch("https://url", {
 ---
 
 # React Admin
-- https://marmelab.com/react-admin/Readme.html
+- 공식 Document : https://marmelab.com/react-admin/Readme.html
+- 사용한 버전 : "react-admin": "^4.9.0"
 ## Fetch Data
+- React Admin에선 기본적으로 Data를 Fetch하는 hook을 내부적으로 제공하고 있다.
+- useGetOne과 같은 hook을 사용하거나 dataProviver Interface를 재정의해서 사용할 수 있다.
+- useGetOne, useGetList 등은 dataProvider에 .getOne(), .getList() 함수를 사용한다.
+- useGetOne과 같은 hook은 Request와 Response의 기본적인 형식이 정해져있어서 맞춰서 사용해야한다.
+- ### useGetList
+  - 기본적으로 pagination 형식을 제공한다.
+  - 응답 객체에 id는 반드시 있어야 한다.
+  ```javascript
+  const {
+    pagination = { page: 1, perPage: 25 },
+    sort = { field: 'id', order: 'DESC' },
+    filter = {},
+    meta,
+  } = params;
+  const result = useQuery<
+    GetListResult<RecordType>,
+    Error,
+    GetListResult<RecordType>
+  >(
+    [resource, 'getList', { pagination, sort, filter, meta }],
+    () =>
+        dataProvider
+            .getList<RecordType>(resource, {
+                pagination,
+                sort,
+                filter,
+                meta,
+            })
+            .then(({ data, total, pageInfo }) => ({
+                data,
+                total,
+                pageInfo,
+            })),
+        {
+            ...options,
+            onSuccess: value => {
+                // optimistically populate the getOne cache
+                value?.data?.forEach(record => {
+                    queryClient.setQueryData(
+                        [resource, 'getOne', { id: String(record.id), meta }],
+                        oldRecord => oldRecord ?? record
+                    );
+                });
+                // execute call-time onSuccess if provided
+                if (options?.onSuccess) {
+                    options.onSuccess(value);
+                }
+            },
+        }
+  );
+  ```
+
 - ### useGetOne
+  - param에 id가 필수값이다.
+  ```javascript
+  return useQuery<RecordType, unknown, RecordType>(
+     // Sometimes the id comes as a string (e.g. when read from the URL in a Show view).
+     // Sometimes the id comes as a number (e.g. when read from a Record in useGetList response).
+     // As the react-query cache is type-sensitive, we always stringify the identifier to get a match
+     [resource, 'getOne', { id: String(id), meta }],
+     () =>
+        dataProvider
+            .getOne<RecordType>(resource, { id, meta })
+            .then(({ data }) => data),
+        options
+  );
+  ```
 - ### useGetMany
-- ### useCreate
+```javascript
+return useQuery<RecordType[], Error, RecordType[]>(
+  [
+    resource,
+    'getMany',
+    {
+      ids: !ids || ids.length === 0 ? [] : ids.map(id => String(id)),
+      meta,
+    },
+  ],
+  () => {
+    if (!ids || ids.length === 0) {
+      // no need to call the dataProvider
+      return Promise.resolve([]);
+    }
+    return dataProvider
+      .getMany<RecordType>(resource, { ids, meta })
+      .then(({ data }) => data);
+  },
+  {
+    placeholderData: () => {
+      const records =
+      !ids || ids.length === 0 ? [] : ids.map(id => {
+        const queryHash = hashQueryKey([
+          resource,
+          'getOne',
+          { id: String(id), meta },
+        ]);
+        return queryCache.get<RecordType>(queryHash)
+          ?.state?.data;
+      });
+      if (records.some(record => record === undefined)) {
+        return undefined;
+      } else {
+        return records as RecordType[];
+      }
+    },
+    onSuccess: data => {
+      // optimistically populate the getOne cache
+      data.forEach(record => {
+        queryClient.setQueryData(
+          [resource, 'getOne', { id: String(record.id), meta }],
+          oldRecord => oldRecord ?? record
+        );
+      });
+    },
+    retry: false,
+    ...options,
+  }
+);
+```
+- ### useGetManyReference
 - ### useUpdate
+- ### useUpdateMany
+- ### useCreate
+- ### useDelete
+- ### useDeleteMany
 - ### DataProvider
+  - `fetchUtils` : react-admin에서 기본으로 제공하는 fetch 관련 util이다. `fetchUtils.fetchJson()`
 
 ## Form 이동과 제어
 - ### useFormContext
