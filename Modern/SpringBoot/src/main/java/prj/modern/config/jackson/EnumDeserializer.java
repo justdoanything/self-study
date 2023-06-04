@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import org.apache.commons.lang3.EnumUtils;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -24,13 +25,7 @@ public class EnumDeserializer extends StdDeserializer<Enum <? extends Enum>> imp
         String input = jsonNode.asText();
         Class<? extends Enum> enumType = (Class<? extends Enum>) this._valueClass;
 
-        boolean isPlainEnum = true;
-        try {
-            Enum.valueOf(enumType, input);
-        }catch (Exception e){
-            isPlainEnum = false;
-        }
-
+        boolean isPlainEnum = EnumUtils.isValidEnum(enumType, input);
         if(isPlainEnum){
             return Enum.valueOf(enumType, input);
         } else {
