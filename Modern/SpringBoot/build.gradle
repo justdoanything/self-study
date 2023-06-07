@@ -2,7 +2,8 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '2.7.9'
 	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
-	id 'org.flywaydb.flyway' version '6.5.5'
+	id 'org.flywaydb.flyway' version '8.4.4'
+	id 'com.diffplug.spotless' version '6.3.0'
 }
 
 group = 'prj'
@@ -20,22 +21,49 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	// spring
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	// test
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	// jpa
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'io.springfox:springfox-boot-starter:3.0.0'
+
+	// flyway
 	implementation 'org.flywaydb:flyway-core'
-	implementation 'org.apache.httpcomponents:httpclient:4.5.14'
-	implementation 'org.apache.commons:commons-lang3:3.8.1'
-	implementation 'com.google.code.gson:gson:2.8.9'
+
+	// histrix
 	implementation 'org.springframework.cloud:spring-cloud-netflix-hystrix:2.2.5.RELEASE'
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-hystrix:2.2.9.RELEASE'
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	//feign
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+	//jwt
+	implementation "com.nimbusds:nimbus-jose-jwt:9.1.5"
+
+	// database
 	runtimeOnly 'com.h2database:h2'
+	implementation 'mysql:mysql-connector-java:8.0.33'
+	implementation 'org.flywaydb:flyway-mysql:8.2.1'
+
+	// apache
+	implementation 'org.apache.httpcomponents:httpclient:4.5.14'
+	implementation 'org.apache.commons:commons-lang3:3.8.1'
+
+	// redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+	// lombok
+	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	// gson
+	implementation 'com.google.code.gson:gson:2.8.9'
 }
 
 dependencyManagement {
@@ -48,11 +76,27 @@ flyway {
 	locations = ['filesystem:./src/main/resources/db/migration/common', 'filesystem:./src/main/resources/db/migration/env/local']
 	user = 'yongwoo'
 	password = 'yongwoo'
-	schemas = ['search']
+	schemas = ['spring']
 	sqlMigrationSuffixes = ['.sql']
 	outOfOrder = true
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+spotless {
+	java {
+		importOrder 'java', 'javax', 'org', 'com', ''
+		removeUnusedImports()
+		palantirJavaFormat("2.27.0")
+		trimTrailingWhitespace()
+		endWithNewline()
+	}
+	format 'misc', {
+		target '**/*.yml', '**/*.gradle', '**/*.md', '**/.gitignore'
+		indentWithSpaces(2)
+		trimTrailingWhitespace()
+		endWithNewline()
+	}
 }

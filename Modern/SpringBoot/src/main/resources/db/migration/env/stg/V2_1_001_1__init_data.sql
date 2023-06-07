@@ -1,1 +1,1 @@
-// TODO : 필요시 init data를 삽입하는 SQL을 작성할 수 있다.
+-- TODO : 필요시 init data를 삽입하는 SQL을 작성할 수 있다.

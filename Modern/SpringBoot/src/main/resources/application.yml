@@ -29,11 +29,6 @@ spring:
   config:
     activate:
       on-profile: local
-  datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:search;MODE=MySQL
-    username: temp # Change to value you want!
-    password: temp # Change to value you want!
   flyway:
     locations: classpath:/db/migration/common, classpath:/db/migration/env/local
     out-of-order: true
@@ -50,13 +45,25 @@ spring:
     read-timeout: 5000
     max-connection: 100
     max-per-route: 50
-  h2:
-    console:
-      enabled: true
   redis:
     host: localhost
-    port: 6789
+    port: 6379
     ttl: 1000
+### Mysql
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/spring
+    username: yongwoo
+    password: yongwoo
+### H2
+#  datasource:
+#    driver-class-name: org.h2.Driver
+#    url: jdbc:h2:mem:search;MODE=MySQL
+#    username: temp # Change to value you want!
+#    password: temp # Change to value you want!
+#  h2:
+#    console:
+#      enabled: true
 api:
   kakao:
     token: temp # Change to value you want!
