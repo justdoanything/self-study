@@ -2,11 +2,12 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '2.7.9'
 	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
-	id 'org.flywaydb.flyway' version '8.4.4'
-	id 'com.diffplug.spotless' version '6.3.0'
+	id 'org.flywaydb.flyway' version '9.12.0'
+	id 'com.diffplug.spotless' version '6.14.0'
+//	id 'com.github.spotbugs' version '4.7.3'
 }
 
-group = 'prj'
+group = 'prj.modern'
 version = '0.0.1'
 sourceCompatibility = '11'
 
@@ -20,43 +21,53 @@ repositories {
 	mavenCentral()
 }
 
+ext {
+	set('springCloudVersion', '2021.0.5')
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
 dependencies {
 	// spring
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
 	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+	// redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 	// jpa
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'io.springfox:springfox-boot-starter:3.0.0'
 
-	// flyway
-	implementation 'org.flywaydb:flyway-core'
-
-	// histrix
+	// Circuit Breaker
 	implementation 'org.springframework.cloud:spring-cloud-netflix-hystrix:2.2.5.RELEASE'
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-hystrix:2.2.9.RELEASE'
-
-	//feign
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
-
-	//jwt
-	implementation "com.nimbusds:nimbus-jose-jwt:9.1.5"
 
 	// database
 	runtimeOnly 'com.h2database:h2'
-	implementation 'mysql:mysql-connector-java:8.0.33'
-	implementation 'org.flywaydb:flyway-mysql:8.2.1'
+	implementation 'org.mariadb.jdbc:mariadb-java-client'
+
+	// flyway
+	implementation 'org.flywaydb:flyway-core'
+	implementation 'org.flywaydb:flyway-mysql'
+
+	// jwt
+	implementation 'com.nimbusds:nimbus-jose-jwt:9.1.5'
+	implementation 'io.jsonwebtoken:jjwt:0.9.1'
 
 	// apache
 	implementation 'org.apache.httpcomponents:httpclient:4.5.14'
 	implementation 'org.apache.commons:commons-lang3:3.8.1'
-
-	// redis
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
 	// lombok
 	compileOnly 'org.projectlombok:lombok'
@@ -64,12 +75,17 @@ dependencies {
 
 	// gson
 	implementation 'com.google.code.gson:gson:2.8.9'
-}
 
-dependencyManagement {
-	imports {
-		mavenBom 'org.springframework.cloud:spring-cloud-dependencies:2021.0.5'
-	}
+	// swagger
+	implementation 'io.springfox:springfox-boot-starter:3.0.0'
+
+	// xml
+	implementation 'javax.xml.bind:jaxb-api'
+
+	// etc
+	implementation 'org.jsoup:jsoup:1.15.3'
+	implementation 'com.gihub.pagehelper:pagehelper-spring-boot-starter:1.2.12'
+//	implementation 'com.h3xstream.findsecbugs:findbugs-plugin:1.12.0'
 }
 
 flyway {
@@ -87,9 +103,10 @@ tasks.named('test') {
 
 spotless {
 	java {
-		importOrder 'java', 'javax', 'org', 'com', ''
+		importOrder 'java', 'javax', 'org', 'com', 'jakarta', ''
+		indentWithSpaces(4)
 		removeUnusedImports()
-		palantirJavaFormat("2.27.0")
+		palantirJavaFormat('2.27.0')
 		trimTrailingWhitespace()
 		endWithNewline()
 	}

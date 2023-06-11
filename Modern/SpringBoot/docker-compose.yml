@@ -1,16 +1,35 @@
 version: '3.8'
+
 services:
   redis:
-    image: redis
+    image: redis:5.0
+    restart: always
     ports:
       - 6379:6379
 
   mysql:
-    image: mysql
-    ports:
-      - 3306:3306
+    image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: spring
       MYSQL_USER: yongwoo
       MYSQL_PASSWORD: yongwoo
+      TZ: Asia/Seoul
+    ports:
+      - 3306:3306
+    restart: always
+    platform: linux/x86_64
+    command:
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_bin
+      --lower_case_table_names=0
+      --log_bin_trust_function_creators=1
+      --default-authentication-plugin=mysql_native_password
+      --default-time-zone="+09:00"
+
+#  localstack:
+#    image: localstack/localstack:0.12.20
+#    ports:
+#      - 3333:3333
+#    environment:
+#      SERVIES: temp
