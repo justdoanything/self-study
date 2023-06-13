@@ -32,3 +32,135 @@ DTO는 각 Layer 사이에서 데이터를 전달할 때 사용하는 객체라�
   - 회사에선 한 스토리로 Front-end와 Back-end를 한 사람이 개발하는 경우가 많아서 Front-end 필드와 Database 필드가 같아서 RequestVO를 SQL에서 바로 사용하는 사람들이 많았는데 
     toVO를 사용하는 것이 안전하다고 생각해서 같은 필드 이름을 쓰더라도 꼭 toVO를 사용했었다.
 
+# Enum Deserializer
+Spring에서 특정 범위를 갖는 값을 사용할 때 Enum 클래스를 만들어서 사용하곤 했다. 처음으로 접했던 방법은 `@Enum` annotation과 `EnumValidator`을 구현해서 아래와 같은 방법으로 사용했었다.
+```java
+public FeedVO {
+    @EnumValid(enumClass = ContentsType.class)
+    private String contentsType;
+    private String writer;
+    private String title;
+    private String contents;
+}
+```
+```java
+@Target({ElementType.TYPE_USE, ElementType.FIELD, ElementType.PARAMETER})
+@Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = EnumValidator.class)
+public @interface EnumValid {
+    String message() default "유효하지 않은 enum 타입입니다.";
+
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
+
+    Class<? extends java.lang.Enum<?>> enumClass();
+
+    boolean ignoreCase() default false;
+
+    String[] excludeEnumType() default {};
+}
+```
+```java
+public class EnumValidator implements ConstraintValidator<EnumValid, String> {
+
+    private List<String> enumValues;
+    private EnumValid annotation;
+
+    @Override
+    public void initialize(EnumValid enumValid) {
+        this.annotation = enumValid;
+        List<String> excludeEnumType =
+                Arrays.stream(this.annotation.excludeEnumType()).collect(Collectors.toList());
+
+        enumValues = Arrays.stream(this.annotation.enumClass().getEnumConstants())
+                .map(constants ->
+                        this.annotation.ignoreCase() ? constants.name().toUpperCase() : constants.name())
+                .filter(constants -> !excludeEnumType.contains(constants))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean isValid(String value, ConstraintValidatorContext context) {
+        boolean retVal = false;
+
+        if (value != null && !value.isEmpty()) {
+            retVal = enumValues.contains(this.annotation.ignoreCase() ? value.toUpperCase() : value);
+        } else {
+            retVal = true;
+        }
+
+        return retVal;
+    }
+}
+```
+
+@EnumValid annotation은 아래와 같은 @PathVariable로 Enum 클래스를 바로 사용하는 경우를 처리하지 못했고 따라서 각 Enum 클래스마다 Converter 만들어서 사용했었다.
+```java
+@RestController
+@RequestMapping("/feeds")
+public class UserController {
+    
+    @GetMapping("/{contentsType}")
+    public ResponseEntity<String> getFeedsByContentsType(@PathVariable("contentsType") ContentsType contentsType) {
+        return ResponseEntity.ok();
+    }
+}
+```
+```java
+@Component
+public class ContentsTypeConverter implements Converter<String, ContentsType> {
+    @Override
+    public ContentsType convert(String value) {
+        return ContentsType.valueOf(value.toUpperCase());
+    }
+}
+```
+
+이렇게 사용할 경우 몇가지 문제점이 발생한다.
+- 사용하는 Enum 클래스만큼 Converter를 각각 만들어줘야하는 점
+- VO에 각 필드에 @Enum annotation을 넣어줘야 하는 점
+- `Code Enum` 형태를 호환하지 못하는 점
+
+공통 코드를 Database에서 관리하고 Front-end, Back-end에서 같이 사용하는 경우, `Code Enum` 형태를 사용했는데 Front-end에선 Code 값으로 사용하기 때문에 "001", "002", "003", "004"와 같은 값들을 사용하고
+Back-end Service Layer에선 Enum Code 값을 검증하고 사용해야했기 때문에 아래와 같은 `Code Enum` 형태를 사용했었다.
+```java
+// 일반적인 Enum 형태
+public enum Gender {
+  MAN,
+  WOMAN,
+  BOTH
+} 
+```
+```java
+// Code Enum 형태
+public enum FeedContentsTypeCode {
+  NORMAL("001"),
+  VOTE("002"),
+  SHARE("003"),
+  VIDEO("004");
+
+  private String value;
+
+  FeedContentsTypeCode(String value){
+    this.value = value;
+  }
+  
+  public String value() {
+    return value;
+  }
+}
+```
+
+Front-end에선 Database에서 조회된 공통코드를 사용하기 때문에 화면에 노출하는 값은 name(NORMAL, VOTE, SHARE, VIDEO), 실제로 코드 내에선 사용하는 값은 code(001, 002, 003, 004) 값으로 
+Code 값이 Back-end로 전송하기 때문에 Code Enum 형태를 사용하지 않고 일반적인 Enum 형태를 사용한다면 Service Layer에서 `FeedContentsTypeCode.001.equals(contents)`와 같이 001이 어떤 값인지 다시 찾아봐야하는 불편함이 생기기 때문에 Code Enum 형태를 사용하게 되었고
+기존에 만들어둔 @EnumValid나 Converter를 사용하면 Enum 값으로 비교하기 때문에 Front-end에서 "001"로 값이 넘어오는 경우 비교하는 값의 범위가 [NORMAL, VOTE, SHARE, VIDEO] 이기 때문에 호환되지 않았다.
+
+이와 같은 점들을 개선하기 위해서 Jackson을 사용해서 Serializer와 Deserializer를 사용하게 되었다.
+Enum 체크해서 value 있으면 enum 값과 value 값들을 모두 검사한다.
+그리고 필드 타입을 Enum class를 바로 사용함으로써 @enumvalid 안써도된다.
+
+대신 null은 호환하지 않으며 (valid에 추가할 수 있지만?) @enumvalid는 exclude나 null을 사용할 수 있게 된다.
+
+
+- 장점은 exclude, null 가능
