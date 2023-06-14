@@ -152,30 +152,59 @@ public enum FeedContentsTypeCode {
 }
 ```
 
-Front-end에서 화면에 노출하는 값은 name 값인 [NORMAL, VOTE, SHARE, VIDEO], 실제로 코드 내에선 사용하는 값은 code 값인 [001, 002, 003, 004] 값으로 사용했고 Back-end와 통신할 땐 code 값이 전송되기 때문에 Back-end에서 Enum 형태로 사용한다면
-[001, 002, 003, 004]
+Front-end에서 화면에 노출하는 값은 name 값인 `[NORMAL, VOTE, SHARE, VIDEO]`, 실제로 코드 내에선 사용하는 값은 code 값인 `[001, 002, 003, 004]` 값으로 사용했다. 
+Back-end와 통신할 땐 code 값이 전송되기 때문에 일반적인 enum 형태로 만들어서 사용한다면 Service Layer에서 `FeedContentsTypeCode.001.equals(contents)`와 같이 `001`이 어떤 값인지 알 수 없는 문제가 생기기 때문에 Code Enum 클래스를 만들어서 사용했다.
 
+물론 기존에 만들어둔 @EnumValid 방식도 장점이 있었다.
+- NULL 값을 호환한다는 점
+- excludeEnumType, message 등 좀 더 유연한 비교가 가능하다는 점
 
-Code Enum 형태를 사용하지 않고 일반적인 Enum 형태를 사용한다면 Service Layer에서 `FeedContentsTypeCode.001.equals(contents)`와 같이 001이 어떤 값인지 다시 찾아봐야하는 불편함이 생기기 때문에 Code Enum 형태를 사용하게 되었고
-기존에 만들어둔 @EnumValid나 Converter를 사용하면 Enum 값으로 비교하기 때문에 Front-end에서 "001"로 코드 값이 넘어오는 경우 비교하는 값의 범위가 [NORMAL, VOTE, SHARE, VIDEO] 이기 때문에 호환되지 않았다.
+하지만 Jackson의 Serializer와 Deserialzer를 사용하면 기존에 있던 단점을 보완하고 @EnumValid의 장점도 모두 사용할 수 있었다. 
+Jackson의 Serializer와 Deserializer는 Request로 들어오는 VO 객체, Response로 반환하는 VO 객체 내에 있는 필드의 특정 타입에 대한 공통 처리를 정의하거나 Jackson 내에 정의되어 있는 특정 함수들을 오버라이딩해서 커스터마이징이 가능했다. 
 
-이와 같은 점들을 개선하기 위해서 Jackson을 사용해서 Serializer와 Deserializer를 사용하게 되었다. Request로 들어오는 VO 객체, Response로 반환하는 VO 객체 내에 있는 필드의 특정 타입에 대한 공통 처리를 Serializer와 Deserializer를 통해서 처리할 수 있다.
-간단하게 SimpleDateTime, DateTime 타입의 형식을 지정해주거나 Enum 타입의 값이 들어왔을 때 toUpperCase() 적용한 후에 비교를 할 수 있게 할 수 있다.
+예를들어 날짜 타입의 형식을 지정할 때 DateUtil에 함수를 만들어서 Service Layer나 toVO 함수 내에서 지정할 필요 없이 LocalDate, LocalTime, LocalDateTime 타입에 대한 형식을 지정해주거나 Enum 타입의 값이 들어왔을 때 toUpperCase() 적용한 후에 비교를 할 수 있게 할 수 있다.
+```java
+public class JacksonMappingBuilderConfig implements Jackson2ObjectMapperBuilderCustomizer {
+  @Override
+  public void customize(Jackson2ObjectMapperBuilder jacksonObjectMapperBuilder) {
+    jacksonObjectMapperBuilder
+            .featuresToEnable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+            .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .timeZone(TimeZone.getDefault())
+            .locale(Locale.getDefault())
+            .simpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            .serializers(
+                    new LocalDateSerializer(DateTimeFormatter.ofPattern("yyyyMMdd")),
+                    new LocalDateTimeSerializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                    new LocalTimeSerializer(DateTimeFormatter.ofPattern("HH:mm:ss"))
+            )
+            .deserializers(
+                    new LocalDateDeserializer(DateTimeFormatter.ofPattern("yyyyMMdd")),
+                    new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                    new LocalTimeDeserializer(DateTimeFormatter.ofPattern("HH:mm:ss")),
+                    new EnumDeserializer(Enum.class)
+            );
+  }
+}
+```
 
-Enum Deserializer는 Enum 클래스를 처리하는 함수`public Enum<? extends Enum> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)`를 오버라이딩해서 커스터마이징 했다.
+Code Enum 형태를 처리하기 위해 만든 `EnumDeserializer`는 Enum 클래스를 처리하는 함수`public Enum<? extends Enum> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)`를 오버라이딩해서 커스터마이징 했다.
 타입이 Enum 클래스일 경우 Enum 클래스 내에 value 함수가 있는지 확인하고 value 함수가 있으면 value 함수의 결과인 코드 값으로 매칭되는 값이 있는지 확인하도록 했다.
 
-FeedContentsTypeCode에서 기존에 비교하던 범위가 [NORMAL, VOTE, SHARE, VIDEO] 였다면 [NORMAL, VOTE, SHARE, VIDEO, 001, 002, 003, 004]로 코드 값까지 비교할 수 있도록 했다.
+즉, FeedContentsTypeCode에서 기존에 비교하던 범위가 `[NORMAL, VOTE, SHARE, VIDEO]` 였다면 `[NORMAL, VOTE, SHARE, VIDEO, 001, 002, 003, 004]`로 코드 값까지 비교할 수 있도록 했다. VO 내에 타입에 Enum 클래스를 바로 사용하면 되기 때문에 필드마다 어노테이션을 사용해야 하는 불편함도 없어졌다.
+```java
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class FeedGetVO extends PagingVO{
+  private FeedContentsTypeCode feedContentsTypeCode;
+}
+```
+
+@PathVariable는 Converter를 타기 때문에 공통 처리 Converter도 정의해줬다.
+```java
+Converter
+```
 
 
-
-Enum 체크해서 value 있으면 enum 값과 value 값들을 모두 검사한다.
-그리고 필드 타입을 Enum class를 바로 사용함으로써 @enumvalid 안써도된다.
-
-
-
-
-대신 null은 호환하지 않으며 (valid에 추가할 수 있지만?) @enumvalid는 exclude나 null을 사용할 수 있게 된다.
-
-
-- 장점은 exclude, null 가능

@@ -16,7 +16,6 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 public class JacksonMappingBuilderConfig implements Jackson2ObjectMapperBuilderCustomizer {
-
     @Override
     public void customize(Jackson2ObjectMapperBuilder jacksonObjectMapperBuilder) {
         jacksonObjectMapperBuilder
