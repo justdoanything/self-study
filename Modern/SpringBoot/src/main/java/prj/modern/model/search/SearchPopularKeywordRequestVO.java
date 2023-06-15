@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import prj.modern.constant.SearchConstant.PopularKeywordPeriod;
-import prj.modern.constant.valid.Enum;
+import prj.modern.config.validator.Enum;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;

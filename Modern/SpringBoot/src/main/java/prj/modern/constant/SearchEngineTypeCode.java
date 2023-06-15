@@ -1,14 +1,13 @@
 package prj.modern.constant;
 
-public enum ExampleCodeEnum {
-    READY("01"),
-    GO("02"),
-    CLOSE("03"),
-    END("04");
+public enum SearchEngineTypeCode {
+    KAKAO("001"),
+    NAVER("002"),
+    GOGLE("003");
 
     private String value;
 
-    ExampleCodeEnum(String value){
+    SearchEngineTypeCode(String value){
         this.value = value;
     }
 

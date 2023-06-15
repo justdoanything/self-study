@@ -11,7 +11,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import prj.modern.constant.SearchConstant.DefaultBlogSortType;
 import prj.modern.constant.SearchConstant.NaverBlogSortType;
-import prj.modern.constant.valid.Enum;
+import prj.modern.config.validator.Enum;
 import prj.modern.model.naver.NaverBlogRequestDTO;
 import prj.modern.model.pagination.PaginationRequestVO;
 

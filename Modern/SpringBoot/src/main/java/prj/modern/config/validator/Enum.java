@@ -1,4 +1,4 @@
-package prj.modern.constant.valid;
+package prj.modern.config.validator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;

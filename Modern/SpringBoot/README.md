@@ -189,7 +189,61 @@ public class JacksonMappingBuilderConfig implements Jackson2ObjectMapperBuilderC
 ```
 
 Code Enum 형태를 처리하기 위해 만든 `EnumDeserializer`는 Enum 클래스를 처리하는 함수`public Enum<? extends Enum> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)`를 오버라이딩해서 커스터마이징 했다.
-타입이 Enum 클래스일 경우 Enum 클래스 내에 value 함수가 있는지 확인하고 value 함수가 있으면 value 함수의 결과인 코드 값으로 매칭되는 값이 있는지 확인하도록 했다.
+타입이 Enum 클래스일 경우 Enum 클래스 내에 value 함수가 있는지 확인하고 value 함수가 있으면 value 함수의 결과인 코드 값으로 매칭되는 값이 있는지 확인하도록 했다. https://d2.naver.com/helloworld/0473330 를 참고했다.
+```java
+public class EnumDeserializer extends StdDeserializer<Enum <? extends Enum>> implements ContextualDeserializer {
+
+    protected EnumDeserializer(Class<?> vc) {
+        super(vc);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Enum<? extends Enum> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        JsonNode jsonNode = jsonParser.getCodec().readTree(jsonParser);
+        String input = jsonNode.asText().trim().toUpperCase();
+        Class<? extends Enum> enumType = (Class<? extends Enum>) this._valueClass;
+
+        if(ObjectUtils.isEmpty(input))
+            return null;
+
+        boolean isPlainEnum = EnumUtils.isValidEnum(enumType, input);
+        if(isPlainEnum){
+            return Enum.valueOf(enumType, input);
+        } else {
+            boolean isEnumCode = Arrays.stream(enumType.getMethods()).anyMatch(method -> "value".equals(method.getName()));
+
+            if(isEnumCode){
+                Enum mathcEnum = null;
+                String enumValue;
+                for(Enum constant : enumType.getEnumConstants()){
+                    try {
+                        enumValue = (String) constant.getClass().getMethod("value").invoke(constant);
+                        if(enumValue.equals(input.trim().toUpperCase())){
+                            mathcEnum = constant;
+                            break;
+                        }
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+
+                if(mathcEnum == null)
+                    throw new IllegalArgumentException("No enum constant " + enumType.getCanonicalName() + "." +input);
+
+                return Enum.valueOf(enumType,mathcEnum.name());
+            } else {
+                throw new IllegalArgumentException("No enum constant " + enumType.getCanonicalName() + "." +input);
+            }
+        }
+    }
+
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext context, BeanProperty beanProperty) {
+        return new EnumDeserializer(beanProperty.getType().getRawClass());
+    }
+}
+```
 
 즉, FeedContentsTypeCode에서 기존에 비교하던 범위가 `[NORMAL, VOTE, SHARE, VIDEO]` 였다면 `[NORMAL, VOTE, SHARE, VIDEO, 001, 002, 003, 004]`로 코드 값까지 비교할 수 있도록 했다. VO 내에 타입에 Enum 클래스를 바로 사용하면 되기 때문에 필드마다 어노테이션을 사용해야 하는 불편함도 없어졌다.
 ```java
@@ -204,7 +258,73 @@ public class FeedGetVO extends PagingVO{
 
 @PathVariable는 Converter를 타기 때문에 공통 처리 Converter도 정의해줬다.
 ```java
-Converter
+@Component
+public class EumConverterFactory implements ConverterFactory<String, Enum> {
+
+  @Override
+  public <T extends Enum> Converter<String, T> getConverter(Class<T> enumType) {
+    return new EnumConverter(getEnumType(enumType));
+  }
+
+  private class EnumConverter<T extends Enum> implements Converter<String, T> {
+
+    private final Class<T> enumType;
+
+    private EnumConverter(Class<T> enumType) {
+      this.enumType = enumType;
+    }
+
+    @Override
+    public T convert(String input) {
+      if(input.isEmpty() || input == null)
+        return null;
+
+      input = input.trim().toUpperCase();
+
+      boolean isPlainEnum = EnumUtils.isValidEnum(enumType, input);
+      if(isPlainEnum){
+        return (T) Enum.valueOf(this.enumType, input);
+      } else {
+        boolean isEnumCode = Arrays.stream(enumType.getMethods()).anyMatch(method -> "value".equals(method.getName()));
+
+        if(isEnumCode){
+          Enum mathcEnum = null;
+          String enumValue;
+          for(Enum constant : enumType.getEnumConstants()){
+            try {
+              enumValue = (String) constant.getClass().getMethod("value").invoke(constant);
+              if(enumValue.equals(input.trim().toUpperCase())){
+                mathcEnum = constant;
+                break;
+              }
+            } catch (Exception e) {
+              throw new RuntimeException(e);
+            }
+          }
+
+          if(mathcEnum == null)
+            throw new IllegalArgumentException("No enum constant " + enumType.getCanonicalName() + "." +input);
+
+          return (T) Enum.valueOf(enumType,mathcEnum.name());
+        } else {
+          throw new IllegalArgumentException("No enum constant " + enumType.getCanonicalName() + "." +input);
+        }
+      }
+    }
+  }
+
+  private Class<?> getEnumType(Class classType) {
+    Class<?> enumType = classType;
+    while(enumType != null && !enumType.isEnum()){
+      enumType = enumType.getSuperclass();
+    }
+    if(enumType == null) {
+      throw new IllegalArgumentException("This type " + enumType.getName() + " is not an enum type.");
+    }
+    return enumType;
+  }
+}
+
 ```
 
 

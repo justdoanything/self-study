@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import org.apache.commons.lang3.EnumUtils;
+import org.springframework.util.ObjectUtils;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -22,14 +23,18 @@ public class EnumDeserializer extends StdDeserializer<Enum <? extends Enum>> imp
     @Override
     public Enum<? extends Enum> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         JsonNode jsonNode = jsonParser.getCodec().readTree(jsonParser);
-        String input = jsonNode.asText();
+        String input = jsonNode.asText().trim().toUpperCase();
         Class<? extends Enum> enumType = (Class<? extends Enum>) this._valueClass;
+
+        if(ObjectUtils.isEmpty(input))
+            return null;
 
         boolean isPlainEnum = EnumUtils.isValidEnum(enumType, input);
         if(isPlainEnum){
             return Enum.valueOf(enumType, input);
         } else {
-            boolean isEnumCode = Arrays.stream(enumType.getMethods()).filter(method -> "value".equals(method.getName())).findAny().isPresent();
+            boolean isEnumCode = Arrays.stream(enumType.getMethods()).anyMatch(method -> "value".equals(method.getName()));
+
             if(isEnumCode){
                 Enum mathcEnum = null;
                 String enumValue;
@@ -46,11 +51,11 @@ public class EnumDeserializer extends StdDeserializer<Enum <? extends Enum>> imp
                 }
 
                 if(mathcEnum == null)
-                    throw new IllegalArgumentException("No enu constant " + enumType.getCanonicalName() + "." +input);
+                    throw new IllegalArgumentException("No enum constant " + enumType.getCanonicalName() + "." +input);
 
                 return Enum.valueOf(enumType,mathcEnum.name());
             } else {
-                throw new IllegalArgumentException("No enu constant " + enumType.getCanonicalName() + "." +input);
+                throw new IllegalArgumentException("No enum constant " + enumType.getCanonicalName() + "." +input);
             }
         }
     }

@@ -11,7 +11,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.util.ObjectUtils;
 import prj.modern.constant.SearchConstant.DefaultBlogSortType;
-import prj.modern.constant.valid.Enum;
+import prj.modern.config.validator.Enum;
 import prj.modern.model.kakao.KakaoBlogRequestDTO;
 import prj.modern.model.pagination.PaginationRequestVO;
 
