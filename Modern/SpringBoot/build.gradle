@@ -54,8 +54,8 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
 	// database
-	runtimeOnly 'com.h2database:h2'
-	implementation 'org.mariadb.jdbc:mariadb-java-client'
+//	runtimeOnly 'com.h2database:h2'
+	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 
 	// flyway
 	implementation 'org.flywaydb:flyway-core'
@@ -84,7 +84,7 @@ dependencies {
 
 	// etc
 	implementation 'org.jsoup:jsoup:1.15.3'
-	implementation 'com.gihub.pagehelper:pagehelper-spring-boot-starter:1.2.12'
+//	implementation 'com.gihub.pagehelper:pagehelper-spring-boot-starter:1.2.12'
 //	implementation 'com.h3xstream.findsecbugs:findbugs-plugin:1.12.0'
 }
 
