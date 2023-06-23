@@ -19,5 +19,7 @@ public class RedisTest {
         redisTemplate.opsForValue().set(testKey, testValue);
         String testResult = redisTemplate.opsForValue().get(testKey);
         Assertions.assertEquals(testValue, testResult);
+        System.out.println(testValue + " : " + testResult);
+        redisTemplate.delete(testKey);
     }
 }

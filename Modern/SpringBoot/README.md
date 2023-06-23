@@ -1,5 +1,8 @@
 <!-- TOC -->
 * [VO와 DTO](#vo와-dto)
+* [Enum Deserializer](#enum-deserializer)
+* [Redis](#redis)
+* [Flyway](#flyway)
 <!-- TOC -->
 
 # VO와 DTO
@@ -327,4 +330,22 @@ public class EumConverterFactory implements ConverterFactory<String, Enum> {
 
 ```
 
+# Redis
+- docker exec -it springboot-redis-1 redis-cli
+set testkey testvalue
+
+
+- 삭제 
+  - del testkey
+  - 전체 : flushall
+
+- 조회
+  - get testkey  
+  - 전체 : keys *
+
+
+- 만료일 조회 : ttl [key]
+  - ttl testkey
+
+# Flyway
 
