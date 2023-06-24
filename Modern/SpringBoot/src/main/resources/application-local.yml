@@ -24,7 +24,7 @@ spring:
   ### Mysql
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://localhost:3306/spring
+    url: jdbc:mariadb://localhost:3306/spring?allowPublicKeyRetrieval=true
     username: yongwoo
     password: yongwoo
 ### H2

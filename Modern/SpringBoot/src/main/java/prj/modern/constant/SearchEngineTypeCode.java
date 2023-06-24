@@ -3,7 +3,7 @@ package prj.modern.constant;
 public enum SearchEngineTypeCode {
     KAKAO("001"),
     NAVER("002"),
-    GOGLE("003");
+    GOOGLE("003");
 
     private String value;
 

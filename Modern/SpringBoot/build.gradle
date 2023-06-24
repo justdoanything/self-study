@@ -9,7 +9,7 @@ plugins {
 
 group = 'prj.modern'
 version = '0.0.1'
-sourceCompatibility = '11'
+sourceCompatibility = '17'
 
 configurations {
 	compileOnly {
@@ -36,8 +36,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+//	implementation 'org.springframework.boot:spring-boot-starter-security'
+//	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
 	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -56,6 +56,9 @@ dependencies {
 	// database
 //	runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+//	implementation 'com.github.pagehelper:pagehelper-spring-boot-starter:1.2.12'
+//	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.1'
+//	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 
 	// flyway
 	implementation 'org.flywaydb:flyway-core'
@@ -84,7 +87,6 @@ dependencies {
 
 	// etc
 	implementation 'org.jsoup:jsoup:1.15.3'
-//	implementation 'com.gihub.pagehelper:pagehelper-spring-boot-starter:1.2.12'
 //	implementation 'com.h3xstream.findsecbugs:findbugs-plugin:1.12.0'
 }
 
