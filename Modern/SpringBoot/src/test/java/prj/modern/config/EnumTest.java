@@ -19,6 +19,36 @@ public class EnumTest {
     private MockMvc mockMvc;
 
     @Test
+    public void doTestEnumConverterPathVariable() throws Exception {
+        mockMvc.perform(get("/v1/test/enum/converter/path-variable/GOOGLE")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        mockMvc.perform(get("/v1/test/enum/converter/path-variable/google")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    public void doTestEnumConverterRequestParam() throws Exception {
+        mockMvc.perform(get("/v1/test/enum/converter/request-param")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .param("searchEngineTypeCode", "GOOGLE")
+                )
+                .andExpect(status().isOk())
+                .andDo(print());
+
+        mockMvc.perform(get("/v1/test/enum/converter/request-param")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .param("searchEngineTypeCode", "google")
+                )
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @Test
     public void doTestEnumDeserializer() throws Exception {
         mockMvc.perform(get("/v1/test/enum/deserializer")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -35,4 +65,6 @@ public class EnumTest {
                 .andExpect(status().isOk())
                 .andDo(print());
     }
+
+
 }
