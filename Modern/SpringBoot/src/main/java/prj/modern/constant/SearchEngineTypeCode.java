@@ -5,13 +5,13 @@ public enum SearchEngineTypeCode {
     NAVER("002"),
     GOOGLE("003");
 
-    private String value;
+    private String code;
 
-    SearchEngineTypeCode(String value){
-        this.value = value;
+    SearchEngineTypeCode(String code){
+        this.code = code;
     }
 
-    public String value() {
-        return this.value;
+    public String code() {
+        return this.code;
     }
 }

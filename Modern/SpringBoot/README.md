@@ -154,14 +154,14 @@ public enum FeedContentsTypeCode {
   SHARE("003"),
   VIDEO("004");
 
-  private String value;
+  private String code;
 
-  FeedContentsTypeCode(String value){
-    this.value = value;
+  FeedContentsTypeCode(String code){
+    this.code = code;
   }
   
-  public String value() {
-    return value;
+  public String code() {
+    return code;
   }
 }
 ```
