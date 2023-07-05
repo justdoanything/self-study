@@ -340,6 +340,42 @@ public class EumConverterFactory implements ConverterFactory<String, Enum> {
 }
 
 ```
+# Service와 ServiceImpl을 사용하면 얻는 이점
+1. 추상화와 구체화의 분리 : 인터페이스를 사용하면 추상적인 개념과 구체적인 구현을 분리할 수 있다. 인터페이스는 서비스의 기능과 동작을 정의하고 실제 구현은 해당 인터페이스를 구현하는 클래스에서 수행된다. 
+이렇게 함으로써, 클라이언트는 인터페이스를 통해 서비스에 접근하고 사용할 수 있으며 실제 구현에 대한 의존성 줄일 수 있다.
+2. 유연성과 확장성 : 인터페이스를 사용하면 다른 구현을 손쉽게 교체할 수 있다. 예를 들어, 기존의 ServiceImpl 클래스를 다른 구현 클래스로 교체하더라도 클라이언트는 인터페이스를 통해 동일한 방식으로 서비스를 사용할 수 있다. 이는 유연성과 확장성을 높여준다.
+3. 단위 테스트 : 인터페이스를 사용하면 단위 테스트를 수행할 때, Mock 객체를 이용하여 테스트를 할 수 있다. Mock 객체는 인터페이스를 구현한 가짜 객체로 실제 구현과는 독립적으로 동작하여 테스트를 더욱 쉽게할 수 있다.
+4. 코드의 명확성과 가독성 : 인터페이스를 사용하면 코드의 목적과 의도를 명확하게 전달할 수 있다. 인터페이스는 서비스의 기능과 사용법을 정의하기 때문에 코드를 읽는 사람이 빠르게 이해하고 사용할 수 있다.
+5. 다형성 구현 : 인터페이스를 통해 다형성을 구현할 수 있다. 다형성은 객체 지향 프로그래밍의 중요한 개념으로 한 인터페이스를 여러 개의 클래스가 구현할 수 있다. 이를 통해 동일한 인터페이스를 사용해서 다양한 구현체를 처리할 수 있으며 실행 시점에 구체적인 구현체를 결정할 수 있다.
+6. 구현 클래스 교체 : 인터페이스를 사용하면 구현 클래스를 쉽게 교체할 수 있다. 예를 들어, 현재 ServiceImpl 클래스를 사용하고 있다면 나중에 필요에 따라 다른 구현 클래스로 변경할 수 있다. 이 때 클라이언트 코드는 변경 없이도 인터페이스를 통해 동일한 방식으로 서비스를 호출할 수 있다. 이는 코드의 유지보수와 확장에 용이하다.
+7. 의존성 주입(Dependency Injection) : 인터페이스를 사용하면 의존성 주입을 쉽게 구현할 수 있다. 의존성 주입은 객체 간의 의존 관계를 외부에서 주입하여 코드 간의 결합도를 낮추고 유연한 구조를 구현하는 패턴이다. 인터페이스를 통해 의존성을 주입하면 다른 구현체를 주입해서 동일한 인터페이스를 사용하는 코드를 유지할 수 있다.
+8. 단위 테스트 : 인터페이스를 사용하면 단위 테스트를 수행하기 용이하다. 인터페이스를 구현한 Mock 객체를 사용해서 테스트를 진행할 수 있으며 실제 구현과 독립적으로 테스트할 수 있다. 이는 코드의 품질과 안정성을 향상시킨다.
+
+# Service와 ServiceImpl을 사용하는 이유
+- Spring의 AOP Proxy를 만드는 방식 (Annotation을 위한 Proxy)
+  - 예전에 Spring이 JDK Dynamic Proxy를 사용했을 땐 JDK Dynamic Proxy는 오직 interface을 위해서만 만들어져서 interface을 작성해줘야 했다.
+  - 예를들어 @Transactional 과 같은 어노테이션은 AOP Proxy를 만들어서 트랜잭션을 처리하기 때문에 인터페이스가 있어야 동작했다.
+  - Spring이 CGLIB proxy도 지원하면서 별도의 interface을 요구하지 않는다.
+  - spring.aop.proxy-target-class=true : CGLIB 사용해서 클래스를 상속받아 AOP Proxyt를 만듬
+  - false : JDK Dynamic Proxy를 사용하여 인터페이스를 데코레이션해서 AOP Proxy를 만듬
+  - Spring 3.2는 CGLIB가 내장되어서 별도의 설정 없이 사용 가능하다.
+- 느슨한 결합
+  - 비슷한 기능을 하는 서비스가 2개가 있다면 사용할만하다.
+  - 여러 개의 서비스가 비슷할 때 사용될 때 1순위로 @Primary를 사용해서 지정해준다. 다른걸 사용할 땐 @Qualifier를 사용해서 특정한 다른 클래스를 주입해서 사용한다.
+- 테스트
+  - Mockito와 같은 mocking 라이브러리를 사용하면 해결할 수 있따.
+
+# Spring AOP Proxy
+
+
+# Request
+- @RequestParam
+- @RequestBody
+- @PathVariable
+
+# Response
+- 조립
+- Builder & Superbuilder
 
 # Redis
 - docker exec -it springboot-redis-1 redis-cli
@@ -360,3 +396,8 @@ set testkey testvalue
 
 # Flyway
 
+
+
+- Thanks to ChatGPT
+- https://velog.io/@hsw0194/Spring-Boot에서-interface를-사용해야-할까
+- https://gmoon92.github.io/spring/aop/2019/04/20/jdk-dynamic-proxy-and-cglib.html
