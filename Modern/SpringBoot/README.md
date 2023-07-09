@@ -526,6 +526,44 @@ public class SecurityAspect {
 - DK Dynamic Proxy는 Spring AOP의 AOP 기술의 근간이 되는 방식이기 때문에 Spring에서 사용되는 AOP의 기술들은 Proxy 메커니즘을 따르고 있습니다. 즉 CGLib이든 JDK Dynamic Proxy든 Proxy 메커니즘을 따른다는 점을 인지해야 한다.
   
 
+# AOP Aspect Oriented Programming
+- AOP의 매커니즘은 프로그램을 `관심사` 기준으로 크게 `핵심 관심사(Core Concerns)`와 `횡단 관심사(Cross-cutting Concerns`로 분류 한다.
+- 프로그램의 핵심 가치와 목적이 그대로 드러나있는 관심 영역을 `핵심 관심사`라고 한다.
+- 일반적으로 비즈니스 기능과 관계없는 부가적으로 발생하는 중복된 코드를 `횡단 관심사`라고 한다.
+- 대표적인 `횡단 관심사`는 Security, Logging, Transaction Management 등이 있다.
+- 절차적 프로그래밍 → 객체 지향 프로그래밍(OOP) → 관점 지향 프로그래밍(AOP)
+- AOP는 분리된 횡단 관심사를 Aspect 라는 모듈 형태로 만들어서 설계하고 관리한다.
+- Aspect 모듈에는 부가 기능(횡단 관심사)을 내포하고 있으며 자체적으로 부가 기능을 여러 객체의 핵심기능에 교차로 적용을 시켜주기 때문에 추상화를 통해 분리하는 작업도 필요가 없어짐으로 횡단 관심사 모듈을 효율적으로 관리할 수 있게 된다.
+- 무엇보다 Aspect 모듈의 가장 큰 장점은 핵심기능에 부가 기능의 코드가 남아 있지 않아도 된다는 점이다. 이러한 이유엔 대부분의 AOP 프레임워크들이 Interceptors를 통해 핵심기능에 부가 기능을 결합하는 방식을 사용하기 때문이다.
+- AOP 용어
+
+| 용어                            | 의미                                               |
+|-------------------------------|--------------------------------------------------|
+| Aspect                        | 횡단 관심사의 모듈화                                      |
+| Joinpoint                     | 프로그램 실행될 때 발생하는 여러 위치<br/>메소드 실행, Exception 처리 등 |
+| Advice                        | 특정 JoinPoint에 적용할 횡단 관심 코드                       |
+| Introduction<br/>(inter-type) | Aspect 모듈 내부에서 선언한 클래스, 인터페이스, 변수, 메소드           |
+| Pointcut                      | 여러 JoinPoint 중에 Advice를 적용할 특정 위치                |
+| Target Object                 | Advice가 적용될 핵심 객체                                |
+| AOP Proxy                     | Aspect를 대신 수행하기 위해 AOP 프레임워크에 의해 생성된 객체          |
+| Weaving                       | 핵심 객체에 Advice하여 횡단 관심 코드가 포함한 객체가 생성되는 일련의 과정    |
+
+- 핵심 관심사
+  - TargetObject
+    - 횡단 기능(Advice)에 적용될 객체를 뜻한다.
+    - 핵심 모듈이라고 할 수 있꼬 Spring AOP에선 Advice 받는 객체라고 해서 Adviced Object라고 한다.
+    - Spring AOP에선 실제 적용할 객체 대신 Runtime Proxy를 사용해서 구현하기 때문에 TargetObject는 항상 Proxy Object 이다.
+  - JoinPoint
+    - TargetObject 안에서 횡단 기능(Advice)이 적용될 수 있는 여러 위치를 뜻한다.
+    - 프로그램이 실행될 때 예외가 발생한다거나 객체가 생성된다거나 특정 메소드가 호출되는 시점 등 프로그램 실행 중에 있는 모든 시점은 횡단 기능이 적용될 수 있는 위치이다.
+    - Spring AOP에는 기본적으로 메소드 Interceptor를 기반으로 하고 있어서 JoinPoint는 항상 메소드 단위이다.
+- 횡단 관심사
+  - Aspect
+  - Advice
+  - Pointcut
+  - Introduction(inter-type)
+  - AOP Proxy
+- Weaving
 
 # Request
 - @RequestParam
