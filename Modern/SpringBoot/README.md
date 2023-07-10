@@ -559,11 +559,71 @@ public class SecurityAspect {
     - Spring AOP에는 기본적으로 메소드 Interceptor를 기반으로 하고 있어서 JoinPoint는 항상 메소드 단위이다.
 - 횡단 관심사
   - Aspect
+    - 횡단 관심사를 모듈화하는 것을 Aspect라고 하고 Java에선 표준으로 가장 많이 쓰이는 AspectJ 확장 기능을 통해 Aspect를 구현할 수 있다.
+    - Spring AOP에서 제공하는 @AspectJ 어노테이션을 통한 구현 방식은 AspectJ 보다 쉬운 설정과 기본적으로 클래스로 구현하기 때문에 쉽게 접근할 수 있다.
+    - Spring AOP는 2가지 방식을 통해 Aspect를 구현할 수 있다.
+      - XML (스키마 기반 접근)
+      - @AspectJ(어노테이션 기반 접근)
+    - Aspect 모듈은 핵심 모듈에 횡단 코드를 적용하기 위한 최종 목적을 갖고 있고 횡단 모듈의 관리 유용성을 증가시키기 위한 횡단 관심사의 집합체다.
+    - 횡단 코드의 동작/어디서/언제 적용할지 구현해야한다.
+    - Aspect = Advice + Pointcut + Introduction(inter-type)
   - Advice
+    - JoinPoint에 적용할 횡단 코드이다.
+    - Spring AOP는 Interceptor로 Advice를 모델링하고 JoinPoint 주변의 Interceptor의 결합된 상태의 체인을 유지하고 실제 런타임 시 결합된 코드가 실행된다.
+    - JoinPoint는 항상 메소드 실행을 바라보기 때문에 Type의 매개 변수를 선언하여 JoinPoint 정보를 Advice에서 사용할 수 있따.
+    - Advice는 JoinPoint와 횡단 코드의 각기 다른 결합점을 제어할 수 있도록 다양한 Advice를 제공하고 있다.
+    - @Before : JoinPoint 이전에 실행. 단 Exception을 throw 하지 않는 한 실행 흐름이 JoinPoint로 진행되는 것을 방지하는 기능은 없다.
+    - @AfterReturning : JoinPoint가 정상적으로 완료된 후 실행. 예를 들어 메소드가 Exception을 발생시키지 않고 리턴하는 경우
+    - @AfterThrowing : Exception을 throw하여 메소드가 종료된 경우 실행
+    - @After(finally) : JoinPoint의 상태(Exception, 정상)와 무관하고 JoinPoint가 실행된 후 실행
+    - @Around : Before와 After가 합쳐진 Advice. 메소드 호출 전과 후에 실행 또한 JoinPoint로 진행할지 또는 자체 반환 값을 반환하거나 Exception를 throw하여 특정 메소드를 호출할 수 있다.
+    
+      <br/>
+      <img width="430" height="400" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/f4b0ca2c-7864-4c32-aff1-19bdd7129434"><br/><br/>
+
   - Pointcut
+    - 여러 개의 JoinPoint 중 실제적으로 Advice할 JoinPoint 이다.
+    - Advice는 여러 JoinPoint 중에서 Pointcut의 표현식에 명시된 JoinPoint에서 실행된다. 예를들어 여러 실행 포인트 중에서 특정 이름의 메소드에서 Advice를 하거나 제외해서 실행시킬 수 있다.
+    - Pointcut 표현식과 일치하는 JoinPoint를 실행한다는 개념은 AOP의 핵심 개념이다.
+    - Spring AOP에선 Pointcut과 Advice를 합쳐 Advisor라고 불리며 AspectJ Pointcut 언어를 사용한다.
+
+      <br/>
+      <img width="500" height="150" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/6fac0a7f-c67d-4b93-935a-ef7e259d61f9"><br/>
+      <img width="500" height="150" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/53b89ff2-45ee-4f00-8f0a-5df4d5f927ea"><br/>
+      <img width="500" height="250" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/30a446d7-55f7-4553-b401-164f18e3fa5a"><br/><br/>
+    
   - Introduction(inter-type)
+    - Aspect 모듈 내부에 선언된 클래스 또는 인터페이스, 메소드와 그 외 모든 필드를 뜻한다.
+    - 주된 목적은 기존 클래스에 새로운 인터페이스 및 해당 구현 객체를 추가히기 위함이다.
+    - OOP에서 말하는 상속이나 확장과는 다른 방식으로 Advice 또는 Aspect를 이용해서 기존 클래스에 없는 인터페이스를 동적으로 추가할 수 있다.
+    - 특히 Spring AOP를 사용하면 Proxy 된 객체에 새로운 인터페이스를 도입할 수 있다. Bean이 인터페이스를 구현하도록 쉽게 캐싱할 수 있다.
   - AOP Proxy
+    - Aspect를 대신 수행하기 위해 AOP 프레임워크에 의해 생성된 객체이다.
+    - 일반적으로 Spring을 포함한 많은 AOP 프레임워크에선 핵심 관심 코드에 직접적인 Aspect를 하지 않고 Proxy Object를 활용해서 Aspect를 한다.
+    - 횡단 관심 객체와 핵심 관심 객체의 느슨한 결합 구조를 만들고 필요 여부에 따라 부가 기능을 탈부착하기 용이하게 해준다.
+    - 직접적인 참조가 아닌 Proxy를 사용해서 동적으로 참조하고 부가 기능의 탈부탁이 용이하다.
+    - Spring AOP에선 Proxy를 사용하여 동적으로 Advice하기 위해 Java에서 제공해주는 `java.lang.reflect.Proxy`를 사용해서 Proxy 객체를 동적으로 생성해준다.
+    - 구체적으로 JDK Dynamic Proxy와 CGLIB Proxy의 방식이 존재한다.
+
+      <br/>
+      <img width="500" height="200" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/8a8799fb-4cd1-4bb3-8750-e87b6581ae9d"><br/>
+      <img width="500" height="250" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/991f4711-7618-4d75-9c77-2871a58bf686"><br/>
+      <br/><br/>
+  
 - Weaving
+  - AOP의 특정 JoinPoint에 Advice하여 핵심 기능과 횡단 기능이 교차하여 새롭게 생성된 객체를 프로세스에 적용하는 일련의 모든 과정을 Weaving 이라고 한다.
+  - 수행 시점에 따라 CTW, LTW, RTW로 분류한다.
+    - CTW : Compile-Time Weaving (AsepctJ Compiler)
+    - LTW : Load-Time Weaving (AspectJ Compiler)
+    - RTW : Run-Time Weaving (Spring AOP)
+  - AspectJ와 Spring AOP는 독립적인 대상으로 Weaving에서도 차이가 있따.
+  - AspectJ는 바이트 코드 기반으로 기존 클래스 코드를 조작해서 AspectJ Compiler에 의해 Aspect를 Waeving 하는 방식을 취하고 있다. 따라서 CTW, LTW 방식을 기본적으로 사용한다.
+  - Spring AOP는 Dynamic Proxy 기반으로 기본적이로 RTW를 사용하고 Waeving 방식이 AspectJ 보다 가볍다.
+    
+    <br />
+    <img width="700" height="250" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/b129acbb-d136-44c6-a936-9c10644ebfcc"><br/>
+    <img width="700" height="300" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/7169e2ef-2fd9-4599-a4d2-a64c3769b812"><br/>
+
 
 # Request
 - @RequestParam
@@ -595,7 +655,6 @@ set testkey testvalue
 
 
 
-- Thanks to ChatGPT
 - https://velog.io/@hsw0194/Spring-Boot에서-interface를-사용해야-할까
 - https://gmoon92.github.io/spring/aop/2019/04/20/jdk-dynamic-proxy-and-cglib.html
 - https://gmoon92.github.io/spring/aop/2019/01/15/aspect-oriented-programming-concept.html

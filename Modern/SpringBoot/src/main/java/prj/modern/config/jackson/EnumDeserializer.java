@@ -15,6 +15,12 @@ import java.util.Arrays;
 
 public class EnumDeserializer extends StdDeserializer<Enum <? extends Enum>> implements ContextualDeserializer {
 
+    /**
+     * TODO
+     * Path Variable Enum Converter - Null 커버 되는지 확인
+     * Enum valid annotation - Code 값이랑 Null 커버
+     * Enum Code - Null 커버
+     */
     protected EnumDeserializer(Class<?> vc) {
         super(vc);
     }
