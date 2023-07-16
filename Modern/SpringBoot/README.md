@@ -4,7 +4,6 @@
 * [Enum Deserializer](#enum-deserializer)
 * [Service Interface](#service-interface)
 * [AOP(Aspect Oriented Programming)](#aop--aspect-oriented-programming-)
-* [Spring AOP Proxy](#spring-aop-proxy)
 * [Request](#request)
 * [Response](#response)
 * [Redis](#redis)
