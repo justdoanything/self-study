@@ -370,8 +370,10 @@ Spring에서 Interface Service를 구현했을 때 얻는 장점이 아니라 Ja
 예를들어 Serivce 함수에 많이 쓰이는 @Transactional과 같은 어노테이션은 AOP Proxy를 만들어서 트랜잭션을 처리하기 때문에 인터페이스가 있어야 동작했었다. 
 
 하지만 Class 기준으로 관리하는 CGLIB 방식을 사용되면서 Interface Service를 사용하지 않아도 됐다. 처음엔 Spring 설정에서 설정할 수 있게 했었고 Spring 3.2부터 CGLIB가 내장됐다.
-- spring.aop.proxy-target-class=true # CGLIB
-- spring.aop.proxy-target-class=false # JDK Dynamic Proxy
+```yml
+spring.aop.proxy-target-class=true # CGLIB
+spring.aop.proxy-target-class=false # JDK Dynamic Proxy
+```
 
 네이버 로그인 Service, 카카오 로그인 Service와 같이 비슷한 기능을 하는 서비스를 관리하기 위해서 Interface Service를 사용하는 경우도 있으며 
 하나의 Interface Serivce를 여러 개의 ServiceImpl이 상속받아 사용한다면 @Primary, @Qulifier를 사용해서 상황에 맞는 특정 클래스를 주입해서 사용해야 한다.
@@ -480,7 +482,7 @@ Mockito와 같은 Mocking 라이브러리를 사용하면 인터페이스를 사
 - ## 핵심 관심사
   - ### `TargetObject`
     - 횡단 기능(Advice)에 적용될 객체를 뜻한다.
-    - 핵심 모듈이라고 할 수 있꼬 Spring AOP에선 Advice 받는 객체라고 해서 Adviced Object라고 한다.
+    - 핵심 모듈이라고 할 수 있고 Spring AOP에선 Advice 받는 객체라고 해서 Adviced Object라고 한다.
     - Spring AOP에선 실제 적용할 객체 대신 Runtime Proxy를 사용해서 구현하기 때문에 TargetObject는 항상 Proxy Object 이다.
   - ### `JoinPoint`
     - TargetObject 안에서 횡단 기능(Advice)이 적용될 수 있는 여러 위치를 뜻한다.
@@ -489,23 +491,23 @@ Mockito와 같은 Mocking 라이브러리를 사용하면 인터페이스를 사
 - ## 횡단 관심사
   - ### `Aspect`
     - 횡단 관심사를 모듈화하는 것을 Aspect라고 하고 Java에선 표준으로 가장 많이 쓰이는 AspectJ 확장 기능을 통해 Aspect를 구현할 수 있다.
-    - Spring AOP에서 제공하는 @AspectJ 어노테이션을 통한 구현 방식은 AspectJ 보다 쉬운 설정과 기본적으로 클래스로 구현하기 때문에 쉽게 접근할 수 있다.
+    - Spring AOP에서 제공하는 @Aspect 어노테이션을 통한 구현 방식은 AspectJ 보다 쉬운 설정이 가능하며 기본적으로 클래스로 구현하기 때문에 쉽게 접근할 수 있다.
     - Spring AOP는 2가지 방식을 통해 Aspect를 구현할 수 있다.
       - XML (스키마 기반 접근)
-      - @AspectJ(어노테이션 기반 접근)
+      - @Aspect(어노테이션 기반 접근)
     - Aspect 모듈은 핵심 모듈에 횡단 코드를 적용하기 위한 최종 목적을 갖고 있고 횡단 모듈의 관리 유용성을 증가시키기 위한 횡단 관심사의 집합체다.
-    - 횡단 코드의 동작/어디서/언제 적용할지 구현해야한다.
+    - 횡단 코드의 어떤 동작을/어디서/언제 적용할지 구현해야한다.
     - Aspect = Advice + Pointcut + Introduction(inter-type)
   - ### `Advice`
     - JoinPoint에 적용할 횡단 코드이다.
     - Spring AOP는 Interceptor로 Advice를 모델링하고 JoinPoint 주변의 Interceptor의 결합된 상태의 체인을 유지하고 실제 런타임 시 결합된 코드가 실행된다.
-    - JoinPoint는 항상 메소드 실행을 바라보기 때문에 Type의 매개 변수를 선언하여 JoinPoint 정보를 Advice에서 사용할 수 있따.
+    - JoinPoint는 항상 메소드 실행을 바라보기 때문에 Type의 매개 변수를 선언하여 JoinPoint 정보를 Advice에서 사용할 수 있다.
     - Advice는 JoinPoint와 횡단 코드의 각기 다른 결합점을 제어할 수 있도록 다양한 Advice를 제공하고 있다.
-    - @Before : JoinPoint 이전에 실행. 단 Exception을 throw 하지 않는 한 실행 흐름이 JoinPoint로 진행되는 것을 방지하는 기능은 없다.
-    - @AfterReturning : JoinPoint가 정상적으로 완료된 후 실행. 예를 들어 메소드가 Exception을 발생시키지 않고 리턴하는 경우
-    - @AfterThrowing : Exception을 throw하여 메소드가 종료된 경우 실행
-    - @After(finally) : JoinPoint의 상태(Exception, 정상)와 무관하고 JoinPoint가 실행된 후 실행
-    - @Around : Before와 After가 합쳐진 Advice. 메소드 호출 전과 후에 실행 또한 JoinPoint로 진행할지 또는 자체 반환 값을 반환하거나 Exception를 throw하여 특정 메소드를 호출할 수 있다.
+    - `@Before` : JoinPoint 이전에 실행한다. 단 Exception을 throw 하지 않는 한 실행 흐름이 JoinPoint로 진행되는 것을 방지하는 기능은 없다.
+    - `@AfterReturning` : JoinPoint가 정상적으로 완료된 후 실행한다. 예를 들어 메소드가 Exception을 발생시키지 않고 리턴하는 경우 실행된다.
+    - `@AfterThrowing` : Exception을 throw하여 메소드가 종료된 경우 실행된다.
+    - `@After(finally)` : JoinPoint의 상태(Exception, 정상)와 무관하고 JoinPoint가 실행된 후 무조건 실행된다.
+    - `@Around` : Before와 After가 합쳐진 Advice. 메소드 호출 전과 후에 실행 또한 JoinPoint로 진행할지 또는 자체 반환 값을 반환하거나 Exception를 throw하여 특정 메소드를 호출할 수 있다.
 
       <br/>
       <img width="430" height="400" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/f4b0ca2c-7864-4c32-aff1-19bdd7129434"><br/><br/>
@@ -545,87 +547,100 @@ Mockito와 같은 Mocking 라이브러리를 사용하면 인터페이스를 사
     - CTW : Compile-Time Weaving (AsepctJ Compiler)
     - LTW : Load-Time Weaving (AspectJ Compiler)
     - RTW : Run-Time Weaving (Spring AOP)
-  - AspectJ와 Spring AOP는 독립적인 대상으로 Weaving에서도 차이가 있따.
+  - AspectJ와 Spring AOP는 독립적인 대상으로 Weaving에서도 차이가 있다.
   - AspectJ는 바이트 코드 기반으로 기존 클래스 코드를 조작해서 AspectJ Compiler에 의해 Aspect를 Waeving 하는 방식을 취하고 있다. 따라서 CTW, LTW 방식을 기본적으로 사용한다.
-  - Spring AOP는 Dynamic Proxy 기반으로 기본적이로 RTW를 사용하고 Waeving 방식이 AspectJ 보다 가볍다.
+  - Spring AOP는 Dynamic Proxy 기반으로 기본적으로 RTW를 사용하고 Waeving 방식이 AspectJ 보다 가볍다.
 
     <br />
     <img width="700" height="250" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/b129acbb-d136-44c6-a936-9c10644ebfcc"><br/>
     <img width="700" height="300" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/7169e2ef-2fd9-4599-a4d2-a64c3769b812"><br/>
   
----
+- ## AOP 요약
+  - AOP의 주요 개념
+    - `Aspect` 공통된 기능을 모듈화한 단위. 로깅이나 보안과 같은 관심사는 관점으로 표현될 수 있다.
+    - `Join Point` : 관점이 적용될 수 있는 실행 지점을 의미한다. 메서드 실행, 예외 발생 등이 조인 포인트의 예시이다.
+    - `Advice` : 관점이 언제, 어떻게 적용될지 정의하는 코드이다. 메서드 실행 전수에 로깅하는 어드바이스가 있을 수 있다.
+    - `Pointcut` : 어떤 조인 포인트에 관점을 적용할지를 선택하는 표현식이다. 예를들어 특정 패키지 내의 모든 메서드에 관점을 적용하는 포인트컷을 정의할 수 있다.
+    - `Weaving` : 관점을 핵심 로직에 적용하는 과정을 의미합니다. 컴파일 시점, 실행 시점 등에 위빙을 발생할 수 있다.
+  - 횡단 기능이 `적용될 객체`는 `TargetObject` 이고 TargetObject 기준으로 횡단 기능이 `적용될 수 있는 위치`를 `JoinPoint`라고 한다.
+  - Spring AOP에선 메소드 `Interceptor 기반`으로 동작하기 때문에 JoinPoint는 항상 `메소드 단위`이다.
+  - 적용할 횡단 기능의 `동작 코드`는 `Advice`에 정의되어 있으며 `JoinPoint` 중에서 `실제로 적용될 시점`을 `Pointcut` 이라고 한다.
+  - 즉, `Advice`는 많은 `JoinPoint` 중에서 `Pointcut`에 명시된 `JoinPoint`에서 실행된다.
+  - Spring AOP에선 `Advice` + `Pointcut` = `Advisor` 라고 한다.
+  - 횡단 관심사를 모듈화한 `Aspect` = `Advice` + `Pointcut` + `Introduction(inter-type)`
+  - `Introduction(inter-type)`는 `Aspect` 내부에 선언된 모든 요소(클래스, 인터페이스, 메소드, 그 외 모든 필드)
+  - `AOP Proxy`는 Aspect를 대신 수행하기 위해 AOP 프레임워크에 의해 생성된 객체이다.<br/>
+    대부분의 AOP 프레임워크에선 핵심 관심 코드에 직접적인 Aspect를 하지 않고 `Proxy Object`를 활용해서 Aspect를 한다.<br/>
+    횡단 관심 객체와 핵심 관심 객체의 느슨한 결합 구조를 만들고 필요 여부에 따라 부가 기능을 탈부착하기 용이하게 해준다.
+  - `Weaving`은 특정 JoinPoint에 Advice하여 핵심 기능과 횡단 기능이 교차하고 `새롭게 생성된 객체(AOP Proxy)를 프로세스에 적용하는 일련의 모든 과정`이다.
+  - Spring AOP는 Dynamic Proxy 기반으로 기본적으로 `Runtime Weaving(RTW)`를 사용하고 Waeving 방식이 AspectJ 보다 `가볍다`.
 
-# Spring AOP Proxy
-- AOP의 주요 개념
-  - `Aspect` 공통된 기능을 모듈화한 단위. 로깅이나 보안과 같은 관심사는 관점으로 표현될 수 있다.
-  - `Join Point` 관점이 적용될 수 있는 실행 지점을 의미한다. 메서드 실행, 예외 발생 등이 조인 포인트의 예시이다.
-  - `Advice` : 관점이 언제, 어떻게 적용될지 정의하는 코드이다. 메서드 실행 전수에 로깅하는 어드바이스가 있을 수 있따.
-  - `Point cutting` : 어떤 조인 포인트에 관점을 적용할지를 선택하는 표현식이다. 예를들어 특정 패키지 내의 모든 메서드에 관점을 적용하는 포인트컷을 정의할 수 있다.
-  - `Weaving` : 관점을 핵심 로직에 적용하는 과정을 의미합니다. 컴파일 시점, 실행 시점 등에 위빙을 발생할 수 있다.
-```java
-@Aspect
-@Component
-public class LoggingAspect {
-  
-    @Before("execution(* com.example.service.*.*(..))")
-    public void beforeMethodExecution(JoinPoint joinPoint) {
-        // 메서드 실행 전에 로깅
-        System.out.println("Before executing method: " + joinPoint.getSignature().getName());
-    }
-  
-    @After("execution(* com.example.service.*.*(..))")
-    public void afterMethodExecution(JoinPoint joinPoint) {
-        // 메서드 실행 후에 로깅
-        System.out.println("After executing method: " + joinPoint.getSignature().getName());
-    }
-}
-
-```
-```java
-@Aspect
-@Component
-public class TransactionAspect {
-  
-    @Autowired
-    private PlatformTransactionManager transactionManager;
-  
-    @Around("execution(* com.example.service.*.*(..))")
-    public Object manageTransaction(ProceedingJoinPoint joinPoint) throws Throwable {
-        TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
-        try {
-            // 메서드 실행 전에 트랜잭션 시작
-            Object result = joinPoint.proceed();
-            // 메서드 실행 후에 트랜잭션 커밋
-            transactionManager.commit(status);
-            return result;
-        } catch (Exception ex) {
-            // 예외 발생 시 트랜잭션 롤백
-            transactionManager.rollback(status);
-            throw ex;
+- ## Spring AOP 활용
+  - Logging
+    ```java
+    @Aspect
+    @Component
+    public class LoggingAspect {
+      
+        @Before("execution(* com.example.service.*.*(..))")
+        public void beforeMethodExecution(JoinPoint joinPoint) {
+            // 메서드 실행 전에 로깅
+            System.out.println("Before executing method: " + joinPoint.getSignature().getName());
+        }
+      
+        @After("execution(* com.example.service.*.*(..))")
+        public void afterMethodExecution(JoinPoint joinPoint) {
+            // 메서드 실행 후에 로깅
+            System.out.println("After executing method: " + joinPoint.getSignature().getName());
         }
     }
-}
-
-```
-```java
-@Aspect
-@Component
-public class SecurityAspect {
-  
-    @Before("@annotation(com.example.annotation.RequiresPermission)")
-    public void checkPermission(JoinPoint joinPoint) {
-        // 특정 권한이 있는지 확인하고 접근 허용 여부 결정
-        if (!hasPermission()) {
-            throw new SecurityException("Access denied");
+    ```
+  - Transaction
+    ```java
+    @Aspect
+    @Component
+    public class TransactionAspect {
+      
+        @Autowired
+        private PlatformTransactionManager transactionManager;
+      
+        @Around("execution(* com.example.service.*.*(..))")
+        public Object manageTransaction(ProceedingJoinPoint joinPoint) throws Throwable {
+            TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
+            try {
+                // 메서드 실행 전에 트랜잭션 시작
+                Object result = joinPoint.proceed();
+                // 메서드 실행 후에 트랜잭션 커밋
+                transactionManager.commit(status);
+                return result;
+            } catch (Exception ex) {
+                // 예외 발생 시 트랜잭션 롤백
+                transactionManager.rollback(status);
+                throw ex;
+            }
         }
     }
-  
-    private boolean hasPermission() {
-        // 권한 확인 로직
-        // ...
+    ```
+  - Security
+    ```java
+    @Aspect
+    @Component
+    public class SecurityAspect {
+      
+        @Before("@annotation(com.example.annotation.RequiresPermission)")
+        public void checkPermission(JoinPoint joinPoint) {
+            // 특정 권한이 있는지 확인하고 접근 허용 여부 결정
+            if (!hasPermission()) {
+                throw new SecurityException("Access denied");
+            }
+        }
+      
+        private boolean hasPermission() {
+            // 권한 확인 로직
+            // ...
+        }
     }
-}
-```
+    ```
   
 ---
 
