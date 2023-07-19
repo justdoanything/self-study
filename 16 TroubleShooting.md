@@ -24,7 +24,7 @@
   ```sql
   SELECT *
   FROM category c
-  ORDER BY FIED(c.category_name, '국내', '해외'), c.category_name, c.sort_order
+  ORDER BY FIELD(c.category_name, '국내', '해외'), c.category_name, c.sort_order
   ```
 
 ## SQL IGNORE CASE
@@ -1231,3 +1231,74 @@ export const getServerSideProps: GetServerSideProps = async () => {
 - Session에 로그인 된 사용자가 있으면 BE API를 호출할 때 로그인 정보를 담아서 호출하고 BE는 Session을 체크해서 로그인 사용자의 대한 정보를 추가로 응답했다.
 - 여기서 발생했던 문제는 token 등 로그인 정보는 session과 localStorage에 있었는데 `getServerSideProps`에선 session, localStorage에 접근할 수 없었기 때문에 로그인 정보를 담아서 API를 호출할 수 없었다.
 - 이를 해결하기 위해서 해당 페이지의 각 데이터 영역을 공통 컴포넌트 등으로 세분화하고 최초 로딩 시 SSR을 통해서 가져온 데이터로 화면을 렌더링하고 로그인 session이 존재하면 API를 다시 호출해서 로그인 사용자의 정보를 가져오고 useEffect, useMemo를 사용해서 로그인 사용자의 정보가 필요한 컴포넌트만 재랜더링하는 방식으로 구현했다.
+
+
+
+## 전화번호부처럼 첫글자로 그룹화하기
+```javascript
+export const makeNameGroupByFirstChar = (data: { name: string; [key: string]: any }[], resultGroups: { title: string; [key: string]: any }[]) => {
+  const koreanUnicodeStart = 44032
+  const koreanUnicodeEnd = 55203
+  const alphabetStart = 65
+  const alphabetEnd = 90
+  const numberStart = 48
+  const numberEnd = 57
+
+  const isKoreanChar = (char: string) => {
+    const unicode = char.charCodeAt(0)
+    return unicode >= koreanUnicodeStart && unicode <= koreanUnicodeEnd
+  }
+
+  const isAlphabetChar = (char: string) => {
+    const unicode = char.charCodeAt(0)
+    return unicode >= alphabetStart && unicode <= alphabetEnd
+  }
+
+  const isNumberChar = (char: string) => {
+    const unicode = char.charCodeAt(0)
+    return unicode >= numberStart && unicode <= numberEnd
+  }
+
+  const getFirstChar = (name: string) => {
+    const firstChar = name.charAt(0)
+    if (isKoreanChar(firstChar)) {
+      const unicode = name.charCodeAt(0) - koreanUnicodeStart
+      const index = Math.floor(unicode / 28 / 21)
+      return String.fromCharCode(0x1100 + index)
+    }
+    if (isAlphabetChar(firstChar)) {
+      return firstChar
+    }
+    if (isNumberChar(firstChar)) {
+      return firstChar
+    }
+    return firstChar
+  }
+
+  data.forEach((item: any) => {
+    if (!item.name) return
+    const firstChar = getFirstChar(item.name)
+    const existGroup = resultGroups.find(group => group.title === firstChar)
+    if (existGroup) {
+      existGroup.members.push(item)
+    } else {
+      resultGroups.push({title: firstChar, members: [item]})
+    }
+  })
+}
+```
+
+AND cc.commty_id IN
+<foreach collection="matchKeywordCommunityIds" item="value" separator="," open="(" close=")">
+#{value}
+</foreach>
+ORDER BY FIELD(cc.commty_id,
+<foreach collection="matchKeywordCommunityIds" item="value" separator=",">
+#{value}
+</foreach>
+
+ORDER BY CASE
+WHEN mi.ncname REGEXP '^[0-9]' THEN 1
+WHEN mi.ncname REGEXP '^[ㄱ-ㅎ가-힣]' THEN 2
+WHEN mi.ncname REGEXP '^[a-zA-Z]' THEN 3
+ELSE 4 END, mi.ncname
