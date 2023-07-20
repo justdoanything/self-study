@@ -1,47 +1,48 @@
+<!-- TOC -->
+* [Spring](#spring)
+  * [Annotation](#annotation)
+  * [Spring Handler VO](#spring-handler-vo)
+  * [Bean 간 순환 참조 문제](#bean-간-순환-참조-문제)
+  * [GET Parameter에서 한글 깨지는 문제](#get-parameter에서-한글-깨지는-문제)
+* [SQL](#sql)
+  * [LIKE & INTSTR](#like--intstr)
+  * [ORDER BY FIELD](#order-by-field)
+  * [ORDER BY CASE](#order-by-case)
+  * [IGNORE CASE & INSERT ON DUPLICATATE UPDATE](#ignore-case--insert-on-duplicatate-update)
+* [React](#react)
+  * [핸드폰에 있는 주소록처럼 첫글자로 그룹핑하는 함수](#핸드폰에-있는-주소록처럼-첫글자로-그룹핑하는-함수)
+    * [Array of useState](#array-of-usestate)
+    * [fetch](#fetch)
+  * [Axios](#axios)
+    * [async 함수 정의](#async-함수-정의)
+    * [Request/Response 정의](#requestresponse-정의)
+    * [API 정의](#api-정의)
+    * [API 사용](#api-사용)
+  * [GroupComponent 다루기 - BaseSelect](#groupcomponent-다루기---baseselect)
+  * [react-notion-x](#react-notion-x)
+  * [react-notion](#react-notion)
+  * [i18n 언어팩 적용](#i18n-언어팩-적용)
+  * [Sub Component 제어](#sub-component-제어)
+  * [Autocomplete](#autocomplete)
+  * [react-mentions](#react-mentions)
+  * [infinite scroll](#infinite-scroll)
+  * [간단한 문법 메모](#간단한-문법-메모)
+* [실제 프로젝트에서 경험했던 기술과 고민](#실제-프로젝트에서-경험했던-기술과-고민)
+  * [formik](#formik)
+  * [yup](#yup)
+  * [Store 단점](#store-단점)
+  * [React로 구현하다가 부딪힌 점](#react로-구현하다가-부딪힌-점)
+  * [Nextjs에서 getServerSideProps의 로그인 처리](#nextjs에서-getserversideprops의-로그인-처리)
+<!-- TOC -->
 
-
+---
 
 # Spring
 
-
-# React
-
-
-
-
-
-## SQL LIKE 검색 시 `INTSTR` 사용
--  `yong`으로 검색한 결과가 `yongwoo`, `leeyong`, `lyong` 라고 했을 때 _INSTR_ 을 사용하면 `GROUP BY 1, 4, 2, name` 순으로 되고 yongwoo, lyong, leeyong 순으로 정렬할 수 있다.
-  ```sql
-  SELECT *
-  FROM member m
-  WHERE m.name LIKE CONCAT('%', ${name}, '%')
-  ORDER BY INSTR(name, #{name}), name
-  ```
-
-## SQL ORDER BY 시 `FIELD` 사용
-- 특정한 값을 우선적으로 정렬할 때 사용한다
-  ```sql
-  SELECT *
-  FROM category c
-  ORDER BY FIELD(c.category_name, '국내', '해외'), c.category_name, c.sort_order
-  ```
-
-## SQL IGNORE CASE
-- `INSERT IGNORE ...` : 중복 키 에러가 발생했을 때 신규로 입력되는 레코드는 무시하고 AUTO_INCREMENT 되지 않음.
-- `REPLACE IGNORE ...` : 중복 키 에러가 발생했을 때 기존 레코드는 삭제하고 신규 레코드를 삽입하는 방식이다.
-- `INSERT INTO ... ON DUPLICATE UPDATE ...` : 중복 키 에러가 발생했을 때 원하는 값을 직접 설정할 수 있다.
-    ```sql
-    INSERT INTO employee VALUES ('name', 'city')
-    ON DUPLICATE KEY UPDATE city = VALUES(city)
-    ```
-- Reference : http://jason-heo.github.io/mysql/2014/03/05/manage-dup-key2.html
-
 ## Annotation
-- ### VO
-    - `@NotNull` : null
-    - `@NotEmpty` : null, ""
-    - `@NotBlank` : null, "", " "
+- `@NotNull` : null
+- `@NotEmpty` : null, ""
+- `@NotBlank` : null, "", " "
 
 ## Spring Handler VO
 - VO와 DTO를 나눠서 사용하기도 하지만 프로젝트에선 VO만 사용하기로 했다.
@@ -97,80 +98,79 @@
       }
   }
   ```
-## Trouble Shooting
-- ### Bean 간 순환 참조 문제
-    - Reference : https://www.baeldung.com/circular-dependencies-in-spring
-    - Spring Context가 모든 Bean을 로드할 때 일련의 순서로 Bean들을 생성한다.\
-      만약에 BeanA -> BeanB -> BeanC 로 참조되어 있다면 Spring은 BacnC를 먼저 생성하고 BeanB를 생성하고 BeanC를 생성한다. 만약 순환 참조가 되어 있다면 Spring은 어떤 Bean을 먼저 생성해야할지 정하지 못한다. 이 때 Spring은 BeanCurrentlyInCreationException을 발생시킨다.
-    - 이는 주로 constructor injection을 사용했을 때 발생할 수 있는 케이스이다.
-    - 간단한 해결방법으론 @Lazy를 사용해서 생성해주면 된다.
-      ```java
-      @Component
-      public class ClassA {
-          private ClassB classB;
-          
-          @Autowired
-          public ClassA(@Lazy ClassB classB){
-              this.classB = classB;
-          }
-      }
-      ```
-    - 두번째 방법으론, 생성자 대신에 Setter/Getter를 사용하면 된다.
-      ```java
-      @Component
-      public class ClassA {
-          private ClassB classB;
-          
-          @Autowired
-          public setClassB(ClassB classB){
-              this.classB = classB;
-          }
-          
-          public ClassB getClassB() {
-              return classB;
-          }
-      }
-      ```
-      ```java
-      @Component
-      public class ClassB {
-          private ClassA classA;
-      
-          @Autowired
-          public setClassA(ClassA classA){
-              this.classA = classA;
-          }
-      }
-      ```
-    - 세번째 방법으론 @PostConstruct 를 사용한 방법이다.
-      ```java
-      @Component
-      public class ClassA {
-          @Autowired
-          private ClassB classB;
-          
-          @PostConstruct
-          public void init() {
-              classB.setClassA(this);
-          }
-          
-          public ClassB getClassB() {
-              return classB;
-          }
-      }
-      ```
-      ```java
-      @Component
-      public class ClassB {
-          private ClassA classA;
-          
-          public void setClassA(ClassA classA) {
-              this.classA = classA;
-          }
-      }
-      ```
+## Bean 간 순환 참조 문제
+  - Reference : https://www.baeldung.com/circular-dependencies-in-spring
+  - Spring Context가 모든 Bean을 로드할 때 일련의 순서로 Bean들을 생성한다.\
+    만약에 BeanA -> BeanB -> BeanC 로 참조되어 있다면 Spring은 BacnC를 먼저 생성하고 BeanB를 생성하고 BeanC를 생성한다. 만약 순환 참조가 되어 있다면 Spring은 어떤 Bean을 먼저 생성해야할지 정하지 못한다. 이 때 Spring은 BeanCurrentlyInCreationException을 발생시킨다.
+  - 이는 주로 constructor injection을 사용했을 때 발생할 수 있는 케이스이다.
+  - 간단한 해결방법으론 @Lazy를 사용해서 생성해주면 된다.
+    ```java
+    @Component
+    public class ClassA {
+        private ClassB classB;
+        
+        @Autowired
+        public ClassA(@Lazy ClassB classB){
+            this.classB = classB;
+        }
+    }
+    ```
+  - 두번째 방법으론, 생성자 대신에 Setter/Getter를 사용하면 된다.
+    ```java
+    @Component
+    public class ClassA {
+        private ClassB classB;
+        
+        @Autowired
+        public setClassB(ClassB classB){
+            this.classB = classB;
+        }
+        
+        public ClassB getClassB() {
+            return classB;
+        }
+    }
+    ```
+    ```java
+    @Component
+    public class ClassB {
+        private ClassA classA;
+    
+        @Autowired
+        public setClassA(ClassA classA){
+            this.classA = classA;
+        }
+    }
+    ```
+  - 세번째 방법으론 @PostConstruct 를 사용한 방법이다.
+    ```java
+    @Component
+    public class ClassA {
+        @Autowired
+        private ClassB classB;
+        
+        @PostConstruct
+        public void init() {
+            classB.setClassA(this);
+        }
+        
+        public ClassB getClassB() {
+            return classB;
+        }
+    }
+    ```
+    ```java
+    @Component
+    public class ClassB {
+        private ClassA classA;
+        
+        public void setClassA(ClassA classA) {
+            this.classA = classA;
+        }
+    }
+    ```
 
-- ### GET Parameter에서 한글 깨지는 문제
+## GET Parameter에서 한글 깨지는 문제
   ```java
   public class KakaoServiceImpl {
     public KakaoBlogResponseDTO getKakaoBlog(KakaoBlogRequestDTO kakaoBlogRequestDTO) {
@@ -203,14 +203,118 @@
   }
   ```
 
-Insert - 1 (여러개인 경우 1)
-Update - 업데이트 된 행의 개수 (없으면 0)
-Delete - 삭제 된 행의 개수 (없으면 0)
+---
 
+# SQL
+## LIKE & INTSTR
+-  `yong`으로 검색한 결과가 `yongwoo`, `leeyong`, `lyong` 라고 했을 때 _INSTR_ 을 사용하면 `GROUP BY 1, 4, 2, name` 순으로 되고 yongwoo, lyong, leeyong 순으로 정렬할 수 있다.
+  ```sql
+  SELECT *
+  FROM member m
+  WHERE m.name LIKE CONCAT('%', ${name}, '%')
+  ORDER BY INSTR(name, #{name}), name
+  ```
+
+## ORDER BY FIELD
+- 특정한 값을 우선적으로 정렬할 때 사용한다
+  ```sql
+  SELECT *
+  FROM category c
+  ORDER BY FIELD(c.category_name, '국내', '해외'), c.category_name, c.sort_order
+  ```
+- 예를들어 우선 순위로 조회한 값의 id가 [4, 7, 9, 5] 라고 할 때, [4, 7, 9, 5]는 정렬조건을 부여한 값이기 때문에 이 중에 상위 3개를 조회하고 싶다면 아래와 같이 해야한다.
+  만약 그냥 조회한다면 [4, 5, 7, 9] 순으로 조회가 된다.
+  ```sql
+  SELECT *
+  FROM community c
+  WHERE ids IN
+    <foreach collection="list" item="value" separator="," open="(" close=")">
+        #{value}
+    </foreach>
+  ORDER BY FIELD(c.community_id,
+    <foreach collection="list" item="value" separator=",">
+        #{value}
+    </foreach>
+  ```
+
+## ORDER BY CASE
+- user.name이 결과값을 첫자리가 숫자 -> 한글 -> 영어 -> 그 외(특수문자)로 정렬하는 방법
+  ```sql
+  ORDER BY CASE
+    WHEN user.name REGEXP '^[0-9]' THEN 1
+    WHEN user.name REGEXP '^[ㄱ-ㅎ가-힣]' THEN 2
+    WHEN user.name REGEXP '^[a-zA-Z]' THEN 3
+    ELSE 4 END, user.name
+  ```
+
+## IGNORE CASE & INSERT ON DUPLICATATE UPDATE
+- `INSERT IGNORE ...` : 중복 키 에러가 발생했을 때 신규로 입력되는 레코드는 무시하고 AUTO_INCREMENT 되지 않음.
+- `REPLACE IGNORE ...` : 중복 키 에러가 발생했을 때 기존 레코드는 삭제하고 신규 레코드를 삽입하는 방식이다.
+- `INSERT INTO ... ON DUPLICATE UPDATE ...` : 중복 키 에러가 발생했을 때 원하는 값을 직접 설정할 수 있다.
+    ```sql
+    INSERT INTO employee VALUES ('name', 'city')
+    ON DUPLICATE KEY UPDATE city = VALUES(city)
+    ```
 
 ---
 
+# React
+## 핸드폰에 있는 주소록처럼 첫글자로 그룹핑하는 함수
+```javascript
+export const makeNameGroupByFirstChar = (data: { name: string; [key: string]: any }[], resultGroups: { title: string; [key: string]: any }[]) => {
+  const koreanUnicodeStart = 44032
+  const koreanUnicodeEnd = 55203
+  const alphabetStart = 65
+  const alphabetEnd = 90
+  const numberStart = 48
+  const numberEnd = 57
 
+  const isKoreanChar = (char: string) => {
+    const unicode = char.charCodeAt(0)
+    return unicode >= koreanUnicodeStart && unicode <= koreanUnicodeEnd
+  }
+
+  const isAlphabetChar = (char: string) => {
+    const unicode = char.charCodeAt(0)
+    return unicode >= alphabetStart && unicode <= alphabetEnd
+  }
+
+  const isNumberChar = (char: string) => {
+    const unicode = char.charCodeAt(0)
+    return unicode >= numberStart && unicode <= numberEnd
+  }
+
+  const getFirstChar = (name: string) => {
+    const firstChar = name.charAt(0)
+    if (isKoreanChar(firstChar)) {
+      const unicode = name.charCodeAt(0) - koreanUnicodeStart
+      const index = Math.floor(unicode / 28 / 21)
+      return String.fromCharCode(0x1100 + index)
+    }
+    if (isAlphabetChar(firstChar)) {
+      return firstChar
+    }
+    if (isNumberChar(firstChar)) {
+      return firstChar
+    }
+    return firstChar
+  }
+
+  data.forEach((item: any) => {
+    if (!item.name) return
+    const firstChar = getFirstChar(item.name)
+    const existGroup = resultGroups.find(group => group.title === firstChar)
+    if (existGroup) {
+      existGroup.members.push(item)
+    } else {
+      resultGroups.push({title: firstChar, members: [item]})
+    }
+  })
+}
+
+// 사용하기
+
+```
 ### Array of useState
 - Array에 Array를 더하는 방법
   ```js
@@ -486,8 +590,6 @@ fetch("https://url", {
   };
   ```
 
-
-# 사용했던 Library와 Trouble Shooting
 ## GroupComponent 다루기 - BaseSelect
 - BaseSelect에서 multi check 옵션을 썼을 때 완료를 누르지 않을 땐 처음 진입했을 때의 checked list 값을 유지해야했는데 잘 되지 않았다.
 - 해당 컴포넌트 진입(화면에 노출될 때)할 떄 기본적으로 체크된 값은 `defaultChecked` 를 사용해야한다. `checked` 값을 사용하려면 true/false 값을 각 항목마다 state로 관리해야 하는데 번거로움이 있다.
@@ -637,18 +739,17 @@ export default BaseSelectWithMulti;
 </FormControl>
 ```
 
-## Notion 관련 Library
-### react-notion-x
+## react-notion-x
 - 필요한 package
-    - react-notion-x (https://github.com/NotionX/react-notion-x)
-    - notion-client
+  - react-notion-x (https://github.com/NotionX/react-notion-x)
+  - notion-client
 - 유의사항
-    - notion-client를 사용하기 때문에 SSR로 데이터를 호출해야 합니다.
-    - notion page가 public page로 open되어 있어야 하며 private page은 notion-client에 인증키를 세팅해서 호출해야 합니다.
-    - notion page의 style을 사용하기 위해서 반드시 styles.css를 import 해줘야 합니다.\
-      `import 'react-notion-x/src/styles.css';`
-    - notion page 내 기능이나 link 가 동작하지 않기 때문에 정적인 컨텐츠를 보여줄 때 사용합니다.
-    - notion page 기능을 사용하려면 notion page를 popup으로 보여주는게 좋습니다.
+  - notion-client를 사용하기 때문에 SSR로 데이터를 호출해야 합니다.
+  - notion page가 public page로 open되어 있어야 하며 private page은 notion-client에 인증키를 세팅해서 호출해야 합니다.
+  - notion page의 style을 사용하기 위해서 반드시 styles.css를 import 해줘야 합니다.\
+    `import 'react-notion-x/src/styles.css';`
+  - notion page 내 기능이나 link 가 동작하지 않기 때문에 정적인 컨텐츠를 보여줄 때 사용합니다.
+  - notion page 기능을 사용하려면 notion page를 popup으로 보여주는게 좋습니다.
 - 샘플 코드
   ```js
   import 'react-notion-x/src/styles.css';
@@ -673,54 +774,54 @@ export default BaseSelectWithMulti;
     )
   }
   ```
-### react-notion
+## react-notion
 - 추가 : `react-notion` 보다 `react-notion-x`가 더 활용성이 좋다.
 - 사용하는 Package
-    - react-notion (https://github.com/splitbee/react-notion)
-    - npm 버전에 따라 build가 되지 않을 수 있으니 node/npm 버전을 확인해야 한다.
-    - notion page의 style을 제대로 적용하기 위해서 아래 styles.css를 import 해야 한다.\
-      `import "react-notion/src/styles.css";`
+  - react-notion (https://github.com/splitbee/react-notion)
+  - npm 버전에 따라 build가 되지 않을 수 있으니 node/npm 버전을 확인해야 한다.
+  - notion page의 style을 제대로 적용하기 위해서 아래 styles.css를 import 해야 한다.\
+    `import "react-notion/src/styles.css";`
 - 예제
-    - 새로운 창으로 띄우기 : `window.open(link, '', '_blank');`
-      ```js
-      <Link href="/notion/page">
-        <Button variant="outlined"></Button>
-      </Link>
-  
-      //-------------------------------------------------------------//
-      import 'react-notion/src/styles.css';
-      import 'prismjs/themes/prism-tomorrow.css';
-      import React, { useState, ReactElement, useEffect } from 'react';
-  
-      import { NotionRenderer } from 'react-notion';
-  
-      const NoticePage = (): ReactElement => {
-        const [notionData, setNotionData] = useState({});
-  
-        useEffect(() => {
-          fetch('https://notion-api.splitbee.io/v1/page/${NOTION_PAGE_ID}')
-            .then((response) => response.json())
-            .then((json) => {
-              setNotionData(json);
-            });
-        }, []);
-  
-        return (
-          <div className="noticePage">
-            {Object.keys(notionData).length ? (
-              <NotionRenderer
-                blockMap={notionData}
-                fullPage={true}
-                hideHeader={true}
-              />
-            ) : (
-              <div>static page</div>
-            )}
-          </div>
-        );
-      };
-      export default NoticePage;
-      ```
+  - 새로운 창으로 띄우기 : `window.open(link, '', '_blank');`
+    ```js
+    <Link href="/notion/page">
+      <Button variant="outlined"></Button>
+    </Link>
+
+    //-------------------------------------------------------------//
+    import 'react-notion/src/styles.css';
+    import 'prismjs/themes/prism-tomorrow.css';
+    import React, { useState, ReactElement, useEffect } from 'react';
+
+    import { NotionRenderer } from 'react-notion';
+
+    const NoticePage = (): ReactElement => {
+      const [notionData, setNotionData] = useState({});
+
+      useEffect(() => {
+        fetch('https://notion-api.splitbee.io/v1/page/${NOTION_PAGE_ID}')
+          .then((response) => response.json())
+          .then((json) => {
+            setNotionData(json);
+          });
+      }, []);
+
+      return (
+        <div className="noticePage">
+          {Object.keys(notionData).length ? (
+            <NotionRenderer
+              blockMap={notionData}
+              fullPage={true}
+              hideHeader={true}
+            />
+          ) : (
+            <div>static page</div>
+          )}
+        </div>
+      );
+    };
+    export default NoticePage;
+    ```
 
 ## i18n 언어팩 적용
 - `package.json` 에 i18next 관련 dependency 추가
@@ -990,8 +1091,8 @@ return (
 
 ## react-mentions
 - Library 추가
-    - yarn add @types/react-mentions
-    - yarn add react-mentions
+  - yarn add @types/react-mentions
+  - yarn add react-mentions
 
 - 예제
   ```js
@@ -1030,65 +1131,65 @@ return (
 
 ## infinite scroll
 - 사용하는 Package
-    - react-infinite-scroll-component
+  - react-infinite-scroll-component
 - Sample Code
-    - InfiniteScrollModule.tsx
-      ```js
-      import React from 'react';
-  
-      import InfiniteScroll from 'react-infinite-scroll-component';
-  
-      interface Props {
-        dataList: any;
-        fetchMoreData: () => void;
-        showListItem: (props: any) => React.ReactNode;
-        scrollThreshold?: number;
-        repeatCss?: any;
-      }
-  
-      const InfiniteScrollModule: React.FC<Props> = ({
-        dataList,
-        fetchMoreData,
-        showListItem,
-        scrollThreshold,
-        repeatCss,
-      }: Props) => {
-        return (
-          <React.Fragment>
-            {dataList && (
-              <InfiniteScroll
-                dataLength={dataList.length}
-                next={fetchMoreData}
-                hasMore={true}
-                loader={<></>}
-                scrollThreshold={scrollThreshold || 1}
-                scrollableTarget="infiniteScrollDiv"
-              >
-                {dataList.map((item: any, idx: number) => {
-                  return (
-                    <React.Fragment key={idx}>
-                      <div style={repeatCss}>{showListItem(item)}</div>
-                    </React.Fragment>
-                  );
-                })}
-              </InfiniteScroll>
-            )}
-          </React.Fragment>
-        );
-      };
-  
-      export default React.memo(InfiniteScrollModule);
-      ```
-    - Module 사용
-      ```js
-      <InfiniteScrollModule
-                      dataList={feedList}
-                      fetchMoreData={() => handleScrollEnd()}
-                      showListItem={showListItem}
-                      scrollThreshold={0.75}
-                      repeatCss={{ marginTop: '12px' }}
-                    />
-      ```
+  - InfiniteScrollModule.tsx
+    ```js
+    import React from 'react';
+
+    import InfiniteScroll from 'react-infinite-scroll-component';
+
+    interface Props {
+      dataList: any;
+      fetchMoreData: () => void;
+      showListItem: (props: any) => React.ReactNode;
+      scrollThreshold?: number;
+      repeatCss?: any;
+    }
+
+    const InfiniteScrollModule: React.FC<Props> = ({
+      dataList,
+      fetchMoreData,
+      showListItem,
+      scrollThreshold,
+      repeatCss,
+    }: Props) => {
+      return (
+        <React.Fragment>
+          {dataList && (
+            <InfiniteScroll
+              dataLength={dataList.length}
+              next={fetchMoreData}
+              hasMore={true}
+              loader={<></>}
+              scrollThreshold={scrollThreshold || 1}
+              scrollableTarget="infiniteScrollDiv"
+            >
+              {dataList.map((item: any, idx: number) => {
+                return (
+                  <React.Fragment key={idx}>
+                    <div style={repeatCss}>{showListItem(item)}</div>
+                  </React.Fragment>
+                );
+              })}
+            </InfiniteScroll>
+          )}
+        </React.Fragment>
+      );
+    };
+
+    export default React.memo(InfiniteScrollModule);
+    ```
+  - Module 사용
+    ```js
+    <InfiniteScrollModule
+                    dataList={feedList}
+                    fetchMoreData={() => handleScrollEnd()}
+                    showListItem={showListItem}
+                    scrollThreshold={0.75}
+                    repeatCss={{ marginTop: '12px' }}
+                  />
+    ```
 
 ## 간단한 문법 메모
 ```js
@@ -1232,73 +1333,6 @@ export const getServerSideProps: GetServerSideProps = async () => {
 - 여기서 발생했던 문제는 token 등 로그인 정보는 session과 localStorage에 있었는데 `getServerSideProps`에선 session, localStorage에 접근할 수 없었기 때문에 로그인 정보를 담아서 API를 호출할 수 없었다.
 - 이를 해결하기 위해서 해당 페이지의 각 데이터 영역을 공통 컴포넌트 등으로 세분화하고 최초 로딩 시 SSR을 통해서 가져온 데이터로 화면을 렌더링하고 로그인 session이 존재하면 API를 다시 호출해서 로그인 사용자의 정보를 가져오고 useEffect, useMemo를 사용해서 로그인 사용자의 정보가 필요한 컴포넌트만 재랜더링하는 방식으로 구현했다.
 
+---
 
-
-## 전화번호부처럼 첫글자로 그룹화하기
-```javascript
-export const makeNameGroupByFirstChar = (data: { name: string; [key: string]: any }[], resultGroups: { title: string; [key: string]: any }[]) => {
-  const koreanUnicodeStart = 44032
-  const koreanUnicodeEnd = 55203
-  const alphabetStart = 65
-  const alphabetEnd = 90
-  const numberStart = 48
-  const numberEnd = 57
-
-  const isKoreanChar = (char: string) => {
-    const unicode = char.charCodeAt(0)
-    return unicode >= koreanUnicodeStart && unicode <= koreanUnicodeEnd
-  }
-
-  const isAlphabetChar = (char: string) => {
-    const unicode = char.charCodeAt(0)
-    return unicode >= alphabetStart && unicode <= alphabetEnd
-  }
-
-  const isNumberChar = (char: string) => {
-    const unicode = char.charCodeAt(0)
-    return unicode >= numberStart && unicode <= numberEnd
-  }
-
-  const getFirstChar = (name: string) => {
-    const firstChar = name.charAt(0)
-    if (isKoreanChar(firstChar)) {
-      const unicode = name.charCodeAt(0) - koreanUnicodeStart
-      const index = Math.floor(unicode / 28 / 21)
-      return String.fromCharCode(0x1100 + index)
-    }
-    if (isAlphabetChar(firstChar)) {
-      return firstChar
-    }
-    if (isNumberChar(firstChar)) {
-      return firstChar
-    }
-    return firstChar
-  }
-
-  data.forEach((item: any) => {
-    if (!item.name) return
-    const firstChar = getFirstChar(item.name)
-    const existGroup = resultGroups.find(group => group.title === firstChar)
-    if (existGroup) {
-      existGroup.members.push(item)
-    } else {
-      resultGroups.push({title: firstChar, members: [item]})
-    }
-  })
-}
-```
-
-AND cc.commty_id IN
-<foreach collection="matchKeywordCommunityIds" item="value" separator="," open="(" close=")">
-#{value}
-</foreach>
-ORDER BY FIELD(cc.commty_id,
-<foreach collection="matchKeywordCommunityIds" item="value" separator=",">
-#{value}
-</foreach>
-
-ORDER BY CASE
-WHEN mi.ncname REGEXP '^[0-9]' THEN 1
-WHEN mi.ncname REGEXP '^[ㄱ-ㅎ가-힣]' THEN 2
-WHEN mi.ncname REGEXP '^[a-zA-Z]' THEN 3
-ELSE 4 END, mi.ncname
+useMemo 찾기
