@@ -5,14 +5,16 @@
   * [Bean 간 순환 참조 문제](#bean-간-순환-참조-문제)
   * [GET Parameter에서 한글 깨지는 문제](#get-parameter에서-한글-깨지는-문제)
 * [SQL](#sql)
-  * [LIKE & INTSTR](#like--intstr)
+  * [ORDER BY INTSTR](#order-by-intstr)
   * [ORDER BY FIELD](#order-by-field)
   * [ORDER BY CASE](#order-by-case)
   * [IGNORE CASE & INSERT ON DUPLICATATE UPDATE](#ignore-case--insert-on-duplicatate-update)
 * [React](#react)
   * [핸드폰에 있는 주소록처럼 첫글자로 그룹핑하는 함수](#핸드폰에-있는-주소록처럼-첫글자로-그룹핑하는-함수)
-    * [Array of useState](#array-of-usestate)
-    * [fetch](#fetch)
+  * [fetch](#fetch)
+  * [enum](#enum)
+  * [useEffect - async](#useeffect---async)
+  * [useEffect와 router.query](#useeffect와-routerquery)
   * [Axios](#axios)
     * [async 함수 정의](#async-함수-정의)
     * [Request/Response 정의](#requestresponse-정의)
@@ -26,7 +28,8 @@
   * [Autocomplete](#autocomplete)
   * [react-mentions](#react-mentions)
   * [infinite scroll](#infinite-scroll)
-  * [간단한 문법 메모](#간단한-문법-메모)
+  * [.map](#map)
+  * [.map & await](#map--await)
 * [실제 프로젝트에서 경험했던 기술과 고민](#실제-프로젝트에서-경험했던-기술과-고민)
   * [formik](#formik)
   * [yup](#yup)
@@ -171,6 +174,8 @@
     ```
 
 ## GET Parameter에서 한글 깨지는 문제
+- org.springframework.web.util.`UriUtils.encode("String Query", "UTF-8");`
+- `uriComponentsBuilder.build(true).encode().toUri()`
   ```java
   public class KakaoServiceImpl {
     public KakaoBlogResponseDTO getKakaoBlog(KakaoBlogRequestDTO kakaoBlogRequestDTO) {
@@ -206,8 +211,9 @@
 ---
 
 # SQL
-## LIKE & INTSTR
--  `yong`으로 검색한 결과가 `yongwoo`, `leeyong`, `lyong` 라고 했을 때 _INSTR_ 을 사용하면 `GROUP BY 1, 4, 2, name` 순으로 되고 yongwoo, lyong, leeyong 순으로 정렬할 수 있다.
+## ORDER BY INTSTR
+- 검색 조건과 가장 많이 일치하는 순으로 정렬하고 싶을 때 INTSTR(검색 조건으로 시작하는 인덱스를 반환)을 사용한다.
+- `yong`으로 검색한 결과가 `yongwoo`, `leeyong`, `lyong` 라고 했을 때 _INSTR_ 을 사용하면 `GROUP BY 1, 4, 2, name` 순으로 되고 yongwoo, lyong, leeyong 순으로 정렬할 수 있다.
   ```sql
   SELECT *
   FROM member m
@@ -235,16 +241,17 @@
     <foreach collection="list" item="value" separator=",">
         #{value}
     </foreach>
+  LIMIT 3
   ```
 
 ## ORDER BY CASE
-- user.name이 결과값을 첫자리가 숫자 -> 한글 -> 영어 -> 그 외(특수문자)로 정렬하는 방법
+- name이 결과값을 첫자리가 숫자 -> 한글 -> 영어 -> 그 외(특수문자)로 정렬하는 방법
   ```sql
   ORDER BY CASE
-    WHEN user.name REGEXP '^[0-9]' THEN 1
-    WHEN user.name REGEXP '^[ㄱ-ㅎ가-힣]' THEN 2
-    WHEN user.name REGEXP '^[a-zA-Z]' THEN 3
-    ELSE 4 END, user.name
+    WHEN name REGEXP '^[0-9]' THEN 1
+    WHEN name REGEXP '^[ㄱ-ㅎ가-힣]' THEN 2
+    WHEN name REGEXP '^[a-zA-Z]' THEN 3
+    ELSE 4 END, name
   ```
 
 ## IGNORE CASE & INSERT ON DUPLICATATE UPDATE
@@ -311,18 +318,9 @@ export const makeNameGroupByFirstChar = (data: { name: string; [key: string]: an
     }
   })
 }
-
-// 사용하기
-
 ```
-### Array of useState
-- Array에 Array를 더하는 방법
-  ```js
-  const arraySample = [1,2,3];
-  const useState[value, setValue] = useState([]);
-  setValue((currentArray) => [value, ...currentArray]);
-  ```
-### fetch
+
+## fetch
 ```js
 fetch("https://url", {
   method: "POST",
@@ -350,41 +348,39 @@ fetch("https://url", {
 });
 ```
 
-- ### enum
-  ```js
-  export enum Method {
-    GET = 'GET',
-    POST = 'POST',
-    PUT = 'PUT',
-    DELETE = 'DELETE',
-    PATCH = 'PATCH',
-  }
+## enum
+```js
+export enum Method {
+  GET = 'GET',
+  POST = 'POST',
+  PUT = 'PUT',
+  DELETE = 'DELETE',
+  PATCH = 'PATCH',
+}
+```
 
-  Method.GET
-  ```
+## useEffect - async
+```js
+useEffect(() => {
+  const fetchData = async () => {
+    const data = await (await fetch(url)).json();
+    setData(data);
+  };
 
-- ### useEffect - async
-  ```js
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await (await fetch(url)).json();
-      setData(data);
-    };
+  fetchData();
+}, [data]);
+```
 
-    fetchData();
-  }, [data]);
-  ```
+## useEffect와 router.query
+```js
+const router = useRouter();
+const { id } = router.query;
 
-- ### useEffect와 router.query
-  ```js
-  const router = useRouter();
-  const { id } = router.query;
-
-  useEffect(() => {
-    if (!router.isReady) return;
-    console.log(id);
-  }, [router.isReady]);
-  ```
+useEffect(() => {
+  if (!router.isReady) return;
+  console.log(id);
+}, [router.isReady]);
+```
 
 ## Axios
 ### async 함수 정의
@@ -1191,7 +1187,7 @@ return (
                   />
     ```
 
-## 간단한 문법 메모
+## .map
 ```js
 /*
 * javascript의 map은 java stream의 map과는 다르다.
@@ -1204,7 +1200,8 @@ data.files
     return { ...item, fileUrl: bucketBaseUrl + item.fileUrl };
   })
 ```
-```js
+## .map & await
+```typescript
 /*
 * .map과 await 같이 쓰기 (Notion & SSR)
 */
@@ -1235,7 +1232,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
   return { props: { notionPageList } };
 }
 ```
-```js
+```typescript
 interface NotionPageContents {
   title: string;
   contents: ExtendedRecordMap;
@@ -1334,5 +1331,3 @@ export const getServerSideProps: GetServerSideProps = async () => {
 - 이를 해결하기 위해서 해당 페이지의 각 데이터 영역을 공통 컴포넌트 등으로 세분화하고 최초 로딩 시 SSR을 통해서 가져온 데이터로 화면을 렌더링하고 로그인 session이 존재하면 API를 다시 호출해서 로그인 사용자의 정보를 가져오고 useEffect, useMemo를 사용해서 로그인 사용자의 정보가 필요한 컴포넌트만 재랜더링하는 방식으로 구현했다.
 
 ---
-
-useMemo 찾기

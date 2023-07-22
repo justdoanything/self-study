@@ -10,7 +10,7 @@
     * [Re-rendering (useState)](#re-rendering--usestate-)
     * [Prop](#prop)
     * [Cleanup](#cleanup)
-    * [useState & useEffect & useMemo](#usestate--useeffect--usememo)
+    * [useState & useEffect & useMemo & useCallback](#usestate--useeffect--usememo--usecallback)
   * [Reference](#reference)
 * [Nextjs](#nextjs)
   * [Next.js 의 개념과 주요 기능](#nextjs-의-개념과-주요-기능)
@@ -260,7 +260,7 @@
   }
   ```
 
-### useState & useEffect & useMemo
+### useState & useEffect & useMemo & useCallback
 - #### useState[state, setState]
   - document : https://ko.reactjs.org/docs/hooks-reference.html#usestate
   - 기본정의 : `function useState<S>(initialState: S | (() => S)): [S, Dispatch<SetStateAction<S>>] import useState`
@@ -269,15 +269,90 @@
 - #### useEffect
   - document : https://ko.reactjs.org/docs/hooks-reference.html#useeffect
   - 기본 정의 : `function useEffect(effect: EffectCallback, deps?: DependencyList): void import useEffect`
-  - object가 변경됐을 때만 function을 수행한다.
+  - useEffect는 컴포넌트의 렌더링 이후에 실행되는 함수를 정의하는 Hook
+  - 주로 데이터 가져오기, 구독 설정, DOM 조작, 타이머 등의 작업을 처리할 때 사용된다.
+  - 기본적으로 모든 렌더링 시마다 실행되며, 특정 상태나 prop의 변화를 감지하여 특정 작업을 수행하도록 설정할 수 있다.
+  - 마운트, 언마운트, 업데이트 시에 모두 실행된다.
   - 예시
     ```js
     useEffect(() => {
-      if (keyword.length > 5) console.log("keyword is changes");
+      if (keyword.length > 5) 
+        console.log("keyword is changes");
     }, [keyword]);
     ```
 - #### useMemo
-  - `const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b]);`
+  - document : https://ko.legacy.reactjs.org/docs/hooks-reference.html#usememo
+  - 기본정의 : `const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b]);`
+  - 계산 비용이 많은 함수의 결과 값을 기억하는 Hook
+  - 이전에 계산된 값이 다음 렌더링에서 필요할 때, 이전 값을 재사용하여 성능을 최적화할 수 있다.
+  - 의존성 배열(deps)을 지정하여 해당 의존성이 변경되었을 때에만 값을 다시 계산하도록 설정할 수 있다.
+  - 아래 코드에서 버튼을 누르면 useMemo는 2번, useEffect는 1번 호출된다. <br/>
+    버튼을 클릭하여 count가 1로 업데이트되면 컴포넌트가 다시 리렌더링되고 doubleCount가 1 * 2로 계산된다. <br/>
+    useMemo는 이전에 계산된 결과 0과 다르므로 새로운 값을 반환하게 되기 때문에 2번 호출된다. <br />
+    useEffect는 렌더링 이후에 실행되므로 버튼을 클릭하여 count가 변경될 때 1번 호출된다.
+    ```javascript
+    import React, { useEffect, useMemo, useState } from "react";
+
+    const ExampleComponent = () => {
+      const [count, setCount] = useState(0);
+  
+      const doubleCount = useMemo(() => {
+        console.log("useMemo runs only when count changes");
+        return count * 2;
+      }, [count]);
+  
+      useEffect(() => {
+        console.log("useEffect runs");
+      }, [count]);
+  
+      return (
+        <div>
+          <p>Count: {count}</p>
+          <p>Double Count: {doubleCount}</p>
+          <button onClick={() => setCount(count + 1)}>Increment</button>
+        </div>
+      );
+    };
+
+    export default ExampleComponent;
+    ```
+- #### useCallback
+  - document : https://ko.legacy.reactjs.org/docs/hooks-reference.html#usecallback
+  - 기본정의 
+    ```javascript
+    const memoizedCallback = useCallback(
+      () => {
+        doSomething(a, b);
+      },
+      [a, b],
+    );
+    ```
+  - useCallback은 함수를 기억하는 Hook
+  - 부모 컴포넌트가 렌더링될 때마다 함수가 새로 생성되는 것을 방지하고, 이전에 생성된 함수를 재사용하여 성능을 최적화합니다.
+  - 의존성 배열(deps)을 지정하여 해당 의존성이 변경되었을 때에만 새로운 함수를 생성하도록 설정할 수 있습니다.
+    ```javascript
+    import React, { useCallback, useState } from 'react';
+
+    const ExampleComponent = () => {
+      const [count, setCount] = useState(0);
+      
+      const handleIncrement = useCallback(() => {
+        console.log('handleIncrement function is memoized');
+          setCount((prevCount) => prevCount + 1);
+        }, []);
+        
+        return (
+          <div>
+            <p>Count: {count}</p>
+            <button onClick={handleIncrement}>Increment</button>
+          </div>
+      );
+    };
+    ```
+  - `useEffect`: 렌더링 이후에 실행되는 함수를 정의, 부작용 처리에 사용.
+  - `useMemo`: 계산 비용이 많은 함수의 결과 값을 기억, 최적화에 사용.
+  - `useCallback`: 함수를 기억, 함수 재생성 방지 및 최적화에 사용.
+    
 
 ## Reference
 - [Nomadcoder's ReactJS로 영화 웹 서비스 만들기](https://nomadcoders.co/react-for-beginners/lobby)
