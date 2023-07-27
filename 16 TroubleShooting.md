@@ -10,32 +10,33 @@
   * [ORDER BY CASE](#order-by-case)
   * [IGNORE CASE & INSERT ON DUPLICATATE UPDATE](#ignore-case--insert-on-duplicatate-update)
 * [React](#react)
-  * [핸드폰에 있는 주소록처럼 첫글자로 그룹핑하는 함수](#핸드폰에-있는-주소록처럼-첫글자로-그룹핑하는-함수)
-  * [fetch](#fetch)
-  * [enum](#enum)
-  * [useEffect - async](#useeffect---async)
-  * [useEffect와 router.query](#useeffect와-routerquery)
-  * [Axios](#axios)
-    * [async 함수 정의](#async-함수-정의)
-    * [Request/Response 정의](#requestresponse-정의)
-    * [API 정의](#api-정의)
-    * [API 사용](#api-사용)
-  * [GroupComponent 다루기 - BaseSelect](#groupcomponent-다루기---baseselect)
-  * [react-notion-x](#react-notion-x)
-  * [react-notion](#react-notion)
-  * [i18n 언어팩 적용](#i18n-언어팩-적용)
-  * [Sub Component 제어](#sub-component-제어)
-  * [Autocomplete](#autocomplete)
-  * [react-mentions](#react-mentions)
-  * [infinite scroll](#infinite-scroll)
-  * [.map](#map)
-  * [.map & await](#map--await)
-* [실제 프로젝트에서 경험했던 기술과 고민](#실제-프로젝트에서-경험했던-기술과-고민)
-  * [formik](#formik)
-  * [yup](#yup)
-  * [Store 단점](#store-단점)
-  * [React로 구현하다가 부딪힌 점](#react로-구현하다가-부딪힌-점)
-  * [Nextjs에서 getServerSideProps의 로그인 처리](#nextjs에서-getserversideprops의-로그인-처리)
+  * [React Component](#react-component)
+    * [Function - 핸드폰에 있는 주소록처럼 첫글자로 그룹핑하는 함수](#function---핸드폰에-있는-주소록처럼-첫글자로-그룹핑하는-함수)
+    * [MUI - BaseSelect (GroupComponent 다루기)](#mui---baseselect--groupcomponent-다루기-)
+    * [MUI - Autocomplete](#mui---autocomplete)
+    * [Nextjs - getServerSideProps의 로그인 처리](#nextjs---getserversideprops의-로그인-처리)
+  * [React 자잘한 문법](#react-자잘한-문법)
+    * [fetch](#fetch)
+    * [enum](#enum)
+    * [useEffect - async](#useeffect---async)
+    * [useEffect와 router.query](#useeffect와-routerquery)
+    * [.map](#map)
+    * [.map & await](#map--await)
+  * [React Library](#react-library)
+    * [Axios](#axios)
+      * [async 함수 정의](#async-함수-정의)
+      * [Request/Response 정의](#requestresponse-정의)
+      * [API 정의](#api-정의)
+      * [API 사용](#api-사용)
+    * [i18n 언어팩 적용](#i18n-언어팩-적용)
+    * [react-notion-x](#react-notion-x)
+    * [react-notion](#react-notion)
+    * [react-mentions](#react-mentions)
+    * [infinite scroll](#infinite-scroll)
+  * [formik & yup & 깊은 복사](#formik--yup--깊은-복사)
+    * [formik](#formik)
+    * [yup](#yup)
+    * [깊은 복사](#깊은-복사)
 <!-- TOC -->
 
 ---
@@ -266,7 +267,8 @@
 ---
 
 # React
-## 핸드폰에 있는 주소록처럼 첫글자로 그룹핑하는 함수
+## React Component
+### Function - 핸드폰에 있는 주소록처럼 첫글자로 그룹핑하는 함수
 ```javascript
 export const makeNameGroupByFirstChar = (data: { name: string; [key: string]: any }[], resultGroups: { title: string; [key: string]: any }[]) => {
   const koreanUnicodeStart = 44032
@@ -320,273 +322,7 @@ export const makeNameGroupByFirstChar = (data: { name: string; [key: string]: an
 }
 ```
 
-## fetch
-```js
-fetch("https://url", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "*",
-  },
-  body: JSON.stringify({
-    fromEmail: "test@email.com",
-    toEmail: ["test@email.com"],
-    mailSubject: "Test Mailing - Beaver",
-    mailContent: "Test Mailing - Beaver",
-  }),
-}).then((response) => {
-  console.log(response.status);
-  if (response.status === 200) {
-    alert("메일 전송 성공");
-  } else {
-    alert("메일 전송 실패 : " + response.status);
-  }
-
-  response.json().then((json) => {
-    console.log(json);
-  });
-});
-```
-
-## enum
-```js
-export enum Method {
-  GET = 'GET',
-  POST = 'POST',
-  PUT = 'PUT',
-  DELETE = 'DELETE',
-  PATCH = 'PATCH',
-}
-```
-
-## useEffect - async
-```js
-useEffect(() => {
-  const fetchData = async () => {
-    const data = await (await fetch(url)).json();
-    setData(data);
-  };
-
-  fetchData();
-}, [data]);
-```
-
-## useEffect와 router.query
-```js
-const router = useRouter();
-const { id } = router.query;
-
-useEffect(() => {
-  if (!router.isReady) return;
-  console.log(id);
-}, [router.isReady]);
-```
-
-## Axios
-### async 함수 정의
-- API 사용 공통 함수 만들기
-  ```js
-  // utils/ApiUtil.ts
-  export const commonCallApi = async (commonApiRequest: CommonApiRequest): Promise<CommonApiResponse> => {
-    const url: string = commonApiRequest.url + getQueryStringFormat(commonApiRequest.params?.queryParams);
-    const isLoading = commonApiRequest.config?.isLoading || false;
-    let response: CommonApiResponse = {
-      successOrNot: 'N',
-      statusCode: StatusCode.UNKNOWN_ERROR,
-      data: {},
-    };
-
-    switch (commonApiRequest.method) {
-      case Method.GET:
-        response = await getInstance(commonApiRequest.service, isLoading).get(url);
-        break;
-      case Method.POST:
-        response = await getInstance(commonApiRequest.service, isLoading).post(url, commonApiRequest.params?.bodyParams);
-        break;
-      case Method.PUT:
-        response = await getInstance(commonApiRequest.service, isLoading).put(url, commonApiRequest.params?.bodyParams);
-        break;
-      case Method.DELETE:
-        response = await getInstance(commonApiRequest.service, isLoading).delete(url);
-        break;
-      case Method.PATCH:
-        response = await getInstance(commonApiRequest.service, isLoading).patch(url, commonApiRequest.params?.bodyParams);
-        break;
-      default:
-        break;
-    }
-    return response;
-  };
-  ```
-  ```js
-  const getInstance = (serviceName: string, isLoading: boolean, params?: any): AxiosInstance => {
-    if (isLoading) {
-      // @ts-ignore
-      // eslint-disable-next-line
-      window.loadingSpinner.setChange(true);
-
-    }
-
-    axios.defaults.headers.post['Content-Type'] = 'application/json';
-
-    let baseURL = process.env.NEXT_PUBLIC_API_BASE_URL ;
-    const sessionUtil = new SessionUtil();
-
-    if (process.env.NODE_ENV === 'development') {
-      switch (serviceName) {
-      case Service.MZP_BE:
-        baseURL += ':' + ServicePort.MZP_BE.toString();
-        break;
-      default:
-        break;
-      }
-    }
-
-    const instance = axios.create({
-      baseURL: baseURL,
-      params: params || {},
-    });
-
-    // 공통 요청 처리
-    instance.interceptors.request.use(
-      (config: AxiosRequestConfig): AxiosRequestConfig => {
-        if (config?.headers) {
-          config.headers['x-correlation-id'] =
-            window.location.pathname === '/'
-              ? 'root'.concat('_').concat(uuidv4())
-              : window.location.pathname?.concat('_').concat(uuidv4()) || '';
-          if (sessionUtil.getSessionInfo().sessionId) {
-            config.headers['x-session-id'] = sessionUtil.getSessionInfo().sessionId || '';
-          }
-        }
-        return config;
-      },
-      (error: any): Promise<any> => {
-        return Promise.reject(error);
-      },
-    );
-
-    // success / error 공통 처리
-    instance.interceptors.response.use(
-      (response: any): any => {
-        if (isLoading) {
-          // @ts-ignore
-          // eslint-disable-next-line
-          window.loadingSpinner.setChange(false);
-        }
-
-        const commonResponse: CommonResponse = response.data as CommonResponse;
-        if (commonResponse.statusCode && commonResponse.statusCode === StatusCode.SESSION_EXPIRE) {
-          sessionUtil.deleteSessionInfo();
-          window.location.assign('/login');
-        }
-        return commonResponse;
-      },
-
-      (error: any): any => {
-        if (isLoading) {
-          // @ts-ignore
-          // eslint-disable-next-line
-          window.loadingSpinner.setChange(false);
-        }
-
-        const unknownError: CommonResponse = {
-          successOrNot: 'N',
-          statusCode: StatusCode.UNKNOWN_ERROR,
-          data: {},
-        };
-
-        // eslint-disable-next-line
-        if (error.response && error.response.status.toString().indexOf('40') === 0) {
-          //TODO: 400대 에러 공통처리
-        }
-        return unknownError;
-      },
-    );
-
-    return instance;
-  };
-  ```
-  ```js
-  const getQueryStringFormat = (queryParams?: QueryParams): string => {
-    if (!queryParams) return '';
-    const keys = Object.keys(queryParams);
-    const queryString = keys
-      .map((key) => `${key}=${encodeURIComponent(queryParams[key] as string)}`) // eslint-disable-line
-      .join('&');
-    return queryString ? `?${queryString}` : '';
-  };
-  ```
-
-### Request/Response 정의
-  ```js
-  export interface CommonApiRequest {
-    service: Service;
-    url: string;
-    method: Method;
-    params?: ParamObject;
-    config?: Config;
-  }
-
-  export interface CommonApiResponse<T = any> {
-    result: string;
-    statusCode: string;
-    data?: T;
-  }
-  ```
-
-### API 정의
-  ```js
-  export interface SampleRequest {
-    type: string;
-    id: string;
-    email: string;
-    memberName: string;
-    nickname?: string;
-  }
-  
-  export const sampleApi = async(sampleRequest: SampleRequest, isLoading = true): Promise<CommonApiResponse> => {
-    return commonCallApi({
-      service: Service.BackEnd,
-      url: '/health',
-      method: Method.POST,
-      params: {
-        bodyParams: sampleRequest
-      },
-      config: {
-        isLoading: isLoading
-      }
-    });
-  }
-  ```
-
-### API 사용
-  ```js
-  const [data, setData] = useState<SampleResponse>();
-  useEffect( () => {
-    (async () => {
-      const response = await sample.sampleApi(sampleRequest);
-    setData(response);
-    })();
-  }, []);
-  ```
-  ```js
-  const sampleCallApi = async () => {
-    const sampleRequest = {
-      type: info.type,
-      id: info.id,
-      email,
-      memberName,
-      nickname,
-    } as SampleRequest;
-    const response = await sampleApi(sampleRequest);
-    if (response.result === SuccessOrNot.Y) {
-      // input your logic
-    }
-  };
-  ```
-
-## GroupComponent 다루기 - BaseSelect
+### MUI - BaseSelect (GroupComponent 다루기)
 - BaseSelect에서 multi check 옵션을 썼을 때 완료를 누르지 않을 땐 처음 진입했을 때의 checked list 값을 유지해야했는데 잘 되지 않았다.
 - 해당 컴포넌트 진입(화면에 노출될 때)할 떄 기본적으로 체크된 값은 `defaultChecked` 를 사용해야한다. `checked` 값을 사용하려면 true/false 값을 각 항목마다 state로 관리해야 하는데 번거로움이 있다.
 - 한 항목을 체크하고 체크를 해제했을 때 실행되는 `handleMultipleChecked` 함수는 체크를 하고 해제할 때마다 해당 함수만 나가는게 아니라 컴포넌트 전체를 나가는 문제 떄문에 어려웠었다.
@@ -735,91 +471,396 @@ export default BaseSelectWithMulti;
 </FormControl>
 ```
 
-## react-notion-x
-- 필요한 package
-  - react-notion-x (https://github.com/NotionX/react-notion-x)
-  - notion-client
-- 유의사항
-  - notion-client를 사용하기 때문에 SSR로 데이터를 호출해야 합니다.
-  - notion page가 public page로 open되어 있어야 하며 private page은 notion-client에 인증키를 세팅해서 호출해야 합니다.
-  - notion page의 style을 사용하기 위해서 반드시 styles.css를 import 해줘야 합니다.\
-    `import 'react-notion-x/src/styles.css';`
-  - notion page 내 기능이나 link 가 동작하지 않기 때문에 정적인 컨텐츠를 보여줄 때 사용합니다.
-  - notion page 기능을 사용하려면 notion page를 popup으로 보여주는게 좋습니다.
-- 샘플 코드
-  ```js
-  import 'react-notion-x/src/styles.css';
+### MUI - Autocomplete
+- 특정 리스트 안에서 입력한 값과 일치하는 아이템들을 보여주고 자동완성 해주는 컴포넌트
+- 리스트에 [한국, 일본, 가나, 브라질, 프랑스, 미국] 이 있을 때 '한'을 입력하면 [한국]이 하단에 표시된다.
+```js
+...
+const filter = createFilterOptions<Team>();
 
-  // SSR 방식으로 데이터 호출
-  export const getServerSideProps: GetServerSideProps = async () => {
-    const notionApi = new NotionAPI();
-    const recordMap = await notionApi.getPage(pageId || '');
+return (
+  ...
+  <Autocomplete
+    id="combobox"
+    options={data.team}
+    getOptionLabel={(option)=>option.name || ''}
+    value={data.team.filter((team) => team === member.team?.name) || ''}
+    renderInput={(params) => <TextField { ...params} label="팀" />}
+    sx={{width: 300}}
+    disabled={isTeam ? true : false}
+    filterOptions={(options, params) => {
+      const filtered = filter(options, params);
 
-    return { props: { recordMap } };
+      if(params.inputValue !== '' && !data.team.map((team) => team.name).includes(params.inputValue)){
+        filtered.push({
+          // new Team props
+          name: `Add "${params.inputValue}"`,
+          avtivated: true,
+        });
+      }
+      return filtered;
+    }}
+  />
+
+  ...
+)
+```
+
+### Nextjs - getServerSideProps의 로그인 처리
+- Nestjs + SpringBoot로 구성되어 있는 어플리케이션에서 SEO를 위해서 한 페이지의 데이터를 SSR로 가져와야 했다.
+- 새로고침이 필요한 데이터라서 `getServerSideProps`를 사용해서 데이터를 가져왔고 로그인 구분 없이 보여주는 컨텐츠와 반응, 댓글 등 로그인 사용자의 정보를 보여줘야하는 컨텐츠가 섞여 있었다.
+- Session에 로그인 된 사용자가 있으면 BE API를 호출할 때 로그인 정보를 담아서 호출하고 BE는 Session을 체크해서 로그인 사용자의 대한 정보를 추가로 응답했다.
+- 여기서 발생했던 문제는 token 등 로그인 정보는 session과 localStorage에 있었는데 `getServerSideProps`에선 session, localStorage에 접근할 수 없었기 때문에 로그인 정보를 담아서 API를 호출할 수 없었다.
+- 이를 해결하기 위해서 해당 페이지의 각 데이터 영역을 공통 컴포넌트 등으로 세분화하고 최초 로딩 시 SSR을 통해서 가져온 데이터로 화면을 렌더링하고 로그인 session이 존재하면 API를 다시 호출해서 로그인 사용자의 정보를 가져오고 useEffect, useMemo를 사용해서 로그인 사용자의 정보가 필요한 컴포넌트만 재랜더링하는 방식으로 구현했다.
+
+
+## React 자잘한 문법
+### fetch
+```js
+fetch("https://url", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+  },
+  body: JSON.stringify({
+    fromEmail: "test@email.com",
+    toEmail: ["test@email.com"],
+    mailSubject: "Test Mailing - Beaver",
+    mailContent: "Test Mailing - Beaver",
+  }),
+}).then((response) => {
+  console.log(response.status);
+  if (response.status === 200) {
+    alert("메일 전송 성공");
+  } else {
+    alert("메일 전송 실패 : " + response.status);
+  }
+
+  response.json().then((json) => {
+    console.log(json);
+  });
+});
+```
+
+### enum
+```js
+export enum Method {
+  GET = 'GET',
+  POST = 'POST',
+  PUT = 'PUT',
+  DELETE = 'DELETE',
+  PATCH = 'PATCH',
+}
+```
+
+### useEffect - async
+```js
+useEffect(() => {
+  const fetchData = async () => {
+    const data = await (await fetch(url)).json();
+    setData(data);
   };
 
-  const ClubMySet = ({ recordMap }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-    ...
-    return (
-      ...
-      <div>
-        // 데이터 렌더링
-        <NotionRenderer recordMap={recordMap} fullPage={false} darkMode={false} />
-      </div>
-      ...
-    )
+  fetchData();
+}, [data]);
+```
+
+### useEffect와 router.query
+```js
+const router = useRouter();
+const { id } = router.query;
+
+useEffect(() => {
+  if (!router.isReady) return;
+  console.log(id);
+}, [router.isReady]);
+```
+
+### .map
+```js
+/*
+* javascript의 map은 java stream의 map과는 다르다.
+* 객체의 속성값을 변경하거나 일괄 처리를 하고 싶을 때 아래와 같이 사용한다.  
+*/
+const data = File[];
+data.files
+  .filter((item) => item.fileUrl.startsWith('/IMAGE'))
+  .map((item) => {
+    return { ...item, fileUrl: bucketBaseUrl + item.fileUrl };
+  })
+```
+
+### .map & await
+```typescript
+/*
+* .map과 await 같이 쓰기 (Notion & SSR)
+*/
+interface NotionPageContents {
+  title: string;
+  contents: ExtendedRecordMap;
+}
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  const notionApi = new NotionAPI();
+  const notionPageList: NotionPageContents[] = await backApi.getContents(ContentsTypeCode.FEED).then((response) => {
+    if (response) {
+      return Promise.all(
+        response
+          .filter((item) => item.notionPageUrl)
+          .map(async (item) => {
+            const notionPageContents = item.notionPageUrl ? await notionApi.getPage(item.notionPageUrl);
+            return {
+              title: item.title,
+              contents: notionPageContents,
+            } as NotionPageContents;
+          })
+      );
+    } else {
+      return [];
+    }
+  });
+  return { props: { notionPageList } };
+}
+```
+```typescript
+interface NotionPageContents {
+  title: string;
+  contents: ExtendedRecordMap;
+}
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  if (!context.query.contents) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
+  }
+  const notionApi = new NotionAPI();
+  const contentsList: Contents[] = JSON.parse(context.query.contents as string);
+  const notionPageList: NotionPageContents[] = await Promise.all(
+    contentsList.map(async (item) => {
+      const recordMap = item.notionPageUrl ? await notionApi.getPage(item.notionPageUrl) : '';
+      return {
+        title: item.title,
+        contents: notionPageContents,
+      } as NotionPageContents;
+    })
+  );
+  return { props: { notionPageList } };
+}
+```
+
+---
+
+## React Library
+### Axios
+#### async 함수 정의
+- API 사용 공통 함수 만들기
+```js
+// utils/ApiUtil.ts
+export const commonCallApi = async (commonApiRequest: CommonApiRequest): Promise<CommonApiResponse> => {
+  const url: string = commonApiRequest.url + getQueryStringFormat(commonApiRequest.params?.queryParams);
+  const isLoading = commonApiRequest.config?.isLoading || false;
+  let response: CommonApiResponse = {
+    successOrNot: 'N',
+    statusCode: StatusCode.UNKNOWN_ERROR,
+    data: {},
+  };
+
+  switch (commonApiRequest.method) {
+    case Method.GET:
+      response = await getInstance(commonApiRequest.service, isLoading).get(url);
+      break;
+    case Method.POST:
+      response = await getInstance(commonApiRequest.service, isLoading).post(url, commonApiRequest.params?.bodyParams);
+      break;
+    case Method.PUT:
+      response = await getInstance(commonApiRequest.service, isLoading).put(url, commonApiRequest.params?.bodyParams);
+      break;
+    case Method.DELETE:
+      response = await getInstance(commonApiRequest.service, isLoading).delete(url);
+      break;
+    case Method.PATCH:
+      response = await getInstance(commonApiRequest.service, isLoading).patch(url, commonApiRequest.params?.bodyParams);
+      break;
+    default:
+      break;
+  }
+  return response;
+};
+```
+```js
+const getInstance = (serviceName: string, isLoading: boolean, params?: any): AxiosInstance => {
+  if (isLoading) {
+    // @ts-ignore
+    // eslint-disable-next-line
+    window.loadingSpinner.setChange(true);
+
+  }
+
+  axios.defaults.headers.post['Content-Type'] = 'application/json';
+
+  let baseURL = process.env.NEXT_PUBLIC_API_BASE_URL ;
+  const sessionUtil = new SessionUtil();
+
+  if (process.env.NODE_ENV === 'development') {
+    switch (serviceName) {
+    case Service.MZP_BE:
+      baseURL += ':' + ServicePort.MZP_BE.toString();
+      break;
+    default:
+      break;
+    }
+  }
+
+  const instance = axios.create({
+    baseURL: baseURL,
+    params: params || {},
+  });
+
+  // 공통 요청 처리
+  instance.interceptors.request.use(
+    (config: AxiosRequestConfig): AxiosRequestConfig => {
+      if (config?.headers) {
+        config.headers['x-correlation-id'] =
+          window.location.pathname === '/'
+            ? 'root'.concat('_').concat(uuidv4())
+            : window.location.pathname?.concat('_').concat(uuidv4()) || '';
+        if (sessionUtil.getSessionInfo().sessionId) {
+          config.headers['x-session-id'] = sessionUtil.getSessionInfo().sessionId || '';
+        }
+      }
+      return config;
+    },
+    (error: any): Promise<any> => {
+      return Promise.reject(error);
+    },
+  );
+
+  // success / error 공통 처리
+  instance.interceptors.response.use(
+    (response: any): any => {
+      if (isLoading) {
+        // @ts-ignore
+        // eslint-disable-next-line
+        window.loadingSpinner.setChange(false);
+      }
+
+      const commonResponse: CommonResponse = response.data as CommonResponse;
+      if (commonResponse.statusCode && commonResponse.statusCode === StatusCode.SESSION_EXPIRE) {
+        sessionUtil.deleteSessionInfo();
+        window.location.assign('/login');
+      }
+      return commonResponse;
+    },
+
+    (error: any): any => {
+      if (isLoading) {
+        // @ts-ignore
+        // eslint-disable-next-line
+        window.loadingSpinner.setChange(false);
+      }
+
+      const unknownError: CommonResponse = {
+        successOrNot: 'N',
+        statusCode: StatusCode.UNKNOWN_ERROR,
+        data: {},
+      };
+
+      // eslint-disable-next-line
+      if (error.response && error.response.status.toString().indexOf('40') === 0) {
+        //TODO: 400대 에러 공통처리
+      }
+      return unknownError;
+    },
+  );
+
+  return instance;
+};
+```
+```js
+const getQueryStringFormat = (queryParams?: QueryParams): string => {
+  if (!queryParams) return '';
+  const keys = Object.keys(queryParams);
+  const queryString = keys
+    .map((key) => `${key}=${encodeURIComponent(queryParams[key] as string)}`) // eslint-disable-line
+    .join('&');
+  return queryString ? `?${queryString}` : '';
+};
+```
+
+#### Request/Response 정의
+  ```js
+  export interface CommonApiRequest {
+    service: Service;
+    url: string;
+    method: Method;
+    params?: ParamObject;
+    config?: Config;
+  }
+
+  export interface CommonApiResponse<T = any> {
+    result: string;
+    statusCode: string;
+    data?: T;
   }
   ```
-## react-notion
-- 추가 : `react-notion` 보다 `react-notion-x`가 더 활용성이 좋다.
-- 사용하는 Package
-  - react-notion (https://github.com/splitbee/react-notion)
-  - npm 버전에 따라 build가 되지 않을 수 있으니 node/npm 버전을 확인해야 한다.
-  - notion page의 style을 제대로 적용하기 위해서 아래 styles.css를 import 해야 한다.\
-    `import "react-notion/src/styles.css";`
-- 예제
-  - 새로운 창으로 띄우기 : `window.open(link, '', '_blank');`
-    ```js
-    <Link href="/notion/page">
-      <Button variant="outlined"></Button>
-    </Link>
 
-    //-------------------------------------------------------------//
-    import 'react-notion/src/styles.css';
-    import 'prismjs/themes/prism-tomorrow.css';
-    import React, { useState, ReactElement, useEffect } from 'react';
+#### API 정의
+  ```js
+  export interface SampleRequest {
+    type: string;
+    id: string;
+    email: string;
+    memberName: string;
+    nickname?: string;
+  }
+  
+  export const sampleApi = async(sampleRequest: SampleRequest, isLoading = true): Promise<CommonApiResponse> => {
+    return commonCallApi({
+      service: Service.BackEnd,
+      url: '/health',
+      method: Method.POST,
+      params: {
+        bodyParams: sampleRequest
+      },
+      config: {
+        isLoading: isLoading
+      }
+    });
+  }
+  ```
 
-    import { NotionRenderer } from 'react-notion';
+#### API 사용
+  ```js
+  const [data, setData] = useState<SampleResponse>();
+  useEffect( () => {
+    (async () => {
+      const response = await sample.sampleApi(sampleRequest);
+    setData(response);
+    })();
+  }, []);
+  ```
+  ```js
+  const sampleCallApi = async () => {
+    const sampleRequest = {
+      type: info.type,
+      id: info.id,
+      email,
+      memberName,
+      nickname,
+    } as SampleRequest;
+    const response = await sampleApi(sampleRequest);
+    if (response.result === SuccessOrNot.Y) {
+      // input your logic
+    }
+  };
+  ```
 
-    const NoticePage = (): ReactElement => {
-      const [notionData, setNotionData] = useState({});
-
-      useEffect(() => {
-        fetch('https://notion-api.splitbee.io/v1/page/${NOTION_PAGE_ID}')
-          .then((response) => response.json())
-          .then((json) => {
-            setNotionData(json);
-          });
-      }, []);
-
-      return (
-        <div className="noticePage">
-          {Object.keys(notionData).length ? (
-            <NotionRenderer
-              blockMap={notionData}
-              fullPage={true}
-              hideHeader={true}
-            />
-          ) : (
-            <div>static page</div>
-          )}
-        </div>
-      );
-    };
-    export default NoticePage;
-    ```
-
-## i18n 언어팩 적용
+### i18n 언어팩 적용
 - `package.json` 에 i18next 관련 dependency 추가
   ```json
   {
@@ -978,114 +1019,92 @@ export default BaseSelectWithMulti;
   }
   ```
 
+### react-notion-x
+- 필요한 package
+  - react-notion-x (https://github.com/NotionX/react-notion-x)
+  - notion-client
+- 유의사항
+  - notion-client를 사용하기 때문에 SSR로 데이터를 호출해야 합니다.
+  - notion page가 public page로 open되어 있어야 하며 private page은 notion-client에 인증키를 세팅해서 호출해야 합니다.
+  - notion page의 style을 사용하기 위해서 반드시 styles.css를 import 해줘야 합니다.\
+    `import 'react-notion-x/src/styles.css';`
+  - notion page 내 기능이나 link 가 동작하지 않기 때문에 정적인 컨텐츠를 보여줄 때 사용합니다.
+  - notion page 기능을 사용하려면 notion page를 popup으로 보여주는게 좋습니다.
+- 샘플 코드
+  ```js
+  import 'react-notion-x/src/styles.css';
 
-## Sub Component 제어
-- Modal을 호출하는 Main Component에서 데이터값 뿐만 아니라 state 함수를 같이 넘겨서 사용한다.
-- Modal은 부모의 state를 사용해서 부모에서 선언해놓은 snackbar component를 제어하고 사용한다.
-```js
-import RequestModal from './RequestModal';
+  // SSR 방식으로 데이터 호출
+  export const getServerSideProps: GetServerSideProps = async () => {
+    const notionApi = new NotionAPI();
+    const recordMap = await notionApi.getPage(pageId || '');
 
-return(
-  ...
-  <RequestModal 
-    isModelOpen={isModelOpen}
-    handleModelClose={handleModelClose}
-    data={data}
-    setSnackBarMessage={setSnackBarMessage}
-  />
-  ...
-)
-```
-```js
-interface RequestModalProps {
-  isModelOpen: boolean;
-  handleModelClose: () => void;
-  data: string[];
-  setSnackBarMessage: (isSuccess: boolean, message: string) => void;
-}
-
-export default function RequestModal({
-  isModelOpen,
-  handleModelClose,
-  data,
-  setSnackBarMessage
-}: RequestModalProps): React.ReactElement {
-  const style = {
-    position: 'absolute' as const,
-    overflow: 'scroll',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: '80%',
-    maxWidth: 500,
-    bgcolor: 'background.paper',
-    boxShadow: 24,
-    p: 4,
+    return { props: { recordMap } };
   };
 
-  const [userInput, setUserInput] = userState<string>('');
-  ...
-
-  userEffect(()=>{
-    setUserInput(data[0]);
-  }, [data]);
-
-  return (
+  const ClubMySet = ({ recordMap }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
     ...
-    <TextField
-      variant="outlined"
-      id="description"
-      margin="normal"
-      error={!isVaild}
-      helperText={isValid ? '' : errorMessage}
-      fullWidth
-      autoFocus
-      value={userInput}
-      onChange={(e) => {
-        setUserInput(e.target.value);
-        checkUserInput(e.target.value);
-      }}
-    />
-    ...
-  )
+    return (
+      ...
+      <div>
+        // 데이터 렌더링
+        <NotionRenderer recordMap={recordMap} fullPage={false} darkMode={false} />
+      </div>
+      ...
+    )
+  }
+  ```
 
-}
-```
+### react-notion
+- 추가 : `react-notion` 보다 `react-notion-x`가 더 활용성이 좋다.
+- 사용하는 Package
+  - react-notion (https://github.com/splitbee/react-notion)
+  - npm 버전에 따라 build가 되지 않을 수 있으니 node/npm 버전을 확인해야 한다.
+  - notion page의 style을 제대로 적용하기 위해서 아래 styles.css를 import 해야 한다.\
+    `import "react-notion/src/styles.css";`
+- 예제
+  - 새로운 창으로 띄우기 : `window.open(link, '', '_blank');`
+    ```js
+    <Link href="/notion/page">
+      <Button variant="outlined"></Button>
+    </Link>
 
-## Autocomplete
-```js
-...
-const filter = createFilterOptions<Team>();
+    //-------------------------------------------------------------//
+    import 'react-notion/src/styles.css';
+    import 'prismjs/themes/prism-tomorrow.css';
+    import React, { useState, ReactElement, useEffect } from 'react';
 
-return (
-  ...
-  <Autocomplete
-    id="combobox"
-    options={data.team}
-    getOptionLabel={(option)=>option.name || ''}
-    value={data.team.filter((team) => team === member.team?.name) || ''}
-    renderInput={(params) => <TextField { ...params} label="팀" />}
-    sx={{width: 300}}
-    disabled={isTeam ? true : false}
-    filterOptions={(options, params) => {
-      const filtered = filter(options, params);
+    import { NotionRenderer } from 'react-notion';
 
-      if(params.inputValue !== '' && !data.team.map((team) => team.name).includes(params.inputValue)){
-        filtered.push({
-          // new Team props
-          name: `Add "${params.inputValue}"`,
-          avtivated: true,
-        });
-      }
-      return filtered;
-    }}
-  />
+    const NoticePage = (): ReactElement => {
+      const [notionData, setNotionData] = useState({});
 
-  ...
-)
-```
+      useEffect(() => {
+        fetch('https://notion-api.splitbee.io/v1/page/${NOTION_PAGE_ID}')
+          .then((response) => response.json())
+          .then((json) => {
+            setNotionData(json);
+          });
+      }, []);
 
-## react-mentions
+      return (
+        <div className="noticePage">
+          {Object.keys(notionData).length ? (
+            <NotionRenderer
+              blockMap={notionData}
+              fullPage={true}
+              hideHeader={true}
+            />
+          ) : (
+            <div>static page</div>
+          )}
+        </div>
+      );
+    };
+    export default NoticePage;
+    ```
+
+### react-mentions
 - Library 추가
   - yarn add @types/react-mentions
   - yarn add react-mentions
@@ -1125,7 +1144,7 @@ return (
   ```
 - git repo : https://github.com/signavio/react-mentions
 
-## infinite scroll
+### infinite scroll
 - 사용하는 Package
   - react-infinite-scroll-component
 - Sample Code
@@ -1187,126 +1206,42 @@ return (
                   />
     ```
 
-## .map
-```js
-/*
-* javascript의 map은 java stream의 map과는 다르다.
-* 객체의 속성값을 변경하거나 일괄 처리를 하고 싶을 때 아래와 같이 사용한다.  
-*/
-const data = File[];
-data.files
-  .filter((item) => item.fileUrl.startsWith('/IMAGE'))
-  .map((item) => {
-    return { ...item, fileUrl: bucketBaseUrl + item.fileUrl };
-  })
-```
-## .map & await
-```typescript
-/*
-* .map과 await 같이 쓰기 (Notion & SSR)
-*/
-interface NotionPageContents {
-  title: string;
-  contents: ExtendedRecordMap;
-}
-
-export const getServerSideProps: GetServerSideProps = async () => {
-  const notionApi = new NotionAPI();
-  const notionPageList: NotionPageContents[] = await backApi.getContents(ContentsTypeCode.FEED).then((response) => {
-    if (response) {
-      return Promise.all(
-        response
-          .filter((item) => item.notionPageUrl)
-          .map(async (item) => {
-            const notionPageContents = item.notionPageUrl ? await notionApi.getPage(item.notionPageUrl);
-            return {
-              title: item.title,
-              contents: notionPageContents,
-            } as NotionPageContents;
-          })
-      );
-    } else {
-      return [];
-    }
-  });
-  return { props: { notionPageList } };
-}
-```
-```typescript
-interface NotionPageContents {
-  title: string;
-  contents: ExtendedRecordMap;
-}
-
-export const getServerSideProps: GetServerSideProps = async () => {
-  if (!context.query.contents) {
-    return {
-      redirect: {
-        destination: '/login',
-        permanent: false,
-      },
-    };
-  }
-  const notionApi = new NotionAPI();
-  const contentsList: Contents[] = JSON.parse(context.query.contents as string);
-  const notionPageList: NotionPageContents[] = await Promise.all(
-    contentsList.map(async (item) => {
-      const recordMap = item.notionPageUrl ? await notionApi.getPage(item.notionPageUrl) : '';
-      return {
-        title: item.title,
-        contents: notionPageContents,
-      } as NotionPageContents;
-    })
-  );
-  return { props: { notionPageList } };
-}
-```
-
----
-
-# 실제 프로젝트에서 경험했던 기술과 고민
-- React 상태 관리 : Redux, Mobx, Recoil, zustand
-- Store를 사용하지 않고 Props로만 관리하는 것의 차이
-  - React 컴포넌트에서 받아야 하는 Props가 너무 많아짐.
-  - Store(상태 관리하는 구조체)를 쓰는 이유는 Store 안에 큰 컴포넌트 단위로 각각의 데이터 구조를 다 갖고 있음.
-
-## formik
+## formik & yup & 깊은 복사
+### formik
 - 여러 form을 처리해주기 쉽게 만드는거.
-  - focus = touch로 (form 이 터치가 됐느냐)
-  - error = error로 잡아줌 (form에 값이 쓰여져있느냐)
+- focus = touch로 (form 이 터치가 됐느냐)
+- error = error로 잡아줌 (form에 값이 쓰여져있느냐)
 - 기본 사용법 (https://krpeppermint100.medium.com/ts-formik-사용법-4f526888c81a)
-  ```js
-  return (
-    <Formik 
-      initialValues={{ username: "beaver", password: "beaver" }} 
-      onSubmit={(data, { setSubmitting }) => {
-        setSubmitting(true)
-      }}>
-      {
-        ({ values, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
-          <form onSubmit={handleSubmit}>
-            <div>
-              <TextField name="username" value={values.username} onChange={handleChange} />
-            </div>
-            <div>
-              <TextField name="password" value={values.password} onChange={handleChange} />
-            </div>
-            <Button type="submit" disabled={isSubmitting}>Submit</Button>
-          </form>
-        )
-      }
-    </Formik>
-  );
-  ```
-## yup
+
+### yup
 - form에 대한 에러를 잡는 기준을 정해주는것.
 - formik 안에 yup를 넣어서 yup이 에러 기준을 잡고 에러가 발생하면 formik이 감지함.
 
-## Store 단점
-- 폼이 너무 많으면 폼을 쪼개기가 어렵다.
-- 에러, 검증 값을 처리할때 보일러 플레이트 코드가 많다.
+```js
+return (
+  <Formik 
+    initialValues={{ username: "beaver", password: "beaver" }} 
+    onSubmit={(data, { setSubmitting }) => {
+      setSubmitting(true)
+    }}>
+    {
+      ({ values, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
+        <form onSubmit={handleSubmit}>
+          <div>
+            <TextField name="username" value={values.username} onChange={handleChange} />
+          </div>
+          <div>
+            <TextField name="password" value={values.password} onChange={handleChange} />
+          </div>
+          <Button type="submit" disabled={isSubmitting}>Submit</Button>
+        </form>
+      )
+    }
+  </Formik>
+);
+```
 
-## React로 구현하다가 부딪힌 점
+### 깊은 복사
 - 요구사항
   - 한 화면에서 기본정보, 보유 자산 종류, 관심 상품 정보 등 여러 form으로 나눠져있고 사용자는 원하는 값을 입력한다.
   - 사용자의 정보가 이미 있는 경우 기존에 저장되있던 데이터를 화면에 뿌려준다.
@@ -1322,12 +1257,5 @@ export const getServerSideProps: GetServerSideProps = async () => {
   - 그 이유는 A-1의 주소는 새로 따졌지만 proxy로 감싸져 있기 때문에 옵저버는 A-1의 변화를 감지하고 수정된 값을 initial value에 덮어써버린다.
   - 최종적으로 A에 대한 수정된 내용을 비교할 때 initial value는 이미 변경됐기 때문에 form에서 변경된 값으로 인지를 못했다. (변경된 값이 initial value가 됐기 때문에 Redux는 A가 변하지 않은 값으로 판단한다.)
   - SPA에선 변경된 값을 감지하는게 중요한대 (그래야 부분적으로 렌더링을 할 수 있으니까) props로 값들을 넘길때 얕은 복사가 이뤄지면서 데이터의 보존이 어려워졌다.
-
-## Nextjs에서 getServerSideProps의 로그인 처리
-- Nestjs + SpringBoot로 구성되어 있는 어플리케이션에서 SEO를 위해서 한 페이지의 데이터를 SSR로 가져와야 했다.
-- 새로고침이 필요한 데이터라서 `getServerSideProps`를 사용해서 데이터를 가져왔고 로그인 구분 없이 보여주는 컨텐츠와 반응, 댓글 등 로그인 사용자의 정보를 보여줘야하는 컨텐츠가 섞여 있었다.
-- Session에 로그인 된 사용자가 있으면 BE API를 호출할 때 로그인 정보를 담아서 호출하고 BE는 Session을 체크해서 로그인 사용자의 대한 정보를 추가로 응답했다.
-- 여기서 발생했던 문제는 token 등 로그인 정보는 session과 localStorage에 있었는데 `getServerSideProps`에선 session, localStorage에 접근할 수 없었기 때문에 로그인 정보를 담아서 API를 호출할 수 없었다.
-- 이를 해결하기 위해서 해당 페이지의 각 데이터 영역을 공통 컴포넌트 등으로 세분화하고 최초 로딩 시 SSR을 통해서 가져온 데이터로 화면을 렌더링하고 로그인 session이 존재하면 API를 다시 호출해서 로그인 사용자의 정보를 가져오고 useEffect, useMemo를 사용해서 로그인 사용자의 정보가 필요한 컴포넌트만 재랜더링하는 방식으로 구현했다.
 
 ---
