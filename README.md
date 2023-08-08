@@ -30,3 +30,4 @@
 - 📁 [13 Java](https://github.com/justdoanything/self-study/blob/main/13%20Java.md)
 - 📁 [14 Web](https://github.com/justdoanything/self-study/blob/main/14%20Web.md)
 - 📁 [15 SQL](https://github.com/justdoanything/self-study/blob/main/15%20SQL.md)
+- 📁 [16 TroubleShooting](https://github.com/justdoanything/self-study/blob/main/16%20TroubleShooting.md)

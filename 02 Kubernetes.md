@@ -216,7 +216,7 @@ Kubernetes Cluster를 실행하려면 최소한 scheduler, controller, api-serve
       
       #### 💥 Docker Desktop을 사용할 수 없기 때문에 WSL2 환경에 세팅
       
-      - 참고 : [Docker Desktop 없이 Docker 사용하기](https://github.com/justdoanything/self-study/blob/main/WIS/01%20Docker.md#2%EF%B8%8F%E2%83%A31%EF%B8%8F%E2%83%A3-docker-desktop-%EC%97%86%EC%9D%B4-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0-windows10)  
+      - 참고 : [Docker Desktop 없이 Docker 사용하기](https://github.com/justdoanything/self-study/blob/main/01%20Docker.md#2%EF%B8%8F⃣1%EF%B8%8F⃣-docker-desktop-없이-사용하기-windows10)  
       - minikube 설치 및 실행
         - `curl –LO https://storage.googleapis.com/minikube/releases/latest/minikube_latest_amd64.deb`
         - `sudo dpkg –i minikube_latest_amd64.deb`
