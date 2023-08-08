@@ -199,8 +199,4 @@ Serverless
 - https://www.inflearn.com/course/AWS-서버리스-웹앱
 - https://github.com/hp-edu/awskanbanboard
 
-### Implement
-
-- https://github.com/justdoanything/awskanbanboard
-
 ---

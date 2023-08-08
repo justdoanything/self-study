@@ -603,9 +603,6 @@ Flyway
     - `mvn flyway:info` 명령어를 통해 Schema_version에 실행한 이력을 확인할 수 있다.\
       ![image](https://user-images.githubusercontent.com/21374902/154786978-b9298012-cbeb-48c2-aa65-a3eb78cb3735.png)
 
-- ### 잔여과제
-  - Docker, AWS 배포 환경에서 자동으로 migration을 수행하려면 어떤 작업이 필요한가?
-  - 수동으로 해야하면 어떤 시점에 어떻게 수동으로 해야하며 자동으로 하려면 어떻게 해야하고 어떤 점들을 챙겨야 하는가 ?
 - ### Reference
   - https://flywaydb.org/documentation/
   - https://www.popit.kr/%EB%82%98%EB%A7%8C-%EB%AA%A8%EB%A5%B4%EA%B3%A0-%EC%9E%88%EB%8D%98-flyway-db-%EB%A7%88%EC%9D%B4%EA%B7%B8%EB%A0%88%EC%9D%B4%EC%85%98-tool/

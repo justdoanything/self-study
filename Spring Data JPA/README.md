@@ -740,9 +740,37 @@ Comment comment = byId.orElseThrow(IllegalArgumentException::new);
   }
   ```
   - 응답에 "_links" 필드를 보면 페이지 URL이 나온다.
+```json
+💡HATEOAS 란?
+- HATEOAS = Hypermedia As The Engine Of Application State
+- 하이퍼미디어 특징을 이용하여 HTTP 응답 메세지를 전달할 때 관련 리소스 링크 정보나 다음에 수행할 수 있는 작업 링크 정보를 포함하여 리턴하는 것
+- 응답 데이터에 대한 가독성이 증대되고 리소스 간의 관계를 일관성 있는 링크 형태로 관리할 수 있드는 장점이 있다.
+- 응답 데이터가 다른 리소스 URI와 의존성을 갖게 되기 때문에 구현이 다소 까다롭다는 단점이 있다.
+- HATEOAS 응답 예제
+{
+  "account_id": 12345,
+  "balance": "350,000",
+  "links": [
+    {
+      "rel": "self",
+      "href": "http://localhost:8080/accounts/1"
+    },
+    {
+      "rel": "withdraw",
+      "href": "http://localhost:8080/accounts/1/withdraw"
+    },
+    {
+      "rel": "transfer",
+      "href": "http://localhost:8080/accounts/1/transfer"
+    }
+  ]
+}
+```
+
 - ~~Payload Projection (비추천)~~
   - 요청으로 들어오는 데이터 중 일부만 바인딩하기
   - @ProjectedPaylaod, @XBRead, @JsonPath
+
 - ~~QuerySQL을 Predicate로 받아서 사용하기 (비추천)~~
 
 

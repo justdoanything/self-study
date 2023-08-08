@@ -3,9 +3,12 @@ Web
 
 # 목차
 <!-- TOC -->
+* [Web](#web)
+* [목차](#목차)
 * [Web Server And WAS](#web-server-and-was)
 * [REST API](#rest-api)
 * [TCP / UDP / HTTP](#tcp--udp--http)
+* [Restful API](#restful-api)
 * [PWA (Progressive Web App)](#pwa--progressive-web-app-)
 * [Web App 비교](#web-app-비교)
 * [BFF (Backend for Frontend)](#bff--backend-for-frontend-)
@@ -262,60 +265,56 @@ TCP / UDP / HTTP
     - https://velog.io/@shitaikoto/CS-IP-TCP-UDP-HTTP
 
 ---
+Restful API
+===
+- Restful API란?
+- 
+## 1. REST API 종류와 역할
+메소드 | 설명                                         | 응답코드               | 에러코드
+---|--------------------------------------------|--------------------|---
+`GET` | 조회                                         | _Read Operation_   | 200 OK                 | 404 Not Found
+`POST` | 정보 생성                                      | _Update Operation_ | 200 OK, 204 No-Content | 409 Conflict
+`PUT` | 정보 변경 (속성 전체)                              | _Create Operation_ | 201 Created            | 400 Bad Request
+`PATCH` | 정보 변경 (속성 일부)                              | _Create Operation_ | 201 Created            | 400 Bad Request
+`DELETE` | 정보 삭제 | _Delete Operation_ | 204 No-Content     | 404 Not Found          
+`HEAD` | 응답 헤더를 조회할 때 사용                            |                    | 200 OK                 |
+`OPTIONS` | Allow 응답 헤더를 이용해 리소스에서 사용 가능한 메소드를 표기하는 용도 |                    | 200 OK             |
+- CRUD 성격으로 구분할 수 없는 경우엔 `POST`를 사용한다.
+- `HEAD`는 GET 요청을 통해 특정 리소스를 조회하기 전에 `결과 데이터 크기를 파악`하고 싶을 때 HEAD 메소드를 사용하면 된다. 응답 헤더의 `Content-Length` 값을 알면 데이터 크기를 알 수 있다.
 
-- ## HATEOAS
-    - HATEOAS = Hypermedia As The Engine Of Application State
-    - 하이퍼미디어 특징을 이용하여 HTTP 응답 메세지를 전달할 때 관련 리소스 링크 정보나 다음에 수행할 수 있는 작업 링크 정보를 포함하여 리턴하는 것
-    - 응답 데이터에 대한 가독성이 증대되고 리소스 간의 관계를 일관성 있는 링크 형태로 관리할 수 있드는 장점이 있다.
-    - 응답 데이터가 다른 리소스 URI와 의존성을 갖게 되기 때문에 구현이 다소 까다롭다는 단점이 있다.
-    - HATEOAS 응답 예제
-      ```json
-      {
-        "account_id": 12345,
-        "balance": "350,000",
-        "links": [
-          {
-            "rel": "self",
-            "href": "http://localhost:8080/accounts/1"
-          },
-          {
-            "rel": "withdraw",
-            "href": "http://localhost:8080/accounts/1/withdraw"
-          },
-          {
-            "rel": "transfer",
-            "href": "http://localhost:8080/accounts/1/transfer"
-          }
-        ]
-      }
-      ```
-- ## GraphQL과 REST API
-    - #### GraphQL의 등장 배경
-        - RESTful API 로는 다양한 기종에서 필요한 정보들을 일일히 구현하는 것이 힘들었다.
-        - 예를들어, iOS 와 Android 에서 필요한 정보들이 조금씩 달랐고, 그 다른 부분마다 API 를 구현하는 것이 힘들었다.
-        - 이 때문에 정보를 사용하는 측에서 원하는 대로 정보를 가져올 수 있고, 보다 편하게 정보를 수정할 수 있도록 하는 표준화된 Query language 를 만들게 되었다.
+## 2. PUT과 PATCH의 차이
+- 간단히 요약하면 `PATCH`는 Resource에 일부분만 수정할 때 사용하고 `PUT`은 Resource의 모든 속성을 수정할 때 사용한다.
+- `PUT`으로 요청할 때 Resource의 일부분만 보냈을 경우, 나머지는 기본값으로 수정되는게 원칙이다. 따라서 바꾸지 않을 속성도 같이 보내줘야 한다.
+- `PATCH`는 요청한 일부분만 수정한다.
 
-    - #### GraphQL과 REST의 차이점
-        - REST는 하나의 Resource마다 하나의 Endpoint를 갖고있고 GraphQL은 주로 하나의 Endpoint에 거의 모든 것들를 담고 있다.
-        - REST는 응답 구조가 정해져 있는 방면 GraphQL은 요청할 때 사용한 Query 문에 따라 응답의 구조가 달라진다.
+## 3. GraphQL과 REST API
+- ### GraphQL의 등장 배경
+  - RESTful API 로는 다양한 기종에서 필요한 정보들을 일일히 구현하는 것이 힘들었다.
+  - 예를들어, iOS 와 Android 에서 필요한 정보들이 조금씩 달랐고, 그 다른 부분마다 API 를 구현하는 것이 힘들었다.
+  - 이 때문에 정보를 사용하는 측에서 원하는 대로 정보를 가져올 수 있고, 보다 편하게 정보를 수정할 수 있도록 하는 표준화된 Query language 를 만들게 되었다.
 
-    - #### GraphQL의 장단점
-        - GraphQL은 HTTP 요청 횟수를 줄일 수 있고 응답 크기를 줄일 수 있다.
-        - GraphQL은 File 전송 등 Text 만으로 하기 힘든 내용들을 처리하기 복잡하다. (물론 GraphQL 에서 File 전송을 할 수 없는 것은 아니나, 일반적인 GraphQL API 에 비해서 복잡해지거나 외부의 Service 에 의존해야하는 등 문제가 발생한다.)
-        - 고정된 요청과 응답만 필요할 경우에는 Query 로 인해 요청의 크기가 RESTful API 의 경우보다 더 커진다.
-        - 재귀적인 Query 가 불가능하다. (결과에 따라 응답의 깊이가 얼마든지 깊어질 수 있는 API 를 만들 수 없다.)
-    - #### GraphQL과 REST 선택기준
-        - ###### GraphQL
-            - 서로 다른 모양의 다양한 요청들에 대해 응답할 수 있어야 할 때
-            - 대부분의 요청이 CRUD(Create-Read-Update-Delete) 에 해당할 때
-        - ###### REST
-            - HTTP 와 HTTPs 에 의한 Caching 을 잘 사용하고 싶을 때
-            - File 전송 등 단순한 Text 로 처리되지 않는 요청들이 있을 때
-            - 요청의 구조가 정해져 있을 때
+- ### GraphQL과 REST의 차이점
+  - REST는 하나의 Resource마다 하나의 Endpoint를 갖고있고 GraphQL은 주로 하나의 Endpoint에 거의 모든 것들를 담고 있다.
+  - REST는 응답 구조가 정해져 있는 방면 GraphQL은 요청할 때 사용한 Query 문에 따라 응답의 구조가 달라진다.
+
+- ### GraphQL의 장단점
+  - GraphQL은 HTTP 요청 횟수를 줄일 수 있고 응답 크기를 줄일 수 있다.
+  - GraphQL은 File 전송 등 Text 만으로 하기 힘든 내용들을 처리하기 복잡하다. (물론 GraphQL 에서 File 전송을 할 수 없는 것은 아니나, 일반적인 GraphQL API 에 비해서 복잡해지거나 외부의 Service 에 의존해야하는 등 문제가 발생한다.)
+  - 고정된 요청과 응답만 필요할 경우에는 Query 로 인해 요청의 크기가 RESTful API 의 경우보다 더 커진다.
+  - 재귀적인 Query 가 불가능하다. (결과에 따라 응답의 깊이가 얼마든지 깊어질 수 있는 API 를 만들 수 없다.)
+- ### GraphQL과 REST 선택기준
+  - ##### GraphQL
+    - 서로 다른 모양의 다양한 요청들에 대해 응답할 수 있어야 할 때
+    - 대부분의 요청이 CRUD(Create-Read-Update-Delete) 에 해당할 때
+  - ##### REST
+    - HTTP 와 HTTPs 에 의한 Caching 을 잘 사용하고 싶을 때
+    - File 전송 등 단순한 Text 로 처리되지 않는 요청들이 있을 때
+    - 요청의 구조가 정해져 있을 때
 - Reference
     - https://www.holaxprogramming.com/2018/01/20/graphql-vs-restful-api/
 
 ---
+
 PWA (Progressive Web App)
 ===
 

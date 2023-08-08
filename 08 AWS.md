@@ -5,17 +5,10 @@ AWS
 - [AWS Certified](#aws-certified-architecture-associate)
   - [AWS Certified Architecture Associate](#aws-certified-architecture-associate) 
   - [AWS Certified Developer Associate](#aws-certified-developer-associate)
-- [Quick Dictionary](#quick-dictionary)
-  - [Storage Service](#storage-service)
-  - [Global Infra](#global-infra)
-  - [ELB](#elastic-load-balancing)
 - [ECS와 EC2](#aws-ecs-and-ec2)
-- [Cognito](#cognito)
+- [Cognito](#cognito-2)
 - [Amazon Connect](#amazon-connect)
 - [Amazon Lambda](#amazon-lambda)
-  - [기본 개념](#1-기본개념)
-  - [DynamoDB](#2-lambda-with-dynamodb)
-
 
 ---
 AWS Certified Architecture Associate

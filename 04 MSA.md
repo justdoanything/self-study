@@ -16,7 +16,6 @@ MSA
 - [OpenFeign](#openfeign)
 - [API Composition](#api-composition)
 - [CQRS](#cqrs)
-- [Spring Cloud Config](#spring-cloud-config)
 - [부록](#부록)
 - [프로젝트 구현](#프로젝트-구현)
 
@@ -606,10 +605,6 @@ MSA
   별도로 있는 CQRS DB(집계성 DB)는 Queue를 읽어서 데이터를 총 취합하고 UI는 CQRS 서비스를 통해서 JOIN 데이터를 조회할 수 있다.
 
 --- 
-
-- ## Spring Cloud Config
-
----
 
 - ## 부록 
   - Monolithic Architecture : 기존 방식의 아키텍처

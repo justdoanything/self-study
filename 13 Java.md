@@ -19,9 +19,6 @@ Java
   * [5. Minor GC 과정](#5-minor-gc-과정)
   * [6. Major GC 과정](#6-major-gc-과정)
   * [7. GC의 종류](#7-gc의-종류)
-* [3️⃣ REST API](#3-rest-api)
-  * [1. REST API 종류와 역할](#1-rest-api-종류와-역할)
-  * [2. PUT과 PATCH의 차이](#2-put과-patch의-차이)
 * [4️⃣ ThreadLocal](#4-threadlocal)
   * [1. Thread 공통](#1-thread-공통)
   * [2. ThreadLocal](#2-threadlocal)
@@ -250,26 +247,6 @@ Java
 
 ## Reference
 - [JAVA-☕-가비지-컬렉션GC-동작-원리-알고리즘-💯-총정리](https://inpa.tistory.com/entry/JAVA-%E2%98%95-%EA%B0%80%EB%B9%84%EC%A7%80-%EC%BB%AC%EB%A0%89%EC%85%98GC-%EB%8F%99%EC%9E%91-%EC%9B%90%EB%A6%AC-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98-%F0%9F%92%AF-%EC%B4%9D%EC%A0%95%EB%A6%AC)
-
----
-
-# 3️⃣ REST API
-## 1. REST API 종류와 역할
-메소드 | 설명                                         | 응답코드               | 에러코드
----|--------------------------------------------|--------------------|---
-`GET` | 조회                                         | _Read Operation_   | 200 OK                 | 404 Not Found
-`POST` | 정보 생성                                      | _Update Operation_ | 200 OK, 204 No-Content | 409 Conflict
-`PUT` | 정보 변경 (속성 전체)                              | _Create Operation_ | 201 Created            | 400 Bad Request
-`PATCH` | 정보 변경 (속성 일부)                              | _Create Operation_ | 201 Created            | 400 Bad Request
-`DELETE` | 정보 삭제 | _Delete Operation_ | 204 No-Content     | 404 Not Found          
-`HEAD` | 응답 헤더를 조회할 때 사용                            |                    | 200 OK                 |
-`OPTIONS` | Allow 응답 헤더를 이용해 리소스에서 사용 가능한 메소드를 표기하는 용도 |                    | 200 OK             |
-- CRUD 성격으로 구분할 수 없는 경우엔 `POST`를 사용한다.
-- `HEAD`는 GET 요청을 통해 특정 리소스를 조회하기 전에 `결과 데이터 크기를 파악`하고 싶을 때 HEAD 메소드를 사용하면 된다. 응답 헤더의 `Content-Length` 값을 알면 데이터 크기를 알 수 있다.
-## 2. PUT과 PATCH의 차이
-- 간단히 요약하면 `PATCH`는 Resource에 일부분만 수정할 때 사용하고 `PUT`은 Resource의 모든 속성을 수정할 때 사용한다.
-- `PUT`으로 요청할 때 Resource의 일부분만 보냈을 경우, 나머지는 기본값으로 수정되는게 원칙이다. 따라서 바꾸지 않을 속성도 같이 보내줘야 한다.
-- `PATCH`는 요청한 일부분만 수정한다.
 
 ---
 
