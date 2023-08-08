@@ -1,8 +1,8 @@
 # Javascript
 
 ###### Good to note with below articles
-- https://github.com/justdoanything/self-study/tree/main/WIS/ES5
-- https://github.com/justdoanything/self-study/blob/main/WIS/10%20Javascript.md
+- https://github.com/justdoanything/self-study/tree/main/ES5
+- https://github.com/justdoanything/self-study/blob/main/10%20Javascript.md
 ## var
 - var 변수의 scope = function
 - var 키워드를 사용하지 않고 변수를 선언하면 전역 변수가 된다. 이를 방지하기 위해선 'use strict'를 명시해줄 수 있다.

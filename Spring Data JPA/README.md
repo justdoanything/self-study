@@ -1,7 +1,7 @@
 # JPA 실습 내용 정리
 
-#### [참고 - (개념) 05 JPA](https://github.com/justdoanything/self-study/blob/main/WIS/05%20JPA.md)
-#### [참고 - (코드) Spring Data JPA](https://github.com/justdoanything/self-study/tree/main/WIS/Spring%20Data%20JPA) 
+#### [참고 - (개념) 05 JPA](https://github.com/justdoanything/self-study/blob/main/05%20JPA.md)
+#### [참고 - (코드) Spring Data JPA](https://github.com/justdoanything/self-study/tree/main/Spring%20Data%20JPA) 
 
 ## Java Statement
 
@@ -33,7 +33,7 @@
 ---
 
 ## Quick Guide
-- ###### 차례대로 정리한 내용은 [Spring Data JPA](https://github.com/justdoanything/self-study/tree/main/WIS/Spring%20Data%20JPA)를 참조하면 됩니다.
+- ###### 차례대로 정리한 내용은 [Spring Data JPA](https://github.com/justdoanything/self-study/tree/main/Spring%20Data%20JPA)를 참조하면 됩니다.
 - ###### Entity를 API 결과값으로 반환하는 것은 매우 위험하기 때문에 별도의 DTO를 만들어서 사용해야 한다.
   ```java
   Page<MemberDto> dtoPage = page.map(member -> new MemberDto(member.getId(), membergetName(), member.getCity()));

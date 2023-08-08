@@ -243,7 +243,7 @@ Spring Cloud
     netty 란 ? 
     비동기 + 논블로킹 + 이벤트 기반 + 추상화로 되어 있어서 대규모 트래픽을 좀 더 효율적으로 처리할 수 있다.
     netty는 이벤트를 Inboud / Outbound 로 구분해서 추상화하여 사용한다.
-    자세한 내용은 👉 https://github.com/justdoanything/self-study/blob/main/WIS/03%20ApplicationModernization.md#netty와-nio
+    자세한 내용은 👉 https://github.com/justdoanything/self-study/blob/main/03%20ApplicationModernization.md#netty와-nio
     ```
 
 ---
@@ -311,8 +311,8 @@ RetryListener | Retry 시작, 종료, 에러 시점
 
 Spring JPA
 ===
-- [Spring JPA 이론](https://github.com/justdoanything/self-study/blob/main/WIS/05%20JPA.md)
-- [Spring JPA Project](https://github.com/justdoanything/self-study/blob/main/WIS/Spring%20Data%20JPA/README.md)
+- [Spring JPA 이론](https://github.com/justdoanything/self-study/blob/main/05%20JPA.md)
+- [Spring JPA Project](https://github.com/justdoanything/self-study/tree/main/Spring%20Data%20JPA)
 
 ---
 
@@ -408,7 +408,7 @@ Spring Testing
     ```
     - #### Session Mocking
       -  Service에서 Session을 사용할 때 Session을 Mocking 해주기 위해서 공통 코드로 관리할 수 있다.
-      -  Session 관련 코드는 [Modern Spring Project](https://github.com/justdoanything/self-study/tree/main/WIS/Java/src/main/java/modern) 참고
+      -  Session 관련 코드는 [Modern Spring Project](https://github.com/justdoanything/self-study/tree/main/Modern/SpringBoot/MODERN) 참고
       
       ```java
       @ExtendWith(MockitoExtension.class)

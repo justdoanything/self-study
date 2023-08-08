@@ -27,7 +27,6 @@ MSA
   - [프로젝트 초기 구성 및 Hystrix 구성](https://github.com/justdoanything/PaymentApprovalServer/tree/P01-hystrix)
   - [eureka server-client 구성](https://github.com/justdoanything/PaymentApprovalServer/tree/P02-eureka)
   - [gateway 구성](https://github.com/justdoanything/PaymentApprovalServer/tree/P03-gateway)
-  - [kafka 구성](https://github.com/justdoanything/PaymentApprovalServer/tree/P04-kafka)
   - 참고한 모델
 
 ![image](https://user-images.githubusercontent.com/21374902/176366449-68b59fc8-97c7-49e6-b791-6a5e11b28fd0.png)

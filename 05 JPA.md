@@ -340,5 +340,4 @@ JPA (Java Persistence API)
 ---
 
 # 관련 Repository
-- [스프링 데이터 JPA / 백강선 / 인프런](https://github.com/justdoanything/self-study/tree/main/WIS/Spring%20Data%20JPA)
-- [실전! 스프링 데이터 / 김영한 / 인프런](https://github.com/justdoanything/self-study/tree/main/WIS/Spring%20Data%20JPA)
+- [Spring Data JPA](https://github.com/justdoanything/self-study/tree/main/Spring%20Data%20JPA)
