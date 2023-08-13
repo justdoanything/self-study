@@ -425,11 +425,95 @@ SPA vs MPA
 CORS vs CQRS
 ===
 - ## CORS(Cross-Origin Resource Sharing)
-  - Origin 이란?
-  - https:// -> Protocol
-  - www.google.com -> Host
-  - 
+  - `교차 출처 리소스 공유`에서 출처인 Origin은 우리가 흔히 아는 도메인 URL을 말하기도하고 서버의 위치를 말한다.
+  - URL은 Protocol + Host + Path + Query String + Fragment 로 나눌 수 있다.
+    - Protocol : https://
+    - Host : www.google.com
+    - Path : /search
+    - Query String : ?sort=asc&page=1
+    - Fragment : #foo
+  - 같은 출처를 구분하는 기준은 Protocol + Host가 완전히 같아야 한다. (Host에는 Port 번호까지 포함한다.)
+  - CORS는 브라우저의 구현 스펙에 포함되는 정책이기 때문에 Server to Server에선 적용되지 않는다.
+  - CORS가 동작하는 방식
+    - HTTP 프로토콜을 통해 리소스를 요청할 때 요청 헤더에 `Origin` 이라는 필드에 출처를 담아서 보낸다.
+    - 서버가 리소스를 응답할 때 응답 헤더에 `Access-Control-Allow-Origin` 이라는 필드에 리소스를 사용할 수 있는 출처를 담아서 응답한다.
+    - 브라우저는 자신이 보냈던 `Origin`과 서버가 응답할 때 보낸 `Access-Control-Allow-Origin`을 비교해서 유효한 응답인지 아닌지를 판단한다.
+  - 동작 방식은 크게 3가지의 시나리오에 따라 변경된다.
+    - ### 첫번째, Preflight Request
+      - 주로 웹 어플리케이션을 개발할 때 마주치는 시나리오로 브라우저는 요청을 예비 요청과 본 요청으로 나눠서 서버로 전송하게 된다.
+      - 예비 요청은 `OPTION` 메소드로 본 요청을 보내기 전에 브라우저가 요청을 보내도 되는지 확인하는 것이다. 예비 요청에 대한 응답으로 `Access-Control-Allow-Origin` 값이 포함되서 전달되고 브라우저는 Origin 값을 비교하고 안전하다는 것으로 판단되면 본 요청을 보낸다.
+      - 예비 요청에는 Origin 뿐만 아니라 다른 부가적인 정보도 같이 보내게 된다.
+        - Access-Control-Request-Headers : 본 요청에서 사용할 헤더
+        - Access-Control-Request-Method : 본 요청에서 사용할 메소드
+        ```
+        OPTIONS https://evanmoon.tistory.com/rss
 
+        Accept: */*
+        Accept-Encoding: gzip, deflate, br
+        Accept-Language: en-US,en;q=0.9,ko;q=0.8,ja;q=0.7,la;q=0.6
+        Access-Control-Request-Headers: content-type
+        Access-Control-Request-Method: GET
+        Connection: keep-alive
+        Host: evanmoon.tistory.com
+        Origin: https://evan-moon.github.io
+        Referer: https://evan-moon.github.io/2020/05/21/about-cors/
+        Sec-Fetch-Dest: empty
+        Sec-Fetch-Mode: cors
+        Sec-Fetch-Site: cross-site
+        ```
+      - 예비 요청에 대한 응답에는 `Access-Control-Allow-Origin`을 포함한 정보들을 전달해준다.
+        ```
+        OPTIONS https://evanmoon.tistory.com/rss 200 OK
+
+        Access-Control-Allow-Origin: https://evanmoon.tistory.com
+        Content-Encoding: gzip
+        Content-Length: 699
+        Content-Type: text/xml; charset=utf-8
+        Date: Sun, 24 May 2020 11:52:33 GMT
+        P3P: CP='ALL DSP COR MON LAW OUR LEG DEL'
+        Server: Apache
+        Vary: Accept-Encoding
+        X-UA-Compatible: IE=Edge
+        ```
+      - CORS에 대한 검증은 예비 요청에 대한 응답을 받은 후에 하기 때문에 예비 요청에 대한 응답은 200 OK가 될 수 있다. 반대로 응답이 200이 아니더라도 헤더에 `Access-Control-Allow-Origin` 값이 제대로 들어가 있다면 CORS 정책 위반이 아닐 수 있다.
+      - Preflight Request 처럼 모든 상황에서 요청을 2번 나눠서 보내지는 않는다. 본 요청만으로 CORS 정책 위반 여부를 판단할 수도 있다.
+    - ### 두번째, Simple Request
+      - 예비 요청을 보내지 않고 바로 본 요청을 보내는 방식으로 서버가 본 요청에 대한 응답에 `Access-Control-Allow-Origin`을 보내주면 브라우저가 CORS 정책 위반 여부를 검증한다.
+      - 특별한 조건을 만족하게 되면 예비 요청 없이 본 요청을 보낼 수 있다.
+        - 요청 메소드는 GET, HEAD, POST 중 하나여야 한다.
+        - Accept, Accept-Language, Content-Language, Content-Type, DPR, Downlink, Save-Data, Viewport-Width, Width를 제외한 헤더를 사용하면 안된다.
+        - 만약 Content-Type를 사용하는 경우에는 application/x-www-form-urlencoded, multipart/form-data, text/plain만 허용된다.
+      - 일반적으로 `Authorization`, `text/xml`, `application/json` 같은 값들이 주로 사용되기 때문에 위 조건을 모두 만족하는 경우는 드물다.
+    - ### 세번째, Credentialed Request
+      - 검증 방식이 CORS와는 다른 형태이며 다른 출처 간 통신에서 보안을 더 강화하고 싶을 때 사용하는 방법이다.
+      - 브라우저가 기본적으로 제공하는 API 요청 방식은 별도의 옵션 없이 브라우저의 쿠키 정보나 인증과 관련된 헤더를 요청에 담아서 보내지 않는다. 이 때 요청에 인증과 관련된 정보를 담을 수 있도록 하는 옵션이 `credencials` 이다.
+      - `credentials` 옵션에는 3가지 값을 사용할 수 있다.
+        - same-origin : 기본값으로 같은 출처 간 요청에만 인증 정보를 담을 수 있다.
+        - include : 모든 요청에 인증 정보를 담을 수 있다.
+        - omit : 모든 요청에 인증 정보를 담지 않는다.
+      - include 로 요청을 보낼 경우 `Access-Control-Allow-Origin`:`*` 을 사용하면 안된다고 검증한다. include 를 사용해 인증 정보를 담아서 요청할 경우 2가지 CORS 정책이 추가된다.
+        - 요청 헤더에는 `Access-Control-Allow-Origin`:`*`를 사용할 수 없으며, 명시적인 URL이어야한다.
+        - 응답 헤더에는 `Access-Control-Allow-Credentials`: `true`가 존재해야한다.
+  - CORS를 해결하는 방법
+    - ### Access-Control-Allow-Origin 세팅하기
+      - CORS 정책 위반으로 인한 문제를 해결하는 가장 대표적인 방법 서버에서 Access-Control-Allow-Origin 헤더에 알맞은 값을 세팅해주는 것이다. 와일드카드(*)를 사용해서 모든 요청을 받을 수 있겠지만 보안 이슈가 발생할 수 있다는 것을 염두해둬야 한다.
+      - 이러한 설정은 Nginx나 Apache 같은 서버 엔진에서 설정할 수 있지만 복잡한 설정을 하기엔 어려움이 있기 때문에 코드 내에서 응답 미들웨어를 사용해서 설정하는 것이 좋다.
+      - Spring, Express, Django와 같이 이름있는 백엔드 프레임워크의 경우에는 모두 CORS 관련 설정을 위한 세팅이나 미들웨어 라이브러리를 제공하고 있다.
+    - ### Webpack Dev Server로 리버스 프록싱하기
+      - webpack-dev-server 라이브러리를 사용할 때 아래와 같이 프록시 설정을 해주면 CORS 정책을 우회할 수 있다. (내부적으로 http-proxy-middleware 라이브러리를 사용한다.)
+      ```js
+      module.exports = {
+        devServer: {
+          proxy: {
+            '/api': {
+              target: 'https://api.evan.com',
+              changeOrigin: true,
+              pathRewrite: { '^/api': '' },
+            },
+          }
+        }
+      }
+      ```
 - ## CQRS(Command Query Responsibility Segregation)
   - 아키텍처 패턴 중 하나로 어플리케이션을 구현할 때 명령과 조회에 대한 책임을 분리하는 방법이다.
   - 데이터에 대해서 저장, 갱신, 삭제하는 명령 부분(Command)과 조회해서 사용하는 부분(Query)의 모델을 분리해서 사용한다.
@@ -443,6 +527,7 @@ CORS vs CQRS
 
 - Reference
   - http://auconsil.blogspot.com/2013/08/cqrs-command-query-responsibility.html
+  - https://evan-moon.github.io/2020/05/21/about-cors/
 
 ---
 
