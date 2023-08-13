@@ -425,16 +425,21 @@ SPA vs MPA
 CORS vs CQRS
 ===
 - ## CORS(Cross-Origin Resource Sharing)
+  - Origin 이란?
+  - https:// -> Protocol
+  - www.google.com -> Host
+  - 
 
 - ## CQRS(Command Query Responsibility Segregation)
-- 아키텍처 패턴 중 하나로 어플리케이션을 구현할 때 명령과 조회에 대한 책임을 분리하는 방법이다.
-- 데이터에 대해서 저장, 갱신, 삭제하는 명령 부분(Command)과 조회해서 사용하는 부분(Query)의 모델을 분리해서 사용한다.
-- MSA 에 대해 정리했던 글[(04 MSA)](https://github.com/justdoanything/self-study/blob/main/04%20MSA.md)처럼 MSA에서 KAFKA를 사용해서 CQRS를 구현할 수 있다.
-- 기존 어플리케이션을 CQRS로 변경하는 절차는 아래와 같이 요약할 수 있다.
-  - 모델들을 저장, 갱신, 삭제에 사용하는 모델과 조회에 사용하는 모델로 분리한다.
-  - 조회에 사용되는 데이터베이스 자원을 분리하고 NoSQL을 사용하는 등 성능에 맞는 자원을 선택하고 사용한다.
-  - KAFKA를 활용해서 데이터베이스 간 데이터를 이동하거나 각 마이크로 서비스에서 명령에 대한 이벤트를 KAFKA 같은 메세지 큐에 기록하고 CQRS용 마이크로 서비스가 메세지 큐를 구독해서 조회성 데이터를 만들고 사용할 수 있다. 
-    <img width="836" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/3ebaa44d-fd83-47a1-a50a-bbdc5ec9e8c6">
+  - 아키텍처 패턴 중 하나로 어플리케이션을 구현할 때 명령과 조회에 대한 책임을 분리하는 방법이다.
+  - 데이터에 대해서 저장, 갱신, 삭제하는 명령 부분(Command)과 조회해서 사용하는 부분(Query)의 모델을 분리해서 사용한다.
+  - MSA 에 대해 정리했던 글[(04 MSA)](https://github.com/justdoanything/self-study/blob/main/04%20MSA.md)처럼 MSA에서 KAFKA를 사용해서 CQRS를 구현할 수 있다.
+  - 기존 어플리케이션을 CQRS로 변경하는 절차는 아래와 같이 요약할 수 있다.
+    - 모델들을 저장, 갱신, 삭제에 사용하는 모델과 조회에 사용하는 모델로 분리한다.
+    - 조회에 사용되는 데이터베이스 자원을 분리하고 NoSQL을 사용하는 등 성능에 맞는 자원을 선택하고 사용한다.
+    - KAFKA를 활용해서 데이터베이스 간 데이터를 이동하거나 각 마이크로 서비스에서 명령에 대한 이벤트를 KAFKA 같은 메세지 큐에 기록하고 CQRS용 마이크로 서비스가 메세지 큐를 구독해서 조회성 데이터를 만들고 사용할 수 있다. 
+      
+      <img width="836" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/3ebaa44d-fd83-47a1-a50a-bbdc5ec9e8c6">
 
 - Reference
   - http://auconsil.blogspot.com/2013/08/cqrs-command-query-responsibility.html
