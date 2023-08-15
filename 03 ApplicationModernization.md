@@ -531,11 +531,137 @@ CORS vs CQRS
 
 ---
 
-Lazy Loading
-===
-
-ㅇㅇ
-
+Infinite Scroll & Lazy Loading
+=== 
+- 일반적으로 웹 페이지에서 한 페이지가 로드될 때 페이지에 필요한 자원들을 모두 받을 후 화면에 렌더링하게 된다.
+- 한 페이지에 포함되어 있는 자원이 적을 경우 크게 상관이 없지만 사진이나 동영상 같은 대용량 페이지가 많다거나 인스타그램에 피드처럼 수많은 데이터가 포함되어 있을 경우 많은 자원을 내려받고 렌더링하기 위해선 시간이 필요하고 사용자에게 느리다는 경험을 줄 수 있다.
+- 이를 해결하는 방법은 페이징 처리와 Lazy Loading이 있다.
+  - ### 페이징 처리 (Infinite Scroll)
+    - 인스타그램에 피드는 Infinite Scroll 방식을 적용한다. 사용자에게 보여줄 수 있는 피드가 100,000만개라도 처음부터 100,000만개의 피드 데이터를 가져오는게 아니라 페이징 단위로 10개 정도의 피드에 대한 정보르 가져와서 보여주고 사용자가 스크롤을 일정 부분 이상 내렸을 때 다음 10개에 대한 피드 데이터를 가져와서 보여주는 방식이다.
+    - Infinite Scroll을 구현하는 방식은 다양하지만 `react-infinite-scroll-component` 라이브러리를 사용해서 구현할 수 있다.
+    - Infinite Scroll은 keep-alive와 같이 목록 페이지와 상세 페이지 간의 스크롤 위치, 데이터 동기화 등을 따로 처리해줘야 하는 어려움이 있다.
+      ```typescript
+      import React from 'react';
+  
+      import InfiniteScroll from 'react-infinite-scroll-component';
+  
+      interface Props {
+        dataList: any;
+        fetchMoreData: () => void;
+        showListItem: (props: any) => React.ReactNode;
+        scrollThreshold?: number;
+        repeatCss?: any;
+      }
+  
+      const InfiniteScrollModule: React.FC<Props> = ({
+        dataList,
+        fetchMoreData,
+        showListItem,
+        scrollThreshold,
+        repeatCss,
+      }: Props) => {
+        return (
+          <React.Fragment>
+            {dataList && (
+              <InfiniteScroll
+                dataLength={dataList.length}
+                next={fetchMoreData}
+                hasMore={true}
+                loader={<></>}
+                scrollThreshold={scrollThreshold || 1}
+                scrollableTarget="infiniteScrollDiv"
+              >
+                {dataList.map((item: any, idx: number) => {
+                  return (
+                    <React.Fragment key={idx}>
+                      <div style={repeatCss}>{showListItem(item)}</div>
+                    </React.Fragment>
+                  );
+                })}
+              </InfiniteScroll>
+            )}
+          </React.Fragment>
+        );
+      };
+  
+      export default React.memo(InfiniteScrollModule);
+      ```
+      ```typescript
+      <InfiniteScrollModule
+                      dataList={feedList}
+                      fetchMoreData={() => handleScrollEnd()}
+                      showListItem={showListItem}
+                      scrollThreshold={0.75}
+                      repeatCss={{ marginTop: '12px' }}
+                    />
+      ```
+  - ### Lazy Loading
+    - 한 페이지에 여러 카테고리가 존재하고 카테고리를 클릭했을 때 여러 사진을 보여줘야하는 페이지가 있을 때 Lazy Loading 처리를 하지 않는다면 모든 카테고리에 해당하는 모든 사진 데이터를 내려받아야 하기 때문에 문제가 발생한다.
+    - 이를 해결하기 위해서 데이터가 실제로 필요한 시점에 필요한 데이터만 가져오는 방법이 Lazy Loading 이다. 
+    - React에서 Lazy Loading을 구현할 수 있도록 `lazy`와 `Suspense` 기능을 제공한다.
+      - 필요한 컴포넌트를 `lazy()`로 import 하게 되면 해당하는 컴포넌트가 실제로 필요한 시점에 데이터를 받고 렌더링하기 때문에 페이지가 처음 렌더링 될 때 모든 데이터를 받지 않아도 된다.
+      - `Suspense`는 fallback을 사용해서 Lazy Loading 되는 컴포넌트거 렌더링될 때 까지 실행시킬 fallback 함수를 지정할 수 있고 주로 Loading Spanner 같은 컴포너틑를 넣어서 사용할 수 있다.
+      - 여러 개의 컴포넌트를 하나의 그룹으로 관리하고 싶다면 아래 코드와 같이 `Suspense` 안에 있는 여러개의 컴포넌트가 배치해서 사용하면 된다. `Suspence` 안에 있는 3개의 컴포넌트가 모두 렌더링되면 fallback 함수가 끝나게 된다. 이는 엇갈린 로딩을 방지할 수 있다.
+        ```javascript
+        import React, { lazy, Suspense } from 'react';
+  
+        const AvatarComponent = lazy(() => import('./AvatarComponent'));
+        const InfoComponent = lazy(() => import('./InfoComponent'));
+        const MoreInfoComponent = lazy(() => import('./MoreInfoComponent'));
+  
+        const renderLoader = () => <p>Loading</p>;
+  
+        const DetailsComponent = () => (
+          <Suspense fallback={renderLoader()}>
+            <AvatarComponent />
+            <InfoComponent />
+            <MoreInfoComponent />
+          </Suspense>
+        )
+        ```
+      - `Suspence` 안에 있는 컴포넌트가 렌더링에 실패한 경우를 처리하기 위해선 `static getDerivedStateFromError()` 또는 `componentDidCatch()`를 사용학는 방법이 있다.
+      - 지연 로딩 오류를 감지하고 처리하기 위해 `Suspense` 구성 요소를 오류 경계 역할을 하는 상위 구성 요소로 래핑한 다음 오류 경계의 `render()` 메서드 내에서 오류가 없으면 자식을 있는 그대로 렌더링하거나 문제가 발생하면 사용자 지정 오류 메시지를 렌더링할 수 있다.
+        ```javascript
+        import React, { lazy, Suspense } from 'react';
+        
+        const AvatarComponent = lazy(() => import('./AvatarComponent'));
+        const InfoComponent = lazy(() => import('./InfoComponent'));
+        const MoreInfoComponent = lazy(() => import('./MoreInfoComponent'));
+        
+        const renderLoader = () => <p>Loading</p>;
+          
+          class ErrorBoundary extends React.Component {
+            constructor(props) {
+              super(props);
+              this.state = {hasError: false};
+            }
+            
+            static getDerivedStateFromError(error) {
+              return {hasError: true};
+            }
+            
+            render() {
+              if (this.state.hasError) {
+                return <p>Loading failed! Please reload.</p>;
+              }
+              
+              return this.props.children;
+            }
+          }
+          
+          const DetailsComponent = () => (
+            <ErrorBoundary>
+              <Suspense fallback={renderLoader()}>
+                <AvatarComponent />
+                <InfoComponent />
+                <MoreInfoComponent />
+              </Suspense>
+            </ErrorBoundary>
+          )
+          ```
+- Reference
+  - https://web.dev/i18n/ko/code-splitting-suspense/
+  - https://legacy.reactjs.org/docs/error-boundaries.html
 
 ---
 
