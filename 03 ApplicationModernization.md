@@ -14,7 +14,7 @@ Application Modernization
 * [SSR vs CSR](#ssr-vs-csr)
 * [SPA vs MPA](#spa-vs-mpa)
 * [CORS vs CQRS](#cors-vs-cqrs)
-* [Lazy Loading](#lazy-loading)
+* [Infinite Scroll & Lazy Loading](#infinite-scroll--lazy-loading)
 * [Flyway](#flyway)
 <!-- TOC -->
 
@@ -381,15 +381,25 @@ Netty와 NIO
   - Event Listener를 사용한 `Observer Pattern`
   - `Callback Pattern` 👉 Nodejs
   - `Reactor Pattern` 👉 Netty  
-- Blocking vs Non-Blocking
-  - Blocking
-    - Java에는 `ServerSocket`, `Socket`과 같은 Blocking Socket이 존재한다.
-    - Client가 Server로 연결을 요청하면 Server는 요청을 수락하고 Client와 연결된 Socket을 새로 만든 후 연결이 끝날 때까지 Thread의 blocking이 발생한다.
-    - Client가 여러개일 땐 Client의 요청마다 Socket과 Thread를 생성할 수 있는데 accept 에서 병목 현상이 일어날 수 있기 때문에 대량의 Client를 커버하기는 어렵다.
-    - 또한 Socket과 Thread를 무한정 늘리면 heap을 많이 사용해서 GC 발생 주기가 길어지면서 Stop-the-world 시간이 길어지고 Context Switching에 많은 자원이 소모되기 때문에 문제가 될 수 있다.
-  - Non-Blocking
-    - Java 1.4 부터는 `ServerSocketChannel`, `SocketChannel`과 같은 Non-Blocking Socket이 존재한다.
-    - 
+- 블로킹 vs 논블로킹
+  - 블로킹 소켓과 논블로킹 소켓은 데이터 송수신을 위한 함수의 동작 방식에 따른 분류이다. Netty는 소켓 종류와 상관없이 개발할 수 있도록 추상화된 API를 제공하기 때문에 소켓 모드에 따른 데이터 송수신 부분을 변경할 필요없이 사용할 수 있는 장점이 있다. 
+  - 블로킹 소켓
+    - Java에는 `ServerSocket`, `Socket`과 같은 블로킹 소켓이 존재한다.
+    - 클라이언트가 서버로 연결을 요청하면 서버는 요청을 수락하고 클라이언트와 연결된 소켓을 새로 만든 후 연결이 끝날 때까지 스레드의 블로킹이 발생한다.
+    - 클라이언트가 여러개일 땐 클라이언트의 요청마다 소켓과 스레드를 생성할 수 있는데 accept 에서 병목 현상이 일어날 수 있기 때문에 대량의 클라이언트를 커버하기는 어렵다.
+    - 또한 소켓과 스레드를 무한정 늘리면 heap을 많이 사용해서 GC 발생 주기가 길어지면서 Stop-the-world 시간이 길어지고 Context Switching에 많은 자원이 소모되기 때문에 문제가 될 수 있다.
+  - 논블로킹 소켓
+    - Java 1.4 부터는 `ServerSocketChannel`, `SocketChannel`과 같은 논블로킹 소켓이 존재한다.
+    - Java의 NIO 클래스 중 하나인 Selector는 자신에게 등록된 채널에 변경사항이 있는지 검사하고 발생한 채널에 대한 접근을 가능하게 해준다.
+    - 클라이언트가 아직 전송하지 않았거나 데이터가 수신 버퍼까지 도달하지 않았다면, read 메서드는 0을 리턴한다. 
+    - 비동기 호출이나 논블로킹 소켓을 사용하면 프로그램 복잡도가 증가할 수 밖에 없다. 반면에 Netty는 개발자가 기능 구현에 집중할 수 있도록 프레임워크 레벨에서 복잡한 로직을 모아 API 로 제공한다.
+  - Thread-Process 기반의 Apache와 Event-Driven 기반의 Nginx와 비슷한 개념인 것 같다.
+  
+  <img width="760" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/ea2b9941-b583-4d83-b332-6c200639e914">
+  
+  ![image](https://user-images.githubusercontent.com/21374902/150284927-d9b7fd92-7f26-4126-bdc0-c25b4bb8c69d.png)
+
+  ![image](https://user-images.githubusercontent.com/21374902/150284969-db228409-e99e-4583-9a52-3de516011a31.png)
 
 - Reference : https://velog.io/@monami/Netty
 
