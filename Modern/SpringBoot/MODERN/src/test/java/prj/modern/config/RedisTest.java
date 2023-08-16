@@ -22,4 +22,10 @@ public class RedisTest {
         System.out.println(testValue + " : " + testResult);
         redisTemplate.delete(testKey);
     }
+
+    @Test
+    public void doRedisHealthCheck() {
+        String testResult = redisTemplate.opsForValue().get("health");
+        Assertions.assertEquals(testValue, "OK");
+    }
 }

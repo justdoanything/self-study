@@ -6,6 +6,7 @@ services:
     restart: always
     ports:
       - 6379:6379
+    command: ["sh", "-c", "redis-server --appendonly yes && redis-cli SET health OK"]
 
   mysql:
     image: mysql:8.0
