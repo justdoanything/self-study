@@ -269,58 +269,71 @@
 # React
 ## React Component
 ### Function - 핸드폰에 있는 주소록처럼 첫글자로 그룹핑하는 함수
-```javascript
-export const makeNameGroupByFirstChar = (data: { name: string; [key: string]: any }[], resultGroups: { title: string; [key: string]: any }[]) => {
-  const koreanUnicodeStart = 44032
-  const koreanUnicodeEnd = 55203
-  const alphabetStart = 65
-  const alphabetEnd = 90
-  const numberStart = 48
-  const numberEnd = 57
-
-  const isKoreanChar = (char: string) => {
-    const unicode = char.charCodeAt(0)
-    return unicode >= koreanUnicodeStart && unicode <= koreanUnicodeEnd
-  }
-
-  const isAlphabetChar = (char: string) => {
-    const unicode = char.charCodeAt(0)
-    return unicode >= alphabetStart && unicode <= alphabetEnd
-  }
-
-  const isNumberChar = (char: string) => {
-    const unicode = char.charCodeAt(0)
-    return unicode >= numberStart && unicode <= numberEnd
-  }
-
-  const getFirstChar = (name: string) => {
-    const firstChar = name.charAt(0)
-    if (isKoreanChar(firstChar)) {
-      const unicode = name.charCodeAt(0) - koreanUnicodeStart
-      const index = Math.floor(unicode / 28 / 21)
-      return String.fromCharCode(0x1100 + index)
+- Spring에서 name이 결과값을 첫자리가 숫자 -> 한글 -> 영어 -> 그 외(특수문자)로 정렬해서 반환
+  ```sql
+  ORDER BY CASE
+    WHEN name REGEXP '^[0-9]' THEN 1
+    WHEN name REGEXP '^[ㄱ-ㅎ가-힣]' THEN 2
+    WHEN name REGEXP '^[a-zA-Z]' THEN 3
+    ELSE 4 END, name
+  ```
+- React에서 배열의 name 필드를 읽어서 첫글자의 자음, 알파벳, 특수문자 기준으로 그룹핑해서 반환
+  ```javascript
+  export const makeNameGroupByFirstChar = (data: { name: string; [key: string]: any }[], resultGroups: { title: string; [key: string]: any }[]) => {
+    const koreanUnicodeStart = 44032
+    const koreanUnicodeEnd = 55203
+    const alphabetStart = 65
+    const alphabetEnd = 90
+    const numberStart = 48
+    const numberEnd = 57
+  
+    const isKoreanChar = (char: string) => {
+      const unicode = char.charCodeAt(0)
+      return unicode >= koreanUnicodeStart && unicode <= koreanUnicodeEnd
     }
-    if (isAlphabetChar(firstChar)) {
+  
+    const isAlphabetChar = (char: string) => {
+      const unicode = char.charCodeAt(0)
+      return unicode >= alphabetStart && unicode <= alphabetEnd
+    }
+  
+    const isNumberChar = (char: string) => {
+      const unicode = char.charCodeAt(0)
+      return unicode >= numberStart && unicode <= numberEnd
+    }
+  
+    const getFirstChar = (name: string) => {
+      const firstChar = name.charAt(0)
+  
+      if (isKoreanChar(firstChar)) {
+        const unicode = name.charCodeAt(0) - koreanUnicodeStart
+        const index = Math.floor(unicode / 28 / 21)
+        return String.fromCharCode(0x1100 + index)
+      }
+      
+      if (isAlphabetChar(firstChar)) {
+        return firstChar
+      }
+      
+      if (isNumberChar(firstChar)) {
+        return firstChar
+      }
+      
       return firstChar
     }
-    if (isNumberChar(firstChar)) {
-      return firstChar
-    }
-    return firstChar
-  }
-
-  data.forEach((item: any) => {
-    if (!item.name) return
-    const firstChar = getFirstChar(item.name)
-    const existGroup = resultGroups.find(group => group.title === firstChar)
-    if (existGroup) {
-      existGroup.members.push(item)
-    } else {
-      resultGroups.push({title: firstChar, members: [item]})
-    }
-  })
-}
-```
+  
+    data.forEach((item: any) => {
+      if (!item.name) return
+      const firstChar = getFirstChar(item.name)
+      const existGroup = resultGroups.find(group => group.title === firstChar)
+      if (existGroup) {
+        existGroup.members.push(item)
+      } else {
+        resultGroups.push({title: firstChar, members: [item]})
+      }
+    });
+  };
+  ```
 
 ### MUI - BaseSelect (GroupComponent 다루기)
 - BaseSelect에서 multi check 옵션을 썼을 때 완료를 누르지 않을 땐 처음 진입했을 때의 checked list 값을 유지해야했는데 잘 되지 않았다.
