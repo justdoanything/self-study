@@ -1219,6 +1219,60 @@ const getQueryStringFormat = (queryParams?: QueryParams): string => {
                   />
     ```
 
+### Object.keys와 Object.entries (makeQueryString)
+- #### 현상
+  - HTTP GET 요청을 보낼 때 파라미터로 보내는 객체의 특정 키 값만 UTF-8로 인코딩한 결과를 세팅해서 보내야 했다.
+  - axios를 사용하고 있어서 `axios.get` 함수를 사용할 때 객체 형태의 파라미터를 인자로 넣으면 자동으로 인코딩하고 queryString으로 변환해서 호출해주고 있었다.
+
+    ```javascript
+    interface RequestParam {
+      select: string;
+      from: string;
+      where: string;
+      limit?: number;
+      page?: number;
+    }
+    ```
+- #### 문제상황
+  - where에 들어가는 값에 대해서만 UTF-8 인코딩한 결과를 사용했어야 했다.
+  - where에 들어가는 값은 억음부호(`)로 묶어서 여러 변수와 공백값들이 사용됐었는데 자동으로 인코딩된 결과에서 공백이 %20이 아니라 +로 나오는 현상이 있었다. 
+  - where에 들어가는 값을 앞단에서 인코딩해서 설정하면 axios에서 자동으로 인코딩을 또 하기 때문에 이중으로 인코딩되는 문제가 있었다. 
+- #### 해결방법
+  - axios는 파라미터로 넘어오는 값(객체)에 대해서 자동으로 인코딩하기 때문에 내가 사용하는 파라미터는 axios 함수의 인자로 넘기지 않고 axios를 호출하기 전에 queryString을 만든 후 URL에 붙여서 호출하려고 했다.
+  - 파라미터 객체의 key 값들은 호출하는 컴포넌트에 따라 유동적으로 바뀌기 때문에 queryString을 만드는 함수를 깔끔하게 작성하고 싶었다.
+  - 처음에 사용하려고 했던 함수
+    - Object.keys를 사용해서 만들었던 함수는 에러를 반환했다. 
+    - 에러 : `TS7053: Element implicitly has an 'any' type bacause expression of type 'string' can't be used to index type 'RequestParam'. No index signature with a parameter of type 'string' was found on type 'RequestParam'.`
+    - interface의 key 값들을 추출해서 param[key]와 같이 key에 해당하는 값을 바로 접근하는 것은 type safe 하지 않아서 에러를 반환하고 있었다.
+    ```javascript
+    const makeQueryString = (param: RequestParam) => {
+      return Object.keys(param)
+                      .map(key => {
+                          if(key === 'where') {
+                            return `${key}=${encodeURIComponent(param[key])}`;
+                          }
+                          return `${key}=${param[key]}`;
+                      }).join('$');
+    }
+    ````
+  - Object.entries를 사용해서 해결했었다.
+    ```javascript
+    const makeQueryString = (param: RequestParam) => {
+      return Object.entries(param)
+                      .map(([key, value]) => {
+                        if(key === 'where') {
+                            return `${key}=${encodeURIComponent(value)}`;
+                          }
+                          return `${key}=${value}`;
+                      }).join('$');
+    }
+    ```
+- #### `Object.keys`와 `Object.entries`
+- #### `Object.keys`에서 interface의 key를 추출해서 사용할 수 없는 이유
+
+  - Reference : 
+  
+
 ## formik & yup & 깊은 복사
 ### formik
 - 여러 form을 처리해주기 쉽게 만드는거.
