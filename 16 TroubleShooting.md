@@ -1269,10 +1269,64 @@ const getQueryStringFormat = (queryParams?: QueryParams): string => {
                       }).join('$');
     }
     ```
-- #### `Object.keys`와 `Object.entries` 차이
 - #### `Object.keys`에서 interface의 key를 추출해서 사용할 수 없는 이유
+  - 근본적으로 Typescript에서는 key 값으로 string 타입을 허용하지 않고 String Literal, number 타입만 허용한다. Typescript는 타입을 정하고 특정한 곳에 특정 타입만 허용하는 것이 중요 원칙이기 때문에 String Literal 자리에 string 타입을 사용해서 컴파일 에러가 발생한 것이다.
+  - ##### let? const? const:string?
+    ```typescript
+    let lets = "I am let.";                 // string (추론)
+    const scont: string = "I am const.";    // string
+    const cont = "I am narrowed type";      // string literal
+    ```
+    - `lets`는 let으로 선언되어 있기 때문에 재할당할 수 있고 어떤 문자열이든 넣을 수 있기 때문에 컴파일러는 `lets` => string 타입으로 추론한다.
+    - `scont`은 :string으로 타입을 명시했기 대문에 `scont` => string 타입이다.
+    - `cont`는 "I am narrowed type." 이 외의 값을 할당할 수 없기 때문에 string 이지만 조금 더 좁은 타입(narrowed type)으로 추론한다. 이것은 Literal Narrowing 이라고 한다.
+  - 여기서 추론이란 typescript 컴파일러가 제공해주는 기능으로 개발자가 명시적으로 타입을 선언하지 않으면 컴파일러가 할당되는 값을 기준으로 타입을 (추론해서) 정해준다.
+  - `cont`는 string literal 타입으로 아무 string 값을 갖는 변수가 아니라 더 구체적인 값 "I am narrowed type."만을 허용한 타입으로 인식한다.
+  - `lets` 또한 type을 명시하면 literal 타입이 될 수 있다.
+    ```typescript
+    type NarrowType = "I am narrowed type.";
+    let nets: NarrowType = "I am narrowed type.";
+    nets = "I am const"; // compile error!!
+    
+    type IntegrationType = "I am let." | " am const." | "I am narrowed type";
+    ```
+  - 객체에 접근할 때 Literal 타입은 key로 사용이 가능하지만 단순한 string 타입은 사용할 수 없다.
+    ```typescript
+    const person = {
+      name: "lee",
+      age: 20
+    };
+      
+    const literalKey = "name";
+    console.log(person[literalKey]);  // lee
+    console.log(person["age"]);       // 20
+      
+    for(const key of Object.keys(person)) {
+      console.log(person[key]);   // compile error!!
+    }
+    ```
+  - string 타입으로 객체에 key로 접근하기 위해선 Index Signature를 선언하면 가능하다.
+    ```typescript
+    type Person = {
+      [index: string]: string;
+      name: string;
+      age: number;
+    }
+    
+    const lee: Person = {
+      name: "lee",
+      age: 20
+    };
+    const literalKey = "name";
+    console.log(lee[literalKey]);  // lee
+    console.log(lee["age"]);       // 20
 
-  - Reference : 
+    ```
+
+- #### `Object.keys`와 `Object.entries` 차이
+
+- Reference
+  - https://soopdop.github.io/2020/12/01/index-signatures-in-typescript/
   
 
 ## formik & yup & 깊은 복사
