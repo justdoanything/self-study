@@ -1259,16 +1259,33 @@ const getQueryStringFormat = (queryParams?: QueryParams): string => {
   - `Object.entries`를 사용해서 해결했었다.
 
     ```javascript
-    const makeQueryString = (param: RequestParam) => {
-      return Object.entries(param)
-                      .map(([key, value]) => {
-                        if(key === 'where') {
-                            return `${key}=${encodeURIComponent(value)}`;
-                          }
-                          return `${key}=${value}`;
-                      }).join('$');
-    }
+     const getSearchQueryString = (params: SearchModel.SearchRequest): string => {
+       const { orderBy, ...remains } = params;
+       const query = {
+         ...remains,
+         select: params.select.join(','),
+         from: `${params.from}.${params.from}`,
+         where: `${params.where} order by ${orderBy ?? '$relevance desc'}`,
+         'default-hilite': params['default-hilite'] ?? 'off'
+       };
+ 
+       const queryString = Object.entries(query)
+           .map(([key, value]) => {
+             if (key === 'where' || key === 'custom' || key === 'hilite-keywords') {
+               return `${key}=${encodeURIComponent(value)}`;
+             }
+             return `${key}=${value}`;
+           })
+       .join('&');
+ 
+       return `?${queryString}`;
+     };
+
+    export const getDetailSearchResult = (params: SearchModel.SearchRequest): Promise<SearchModel.SearchResponse> => {
+      return etcHttp.get<SearchModel.SearchResponse>(`${SEARCH_BASE_URL}${EAPI.SEARCH.GET_SEARCH}${getSearchQueryString(params)}`);
+    };
     ```
+
 - #### `Object.keys`에서 interface의 key를 추출해서 사용할 수 없는 이유
   - 근본적으로 Typescript에서는 key 값으로 string 타입을 허용하지 않고 String Literal, number 타입만 허용한다. Typescript는 타입을 정하고 특정한 곳에 특정 타입만 허용하는 것이 중요 원칙이기 때문에 String Literal 자리에 string 타입을 사용해서 컴파일 에러가 발생한 것이다.
   - ##### let? const? const:string?
@@ -1325,6 +1342,10 @@ const getQueryStringFormat = (queryParams?: QueryParams): string => {
 
 - #### `Object.keys`와 `Object.entries` 차이
 
+- #### 더 알아보기
+  - type Result = { [key in ...]}
+  - Partial<>
+  - Omit의 쓰임새
 - Reference
   - https://soopdop.github.io/2020/12/01/index-signatures-in-typescript/
   
