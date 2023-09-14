@@ -34,6 +34,10 @@
     * [react-mentions](#react-mentions)
     * [infinite scroll](#infinite-scroll)
     * [Object.keys와 Object.entries (makeQueryString)](#objectkeys와-objectentries--makequerystring-)
+    * [`Object.keys`에서 interface의 key를 추출해서 사용할 수 없는 이유](#objectkeys-에서-interface의-key를-추출해서-사용할-수-없는-이유)
+    * [Mapped Type](#mapped-type)
+    * [Object.keys & Object.entries & Object.values](#objectkeys--objectentries--objectvalues)
+    * [Partial & Pick & Omit](#partial--pick--omit)
   * [formik & yup & 깊은 복사](#formik--yup--깊은-복사)
     * [formik](#formik)
     * [yup](#yup)
@@ -1246,7 +1250,7 @@ const getQueryStringFormat = (queryParams?: QueryParams): string => {
     - interface의 key 값들을 추출해서 param[key]와 같이 key에 해당하는 값을 바로 접근하는 것은 type safe 하지 않아서 에러를 반환하고 있었다.
     
     ```javascript
-    const makeQueryString = (param: RequestParam) => {
+    const makeQueryString = (param: ApiModel.ApiRequest) => {
       return Object.keys(param)
                       .map(key => {
                           if(key === 'where') {
@@ -1259,19 +1263,19 @@ const getQueryStringFormat = (queryParams?: QueryParams): string => {
   - `Object.entries`를 사용해서 해결했었다.
 
     ```javascript
-     const getSearchQueryString = (params: SearchModel.SearchRequest): string => {
+     const getSearchQueryString = (params: ApiModel.ApiRequest): string => {
        const { orderBy, ...remains } = params;
        const query = {
          ...remains,
          select: params.select.join(','),
          from: `${params.from}.${params.from}`,
-         where: `${params.where} order by ${orderBy ?? '$relevance desc'}`,
-         'default-hilite': params['default-hilite'] ?? 'off'
+         where: `${params.where} order by ${orderBy ?? 'createDateTime desc'}`,
+         limit: params['limit'] ?? '10'
        };
  
        const queryString = Object.entries(query)
            .map(([key, value]) => {
-             if (key === 'where' || key === 'custom' || key === 'hilite-keywords') {
+             if (key === 'where' || key === 'custom' || key === 'keywords') {
                return `${key}=${encodeURIComponent(value)}`;
              }
              return `${key}=${value}`;
@@ -1280,69 +1284,103 @@ const getQueryStringFormat = (queryParams?: QueryParams): string => {
  
        return `?${queryString}`;
      };
-
-    export const getDetailSearchResult = (params: SearchModel.SearchRequest): Promise<SearchModel.SearchResponse> => {
-      return etcHttp.get<SearchModel.SearchResponse>(`${SEARCH_BASE_URL}${EAPI.SEARCH.GET_SEARCH}${getSearchQueryString(params)}`);
-    };
     ```
 
-- #### `Object.keys`에서 interface의 key를 추출해서 사용할 수 없는 이유
-  - 근본적으로 Typescript에서는 key 값으로 string 타입을 허용하지 않고 String Literal, number 타입만 허용한다. Typescript는 타입을 정하고 특정한 곳에 특정 타입만 허용하는 것이 중요 원칙이기 때문에 String Literal 자리에 string 타입을 사용해서 컴파일 에러가 발생한 것이다.
-  - ##### let? const? const:string?
-    ```typescript
-    let lets = "I am let.";                 // string (추론)
-    const scont: string = "I am const.";    // string
-    const cont = "I am narrowed type";      // string literal
-    ```
-    - `lets`는 let으로 선언되어 있기 때문에 재할당할 수 있고 어떤 문자열이든 넣을 수 있기 때문에 컴파일러는 `lets` => string 타입으로 추론한다.
-    - `scont`은 :string으로 타입을 명시했기 대문에 `scont` => string 타입이다.
-    - `cont`는 "I am narrowed type." 이 외의 값을 할당할 수 없기 때문에 string 이지만 조금 더 좁은 타입(narrowed type)으로 추론한다. 이것은 Literal Narrowing 이라고 한다.
-  - 여기서 추론이란 typescript 컴파일러가 제공해주는 기능으로 개발자가 명시적으로 타입을 선언하지 않으면 컴파일러가 할당되는 값을 기준으로 타입을 (추론해서) 정해준다.
-  - `cont`는 string literal 타입으로 아무 string 값을 갖는 변수가 아니라 더 구체적인 값 "I am narrowed type."만을 허용한 타입으로 인식한다.
-  - `lets` 또한 type을 명시하면 literal 타입이 될 수 있다.
-    ```typescript
-    type NarrowType = "I am narrowed type.";
-    let nets: NarrowType = "I am narrowed type.";
-    nets = "I am const"; // compile error!!
+### `Object.keys`에서 interface의 key를 추출해서 사용할 수 없는 이유
+- 근본적으로 Typescript에서는 key 값으로 string 타입을 허용하지 않고 String Literal, number 타입만 허용한다. Typescript는 타입을 정하고 특정한 곳에 특정 타입만 허용하는 것이 중요 원칙이기 때문에 String Literal 자리에 string 타입을 사용해서 컴파일 에러가 발생한 것이다.
+- ##### let? const? const:string?
+  ```typescript
+  let lets = "I am let.";                 // string (추론)
+  const scont: string = "I am const.";    // string
+  const cont = "I am narrowed type";      // string literal
+  ```
+  - `lets`는 let으로 선언되어 있기 때문에 재할당할 수 있고 어떤 문자열이든 넣을 수 있기 때문에 컴파일러는 `lets` => string 타입으로 추론한다.
+  - `scont`은 :string으로 타입을 명시했기 대문에 `scont` => string 타입이다.
+  - `cont`는 "I am narrowed type." 이 외의 값을 할당할 수 없기 때문에 string 이지만 조금 더 좁은 타입(narrowed type)으로 추론한다. 이것은 Literal Narrowing 이라고 한다.
+- 여기서 추론이란 typescript 컴파일러가 제공해주는 기능으로 개발자가 명시적으로 타입을 선언하지 않으면 컴파일러가 할당되는 값을 기준으로 타입을 (추론해서) 정해준다.
+- `cont`는 string literal 타입으로 아무 string 값을 갖는 변수가 아니라 더 구체적인 값 "I am narrowed type."만을 허용한 타입으로 인식한다.
+- `lets` 또한 type을 명시하면 literal 타입이 될 수 있다.
+  ```typescript
+  type NarrowType = "I am narrowed type.";
+  let nets: NarrowType = "I am narrowed type.";
+  nets = "I am const"; // compile error!!
+  
+  type IntegrationType = "I am let." | " am const." | "I am narrowed type";
+  ```
+- 객체에 접근할 때 Literal 타입은 key로 사용이 가능하지만 단순한 string 타입은 사용할 수 없다.
+  ```typescript
+  const person = {
+    name: "lee",
+    age: 20
+  };
     
-    type IntegrationType = "I am let." | " am const." | "I am narrowed type";
-    ```
-  - 객체에 접근할 때 Literal 타입은 key로 사용이 가능하지만 단순한 string 타입은 사용할 수 없다.
-    ```typescript
-    const person = {
-      name: "lee",
-      age: 20
-    };
-      
-    const literalKey = "name";
-    console.log(person[literalKey]);  // lee
-    console.log(person["age"]);       // 20
-      
-    for(const key of Object.keys(person)) {
-      console.log(person[key]);   // compile error!!
-    }
-    ```
-  - string 타입으로 객체에 key로 접근하기 위해선 Index Signature를 선언하면 가능하다.
-    ```typescript
-    type Person = {
-      [index: string]: string;
-      name: string;
-      age: number;
-    }
+  const literalKey = "name";
+  console.log(person[literalKey]);  // lee
+  console.log(person["age"]);       // 20
     
-    const lee: Person = {
-      name: "lee",
-      age: 20
-    };
-    const literalKey = "name";
-    console.log(lee[literalKey]);  // lee
-    console.log(lee["age"]);       // 20
+  for(const key of Object.keys(person)) {
+    console.log(person[key]);   // compile error!!
+  }
+  ```
+- string 타입으로 객체에 key로 접근하기 위해선 `Index Signature`를 선언하면 가능하다. 대신 `Index Signature`를 사용하면 모든 멤버가 같은 타입을 사용해야 한다.
+  ```typescript
+  type Person = {
+    [index: string]: string;  // [index: number]: string; 도 가능하다.
+    name: string;
+    age: string;  // number를 사용하면 index type error가 발생한다.
+  }
+  
+  const lee: Person = {
+    name: "lee",
+    age: "20"
+  };
+  const literalKey = "name";
+  console.log(lee[literalKey]);  // lee
+  console.log(lee["age"]);       // 20
+  ```
+- string, number 타입의 Index Signature를 동시에 사용할 수 있지만 literal 방식의 할당은 불가능하다.
+  ```typescript
+  interface LikeType {
+    [key: number]: string,
+    [key: string]: string
+  };
+  
+  const likeObject: LikeType = {
+    0: "1992",
+    name: "park"
+  };
+  
+  console.log(likeObject[0]);      // 1992
+  console.log(likeObject["name"]); // park
+  ```
 
-    ```
+### Mapped Type
+- 이미 선언된 타입의 프로퍼티에 어떤 조작을 가해서 새로운 타입을 만드는 것을 Mapped Type 이라고 한다. 프로퍼티를 빼거나 추가할 수 있고 Optional, ReadOnly 산태로 바꿀수도 있다.
+  ```typescript
+  type AllowKeys = "name" | "age";
+  type AllowType = {
+    [key in AllowKeys]: number
+  };
+  
+  type SameAllowType = {
+    name: number;
+    age: number;
+  }
+  
+  // 아래 타입은 error!! in 을 사용해야 한다.
+  type NotAllowType = {
+    [key: AllowKeys]: number;
+  }
+  ```
 
-- #### `Object.keys`와 `Object.entries` 차이
+### Object.keys & Object.entries & Object.values
+- #### Object.keys : Object 안에 있는 key만 담은 배열 반환
+- #### Object.values : Object 안에 있는 value만 담은 배열 반환
+- #### Object.entries : Object 안에 있는 [key, value] 형태의 배열을 반환
+- 그럼 왜 keys에선 안되고 entries에선 됐을까?
 
-- #### 더 알아보기
+
+### Partial & Pick & Omit
   - type Result = { [key in ...]}
   - Partial : 특정 타입의 부분 집합을 만족하는 타입을 정의할 수 있습니다.
     ```typescript
