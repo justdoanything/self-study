@@ -1700,6 +1700,126 @@ macOS | Intellij Ultimate | Typescript
 
 <details>
 <summary><font size="5"><b> 2️⃣ Typescript </b></font></summary>
+
+```typescript
+// package.json
+...
+"@types/aws-sdk": "^2.7.0",
+"aws-api-gateway-client": "^0.3.6",
+"aws-sdk": "^2.2.0",
+...
+```
+
+```typescript
+// dynamoDbConfig.ts
+const dbClient = new DocumentClient{{ regison:  "ap-northeast-2" }};
+
+export enum DynamoDbMethod {
+  DELETE = "DELETE",
+  GET = "GET",
+  PUT = "PUT",
+  QUERY = "QUERY",
+  SCAN = "SCAN",
+  UPDATE = "UPDATE"
+  ...  
+}
+
+export interface DynamoDbRequest {
+    method: DynamoDbMethod;
+    tableName: string;
+    key?: { [key: string]: any };
+    item?: { [key: string]: any };
+    param?: any;
+}
+
+export const callDynamoDb = async (
+    request: DynamoDbRequest
+): Promise<any> => {
+  let response;
+  
+  logger.info(`Request DynamoDb : [${request.method}] ${JSON.stringify(request)}`);
+  
+  switch (request.method){
+    case DynamoDbMethod.DELETE:
+      if(!request.key) throw new Error("Missing 'key' paramater");
+      response = await dbClient.delete({
+        TableName: request.tableName,
+        Key: request.key,
+        ...request
+      }).promise();
+    break;
+    // ...
+    case DynamoDbMethod.SCAN:
+      response = await dbClient.delete({
+        TableName: request.tableName,
+        ...request
+      }).promise();
+      break;
+    // ...
+    
+    logger.info(`Response DynamoDb : [${request.method}] ${JSON.stringify(response)}`);
+        
+    return response;
+  }
+}
+```
+
+```typescript
+// dynamoDbService.ts
+const dynamoDbService = {
+  scanSample: async (
+    request: AmazonConnectRequest
+  ): Promse<AmazonConnectResponse> => {
+    try {
+      const response = await callDynamoDb(request);
+      return response.Count > 0 ? { ...response } : null;
+    } catch(exceptoin) {
+      logger.error("Excepton : " + exception);  
+      throw new Error(exception);
+    }   
+  }
+}
+```
+
+```typescript
+// DynamoDbScanSample.ts
+interface AmazonConnectRequest {
+  Name: string;
+  Details: {
+    ContactData: {
+      Attributes: Record<string, string>;
+      Channel: string;
+      ContactId: string;
+      CustomerEndpoint: {
+        Address: string;
+        Type: string;
+      }
+      ...
+    }
+  }
+  Parameters?: Record<string, string> | null | undefined;
+}
+
+interface AmazonConnectResponse {
+  ...
+}
+
+export const dynamoDbScanSampleHandler = async (request: AmazonConnectRequest): Promise<AmazonConnectResponse> => {
+  const customerNumber = request.Details.Parameters.customerNumber;
+  const dynamoDbRequest = {
+    method: DynamoDbMethod.SCAN,
+    tableName: "sample_table",
+    param : {
+      FilterExpression: "phoneNumber = :phoneNumber",
+      ExpressionAttributeValues: {
+        ":phoneNumber": customerNumber
+      }
+    }
+  };
+  return await sampleDb.scanSample(dynamoDbRequest);
+}
+```
+
 </details>
 
 
