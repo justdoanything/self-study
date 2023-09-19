@@ -1,6 +1,0 @@
-rootProject.name = 'lambda-java'
-
-include ':common'
-include ':sampleApi'
-include ':sampleDynamoDb'
-include ':sampleS3'

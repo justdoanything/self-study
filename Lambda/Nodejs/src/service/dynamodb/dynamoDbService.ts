@@ -11,3 +11,5 @@ const dynamoDbService = {
         }
     }
 }
+
+export default dynamoDbService;

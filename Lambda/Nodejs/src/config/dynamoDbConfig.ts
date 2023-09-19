@@ -7,7 +7,6 @@ export enum DynamoDbMethod {
     QUERY = "QUERY",
     SCAN = "SCAN",
     UPDATE = "UPDATE"
-...
 }
 
 export interface DynamoDbRequest {
