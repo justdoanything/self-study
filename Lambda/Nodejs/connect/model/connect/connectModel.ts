@@ -8,13 +8,12 @@ export interface AmazonConnectRequest {
             CustomerEndpoint: {
                 Address: string;
                 Type: string;
-            }
-            ...
-        }
-    }
+            };
+        };
+    };
     Parameters?: Record<string, string> | null | undefined;
 }
 
 export interface AmazonConnectResponse {
-    ...
+    key: string;
 }
