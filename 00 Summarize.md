@@ -1,22 +1,3 @@
-# TODO
-
-Netty와 NIO
-
-redis와 순위표 개발하기
-
-FE/BE 정리하기
--  async 함수 정의 : 함수 이름 변경
-
-Lazy Loading
-
-CORS
-
-Lambda 코드 정리
-
-인강 듣기
-
-
----
 # Quick
 
 - ### Java에서 equals()가 있고 hashCode()가 없는 클래스를 Key로 HashMap을 사용하면 어떻게 동작하는가?
