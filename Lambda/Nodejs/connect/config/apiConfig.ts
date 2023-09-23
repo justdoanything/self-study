@@ -46,7 +46,7 @@ const makeQueryString = (query?: QueryParams): string => {
 };
 
 export const callApi = async (apiRequest: ApiRequest): Promise<ApiResponse> => {
-    const url: string = apiRequest.url + makeQueryString(apiRequest.params?.queryParms);
+    const url: string = apiRequest.url + makeQueryString(apiRequest.params?.queryParams);
 
     let response: ApiResponse = {
         statusCode: '',
@@ -56,18 +56,23 @@ export const callApi = async (apiRequest: ApiRequest): Promise<ApiResponse> => {
         case ApiMethod.GET:
             response = await getAxiosInstance(apiRequest.params).get(url);
             break;
+
         case ApiMethod.POST:
             response = await getAxiosInstance(apiRequest.params).post(url, apiRequest.params?.bodyParams);
             break;
+
         case ApiMethod.PUT:
             response = await getAxiosInstance(apiRequest.params).put(url, apiRequest.params?.bodyParams);
             break;
+
         case ApiMethod.DELETE:
             response = await getAxiosInstance(apiRequest.params).delete(url);
             break;
+
         case ApiMethod.PATCH:
             response = await getAxiosInstance(apiRequest.params).patch(url, apiRequest.params?.bodyParams);
             break;
+
         default:
             break;
     }

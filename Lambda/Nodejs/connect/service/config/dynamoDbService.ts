@@ -1,15 +1,13 @@
+import { callDynamoDb } from '../../config/dynamoDbConfig';
+import logger from '../../config/winstonConfig';
+import { DynamoDbRequest } from '../../model/config/dynamoDbModel';
+import { DynamodbSampleScanResponse } from '../../model/sample/dynamoDbSampleModel';
+
 const dynamoDbService = {
-    scanSample: async (
-        request: AmazonConnectRequest
-    ): Promse<AmazonConnectResponse> => {
-        try {
-            const response = await callDynamoDb(request);
-            return response.Count > 0 ? { ...response } : null;
-        } catch(exceptoin) {
-            logger.error("Excepton : " + exception);
-            throw new Error(exception);
-        }
-    }
-}
+    scanSample: async (request: DynamoDbRequest): Promise<DynamodbSampleScanResponse> => {
+        const response = await callDynamoDb(request);
+        return response.Count > 0 ? { ...response } : null;
+    },
+};
 
 export default dynamoDbService;

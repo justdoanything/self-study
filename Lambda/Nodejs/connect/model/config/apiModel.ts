@@ -6,7 +6,7 @@ export interface QueryParams {
 }
 
 export interface BodyParams {
-    queryParms?: QueryParams;
+    queryParams?: QueryParams;
     bodyParams?: object;
 }
 

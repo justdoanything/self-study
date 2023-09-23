@@ -1,28 +1,30 @@
-const apiService = {
-    sampleGetApi: async (
-        getSampleRequest: GetSampleRequest
-    ): Promise<ApiResponse> => {
-        return callApi({
-            url: "",
-            method: ApiMethod.GET,
-            param: {
-                bodyParam: getSampleRequest
-            }
-        })
-    }
+import { ApiMethod } from '../../enum/config/apiEnum';
+import { ApiResponse } from '../../model/config/apiModel';
+import { callApi } from '../../config/apiConfig';
+import { ApiSampleGetRequest, ApiSamplePostRequest } from '../../model/sample/apiSampleModel';
+import { ServiceUrl } from '../../enum/sample/sampleApiEnum';
 
-    samplePostApi: async (
-        postSampleRequest: PostSampleRequest
-    ): Promise<ApiResponse> => {
-        const response: ApiResponse = await callApi({
-            url: "",
-            method: ApiMethod.POST,
-            param: {
-                bodyParam: postSampleRequest
-            }
+const apiService = {
+    sampleGetApi: async (request: ApiSampleGetRequest): Promise<ApiResponse> => {
+        return callApi({
+            url: ServiceUrl.sampleGetApi,
+            method: ApiMethod.GET,
+            params: {
+                queryParams: { ...request },
+            },
         });
-        return response.statusCode === 200 ? response.data : null;
-    }
-}
+    },
+
+    samplePostApi: async (request: ApiSamplePostRequest): Promise<ApiResponse> => {
+        const response: ApiResponse = await callApi({
+            url: ServiceUrl.samplePostApi,
+            method: ApiMethod.POST,
+            params: {
+                bodyParams: request,
+            },
+        });
+        return response.statusCode === 'OK' ? response.data : null;
+    },
+};
 
 export default apiService;

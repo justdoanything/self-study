@@ -10,10 +10,6 @@ export interface AmazonConnectRequest {
                 Type: string;
             };
         };
+        Parameters?: Record<string, string> | null | undefined;
     };
-    Parameters?: Record<string, string> | null | undefined;
-}
-
-export interface AmazonConnectResponse {
-    key: string;
 }
