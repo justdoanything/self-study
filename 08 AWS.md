@@ -1,16 +1,20 @@
 AWS
 ===
 
-# 목차
-- [AWS Certified](#aws-certified-architecture-associate)
-  - [AWS Certified Architecture Associate](#aws-certified-architecture-associate) 
-  - [AWS Certified Developer Associate](#aws-certified-developer-associate)
-- [ECS와 EC2](#aws-ecs-and-ec2)
-- [Cognito](#cognito-2)
-- [Amazon Connect](#amazon-connect)
-- [Amazon Lambda](#amazon-lambda)
+<!-- TOC -->
+* [AWS Certified Architecture Associate](#aws-certified-architecture-associate)
+* [AWS Certified Developer Associate](#aws-certified-developer-associate)
+* [AWS ECS and EC2](#aws-ecs-and-ec2)
+* [Cognito](#cognito-2)
+* [Amazon Connect](#amazon-connect)
+* [Amazon Lambda](#amazon-lambda)
+    * [Java와 Nodejs 중 어떤 언어로 개발해야할까?](#-2--java와-nodejs-중-어떤-언어로-개발해야할까)
+    * [Cold Start 문제와 SnapStart](#-3--cold-start-문제와-snapstart)
+    * [실습예제](#2-실습예제) 
+<!-- TOC -->
 
 ---
+
 AWS Certified Architecture Associate
 ===
 ### 📖 AWS Certified Solutions Architect - Associate를 공부하면서 정리한 내용입니다.
@@ -1468,6 +1472,7 @@ macOS | Intellij Ultimate | Typescript
   <img width="631" alt="image" src="https://user-images.githubusercontent.com/21374902/228151976-ccb406ec-0861-4f82-85d9-baedeee6dde5.png">
   
   - Reference : https://varteq.com/java-vs-nodejs-on-aws-lambda-benchmark-survey/
+### (3) Cold Start 문제와 SnapStart
 - Java는 `Cold Start` 문제를 갖고 있다. `Cold Start`란 함수가 처음 실행될 때 함수 코드와 런타임 환경을 초기화하는 과정이다. 코드가 배포되면 새로운 컨테이너가 생성되고 최초 실행 시 초기화 과정인 `Cold Start` 시간이 필요한 것이다. 이후에 호출될 때는 초기화 시간이 필요하지 않지만 Lambda는 일정 시간 동안 호출되지 않으면 삭제되기 때문에 언제 다시 `Cold Start` 시간이 필요할지 모른다. 이를 해결하기 위해서 Lambda에 할당하는 메모리 크기를 늘려서 초기화 시간을 단축하거나 Previsioned Concurrency를 사용하는 방법이 있다.
   - `Cold Start` 문제를 해결하기 위해 AWS는 `SnapStart`라는 기능을 개발했다.
   - Lambda의 수명주기는 아래와 같다.
@@ -1501,7 +1506,11 @@ macOS | Intellij Ultimate | Typescript
 
   - Reference : https://aws.amazon.com/ko/blogs/korea/new-accelerate-your-lambda-functions-with-lambda-snapstart/
 
-### (3) 공통 : AWS SAM CLI 설치
+# 2. 실습예제
+##### 자세한 코드는...
+- #### Java : N/A
+- #### Typescript : https://github.com/justdoanything/self-study/tree/main/Lambda/Nodejs
+### (1) 공통 : AWS SAM CLI 설치
 - `brew tap aws/tap`
 - `brew install aws-sam-cli`
 - `sam --version`
@@ -1827,3 +1836,9 @@ export const dynamoDbScanSampleHandler = async (request: AmazonConnectRequest): 
 - https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/examples-dynamodb-items.html
 - https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.html
 - https://docs.aws.amazon.com/ko_kr/amazondynamodb/latest/developerguide/ScanJavaDocumentAPI.html
+
+---
+
+Amazon Gateway
+===
+
