@@ -11,6 +11,10 @@
 * [Reference](#reference)
 <!-- TOC -->
 
+Spring은 Library가 아닌 Framework이고 Spring이 구동되면서 우리가 짜놓은 코드를 사용한다.
+Spring은 jackson 등 기본적으로 많인 기능들을 기본적으로 제공하며
+특정한 상황에서 개발자가 원하는 기능을 추가할 수 있도록 확장성을 제공한다.
+
 ---
 
 # VO와 DTO

@@ -4,7 +4,10 @@ Spring
 # 목차
 <!-- TOC -->
 * [Spring](#spring)
+* [목차](#목차)
+* [Spring](#spring-1)
 * [Spring MVC](#spring-mvc)
+    * [⚠️ 스프링 MVC 1편 - 백엔드 웹 개발 핵심 기술 / 김영한 / 인프런 강의를 보고 Spring MVC를 만드는 과정에 대해서 그림만 참조하고 내용은 스스로 작성해본다.](#-스프링-mvc-1편---백엔드-웹-개발-핵심-기술--김영한--인프런-강의를-보고-spring-mvc를-만드는-과정에-대해서-그림만-참조하고-내용은-스스로-작성해본다)
 * [Spring Cloud](#spring-cloud)
 * [Spring Boot](#spring-boot)
 * [Spring Batch](#spring-batch)
@@ -250,6 +253,31 @@ Spring Cloud
 
 Spring Boot
 ===
+Spring Boot는 경량화한 Spring 이라고 볼 수 있다. 개발자가 해야할 일을 줄여주고 빠르게 어플리케이션을 만들고 사용할 수 있게 다양한 기능들을 제공한다. Modern Application에서 RESTful API를 만들 때 사용하기 좋다.
+
+먼저, Spring은 개발자가 기본적으로 해야할 작업들이 엄청 많았다. 직접 설정 파일을 작성하고 스프링 컨테이너를 구성하고 필요한 빈 객체를 등록 후 의존성을 설정해야 했다. 예를들어 특정 dependency를 하나 추가해도 그 기능을 사용하기 위해서 코드 내부에 빈 객체를 생성하고 설정해줘야 하는 부분들이 많았다. 만약 아주 세세한 부분까지 설정하고 관리하고 싶다면 Spring을 사용하는 것이 바람직하고 볼 수 있다.
+
+반면에, Spring Boot는 기본적으로 많은 기능들을 제공한다. 
+  - `Embedded Tomcat` 제공 : Web Server를 설치하고 설정할 필요 없이 Embedded Tomcat이 내장되어 있기 때문에 별도의 설치와 설정 없이 바로 사용할 수 있다.
+  - `빠른 배포` : Embedded Tomcat을 기반으로 실행 가능한 JAR를 만들고 바로 실행할 수 있다.
+  - `spring-boot-starter-*` 통한 dependency 자동화 : spring-boot-starter-* 추가하면 필요한 라이브러리를 자동으로 추가하고 기본적인 설정들을 다 해주기 때문에 서버를 바로 구동하고 API를 만들어서 사용할 수 있다. dependency의 버전을 변경했을 때 연관된 dependency를 다 찾아서 버전을 바꿔야 하는 불편함도 덜 수 있다. 
+  - `Spring Actuator` : 어플리케이션 모니터링과 관리할 수 있는 기능을 제공한다.
+  - `AutoConfiguration` : @SpringBootApplication와 같은 어노테이션을 통해 기본적인 설정과 빈 등록 및 관리를 편리하게 할 수 있도록 한다.
+    ```java
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    @Inherited
+    @SpringBootConfiguration
+    @EnableAutoConfiguration
+    @ComponentScan(excludeFilters = { @Filter(type = FilterType.CUSTOM, classes = TypeExcludeFilter.class),
+    @Filter(type = FilterType.CUSTOM, classes = AutoConfigurationExcludeFilter.class) })
+    public @interface SpringBootApplication { ... }
+    ```
+    - `@ComponentScan` : @Component, @Controller, @Repository, @Service 등 특정 어노테이션이 붙어있는 객체들을 스캔해 Bean으로 등록해준다.
+    - `@EnableAutoConfiguration` : @ComponentScan 이후 사전에 정의한 라이브러리들을 Bean으로 등록해줍니다.
+
+따라서 개발자가 직접 설정 파일을 작성할 필요가 없이 프로젝트 설정과 라이브러리 의존성을 의존성을 자동으로 처리해주는 기능을 제공한다.
 
 ---
 
