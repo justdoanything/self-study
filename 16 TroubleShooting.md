@@ -214,6 +214,53 @@
   }
   ```
 
+## 특정 Class와 필드 이름을 입력 받아서 해당 필드 기준으로 값을 정렬하는 함수
+```java
+public static void sortByFieldName(List target, String fieldName, String orderBy) {
+    if (ObjectUtils.isEmpty(fieldName)
+            || ObjectUtils.isEmpty(orderBy)
+            || ObjectUtils.isEmpty(target)) {
+        return;
+    }
+
+    Comparator comparator =
+            (first, second) -> {
+                try {
+                    Field field = target.get(0).getClass().getDeclaredField(fieldName);
+                    field.setAccessible(true);
+
+                    Comparable firstValue = (Comparable) field.get(first);
+                    Comparable secondValue = (Comparable) field.get(second);
+
+                    if (CommonConstants.OrderBy.ASC.name().equalsIgnoreCase(orderBy)) {
+                        if (firstValue == null && secondValue == null) {
+                            return 0;
+                        } else if (firstValue == null) {
+                            return 1;
+                        } else if (secondValue == null) {
+                            return -1;
+                        }
+                        return firstValue.compareTo(secondValue);
+                    } else if (CommonConstants.OrderBy.DESC.name().equalsIgnoreCase(orderBy)) {
+                        if (firstValue == null && secondValue == null) {
+                            return 0;
+                        } else if (firstValue == null) {
+                            return -1;
+                        } else if (secondValue == null) {
+                            return 1;
+                        }
+                        return secondValue.compareTo(firstValue);
+                    } else {
+                        return 0;
+                    }
+                } catch (NoSuchFieldException | IllegalAccessException e) {
+                    return 0;
+                }
+            };
+    Collections.sort(target, comparator);
+}
+```
+
 ---
 
 # SQL
@@ -268,6 +315,14 @@
     INSERT INTO employee VALUES ('name', 'city')
     ON DUPLICATE KEY UPDATE city = VALUES(city)
     ```
+
+## REGEXP & REPLACE
+- 구분자로 여러 값을 한번에 조회하고 싶을 때 사용
+```sql
+SELECT *
+FROM users
+WHERE user_name REGEXP REPLACE(REPLACE(#{userNames},' ',''),',','|')
+```
 
 ---
 
