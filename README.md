@@ -24,11 +24,11 @@
 - 📁 [09 Web](https://github.com/justdoanything/self-study/blob/main/09%20Web.md)
 - 📁 [10 Spring](https://github.com/justdoanything/self-study/blob/main/10%20Spring.md)
 - 📁 [11 SpringBoot](https://github.com/justdoanything/self-study/blob/main/11%20SpringBoot.md)
-- 📁 [12 JPA](https://github.com/justdoanything/self-study/blob/main/13%20JPA.md)
-- 📁 [13 Javascript](https://github.com/justdoanything/self-study/blob/main/15%20SQL.md)
-- 📁 [14 React](https://github.com/justdoanything/self-study/blob/main/16%20TroubleShooting.md)
-- 📁 [15 SQL](https://github.com/justdoanything/self-study/blob/main/14%20Web.md)
-- 📁 [16 Testing](https://github.com/justdoanything/self-study/blob/main/12%20Spring.md)
-- 📁 [17 TroubleShooting](https://github.com/justdoanything/self-study/blob/main/16%20TroubleShooting.md)
+- 📁 [12 JPA](https://github.com/justdoanything/self-study/blob/main/12%20JPA.md)
+- 📁 [13 Javascript](https://github.com/justdoanything/self-study/blob/main/13%20Javascript.md)
+- 📁 [14 React](https://github.com/justdoanything/self-study/blob/main/14%20React.md)
+- 📁 [15 SQL](https://github.com/justdoanything/self-study/blob/main/15%20SQL.md)
+- 📁 [16 Testing](https://github.com/justdoanything/self-study/blob/main/16%20Testing.md)
+- 📁 [17 TroubleShooting](https://github.com/justdoanything/self-study/blob/main/17%20TroubleShooting.md)
 
 

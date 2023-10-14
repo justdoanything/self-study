@@ -1,6 +1,6 @@
 # JPA 실습 내용 정리
 
-#### [참고 - (개념) 05 JPA](https://github.com/justdoanything/self-study/blob/main/05%20JPA.md)
+#### [참고 - (개념) 05 JPA](https://github.com/justdoanything/self-study/blob/main/12%20JPA.md)
 #### [참고 - (코드) Spring Data JPA](https://github.com/justdoanything/self-study/tree/main/Spring%20Data%20JPA) 
 
 ## Java Statement

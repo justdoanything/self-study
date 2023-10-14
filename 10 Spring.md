@@ -338,7 +338,7 @@ RetryListener | Retry 시작, 종료, 에러 시점
 
 Spring JPA
 ===
-- [Spring JPA 이론](https://github.com/justdoanything/self-study/blob/main/05%20JPA.md)
+- [Spring JPA 이론](https://github.com/justdoanything/self-study/blob/main/12%20JPA.md)
 - [Spring JPA Project](https://github.com/justdoanything/self-study/tree/main/Spring%20Data%20JPA)
 
 ---
