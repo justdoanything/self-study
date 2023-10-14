@@ -7,7 +7,6 @@ Spring
 * [목차](#목차)
 * [Spring](#spring-1)
 * [Spring MVC](#spring-mvc)
-    * [⚠️ 스프링 MVC 1편 - 백엔드 웹 개발 핵심 기술 / 김영한 / 인프런 강의를 보고 Spring MVC를 만드는 과정에 대해서 그림만 참조하고 내용은 스스로 작성해본다.](#-스프링-mvc-1편---백엔드-웹-개발-핵심-기술--김영한--인프런-강의를-보고-spring-mvc를-만드는-과정에-대해서-그림만-참조하고-내용은-스스로-작성해본다)
 * [Spring Cloud](#spring-cloud)
 * [Spring Boot](#spring-boot)
 * [Spring Batch](#spring-batch)
