@@ -1,13 +1,24 @@
 <!-- TOC -->
 * [Intro](#intro)
 * [AOP (Aspect Oriented Programming)](#aop--aspect-oriented-programming-)
+  * [AOP란?](#aop란)
+  * [핵심 관심사](#핵심-관심사)
+  * [횡단 관심사](#횡단-관심사)
+  * [Weaving](#weaving)
+  * [AOP 요약](#aop-요약)
+  * [Spring AOP 활용](#spring-aop-활용)
 * [Resolver](#resolver)
-* [Request/Response 공통 처리 - Jackson Serializer/Deserializer](#requestresponse-공통-처리---jackson-serializerdeserializer)
+* [VO와 DTO의 활용](#vo와-dto의-활용)
+* [Request에 Enum 처리하기](#request에-enum-처리하기)
+  * [@Enum과 EnumValidator](#enum과-enumvalidator)
+  * [Converter](#converter)
+  * [Code 값을 갖는 Enum 형태는?](#code-값을-갖는-enum-형태는)
+  * [ConverterFactory](#converterfactory)
+  * [Jackson의 Serializer와 Deserializer](#jackson의-serializer와-deserializer)
 * [Exception 공통 처리 - Exception Advice](#exception-공통-처리---exception-advice)
   * [@ExceptionHandler](#exceptionhandler)
   * [@ControllerAdvice](#controlleradvice)
   * [@ControllerAdvice와 @RestControllerAdvice](#controlleradvice와-restcontrolleradvice)
-* [VO와 DTO의 활용](#vo와-dto의-활용)
 * [Service Interface는 왜 만들어야 할까?](#service-interface는-왜-만들어야-할까)
 * [자주 쓰이는 Controller Annotation](#자주-쓰이는-controller-annotation)
 * [자주 쓰이는 Service Annotation](#자주-쓰이는-service-annotation)
@@ -31,10 +42,13 @@ Spring은 jackson 등 기본적으로 많인 기능들을 기본적으로 제공
 
 AOP (Aspect Oriented Programming)
 ===
-- 절차적 프로그래밍 → 객체 지향 프로그래밍(OOP) → 관점 지향 프로그래밍(AOP) 으로 변해가고 있다.
-- AOP의 매커니즘은 프로그램을 `관심사` 기준으로 크게 `핵심 관심사(Core Concerns)`와 `횡단 관심사(Cross-cutting Concerns`로 분류 한다. 프로그램의 핵심 가치와 목적이 그대로 드러나있는 관심 영역을 `핵심 관심사`라고 하고 일반적으로 비즈니스 기능과 관계없는 부가적으로 발생하는 중복된 코드를 `횡단 관심사`라고 한다. 대표적인 `횡단 관심사`는 Security, Logging, Transaction Management 등이 있다.
-- AOP는 분리된 횡단 관심사를 `Aspect` 라는 모듈 형태로 만들어서 설계하고 관리한다. `Aspect` 모듈에는 부가 기능(횡단 관심사)을 내포하고 있으며 자체적으로 부가 기능을 여러 객체의 핵심기능에 교차로 적용을 시켜주기 때문에 추상화를 통해 분리하는 작업도 필요가 없어짐으로 횡단 관심사 모듈을 효율적으로 관리할 수 있게 된다. 무엇보다 Aspect 모듈의 가장 큰 장점은 핵심기능에 부가 기능의 코드가 남아 있지 않아도 된다는 점이다. 이러한 이유엔 대부분의 AOP 프레임워크들이 Interceptors를 통해 핵심기능에 부가 기능을 결합하는 방식을 사용하기 때문이다.
-- AOP 용어
+절차적 프로그래밍 → 객체 지향 프로그래밍(OOP) → 관점 지향 프로그래밍(AOP) 으로 변해가고 있다.
+
+AOP의 매커니즘은 프로그램을 `관심사` 기준으로 크게 `핵심 관심사(Core Concerns)`와 `횡단 관심사(Cross-cutting Concerns`로 분류 한다. 프로그램의 핵심 가치와 목적이 그대로 드러나있는 관심 영역을 `핵심 관심사`라고 하고 일반적으로 비즈니스 기능과 관계없는 부가적으로 발생하는 중복된 코드를 `횡단 관심사`라고 한다. 대표적인 `횡단 관심사`는 Security, Logging, Transaction Management 등이 있다.
+
+AOP는 분리된 횡단 관심사를 `Aspect` 라는 모듈 형태로 만들어서 설계하고 관리한다. `Aspect` 모듈에는 부가 기능(횡단 관심사)을 내포하고 있으며 자체적으로 부가 기능을 여러 객체의 핵심기능에 교차로 적용을 시켜주기 때문에 추상화를 통해 분리하는 작업도 필요가 없어짐으로 횡단 관심사 모듈을 효율적으로 관리할 수 있게 된다. 무엇보다 Aspect 모듈의 가장 큰 장점은 핵심기능에 부가 기능의 코드가 남아 있지 않아도 된다는 점이다. 이러한 이유엔 대부분의 AOP 프레임워크들이 Interceptors를 통해 핵심기능에 부가 기능을 결합하는 방식을 사용하기 때문이다.
+
+## AOP란?
 
 | 분류      | 용어                            | 의미                                               |
 |---------|-------------------------------|--------------------------------------------------|
@@ -47,168 +61,169 @@ AOP (Aspect Oriented Programming)
 | 횡단 관심사  | AOP Proxy                     | Aspect를 대신 수행하기 위해 AOP 프레임워크에 의해 생성된 객체          |
 | 횡단 관심사  | Weaving                       | 핵심 객체에 Advice하여 횡단 관심 코드가 포함한 객체가 생성되는 일련의 과정    |
 
-- ## 핵심 관심사
-  - ### `TargetObject`
-    - 횡단 기능(Advice)에 적용될 객체를 뜻한다.
-    - 핵심 모듈이라고 할 수 있고 Spring AOP에선 Advice 받는 객체라고 해서 Adviced Object라고 한다.
-    - Spring AOP에선 실제 적용할 객체 대신 Runtime Proxy를 사용해서 구현하기 때문에 TargetObject는 항상 Proxy Object 이다.
-  - ### `JoinPoint`
-    - TargetObject 안에서 횡단 기능(Advice)이 적용될 수 있는 여러 위치를 뜻한다.
-    - 프로그램이 실행될 때 예외가 발생한다거나 객체가 생성된다거나 특정 메소드가 호출되는 시점 등 프로그램 실행 중에 있는 모든 시점은 횡단 기능이 적용될 수 있는 위치이다.
-    - Spring AOP에는 기본적으로 메소드 Interceptor를 기반으로 하고 있어서 JoinPoint는 항상 메소드 단위이다.
-- ## 횡단 관심사
-  - ### `Aspect`
-    - 횡단 관심사를 모듈화하는 것을 Aspect라고 하고 Java에선 표준으로 가장 많이 쓰이는 AspectJ 확장 기능을 통해 Aspect를 구현할 수 있다.
-    - Spring AOP에서 제공하는 @Aspect 어노테이션을 통한 구현 방식은 AspectJ 보다 쉬운 설정이 가능하며 기본적으로 클래스로 구현하기 때문에 쉽게 접근할 수 있다.
-    - Spring AOP는 2가지 방식을 통해 Aspect를 구현할 수 있다.
-      - XML (스키마 기반 접근)
-      - @Aspect(어노테이션 기반 접근)
-    - Aspect 모듈은 핵심 모듈에 횡단 코드를 적용하기 위한 최종 목적을 갖고 있고 횡단 모듈의 관리 유용성을 증가시키기 위한 횡단 관심사의 집합체다.
-    - 횡단 코드의 어떤 동작을/어디서/언제 적용할지 구현해야한다.
-    - Aspect = Advice + Pointcut + Introduction(inter-type)
-  - ### `Advice`
-    - JoinPoint에 적용할 횡단 코드이다.
-    - Spring AOP는 Interceptor로 Advice를 모델링하고 JoinPoint 주변의 Interceptor의 결합된 상태의 체인을 유지하고 실제 런타임 시 결합된 코드가 실행된다.
-    - JoinPoint는 항상 메소드 실행을 바라보기 때문에 Type의 매개 변수를 선언하여 JoinPoint 정보를 Advice에서 사용할 수 있다.
-    - Advice는 JoinPoint와 횡단 코드의 각기 다른 결합점을 제어할 수 있도록 다양한 Advice를 제공하고 있다.
-    - `@Before` : JoinPoint 이전에 실행한다. 단 Exception을 throw 하지 않는 한 실행 흐름이 JoinPoint로 진행되는 것을 방지하는 기능은 없다.
-    - `@AfterReturning` : JoinPoint가 정상적으로 완료된 후 실행한다. 예를 들어 메소드가 Exception을 발생시키지 않고 리턴하는 경우 실행된다.
-    - `@AfterThrowing` : Exception을 throw하여 메소드가 종료된 경우 실행된다.
-    - `@After(finally)` : JoinPoint의 상태(Exception, 정상)와 무관하고 JoinPoint가 실행된 후 무조건 실행된다.
-    - `@Around` : Before와 After가 합쳐진 Advice. 메소드 호출 전과 후에 실행 또한 JoinPoint로 진행할지 또는 자체 반환 값을 반환하거나 Exception를 throw하여 특정 메소드를 호출할 수 있다.
+## 핵심 관심사
+- ### `TargetObject`
+  - 횡단 기능(Advice)에 적용될 객체를 뜻한다.
+  - 핵심 모듈이라고 할 수 있고 Spring AOP에선 Advice 받는 객체라고 해서 Adviced Object라고 한다.
+  - Spring AOP에선 실제 적용할 객체 대신 Runtime Proxy를 사용해서 구현하기 때문에 TargetObject는 항상 Proxy Object 이다.
+- ### `JoinPoint`
+  - TargetObject 안에서 횡단 기능(Advice)이 적용될 수 있는 여러 위치를 뜻한다.
+  - 프로그램이 실행될 때 예외가 발생한다거나 객체가 생성된다거나 특정 메소드가 호출되는 시점 등 프로그램 실행 중에 있는 모든 시점은 횡단 기능이 적용될 수 있는 위치이다.
+  - Spring AOP에는 기본적으로 메소드 Interceptor를 기반으로 하고 있어서 JoinPoint는 항상 메소드 단위이다.
 
-      <br/>
-      <img width="430" height="400" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/f4b0ca2c-7864-4c32-aff1-19bdd7129434"><br/><br/>
+## 횡단 관심사
+- ### `Aspect`
+  - 횡단 관심사를 모듈화하는 것을 Aspect라고 하고 Java에선 표준으로 가장 많이 쓰이는 AspectJ 확장 기능을 통해 Aspect를 구현할 수 있다.
+  - Spring AOP에서 제공하는 @Aspect 어노테이션을 통한 구현 방식은 AspectJ 보다 쉬운 설정이 가능하며 기본적으로 클래스로 구현하기 때문에 쉽게 접근할 수 있다.
+  - Spring AOP는 2가지 방식을 통해 Aspect를 구현할 수 있다.
+    - XML (스키마 기반 접근)
+    - @Aspect(어노테이션 기반 접근)
+  - Aspect 모듈은 핵심 모듈에 횡단 코드를 적용하기 위한 최종 목적을 갖고 있고 횡단 모듈의 관리 유용성을 증가시키기 위한 횡단 관심사의 집합체다.
+  - 횡단 코드의 어떤 동작을/어디서/언제 적용할지 구현해야한다.
+  - Aspect = Advice + Pointcut + Introduction(inter-type)
+- ### `Advice`
+  - JoinPoint에 적용할 횡단 코드이다.
+  - Spring AOP는 Interceptor로 Advice를 모델링하고 JoinPoint 주변의 Interceptor의 결합된 상태의 체인을 유지하고 실제 런타임 시 결합된 코드가 실행된다.
+  - JoinPoint는 항상 메소드 실행을 바라보기 때문에 Type의 매개 변수를 선언하여 JoinPoint 정보를 Advice에서 사용할 수 있다.
+  - Advice는 JoinPoint와 횡단 코드의 각기 다른 결합점을 제어할 수 있도록 다양한 Advice를 제공하고 있다.
+  - `@Before` : JoinPoint 이전에 실행한다. 단 Exception을 throw 하지 않는 한 실행 흐름이 JoinPoint로 진행되는 것을 방지하는 기능은 없다.
+  - `@AfterReturning` : JoinPoint가 정상적으로 완료된 후 실행한다. 예를 들어 메소드가 Exception을 발생시키지 않고 리턴하는 경우 실행된다.
+  - `@AfterThrowing` : Exception을 throw하여 메소드가 종료된 경우 실행된다.
+  - `@After(finally)` : JoinPoint의 상태(Exception, 정상)와 무관하고 JoinPoint가 실행된 후 무조건 실행된다.
+  - `@Around` : Before와 After가 합쳐진 Advice. 메소드 호출 전과 후에 실행 또한 JoinPoint로 진행할지 또는 자체 반환 값을 반환하거나 Exception를 throw하여 특정 메소드를 호출할 수 있다.
 
-  - ### `Pointcut`
-    - 여러 개의 JoinPoint 중 실제적으로 Advice할 JoinPoint 이다.
-    - Advice는 여러 JoinPoint 중에서 Pointcut의 표현식에 명시된 JoinPoint에서 실행된다. 예를들어 여러 실행 포인트 중에서 특정 이름의 메소드에서 Advice를 하거나 제외해서 실행시킬 수 있다.
-    - Pointcut 표현식과 일치하는 JoinPoint를 실행한다는 개념은 AOP의 핵심 개념이다.
-    - Spring AOP에선 Pointcut과 Advice를 합쳐 Advisor라고 불리며 AspectJ Pointcut 언어를 사용한다.
+    <br/>
+    <img width="430" height="400" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/f4b0ca2c-7864-4c32-aff1-19bdd7129434"><br/><br/>
 
-      <br/>
-      <img width="500" height="150" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/6fac0a7f-c67d-4b93-935a-ef7e259d61f9"><br/>
-      <img width="500" height="150" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/53b89ff2-45ee-4f00-8f0a-5df4d5f927ea"><br/>
-      <img width="500" height="250" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/30a446d7-55f7-4553-b401-164f18e3fa5a"><br/><br/>
+- ### `Pointcut`
+  - 여러 개의 JoinPoint 중 실제적으로 Advice할 JoinPoint 이다.
+  - Advice는 여러 JoinPoint 중에서 Pointcut의 표현식에 명시된 JoinPoint에서 실행된다. 예를들어 여러 실행 포인트 중에서 특정 이름의 메소드에서 Advice를 하거나 제외해서 실행시킬 수 있다.
+  - Pointcut 표현식과 일치하는 JoinPoint를 실행한다는 개념은 AOP의 핵심 개념이다.
+  - Spring AOP에선 Pointcut과 Advice를 합쳐 Advisor라고 불리며 AspectJ Pointcut 언어를 사용한다.
 
-  - ### `Introduction(inter-type)`
-    - Aspect 모듈 내부에 선언된 클래스 또는 인터페이스, 메소드와 그 외 모든 필드를 뜻한다.
-    - 주된 목적은 기존 클래스에 새로운 인터페이스 및 해당 구현 객체를 추가히기 위함이다.
-    - OOP에서 말하는 상속이나 확장과는 다른 방식으로 Advice 또는 Aspect를 이용해서 기존 클래스에 없는 인터페이스를 동적으로 추가할 수 있다.
-    - 특히 Spring AOP를 사용하면 Proxy 된 객체에 새로운 인터페이스를 도입할 수 있다. Bean이 인터페이스를 구현하도록 쉽게 캐싱할 수 있다.
-  - ### `AOP Proxy`
-    - Aspect를 대신 수행하기 위해 AOP 프레임워크에 의해 생성된 객체이다.
-    - 일반적으로 Spring을 포함한 많은 AOP 프레임워크에선 핵심 관심 코드에 직접적인 Aspect를 하지 않고 Proxy Object를 활용해서 Aspect를 한다.
-    - 횡단 관심 객체와 핵심 관심 객체의 느슨한 결합 구조를 만들고 필요 여부에 따라 부가 기능을 탈부착하기 용이하게 해준다.
-    - 직접적인 참조가 아닌 Proxy를 사용해서 동적으로 참조하고 부가 기능의 탈부탁이 용이하다.
-    - Spring AOP에선 Proxy를 사용하여 동적으로 Advice하기 위해 Java에서 제공해주는 `java.lang.reflect.Proxy`를 사용해서 Proxy 객체를 동적으로 생성해준다.
-    - 구체적으로 JDK Dynamic Proxy와 CGLIB Proxy의 방식이 존재한다.
+    <br/>
+    <img width="500" height="150" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/6fac0a7f-c67d-4b93-935a-ef7e259d61f9"><br/>
+    <img width="500" height="150" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/53b89ff2-45ee-4f00-8f0a-5df4d5f927ea"><br/>
+    <img width="500" height="250" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/30a446d7-55f7-4553-b401-164f18e3fa5a"><br/><br/>
 
-      <br/>
-      <img width="500" height="200" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/8a8799fb-4cd1-4bb3-8750-e87b6581ae9d"><br/>
-      <img width="500" height="250" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/991f4711-7618-4d75-9c77-2871a58bf686"><br/>
-      <br/><br/>
+- ### `Introduction(inter-type)`
+  - Aspect 모듈 내부에 선언된 클래스 또는 인터페이스, 메소드와 그 외 모든 필드를 뜻한다.
+  - 주된 목적은 기존 클래스에 새로운 인터페이스 및 해당 구현 객체를 추가히기 위함이다.
+  - OOP에서 말하는 상속이나 확장과는 다른 방식으로 Advice 또는 Aspect를 이용해서 기존 클래스에 없는 인터페이스를 동적으로 추가할 수 있다.
+  - 특히 Spring AOP를 사용하면 Proxy 된 객체에 새로운 인터페이스를 도입할 수 있다. Bean이 인터페이스를 구현하도록 쉽게 캐싱할 수 있다.
+- ### `AOP Proxy`
+  - Aspect를 대신 수행하기 위해 AOP 프레임워크에 의해 생성된 객체이다.
+  - 일반적으로 Spring을 포함한 많은 AOP 프레임워크에선 핵심 관심 코드에 직접적인 Aspect를 하지 않고 Proxy Object를 활용해서 Aspect를 한다.
+  - 횡단 관심 객체와 핵심 관심 객체의 느슨한 결합 구조를 만들고 필요 여부에 따라 부가 기능을 탈부착하기 용이하게 해준다.
+  - 직접적인 참조가 아닌 Proxy를 사용해서 동적으로 참조하고 부가 기능의 탈부탁이 용이하다.
+  - Spring AOP에선 Proxy를 사용하여 동적으로 Advice하기 위해 Java에서 제공해주는 `java.lang.reflect.Proxy`를 사용해서 Proxy 객체를 동적으로 생성해준다.
+  - 구체적으로 JDK Dynamic Proxy와 CGLIB Proxy의 방식이 존재한다.
 
-- ## Weaving
-  - AOP의 특정 JoinPoint에 Advice하여 핵심 기능과 횡단 기능이 교차하여 새롭게 생성된 객체를 프로세스에 적용하는 일련의 모든 과정을 Weaving 이라고 한다.
-  - 수행 시점에 따라 CTW, LTW, RTW로 분류한다.
-    - CTW : Compile-Time Weaving (AsepctJ Compiler)
-    - LTW : Load-Time Weaving (AspectJ Compiler)
-    - RTW : Run-Time Weaving (Spring AOP)
-  - AspectJ와 Spring AOP는 독립적인 대상으로 Weaving에서도 차이가 있다.
-  - AspectJ는 바이트 코드 기반으로 기존 클래스 코드를 조작해서 AspectJ Compiler에 의해 Aspect를 Waeving 하는 방식을 취하고 있다. 따라서 CTW, LTW 방식을 기본적으로 사용한다.
-  - Spring AOP는 Dynamic Proxy 기반으로 기본적으로 RTW를 사용하고 Waeving 방식이 AspectJ 보다 가볍다.
+    <br/>
+    <img width="500" height="200" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/8a8799fb-4cd1-4bb3-8750-e87b6581ae9d"><br/>
+    <img width="500" height="250" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/991f4711-7618-4d75-9c77-2871a58bf686"><br/>
+    <br/><br/>
 
-    <br />
-    <img width="700" height="250" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/b129acbb-d136-44c6-a936-9c10644ebfcc"><br/>
-    <img width="700" height="300" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/7169e2ef-2fd9-4599-a4d2-a64c3769b812"><br/>
+## Weaving
+- AOP의 특정 JoinPoint에 Advice하여 핵심 기능과 횡단 기능이 교차하여 새롭게 생성된 객체를 프로세스에 적용하는 일련의 모든 과정을 Weaving 이라고 한다.
+- 수행 시점에 따라 CTW, LTW, RTW로 분류한다.
+  - CTW : Compile-Time Weaving (AsepctJ Compiler)
+  - LTW : Load-Time Weaving (AspectJ Compiler)
+  - RTW : Run-Time Weaving (Spring AOP)
+- AspectJ와 Spring AOP는 독립적인 대상으로 Weaving에서도 차이가 있다.
+- AspectJ는 바이트 코드 기반으로 기존 클래스 코드를 조작해서 AspectJ Compiler에 의해 Aspect를 Waeving 하는 방식을 취하고 있다. 따라서 CTW, LTW 방식을 기본적으로 사용한다.
+- Spring AOP는 Dynamic Proxy 기반으로 기본적으로 RTW를 사용하고 Waeving 방식이 AspectJ 보다 가볍다.
 
-- ## AOP 요약
-  - AOP의 주요 개념
-    - `Aspect` 공통된 기능을 모듈화한 단위. 로깅이나 보안과 같은 관심사는 관점으로 표현될 수 있다.
-    - `Join Point` : 관점이 적용될 수 있는 실행 지점을 의미한다. 메서드 실행, 예외 발생 등이 조인 포인트의 예시이다.
-    - `Advice` : 관점이 언제, 어떻게 적용될지 정의하는 코드이다. 메서드 실행 전수에 로깅하는 어드바이스가 있을 수 있다.
-    - `Pointcut` : 어떤 조인 포인트에 관점을 적용할지를 선택하는 표현식이다. 예를들어 특정 패키지 내의 모든 메서드에 관점을 적용하는 포인트컷을 정의할 수 있다.
-    - `Weaving` : 관점을 핵심 로직에 적용하는 과정을 의미합니다. 컴파일 시점, 실행 시점 등에 위빙을 발생할 수 있다.
-  - 횡단 기능이 `적용될 객체`는 `TargetObject` 이고 TargetObject 기준으로 횡단 기능이 `적용될 수 있는 위치`를 `JoinPoint`라고 한다.
-  - Spring AOP에선 메소드 `Interceptor 기반`으로 동작하기 때문에 JoinPoint는 항상 `메소드 단위`이다.
-  - 적용할 횡단 기능의 `동작 코드`는 `Advice`에 정의되어 있으며 `JoinPoint` 중에서 `실제로 적용될 시점`을 `Pointcut` 이라고 한다.
-  - 즉, `Advice`는 많은 `JoinPoint` 중에서 `Pointcut`에 명시된 `JoinPoint`에서 실행된다.
-  - Spring AOP에선 `Advice` + `Pointcut` = `Advisor` 라고 한다.
-  - 횡단 관심사를 모듈화한 `Aspect` = `Advice` + `Pointcut` + `Introduction(inter-type)`
-  - `Introduction(inter-type)`는 `Aspect` 내부에 선언된 모든 요소(클래스, 인터페이스, 메소드, 그 외 모든 필드)
-  - `AOP Proxy`는 Aspect를 대신 수행하기 위해 AOP 프레임워크에 의해 생성된 객체이다.<br/>
-    대부분의 AOP 프레임워크에선 핵심 관심 코드에 직접적인 Aspect를 하지 않고 `Proxy Object`를 활용해서 Aspect를 한다.<br/>
-    횡단 관심 객체와 핵심 관심 객체의 느슨한 결합 구조를 만들고 필요 여부에 따라 부가 기능을 탈부착하기 용이하게 해준다.
-  - `Weaving`은 특정 JoinPoint에 Advice하여 핵심 기능과 횡단 기능이 교차하고 `새롭게 생성된 객체(AOP Proxy)를 프로세스에 적용하는 일련의 모든 과정`이다.
-  - Spring AOP는 Dynamic Proxy 기반으로 기본적으로 `Runtime Weaving(RTW)`를 사용하고 Waeving 방식이 AspectJ 보다 `가볍다`.
+  <br />
+  <img width="700" height="250" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/b129acbb-d136-44c6-a936-9c10644ebfcc"><br/>
+  <img width="700" height="300" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/7169e2ef-2fd9-4599-a4d2-a64c3769b812"><br/>
 
-- ## Spring AOP 활용
-  - Logging
-    ```java
-    @Aspect
-    @Component
-    public class LoggingAspect {
-      
-        @Before("execution(* com.example.service.*.*(..))")
-        public void beforeMethodExecution(JoinPoint joinPoint) {
-            // 메서드 실행 전에 로깅
-            System.out.println("Before executing method: " + joinPoint.getSignature().getName());
-        }
-      
-        @After("execution(* com.example.service.*.*(..))")
-        public void afterMethodExecution(JoinPoint joinPoint) {
-            // 메서드 실행 후에 로깅
-            System.out.println("After executing method: " + joinPoint.getSignature().getName());
-        }
-    }
-    ```
-  - Transaction
-    ```java
-    @Aspect
-    @Component
-    public class TransactionAspect {
-      
-        @Autowired
-        private PlatformTransactionManager transactionManager;
-      
-        @Around("execution(* com.example.service.*.*(..))")
-        public Object manageTransaction(ProceedingJoinPoint joinPoint) throws Throwable {
-            TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
-            try {
-                // 메서드 실행 전에 트랜잭션 시작
-                Object result = joinPoint.proceed();
-                // 메서드 실행 후에 트랜잭션 커밋
-                transactionManager.commit(status);
-                return result;
-            } catch (Exception ex) {
-                // 예외 발생 시 트랜잭션 롤백
-                transactionManager.rollback(status);
-                throw ex;
-            }
-        }
-    }
-    ```
-  - Security
-    ```java
-    @Aspect
-    @Component
-    public class SecurityAspect {
-      
-        @Before("@annotation(com.example.annotation.RequiresPermission)")
-        public void checkPermission(JoinPoint joinPoint) {
-            // 특정 권한이 있는지 확인하고 접근 허용 여부 결정
-            if (!hasPermission()) {
-                throw new SecurityException("Access denied");
-            }
-        }
-      
-        private boolean hasPermission() {
-            // 권한 확인 로직
-            // ...
-        }
-    }
-    ```
+## AOP 요약
+- AOP의 주요 개념
+  - `Aspect` 공통된 기능을 모듈화한 단위. 로깅이나 보안과 같은 관심사는 관점으로 표현될 수 있다.
+  - `Join Point` : 관점이 적용될 수 있는 실행 지점을 의미한다. 메서드 실행, 예외 발생 등이 조인 포인트의 예시이다.
+  - `Advice` : 관점이 언제, 어떻게 적용될지 정의하는 코드이다. 메서드 실행 전수에 로깅하는 어드바이스가 있을 수 있다.
+  - `Pointcut` : 어떤 조인 포인트에 관점을 적용할지를 선택하는 표현식이다. 예를들어 특정 패키지 내의 모든 메서드에 관점을 적용하는 포인트컷을 정의할 수 있다.
+  - `Weaving` : 관점을 핵심 로직에 적용하는 과정을 의미합니다. 컴파일 시점, 실행 시점 등에 위빙을 발생할 수 있다.
+- 횡단 기능이 `적용될 객체`는 `TargetObject` 이고 TargetObject 기준으로 횡단 기능이 `적용될 수 있는 위치`를 `JoinPoint`라고 한다.
+- Spring AOP에선 메소드 `Interceptor 기반`으로 동작하기 때문에 JoinPoint는 항상 `메소드 단위`이다.
+- 적용할 횡단 기능의 `동작 코드`는 `Advice`에 정의되어 있으며 `JoinPoint` 중에서 `실제로 적용될 시점`을 `Pointcut` 이라고 한다.
+- 즉, `Advice`는 많은 `JoinPoint` 중에서 `Pointcut`에 명시된 `JoinPoint`에서 실행된다.
+- Spring AOP에선 `Advice` + `Pointcut` = `Advisor` 라고 한다.
+- 횡단 관심사를 모듈화한 `Aspect` = `Advice` + `Pointcut` + `Introduction(inter-type)`
+- `Introduction(inter-type)`는 `Aspect` 내부에 선언된 모든 요소(클래스, 인터페이스, 메소드, 그 외 모든 필드)
+- `AOP Proxy`는 Aspect를 대신 수행하기 위해 AOP 프레임워크에 의해 생성된 객체이다.<br/>
+  대부분의 AOP 프레임워크에선 핵심 관심 코드에 직접적인 Aspect를 하지 않고 `Proxy Object`를 활용해서 Aspect를 한다.<br/>
+  횡단 관심 객체와 핵심 관심 객체의 느슨한 결합 구조를 만들고 필요 여부에 따라 부가 기능을 탈부착하기 용이하게 해준다.
+- `Weaving`은 특정 JoinPoint에 Advice하여 핵심 기능과 횡단 기능이 교차하고 `새롭게 생성된 객체(AOP Proxy)를 프로세스에 적용하는 일련의 모든 과정`이다.
+- Spring AOP는 Dynamic Proxy 기반으로 기본적으로 `Runtime Weaving(RTW)`를 사용하고 Waeving 방식이 AspectJ 보다 `가볍다`.
+
+## Spring AOP 활용
+- Logging
+  ```java
+  @Aspect
+  @Component
+  public class LoggingAspect {
+    
+      @Before("execution(* com.example.service.*.*(..))")
+      public void beforeMethodExecution(JoinPoint joinPoint) {
+          // 메서드 실행 전에 로깅
+          System.out.println("Before executing method: " + joinPoint.getSignature().getName());
+      }
+    
+      @After("execution(* com.example.service.*.*(..))")
+      public void afterMethodExecution(JoinPoint joinPoint) {
+          // 메서드 실행 후에 로깅
+          System.out.println("After executing method: " + joinPoint.getSignature().getName());
+      }
+  }
+  ```
+- Transaction
+  ```java
+  @Aspect
+  @Component
+  public class TransactionAspect {
+    
+      @Autowired
+      private PlatformTransactionManager transactionManager;
+    
+      @Around("execution(* com.example.service.*.*(..))")
+      public Object manageTransaction(ProceedingJoinPoint joinPoint) throws Throwable {
+          TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
+          try {
+              // 메서드 실행 전에 트랜잭션 시작
+              Object result = joinPoint.proceed();
+              // 메서드 실행 후에 트랜잭션 커밋
+              transactionManager.commit(status);
+              return result;
+          } catch (Exception ex) {
+              // 예외 발생 시 트랜잭션 롤백
+              transactionManager.rollback(status);
+              throw ex;
+          }
+      }
+  }
+  ```
+- Security
+  ```java
+  @Aspect
+  @Component
+  public class SecurityAspect {
+    
+      @Before("@annotation(com.example.annotation.RequiresPermission)")
+      public void checkPermission(JoinPoint joinPoint) {
+          // 특정 권한이 있는지 확인하고 접근 허용 여부 결정
+          if (!hasPermission()) {
+              throw new SecurityException("Access denied");
+          }
+      }
+    
+      private boolean hasPermission() {
+          // 권한 확인 로직
+          // ...
+      }
+  }
+  ```
 
 ---
 
@@ -225,23 +240,64 @@ Resolver
 
 ---
 
-Request/Response 공통 처리 - Jackson Serializer/Deserializer
+VO와 DTO의 활용
 ===
-Spring에서 특정 범위를 갖는 값을 사용할 때 Enum 클래스를 만들어서 사용하곤 했다. 처음으로 접했던 방법은 `@Enum` 어노테이션과 `EnumValidator`을 구현해서 아래와 같은 방법으로 사용했었다.
+VO와 DTO의 사전적인(?) 의미를 보면 `VO`는 `Value Object`로 특정 값을 표현하기 위한 객체이고 `DTO`는 `Data Transfer Object`로 데이터 전달을 위한 객체라고 볼 수 있다.
+
+사전적 의미대로 정석대로 사용한다면 VO는 특정 값을 표현하기 위한 `불변 객체`이기 때문에 객체가 다르더라도 가지고 있는 값이 같다면 같은 객체로 봐야한다.
+따라서 `equals()`와 `hashCode()` 함수를 구현해줘야 한다. 대신 객체가 가진 값은 불변해야하기 때문에 setter 함수를 갖지 않고 객체 내 다른 비지니스 로직을 포함하고 있어도 된다.
+
+DTO는 각 Layer 사이에서 데이터를 전달할 때 사용하는 객체라고 볼 수 있다. 갖고 있는 값이 같아도 같은 객체로 보지 않으며 setter/getter 함수를 모두 가질 수 있다.
+대신 데이터 전달을 위한 객체이므로 다른 비지니스 로직을 포함하고 있지 않다.
+
+내가 일했던 환경에서는 VO와 DTO를 나누지 않고 VO만 사용했으며 불변 객체로 사용하지 않았다. 대신 VO를 크게 3가지로 나눠서 사용했었다. 주로 Front-end와 Back-end를 나눠서 개발했고 React와 SpringBoot를 사용했다.
+- RequestVO/ResponseVO
+  - 주로 Front-end와 통신할 때 사용되며 Front-end로 부터 넘어오는 값들을 받을 때 사용하고 Front-end로 값들을 넘길 때 사용되기 때문에 VO 내의 필드 값은 Front-end에 맞춰져 있었다.
+  - 안전하게 사용하기 위해서 RequestVO -> 일반VO(Service) -> 테이블VO(Repository) -> 일반VO(Service) -> ResponseVO 단계를 거치도록 개발했었다.
+- 테이블VO
+  - JPA의 Entity와 동일한 목적으로 Table은 주로 flyway로 관리하고 생성된 테이블에 매칭되는 테이블VO를 만들어서 사용했다.
+  - SQL에서 Parameter로 사용되는 VO들을 SQL 하나당 하나를 만든다면 너무 많은 VO가 생성되기 때문에 주로 Service Layer에서 RequestVO, 일반VO로 테이블VO를 만들고 테이블VO를 SQL에서 사용했었다.
+  - 하니의 테이블에 데이터를 CUD 하거나 Parameter로 사용되는 필드들이 하나의 테이블에 종속되어 있다면 하나의 테이블VO에 값을 set하고 SQL에서 사용하도록 했다.
+  - 테이블VO와 대부분의 필드를 공유하는 경우에 테이블VO를 상속받는 VO를 만들어서 사용했고 따라서 테이블VO는 주로 SuperBuild를 사용했다.
+- 일반VO
+  - 테이블이 JOIN 되어 있거나 중간에 테이블VO로 모든 필드를 사용할 수 없는 경우 추가로 VO를 생성해서 사용했다.
+  - 테이블VO를 상속해서 사용하지만 RequestVO/ResponseVO를 상속하지 않으며 다른 VO로 변환하는 toVO와 값 변환에 필요한 비지니스 로직을 포함하는 VO로 사용했다.
+- 각 VO들의 사용성
+  - 테이블VO는 테이블과 매칭되는 테이블로 별도의 toVO 함수나 비지니스 로직을 포함하지 않았다. 주로 setter/getter로만 사용하기 때문에 DTO의 사전적인 의미와 비슷하다고 생각했다.
+  - RequestVO/ResponseVO는 주로 toVO 함수를 갖고 있으면서 Front-end와 Back-end 사이에 존재하는 필드 이름에 대한 차이와 단순한 값 변환헤 들어가는 로직들을 포함했다.
+  - Front-end와 Back-end의 Dabatase 필드값이 같을 경우, RequestVO를 SQL에서 바로 사용하는 경우도 있는데 이는 유지보수에 안좋다고 생각했다.
+    Front-end의 필드명이 바뀌는 경우 혹은 데이터베이스의 필드명이 변경될 경우 수정해야 하는 파일들이 너무 많게 되고 Request에서 들어오는 값들을 SQL에서 그대로 사용하는 것은 위험성이 높다고 생각했다.
+  - toVO 함수를 사용한다면 Request에서 오는 값을 검증하는 로직 후 테이블VO를 만들 수 있으며 Front-end와 데이터베이스의 필드명 변경은 toVO 함수만 수정하면 되기 때문에 유지보수에 유리하다.
+  - 회사에선 한 스토리로 Front-end와 Back-end를 한 사람이 개발하는 경우가 많아서 Front-end 필드와 데이터베이스 필드가 같아서 RequestVO를 SQL에서 바로 사용하는 사람들이 많았는데
+    toVO를 사용하는 것이 안전하다고 생각해서 같은 필드 이름을 쓰더라도 꼭 toVO를 사용했었다.
+
+---
+
+Request에 Enum 처리하기
+===
+우리는 특정 타입에 대해서 범위를 지정하고 검증하고 싶을 때 enum 클래스를 자주 사용한다. SpringBoot에선 주로 Request로 들어오는 값 중에서 특정 필드의 값이 원하는 범위에 속해야할 때 이를 처리하기 위해서 사용했다.
+
+예를들어 아래와 같은 RequestVO에 있는 필드 중에서 orderType은 `[ORDER, CANCEL, REFUND]` 중 하나만 올 수 있어야 한다고 가정했을 때 if문을 사용해서 검증할 수 있겠지만 이는 많은 중복코드를 발생시킬 수 있고 가독성을 떨어트리게 된다. 
 ```java
-public FeedVO {
-    @EnumValid(enumClass = ContentsType.class)
-    private String contentsType;
-    private String writer;
-    private String title;
-    private String contents;
+public class OrderStatusRequestVO {
+    private String orderType;
+    private String item;
+    private int price;
+    private String address;
 }
 ```
+```java
+final String orderType = requestVO.getOrderType();
+if ("ORDER".equalsIgnoreCase(orderType) || "CANCEL".equalsIgnoreCase(orderType) || "REFUND".equalsIgnoreCase(orderType)) { ... }
+```
+
+## @Enum과 EnumValidator 
+위 문제를 해결하기 위해서 처음으로 접했던 방법은 `@Enum`과 `EnumValidator`을 구현해서 아래와 같은 방법으로 사용했었다.
 ```java
 @Target({ElementType.TYPE_USE, ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = EnumValidator.class)
-public @interface EnumValid {
+public @interface Enum {
     String message() default "유효하지 않은 enum 타입입니다.";
 
     Class<?>[] groups() default {};
@@ -288,19 +344,18 @@ public class EnumValidator implements ConstraintValidator<EnumValid, String> {
     }
 }
 ```
-
-@EnumValid 어노테이션으로는 아래와 같은 @PathVariable로 Enum 클래스를 바로 사용하는 경우를 처리하지 못했고 이를 처리하기 위해서 각 Enum 클래스마다 Converter 만들어서 사용했었다.
 ```java
-@RestController
-@RequestMapping("/feeds")
-public class UserController {
-    
-    @GetMapping("/{contentsType}")
-    public ResponseEntity<String> getFeedsByContentsType(@PathVariable("contentsType") ContentsType contentsType) {
-        return ResponseEntity.ok();
-    }
+public class OrderStatusRequestVO {
+    @Enum(enumClass = OrderType.class)
+    private String orderType;
+    private String item;
+    private int price;
+    private String address;
 }
 ```
+
+## Converter
+@Enum 어노테이션으로는 아래와 같은 @PathVariable로 Enum 클래스를 바로 사용하는 경우를 처리하지 못했고 이를 처리하기 위해서 각 Enum 클래스마다 Converter 만들어서 사용했었다.
 ```java
 @Component
 public class ContentsTypeConverter implements Converter<String, ContentsType> {
@@ -310,29 +365,42 @@ public class ContentsTypeConverter implements Converter<String, ContentsType> {
     }
 }
 ```
+```java
+@RestController
+@RequestMapping("/order")
+public class OrderController {
+    @GetMapping("/{orderType}")
+    public ResponseEntity<String> getFeedsByContentsType(@PathVariable OrderType orderType) {
+        return ResponseEntity.ok();
+    }
+}
+```
 
-이렇게 사용할 경우 몇가지 문제점이 발생한다.
+EnumValidator와 Converter는 몇가지 문제점이 있다.
 - 사용하는 Enum 클래스만큼 Converter를 각각 만들어줘야하는 점
 - VO에 각 필드에 @Enum 어노테이션을 넣어줘야 하는 점
-- `Code Enum` 형태를 호환하지 못하는 점
+- `Code 값을 갖는 Enum 형태`를 호환하지 못하는 점
 
-프로젝트에서 공통 코드는 데이터베이스에서 테이블로 관리하고 Back-end에서 공통 코드 조회 API를 만들어서 Front-end에서 사용할 수 있도록 했었다. 공통 코드는 주로 name과 code값이 한 쌍으로 관리되며 Front-end에선 주로 name 값을 화면에 보여주고 내부적으론 code 값을 사용했다.
-Back-end에서는 공통 코드를 사용할 때마다 데이터베이스를 찾을 수 없기 때문에 아래에 있는 `FeedContentsTypeCode`와 같은 Code Enum 클래스를 만들어서 사용했었다.
+## Code 값을 갖는 Enum 형태는?
+Code Enum은 주로 공통코드를 관리하거나 한 변수가 name, code 혹은 다른 값들을 동시에 갖을 때 주로 사용했다. 
+
+프로젝트에서 공통 코드는 데이터베이스에서 테이블로 관리하고 Back-end에서 공통 코드 조회 API를 만들어서 Front-end에서 사용할 수 있도록 했었다. 
+공통 코드는 주로 name과 code값이 한 쌍으로 관리되며 Front-end에선 주로 name 값을 화면에 보여주고 내부적으론 code 값을 사용했다. 
+Back-end에서는 공통 코드를 사용할 때마다 데이터베이스를 조회할 수 없었기 때문에 `OrderTypeCode`와 같은 Code Enum 클래스를 만들어서 사용했었다.
 ```java
 // 일반적인 Enum 형태
-public enum Gender {
-  MAN,
-  WOMAN,
-  BOTH
+public enum OrderType {
+  ORDER,
+  CANCEL,
+  REFUND
 } 
 ```
 ```java
 // Code Enum 형태
-public enum FeedContentsTypeCode {
-  NORMAL("001"),
-  VOTE("002"),
-  SHARE("003"),
-  VIDEO("004");
+public enum OrderTypeCode {
+  ORDER("001"),
+  CANCEL("002"),
+  REFUND("003");
 
   private String code;
 
@@ -346,14 +414,67 @@ public enum FeedContentsTypeCode {
 }
 ```
 
-Front-end에서 화면에 노출하는 값은 name 값인 `[NORMAL, VOTE, SHARE, VIDEO]`, 실제로 코드 내에선 사용하는 값은 code 값인 `[001, 002, 003, 004]` 값으로 사용했다.
-Back-end와 통신할 땐 code 값이 전송되기 때문에 일반적인 enum 형태로 만들어서 사용한다면 Service Layer에서 `FeedContentsTypeCode.001.equals(contents)`와 같이 `001`이 어떤 값인지 알 수 없는 문제가 생기기 때문에 Code Enum 클래스를 만들어서 사용했다.
+Front-end에서 화면에는 name 값`[ORDER, CANCEL, REFUND]`을 노출하고, Back-end와 통신할 때는 code 값`[001, 002, 003]`을 사용했다.
 
-물론 기존에 만들어둔 @EnumValid 방식도 장점이 있었다.
-- NULL 값을 호환한다는 점
-- excludeEnumType, message 등 좀 더 유연한 비교가 가능하다는 점
+Back-end 코드 내부에서 `OrderTypeCode.001.equals(contents)`와 같이 사용한다면 `001`이 어떤 값을 의미하는지 한 눈에 알 수 없기 때문에 Code Enum 형태의 Enum을 만들어서 사용했다.
 
-하지만 Jackson의 Serializer와 Deserialzer를 사용하면 기존에 있던 단점을 보완하고 @EnumValid의 장점도 모두 사용할 수 있었다.
+EnumValidator와 Converter에는 장단점이 존재한다.
+- 장점
+  - NULL 값을 호환한다는 점
+  - excludeEnumType, message 등 좀 더 유연한 비교가 가능하다는 점
+- 단점
+  - 사용하는 Enum 클래스만큼 Converter를 각각 만들어줘야하는 점
+  - VO에 각 필드에 @Enum 어노테이션을 넣어줘야 하는 점
+  - `Code 값을 갖는 Enum 형태`를 호환하지 못하는 점
+
+## ConverterFactory
+첫번째와 두번째 단점을 해결하기 위해서 ConverterFactory를 만들어서 사용할 수 있다. 여러 VO에 @Enum 어노테이션을 적어줄 필요도 없고 각 enum 클래스마다 Converter를 만들어줄 필요도 없다.
+```java
+public class EnumConverterFactory implements ConverterFactory<String, Enum<?>> {
+
+    @Override
+    public <T extends Enum<?>> Converter<String, T> getConverter(Class<T> targetType) {
+        return new StringToEnumConverter(getEnumType(targetType));
+    }
+
+    private static class StringToEnumConverter<T extends Enum<?>> implements Converter<String, T> {
+
+        private final Class<T> enumType;
+
+        public StringToEnumConverter(Class<T> enumType) {
+            this.enumType = enumType;
+        }
+
+        @Override
+        public T convert(String source) {
+            if (source.isEmpty()) {
+                return null;
+            }
+            return (T) Enum.valueOf(this.enumType, source.trim().toUpperCase());
+        }
+    }
+    
+    private static Class<?> getEnumType(Class targetType) {
+        Class<?> enumType = targetType;
+        while (enumType != null && !enumType.isEnum()) {
+            enumType = enumType.getSuperclass();
+        }
+        Assert.notNull(enumType, "The target type " + targetType.getName() + " does not refer to an enum");
+        return enumType;
+    }
+}
+```
+```java
+public class OrderStatusRequestVO {
+  private OrderType orderType;
+  private String item;
+  private int price;
+  private String address;
+}
+```
+
+## Jackson의 Serializer와 Deserializer
+Jackson의 Serializer와 Deserialzer를 사용하면 기존에 있던 단점을 모두 보완하고 장점도 모두 사용할 수 있다.
 Jackson의 Serializer와 Deserializer는 Request로 들어오는 VO 객체, Response로 반환하는 VO 객체 내에 있는 필드의 특정 타입에 대한 공통 처리를 정의하거나 Jackson 내에 정의되어 있는 특정 함수들을 오버라이딩해서 커스터마이징이 가능했다.
 
 예를들어 날짜 타입의 형식을 지정할 때 DateUtil에 함수를 만들어서 Service Layer나 toVO 함수 내에서 지정할 필요 없이 LocalDate, LocalTime, LocalDateTime 타입에 대한 형식을 지정해주거나 Enum 타입의 값이 들어왔을 때 toUpperCase() 적용한 후에 비교를 할 수 있게 할 수 있다.
@@ -608,40 +729,6 @@ public class ExceptionAdvisor {
   }
 }
 ```
-
-
----
-
-VO와 DTO의 활용
-===
-VO와 DTO의 사전적인(?) 의미를 보면 `VO`는 `Value Object`로 특정 값을 표현하기 위한 객체이고 `DTO`는 `Data Transfer Object`로 데이터 전달을 위한 객체라고 볼 수 있다.
-
-사전적 의미대로 정석대로 사용한다면 VO는 특정 값을 표현하기 위한 `불변 객체`이기 때문에 객체가 다르더라도 가지고 있는 값이 같다면 같은 객체로 봐야한다.
-따라서 `equals()`와 `hashCode()` 함수를 구현해줘야 한다. 대신 객체가 가진 값은 불변해야하기 때문에 setter 함수를 갖지 않고 객체 내 다른 비지니스 로직을 포함하고 있어도 된다.
-
-DTO는 각 Layer 사이에서 데이터를 전달할 때 사용하는 객체라고 볼 수 있다. 갖고 있는 값이 같아도 같은 객체로 보지 않으며 setter/getter 함수를 모두 가질 수 있다.
-대신 데이터 전달을 위한 객체이므로 다른 비지니스 로직을 포함하고 있지 않다.
-
-내가 일했던 환경에서는 VO와 DTO를 나누지 않고 VO만 사용했으며 불변 객체로 사용하지 않았다. 대신 VO를 크게 3가지로 나눠서 사용했었다. 주로 Front-end와 Back-end를 나눠서 개발했고 React와 SpringBoot를 사용했다.
-- RequestVO/ResponseVO
-  - 주로 Front-end와 통신할 때 사용되며 Front-end로 부터 넘어오는 값들을 받을 때 사용하고 Front-end로 값들을 넘길 때 사용되기 때문에 VO 내의 필드 값은 Front-end에 맞춰져 있었다.
-  - 안전하게 사용하기 위해서 RequestVO -> 일반VO(Service) -> 테이블VO(Repository) -> 일반VO(Service) -> ResponseVO 단계를 거치도록 개발했었다.
-- 테이블VO
-  - JPA의 Entity와 동일한 목적으로 Table은 주로 flyway로 관리하고 생성된 테이블에 매칭되는 테이블VO를 만들어서 사용했다.
-  - SQL에서 Parameter로 사용되는 VO들을 SQL 하나당 하나를 만든다면 너무 많은 VO가 생성되기 때문에 주로 Service Layer에서 RequestVO, 일반VO로 테이블VO를 만들고 테이블VO를 SQL에서 사용했었다.
-  - 하니의 테이블에 데이터를 CUD 하거나 Parameter로 사용되는 필드들이 하나의 테이블에 종속되어 있다면 하나의 테이블VO에 값을 set하고 SQL에서 사용하도록 했다.
-  - 테이블VO와 대부분의 필드를 공유하는 경우에 테이블VO를 상속받는 VO를 만들어서 사용했고 따라서 테이블VO는 주로 SuperBuild를 사용했다.
-- 일반VO
-  - 테이블이 JOIN 되어 있거나 중간에 테이블VO로 모든 필드를 사용할 수 없는 경우 추가로 VO를 생성해서 사용했다.
-  - 테이블VO를 상속해서 사용하지만 RequestVO/ResponseVO를 상속하지 않으며 다른 VO로 변환하는 toVO와 값 변환에 필요한 비지니스 로직을 포함하는 VO로 사용했다.
-- 각 VO들의 사용성
-  - 테이블VO는 테이블과 매칭되는 테이블로 별도의 toVO 함수나 비지니스 로직을 포함하지 않았다. 주로 setter/getter로만 사용하기 때문에 DTO의 사전적인 의미와 비슷하다고 생각했다.
-  - RequestVO/ResponseVO는 주로 toVO 함수를 갖고 있으면서 Front-end와 Back-end 사이에 존재하는 필드 이름에 대한 차이와 단순한 값 변환헤 들어가는 로직들을 포함했다.
-  - Front-end와 Back-end의 Dabatase 필드값이 같을 경우, RequestVO를 SQL에서 바로 사용하는 경우도 있는데 이는 유지보수에 안좋다고 생각했다.
-    Front-end의 필드명이 바뀌는 경우 혹은 데이터베이스의 필드명이 변경될 경우 수정해야 하는 파일들이 너무 많게 되고 Request에서 들어오는 값들을 SQL에서 그대로 사용하는 것은 위험성이 높다고 생각했다.
-  - toVO 함수를 사용한다면 Request에서 오는 값을 검증하는 로직 후 테이블VO를 만들 수 있으며 Front-end와 데이터베이스의 필드명 변경은 toVO 함수만 수정하면 되기 때문에 유지보수에 유리하다.
-  - 회사에선 한 스토리로 Front-end와 Back-end를 한 사람이 개발하는 경우가 많아서 Front-end 필드와 데이터베이스 필드가 같아서 RequestVO를 SQL에서 바로 사용하는 사람들이 많았는데
-    toVO를 사용하는 것이 안전하다고 생각해서 같은 필드 이름을 쓰더라도 꼭 toVO를 사용했었다.
 
 ---
 
