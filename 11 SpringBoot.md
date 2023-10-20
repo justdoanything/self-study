@@ -7,22 +7,29 @@
   * [Weaving](#weaving)
   * [AOP 요약](#aop-요약)
   * [Spring AOP 활용](#spring-aop-활용)
-* [Resolver](#resolver)
 * [VO와 DTO의 활용](#vo와-dto의-활용)
-* [Request에 Enum 처리하기](#request에-enum-처리하기)
+* [Request에 enum 클래스 처리하기](#request에-enum-클래스-처리하기)
   * [@Enum과 EnumValidator](#enum과-enumvalidator)
   * [Converter](#converter)
   * [Code 값을 갖는 Enum 형태는?](#code-값을-갖는-enum-형태는)
   * [ConverterFactory](#converterfactory)
-  * [Jackson의 Serializer와 Deserializer](#jackson의-serializer와-deserializer)
+  * [Converter 한 번에 등록하기](#converter-한-번에-등록하기)
+  * [Jackson의 Deserializer](#jackson의-deserializer)
+* [Jackson](#jackson)
+  * [Serializer/Deserializer](#serializerdeserializer)
+  * [HandlerMethodArgumentResolver](#handlermethodargumentresolver)
+  * [ObjectMapper](#objectmapper)
 * [Exception 공통 처리 - Exception Advice](#exception-공통-처리---exception-advice)
   * [@ExceptionHandler](#exceptionhandler)
   * [@ControllerAdvice](#controlleradvice)
   * [@ControllerAdvice와 @RestControllerAdvice](#controlleradvice와-restcontrolleradvice)
 * [Service Interface는 왜 만들어야 할까?](#service-interface는-왜-만들어야-할까)
+* [Aspect](#aspect-1)
 * [자주 쓰이는 Controller Annotation](#자주-쓰이는-controller-annotation)
 * [자주 쓰이는 Service Annotation](#자주-쓰이는-service-annotation)
-* [Transaction](#transaction)
+* [자주 쓰이는 Model Annotation](#자주-쓰이는-model-annotation)
+* [@Transactional](#transactional)
+* [Request와 Response](#request와-response)
 * [Redis](#redis)
 * [Flyway](#flyway)
 * [Reference](#reference)
@@ -227,19 +234,6 @@ AOP는 분리된 횡단 관심사를 `Aspect` 라는 모듈 형태로 만들어�
 
 ---
 
-Resolver
-===
-[Spring MVC](https://github.com/justdoanything/self-study/blob/main/10%20Spring.md#spring-mvc)를 정리한 자료를 보면 Spring이 어떻게 MVC 패턴으로 동작하고 변해왔는지 순서대로 알 수 있다. 이러한 변화과정은 개발자가 Spring을 사용할 때 좀 더 편하고 빠르게 개발할 수 있게 해준다. SpringBoot가 되면서 좀 더 빠르고 가벼워졌으며 개발자가 Spring을 사용할 때 반드시 해줘야했던 configure나 의존성 설정 등이 없어졌다.
-예전에 Spring을 사용할 땐 tomcat을 따로 설치하고 Spring과 설정해줘야 동작했었는데 SpringBoot에선 embedded tomcat을 사용해서 별도의 설치나 설정 없이 바로 웹서버가 동작하고 있다.
-
-이렇듯 대부분의 공통처리를 Spring에서 해주지만 상황에 따라 개발자가 customize해서 사용할 수 있게 동작한다. 예를들어 Resolver를 따로 정의하지 않아도 기본적인 동작들이 수행되고 아래에서 추가할 특정 타입, 상황에 따라 개발자가 원하는 로직을 사용하고 싶다면 Spring Handler를 상속받아 특정 함수를 Override해서 사용할 수 있다.
-
-주로 프로젝트에선 Request/Response 공통 처리를 위해 Jackson의 Serializer/Deserializer를 정의해서 사용하곤 한다. 로그인이나 인증을 처리하기 위해서 특정 DTO가 들어왔을 때 동작할 함수를 따로 정의하거나 Enum 타입의 Request가 왔을 때 validation하는 동작을 따로 정의하거나 응답하는 객체의 Date 타입에 따라 특정 format을 지정하는 등 공통처리를 하고 싶을 때 많이 사용했었다.
-
-특히 여러 사람이 동시에 개발하는 경우 공통 기능을 함수로 만들거나 어노테이션으로 만든다면 누락되거나 사용성에 문제가 있을 수 있기 때문에 Resolver로 처리하는 것이 안정적이다.
-
----
-
 VO와 DTO의 활용
 ===
 VO와 DTO의 사전적인(?) 의미를 보면 `VO`는 `Value Object`로 특정 값을 표현하기 위한 객체이고 `DTO`는 `Data Transfer Object`로 데이터 전달을 위한 객체라고 볼 수 있다.
@@ -273,7 +267,7 @@ DTO는 각 Layer 사이에서 데이터를 전달할 때 사용하는 객체라�
 
 ---
 
-Request에 Enum 처리하기
+Request에 enum 클래스 처리하기
 ===
 우리는 특정 타입에 대해서 범위를 지정하고 검증하고 싶을 때 enum 클래스를 자주 사용한다. SpringBoot에선 주로 Request로 들어오는 값 중에서 특정 필드의 값이 원하는 범위에 속해야할 때 이를 처리하기 위해서 사용했다.
 
@@ -355,7 +349,7 @@ public class OrderStatusRequestVO {
 ```
 
 ## Converter
-@Enum 어노테이션으로는 아래와 같은 @PathVariable로 Enum 클래스를 바로 사용하는 경우를 처리하지 못했고 이를 처리하기 위해서 각 Enum 클래스마다 Converter 만들어서 사용했었다.
+@Enum 어노테이션으로는 아래와 같은 @PathVariable로 enum 클래스를 바로 사용하는 경우를 처리하지 못했고 이를 처리하기 위해서 각 enum 클래스마다 Converter 만들어서 사용했었다.
 ```java
 @Component
 public class ContentsTypeConverter implements Converter<String, ContentsType> {
@@ -377,16 +371,16 @@ public class OrderController {
 ```
 
 EnumValidator와 Converter는 몇가지 문제점이 있다.
-- 사용하는 Enum 클래스만큼 Converter를 각각 만들어줘야하는 점
+- 사용하는 enum 클래스만큼 Converter를 각각 만들어줘야하는 점
 - VO에 각 필드에 @Enum 어노테이션을 넣어줘야 하는 점
 - `Code 값을 갖는 Enum 형태`를 호환하지 못하는 점
 
 ## Code 값을 갖는 Enum 형태는?
-Code Enum은 주로 공통코드를 관리하거나 한 변수가 name, code 혹은 다른 값들을 동시에 갖을 때 주로 사용했다. 
+Code enum은 주로 공통코드를 관리하거나 한 변수가 name, code 혹은 다른 값들을 동시에 갖을 때 주로 사용했다. 
 
 프로젝트에서 공통 코드는 데이터베이스에서 테이블로 관리하고 Back-end에서 공통 코드 조회 API를 만들어서 Front-end에서 사용할 수 있도록 했었다. 
 공통 코드는 주로 name과 code값이 한 쌍으로 관리되며 Front-end에선 주로 name 값을 화면에 보여주고 내부적으론 code 값을 사용했다. 
-Back-end에서는 공통 코드를 사용할 때마다 데이터베이스를 조회할 수 없었기 때문에 `OrderTypeCode`와 같은 Code Enum 클래스를 만들어서 사용했었다.
+Back-end에서는 공통 코드를 사용할 때마다 데이터베이스를 조회할 수 없었기 때문에 `OrderTypeCode`와 같은 Code enum 클래스를 만들어서 사용했었다.
 ```java
 // 일반적인 Enum 형태
 public enum OrderType {
@@ -416,16 +410,58 @@ public enum OrderTypeCode {
 
 Front-end에서 화면에는 name 값`[ORDER, CANCEL, REFUND]`을 노출하고, Back-end와 통신할 때는 code 값`[001, 002, 003]`을 사용했다.
 
-Back-end 코드 내부에서 `OrderTypeCode.001.equals(contents)`와 같이 사용한다면 `001`이 어떤 값을 의미하는지 한 눈에 알 수 없기 때문에 Code Enum 형태의 Enum을 만들어서 사용했다.
+Back-end 코드 내부에서 `OrderTypeCode.001.equals(contents)`와 같이 사용한다면 `001`이 어떤 값을 의미하는지 한 눈에 알 수 없기 때문에 Code enum 형태의 enum을 만들어서 사용했다.
 
 EnumValidator와 Converter에는 장단점이 존재한다.
 - 장점
   - NULL 값을 호환한다는 점
   - excludeEnumType, message 등 좀 더 유연한 비교가 가능하다는 점
 - 단점
-  - 사용하는 Enum 클래스만큼 Converter를 각각 만들어줘야하는 점
+  - 사용하는 enum 클래스만큼 Converter를 각각 만들어줘야하는 점
   - VO에 각 필드에 @Enum 어노테이션을 넣어줘야 하는 점
-  - `Code 값을 갖는 Enum 형태`를 호환하지 못하는 점
+  - `Code 값을 갖는 enum 형태`를 호환하지 못하는 점
+
+```java
+// 여러개의 값을 갖는 Code Enum
+public enum CommonCode {
+    ORDER_TYPE("001", "", "", "", ""),
+    MODEL_TYPE("002", "", "", "", ""),
+    POS_TYPE("003", "", "", "", ""),
+    VAN_TYPE("004", "", "", "", ""),
+    CARD_TYPE("005", "", "", "", "")
+    ;
+
+    private final String code;
+    private final String referenceField1;
+    private final String referenceField2;
+    private final String referenceField3;
+    private final String referenceField4;
+    
+    CommonCode(String code, String referenceField1, String referenceField2, String referenceField3, String referenceField4) {
+        this.code = code;
+        this.referenceField1 = referenceField1;
+        this.referenceField2 = referenceField2;
+        this.referenceField3 = referenceField3;
+        this.referenceField4 = referenceField4;
+    }
+    
+    public String code() {
+        return code;
+    }
+    public String getReferenceField1() {
+        return referenceField1;
+    }
+    public String getReferenceField2() {
+        return referenceField2;
+    }
+    public String getReferenceField3() {
+        return referenceField3;
+    }
+    public String getReferenceField4() {
+        return referenceField4;
+    }
+}
+```
 
 ## ConverterFactory
 첫번째와 두번째 단점을 해결하기 위해서 ConverterFactory를 만들어서 사용할 수 있다. 여러 VO에 @Enum 어노테이션을 적어줄 필요도 없고 각 enum 클래스마다 Converter를 만들어줄 필요도 없다.
@@ -473,7 +509,40 @@ public class OrderStatusRequestVO {
 }
 ```
 
-## Jackson의 Serializer와 Deserializer
+## Converter 한 번에 등록하기
+위에서 Converter를 설명할 때 enum 클래스 개수만큼 등록해야한다고 설명했었지만 아래 코드를 보면 여러 Formatter, Converter, ConverterFactory를 한 번에 등록할 수 있다.
+```java
+@Configuration
+public class FormatterConfig implements WebMvcConfigurer {
+    @Autowired
+    private Formatter<?>[] formatters;
+    
+    @Autowired
+    private Converter<?, ?>[] converters;
+    
+    @Autowired
+    private ConverterFactory<?, ?>[] converterFactories;
+    
+    @Override
+    public void addFormatters(FormatterRegistry formatterRegistry) {
+        if(!ObjectUtils.isEmpty(formatters)){
+            formatters.forEach(formatterRegistry::addFormatter);
+        }
+
+        if(!ObjectUtils.isEmpty(converters)){
+            converters.forEach(formatterRegistry::addFormatter);
+        }
+
+        if(!ObjectUtils.isEmpty(converterFactories)){
+            converterFactories.forEach(formatterRegistry::addConverterFactory);
+        }
+    }
+}
+```
+
+---
+
+## Jackson의 Deserializer
 Jackson의 Serializer와 Deserialzer를 사용하면 기존에 있던 단점을 모두 보완하고 장점도 모두 사용할 수 있다.
 Jackson의 Serializer와 Deserializer는 Request로 들어오는 VO 객체, Response로 반환하는 VO 객체 내에 있는 필드의 특정 타입에 대한 공통 처리를 정의하거나 Jackson 내에 정의되어 있는 특정 함수들을 오버라이딩해서 커스터마이징이 가능했다.
 
@@ -503,8 +572,8 @@ public class JacksonMappingBuilderConfig implements Jackson2ObjectMapperBuilderC
 }
 ```
 
-Code Enum 형태를 처리하기 위해 만든 `EnumDeserializer`는 Enum 클래스를 처리하는 함수`public Enum<? extends Enum> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)`를 오버라이딩해서 커스터마이징 했다.
-타입이 Enum 클래스일 경우 Enum 클래스 내에 value 함수가 있는지 확인하고 value 함수가 있으면 value 함수의 결과인 코드 값으로 매칭되는 값이 있는지 확인하도록 했다. https://d2.naver.com/helloworld/0473330 를 참고했다.
+Code enum 형태를 처리하기 위해 만든 `EnumDeserializer`는 enum 클래스를 처리하는 함수`public Enum<? extends Enum> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)`를 오버라이딩해서 커스터마이징 했다.
+타입이 enum 클래스일 경우 enum 클래스 내에 value 함수가 있는지 확인하고 value 함수가 있으면 value 함수의 결과인 코드 값으로 매칭되는 값이 있는지 확인하도록 했다. https://d2.naver.com/helloworld/0473330 를 참고했다.
 ```java
 public class EnumDeserializer extends StdDeserializer<Enum <? extends Enum>> implements ContextualDeserializer {
 
@@ -560,7 +629,7 @@ public class EnumDeserializer extends StdDeserializer<Enum <? extends Enum>> imp
 }
 ```
 
-즉, FeedContentsTypeCode에서 기존에 비교하던 범위가 `[NORMAL, VOTE, SHARE, VIDEO]` 였다면 `[NORMAL, VOTE, SHARE, VIDEO, 001, 002, 003, 004]`로 코드 값까지 비교할 수 있도록 했다. VO 내에 타입에 Enum 클래스를 바로 사용하면 되기 때문에 필드마다 어노테이션을 사용해야 하는 불편함도 없어졌다.
+즉, FeedContentsTypeCode에서 기존에 비교하던 범위가 `[NORMAL, VOTE, SHARE, VIDEO]` 였다면 `[NORMAL, VOTE, SHARE, VIDEO, 001, 002, 003, 004]`로 코드 값까지 비교할 수 있도록 했다. VO 내에 타입에 enum 클래스를 바로 사용하면 되기 때문에 필드마다 어노테이션을 사용해야 하는 불편함도 없어졌다.
 ```java
 @Data
 @Builder
@@ -640,6 +709,28 @@ public class EumConverterFactory implements ConverterFactory<String, Enum> {
   }
 }
 ```
+
+---
+
+Jackson
+===
+
+## Serializer/Deserializer
+JSON 데이터를 Java 객체로 변환하기 (Deserialization)
+Java 객체를 JSON으로 직렬화하기 (Serialization)
+
+## HandlerMethodArgumentResolver
+[Spring MVC](https://github.com/justdoanything/self-study/blob/main/10%20Spring.md#spring-mvc)를 정리한 자료를 보면 Spring이 어떻게 MVC 패턴으로 동작하고 변해왔는지 순서대로 알 수 있다. 이러한 변화과정은 개발자가 Spring을 사용할 때 좀 더 편하고 빠르게 개발할 수 있게 해준다. SpringBoot가 되면서 좀 더 빠르고 가벼워졌으며 개발자가 Spring을 사용할 때 반드시 해줘야했던 configure나 의존성 설정 등이 없어졌다.
+예전에 Spring을 사용할 땐 tomcat을 따로 설치하고 Spring과 설정해줘야 동작했었는데 SpringBoot에선 embedded tomcat을 사용해서 별도의 설치나 설정 없이 바로 웹서버가 동작하고 있다.
+
+이렇듯 대부분의 공통처리를 Spring에서 해주지만 상황에 따라 개발자가 customize해서 사용할 수 있게 동작한다. 예를들어 Resolver를 따로 정의하지 않아도 기본적인 동작들이 수행되고 아래에서 추가할 특정 타입, 상황에 따라 개발자가 원하는 로직을 사용하고 싶다면 Spring Handler를 상속받아 특정 함수를 Override해서 사용할 수 있다.
+
+주로 프로젝트에선 Request/Response 공통 처리를 위해 Jackson의 Serializer/Deserializer를 정의해서 사용하곤 한다. 로그인이나 인증을 처리하기 위해서 특정 DTO가 들어왔을 때 동작할 함수를 따로 정의하거나 Enum 타입의 Request가 왔을 때 validation하는 동작을 따로 정의하거나 응답하는 객체의 Date 타입에 따라 특정 format을 지정하는 등 공통처리를 하고 싶을 때 많이 사용했었다.
+
+특히 여러 사람이 동시에 개발하는 경우 공통 기능을 함수로 만들거나 어노테이션으로 만든다면 누락되거나 사용성에 문제가 있을 수 있기 때문에 Resolver로 처리하는 것이 안정적이다.
+
+## ObjectMapper
+
 
 ---
 
@@ -841,26 +932,81 @@ Mockito와 같은 Mocking 라이브러리를 사용하면 인터페이스를 사
 
 ---
 
+Aspect
+===
+LogAspect
+
+금칙어Aspect
+
+---
+
 자주 쓰이는 Controller Annotation
 ===
-- @RequestParam
-- @RequestBody
-- @PathVariable
-- Response - 조립 & Builder & Superbuilder
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/order")
+
+@Tag(name = "Order", description = "주문 API")
+@Operation(summary = "주문 조회", description = "주문 조회 API")
+
+@GetMapping
+@PostMapping
+@PutMapping
+@DeleteMapping
+@PatchMapping
+- path
+- produces
+- consumes
+
+@PathVariable
+@RequestBody :  POST 또는 PUT
+@RequestParam
+
+@PathVariable: URL 경로에서 변수를 추출하는 데 사용됩니다. 주로 RESTful 웹 서비스에서 경로 매개변수를 추출하는 데 쓰입니다.
+URL 경로에서 특정 부분을 변수로 설정하고 사용하려면 @PathVariable을 사용합니다. 예를 들어, /products/{id}와 같은 경로에서 id를 추출할 때 사용합니다.
+
+@RequestParam: 요청의 쿼리 매개변수(파라미터)를 추출하는 데 사용됩니다. URL의 ? 뒤에 오는 매개변수를 읽어옵니다.
+쿼리 매개변수를 추출할 때 사용합니다. 예를 들어, /products?id=123와 같이 URL에서 id를 추출할 때 사용합니다.
+
+@Valid
 
 ---
 
 자주 쓰이는 Service Annotation
 ===
+@RequiredArgsConstructor
+@Service
+@Validated
+@Transactional
+- readOnly
+- rollbackFor
+- noRollbackFor
+- propagation
+- isolation
+- timeout
+
+---
+
+자주 쓰이는 Model Annotation
+===
+@AllArgsConstrutor(access = AccessLevel.PRIVATE)
+@NoArgsConstrutor
+@Data
+@Builder
+@SuperBuilder
 
 
 ---
 
-Transaction
+@Transactional
 ===
 
 ---
 
+Request와 Response
+===
+
+---
 Redis
 ===
 - docker exec -it springboot-redis-1 redis-cli
