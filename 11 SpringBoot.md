@@ -729,6 +729,69 @@ Java 객체를 JSON으로 직렬화하기 (Serialization)
 
 특히 여러 사람이 동시에 개발하는 경우 공통 기능을 함수로 만들거나 어노테이션으로 만든다면 누락되거나 사용성에 문제가 있을 수 있기 때문에 Resolver로 처리하는 것이 안정적이다.
 
+```java
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.PARAMETER)
+public @interface RequestParameter {
+    boolean required() default true;
+}
+
+```
+```java
+@Component
+public class RequestParameterResolver implements HandlerMethodArgumentResolver {
+    private final ObjectMapper c;
+    
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+        return parameter.hasParameterAnnotation(RequestParameter.class);
+    }
+    
+    @Override
+    public Object resolveArgument(
+            MethodParameter methodParameter, 
+            ModelAndViewContainer modelAndViewContainer, 
+            NativeWebRequest nativeWebRequest, 
+            WebDataBinderFactory webDataBinderFactory) throws Exception {
+        Map<String, String> requestParameters =
+                nativeWebRequest.getParameterMap()
+                        .entrySet()
+                        .stream()
+                        .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue()[0]));
+        
+        if(requestParameters.size() == 0) {
+            RequestParameter requestParameter = methodParameter.getParameterAnnotation(RequestParameter.class);
+            if(requestParameter != null && requestParameter.required()) {
+                HttpServletRequest httpServletRequest = nativeWebRequest.getNativeRequest(HttpServletRequest.class);
+                ServletServerHttpRequest servletServerHttpRequest = new ServletServerHttpRequest(httpServletRequest);
+                throw new MissingServletRequestParameterException(
+                        "Required request parameter is empty : " + methodParameter.getExecutable().toGenericString(),
+                        servletServerHttpRequest);
+            } else {
+                // 검증 로직 추가
+            }
+        }
+
+        Object resolver = mapper.convertValue(requestParameters, methodParameter.getParameterType());
+        
+        if(methodParameter.hasParameterAnnotation(Valid.class)) {
+            String parameterName = Conventions.getVariableNameForParameter(methodParameter);
+            WebDataBinder binder = webDataBinderFactory.createBinder(nativeWebRequest, resolver, parameterName);
+            if(binder.getTarget() != null) {
+                binder.validate();
+                BindingResult bindingResult = binder.getBindingResult();
+                if(bindingResult.hasError()) {
+                    throw new MethodArgumentNotValidException(methodParameter, bindingResult);
+                }
+            }
+        }
+        
+        return resolver;
+    }
+}
+
+```
+
 ## ObjectMapper
 
 
@@ -936,7 +999,65 @@ Aspect
 ===
 LogAspect
 
-금칙어Aspect
+Aspect
+```java
+@Target({ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ProhibitedWordChecker {
+    String checkerType();
+}
+```
+```java
+@Target({ElementType.FIELD, ElementType.PARAMETER})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ProhibitedWordField {}
+```
+```java
+@Aspect
+@Component
+@RequiredArgsConstructor
+public class ProhibitedWordAspect {
+    private final ProhibitedWordService prohibitedWordService;
+    
+    List<Object> fields = new ArrayList<>();
+    
+    @Around("@annotation(prohibitedWordChecker)")
+    public Object prohibitedWordCheck(
+            ProceedingJoinPoint joinPoint,
+            ProhibitedWordChecker prohibitedWordChecker) throws Throwable {
+        for(Object args: joinPoint.getArgs()) {
+            if(String.class.equals(args.getClass()) && Arrays.stream(
+                    ((MethodSignature) joinPoint.getSignature())
+                            .getMethod()
+                            .getParameters())
+                    .filter(
+                            parameter -> parameter.isAnnotationPresent(ProhibitedWordField.class))
+                    .count() == 1) {
+                fields.add(field.get(args));
+            }else {
+                for (Field field: args.getClass().getDeclaredFields()) {
+                    if(field.isAnnotationPresent(ProhibitedWordField.class)) {
+                        field.setAccessible(true);
+                        fields.add(field.get(args));
+                    }
+                }
+            }
+        }
+        
+        ProhibitedWordCheckerResponseVO prohibitedWordCheckerResponseVO =
+                prohibitedWordService.doProhibitedWordVerification(
+                        prohibitedWordChecker.checkerType(), fields);
+        
+        // 성공, 실패에 따른 Success Response 또는 Exception 반환
+        if(prohibitedWordCheckerResponseVO.isProhibitedWordExist()){
+            return ResponseUtil.createFailResponse(prohibitedWordCheckerResponseVO);
+        } else {
+            return joinPoint.proceed();
+        }
+    }
+}
+```
+
 
 ---
 
