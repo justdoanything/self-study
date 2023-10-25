@@ -793,7 +793,41 @@ public class RequestParameterResolver implements HandlerMethodArgumentResolver {
 ```
 
 ## ObjectMapper
+### JSON 요청을 Java 객체로 역직렬화
+```java
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+@RestController
+public class MyController {
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @PostMapping("/createUser")
+    public ResponseEntity<User> createUser(@RequestBody String json) throws IOException {
+        User user = objectMapper.readValue(json, User.class);
+        // user 객체를 사용하여 작업을 수행
+        return ResponseEntity.ok(user);
+    }
+}
+```
+
+### Java 객체를 JSON 응답으로 직렬화
+```java
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+@RestController
+public class MyController {
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @GetMapping("/getUser")
+    public ResponseEntity<String> getUser() throws JsonProcessingException {
+        User user = new User("John", "Doe");
+        String json = objectMapper.writeValueAsString(user);
+        return ResponseEntity.ok(json);
+    }
+}
+```
 
 ---
 
@@ -1056,6 +1090,34 @@ public class ProhibitedWordAspect {
         }
     }
 }
+```
+```java
+@RequiredArgsConstructor
+@Service
+@Validated
+public class prohibitedWordService {
+    private final prohibitedWordRepository prohibitedWordRepository;
+    
+    public ProhibitedWordCheckerResponseVO doProhibitedWordVerification(String checkerType, List<Object> fields) {
+        // 금칙어 대상 가져오기
+        List<String> prohibitedWords = prohibitedWordRepository.findAllByCheckerType(checkerType);
+        
+        // 금칙어 검증
+        Trie prohibitedWordTrie = Trie.builder().addKeywords(prohibitedWords).build();
+        List<String> verifiedProhibitedWords = fields.stream()
+                .flatMap(
+                        field -> prohibitedWordTrie.parseText(field.toString()).stream().map(Emit::getKeyword))
+                .distinct()
+                .toList();
+        
+        // 응답 생성
+        new ProhibitedWordCheckerResponseVO.builder()
+                .prohibitedWordExist(!verifiedProhibitedWords.isEmpty())
+                .prohibitedWords(verifiedProhibitedWords)
+                .build();
+    }
+}
+
 ```
 
 
