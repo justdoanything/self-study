@@ -1117,8 +1117,9 @@ public class prohibitedWordService {
                 .build();
     }
 }
-
 ```
+
+- Trie ?
 
 
 ---
@@ -1213,6 +1214,686 @@ Flyway
 ===
 
 ---
+
+package prj.yong.modern.annotation;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+
+/**
+* @Reference : https://jsy1110.github.io/2022/enum-class-validation/ @Description JAVA에서 기본적으로 제공하는
+* 원시타입의 경우 @NotBlacn, @NotNull 등 제공되는 annotation으로 validation을 할 수 있다. 개발자가 원하는 필드의 원하는 validation을
+* 걸고 싶다면 따로 정의해줘야 한다.
+*
+* <p>예를들어, private Gender gender; 필드가 있을 때 Gender는 MEN, WOMEN만 가능하다고 해보자. public enum Gender { MEN,
+* WOMEN } 으로 정의하고 @EnumValid annotaion을 적용해서 원하는 validation을 걸어줄 수 있다. @Useage @EnumValid(enumClass
+* = Gender.class) private Gender gender; @EnumValid(enumClass = EnumConstants.StoreType.class)
+* private String storeType;
+  */
+  public class SpringValidator implements ConstraintValidator<EnumValid, String> {
+  /**
+  * @Description 검증할 필드의 Type을 ConstraintValidator의 파라미터로 넘겨준다. String 타입의 필드를 검증하려면
+  * ConstraintValidator<EnumValid, String>가 되어야 하고 enum 타입의 필드를 검증하려면
+  * ConstraintValidator<EnumValid, Enum>가 되야 한다.
+    */
+    private EnumValid annotation;
+
+  /** @param enumValid annotation instance for a given constraint declaration */
+  @Override
+  public void initialize(EnumValid enumValid) {}
+
+  /**
+  * 실제 Validation 에 사용할 코드
+  *
+  * @param value object to validate
+  * @param context context in which the constraint is evaluated
+  * @return
+    */
+    @Override
+    public boolean isValid(String value, ConstraintValidatorContext context) {
+    return false;
+    }
+    }
+
+---
+
+package prj.yong.modern.aop;
+
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.springframework.stereotype.Component;
+
+/**
+* @Reference : https://engkimbs.tistory.com/m/746 @Description AOP : Aspect Oriented Programming 관점
+* 지향 프로그래밍으로 어떤 로직을 기준으로 핵심적인 관점, 부가적인 괌점으로 나누어서 보고 그 관점을 기준으로 모듈화한다. 흩어진 관심사(Crosscutting
+* Concerns)를 Aspect로 모듈화하고 핵심적인 비지니스에선 분리하여 재사용하겠다는 것이다.
+  */
+  @Component
+  @Aspect
+  public class SpringAspect {
+  /**
+  * @Aspect : 흩어진 관심사를 모듈화한 결과 @Target : @Aspect 를 사용하는 곳 @Advice : 부가 기능이 실질적으로 어떻게 동작하는지 명시해놓은
+  * 구현체 @JoinPoint : @Advice 가 적용될 위치, 끼어들 수 있는 지점으로 Method 진입 시잠, 생성자 호출 시점 등 특정한 시점에 적용할 수
+  * 있다. @PointCut : @JoinPoint 의 상세한 스펙을 정의한 것으로 "메서드 진입 시점에 호출할 것" 과 같이 구체적인 @Advice 실행 시점을 정할 수
+  * 있다.
+    */
+    @Before( // Target 메서드를 감싸서 특정 @Advice 를 실행하기 위한 Annotation
+    "execution(* modern.service..*(..))" // 특정 패키지 아래에 있는 모든 함수에 @Aspect 를 적용
+    )
+    public void beforeMethod(JoinPoint joinPoint) {
+    System.out.println("Before Method");
+    }
+
+  @After("execution(* modern.service..*(..))")
+  public void afterMethod(JoinPoint joinPoint) {
+  System.out.println("After Method");
+  }
+  }
+
+---
+
+    /**
+     * @Description
+     * @Reference https://johnmarc.tistory.com/152
+     *  Enum 객체의 비교에서 == 와 .equals()의 차이
+     *  == 은 주소값을 비교하기 때문에 컴파일 시 타입 체크를 하고 다른 타입일 경우 컴파일 에러가 발생한다.
+     *  하지만 NPE는 검증하지 않는다.
+     *
+     *  .equals() 는 Object 값을 비교할 때 내부적으로 == 을 사용하고 컴파일 단계에서 타입 체크를 하지 않는다.
+     *  런타임에서 NPE는 잡을 수 있다.
+     *
+     */
+
+---
+
+package prj.yong.modern.aop;
+
+import javax.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+@Component
+@Aspect
+@Slf4j
+public class LogAspect {
+private static final String CLASS_LOG_FORMAT = "Class Name : [";
+private static final String METHOD_LOG_FORMAT = "Method Name : [";
+
+    @Before("(execution(* modern.exception..*(..))"
+            + " || execution(* modern.interceptor..*(..))"
+            + " || execution(* modern.repository..*(..)))"
+            + " && !@annotation(NoLoggingAspect)")
+    public void beforeMethod(JoinPoint joinPointØ) {
+        HttpServletRequest request =
+                ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+
+        StringBuilder logStringBuilder = new StringBuilder();
+        String logInfo = logStringBuilder.append("원하는 LOG 내용").toString();
+
+        log.info(logInfo);
+    }
+
+    @AfterReturning(
+            pointcut = "(execution(* modern.exception..*(..))"
+                    + " || execution(* modern.interceptor..*(..))"
+                    + " || execution(* modern.repository..*(..)))"
+                    + " && !@annotation(NoLoggingAspect)",
+            returning = "result")
+    public void afterMethod(JoinPoint joinPoint, Object result) {
+        HttpServletRequest request =
+                ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+
+        StringBuilder logStringBuilder = new StringBuilder();
+        String logInfo = logStringBuilder.append("원하는 LOG 내용").toString();
+
+        log.info(logInfo);
+    }
+}
+
+---
+
+package prj.yong.modern.aop;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Target({ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface NoLoggingAspect {}
+
+---
+
+package prj.yong.modern.aop;
+
+import java.util.Set;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.Aspect;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import prj.yong.modern.exception.CustomException;
+
+@Aspect
+@Component
+public class ResponseAspect {
+@Autowired
+private Validator validator;
+
+    @AfterReturning(pointcut = "execution(* modern.controller..*(..))", returning = "response")
+    public void validateResponse(JoinPoint joinPoint, Object response) throws CustomException {
+        validateResponse(response);
+    }
+
+    private void validateResponse(Object object) throws CustomException {
+
+        Set<ConstraintViolation<Object>> validationResults = validator.validate(object);
+
+        if (validationResults.size() > 0) {
+
+            StringBuffer sb = new StringBuffer();
+
+            for (ConstraintViolation<Object> error : validationResults) {
+                sb.append(error.getPropertyPath())
+                        .append(" - ")
+                        .append(error.getMessage())
+                        .append("\n");
+            }
+
+            String msg = sb.toString();
+            throw new CustomException(msg);
+        }
+    }
+}
+
+---
+
+package prj.yong.modern.interceptor;
+
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.jwk.source.RemoteJWKSet;
+import com.nimbusds.jose.proc.JWSKeySelector;
+import com.nimbusds.jose.proc.JWSVerificationKeySelector;
+import com.nimbusds.jose.util.DefaultResourceRetriever;
+import com.nimbusds.jose.util.ResourceRetriever;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
+import com.nimbusds.jwt.proc.DefaultJWTProcessor;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Pattern;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
+import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.ObjectUtils;
+import org.springframework.web.servlet.HandlerInterceptor;
+import prj.yong.modern.constants.HttpHeaderConstant;
+import prj.yong.modern.constants.HttpUrlConstant;
+import prj.yong.modern.exception.CustomException;
+import prj.yong.modern.model.session.SessionVO;
+import prj.yong.modern.service.session.SessionService;
+
+@Component
+public class AuthenticationInterceptor implements HandlerInterceptor {
+
+    private static final String HTTP_METHOD_OPTIONS = "OPTIONS";
+    private final AntPathMatcher antPathMatcher = new AntPathMatcher();
+
+    @Value("${cloud.token.connect.timeout}")
+    private int TOKEN_CONNECT_TIMEOUT;
+
+    @Value("${cloud.token.read.timeout}")
+    private int TOKEN_READ_TIMEOUT;
+
+    @Autowired
+    SessionService sessionService;
+
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+            throws CustomException {
+        String sessionId = request.getHeader(HttpHeaderConstant.SESSION_ID);
+        if (HTTP_METHOD_OPTIONS.equals(request.getMethod())) return true;
+        else if (!ObjectUtils.isEmpty(sessionId)) {
+            String authorization = request.getHeader(HttpHeaderConstant.AUTHORIZATION);
+
+            if (ObjectUtils.isEmpty(authorization)) {
+                throw new CustomException("Authorization is required");
+            }
+
+            if (Pattern.matches("^Bearer .*", authorization)) {
+                authorization = authorization.replaceAll("^Bearer( )*", "");
+            }
+
+            if (!verifyToken(authorization)) {
+                throw new CustomException("Unauthorized");
+            }
+
+            SessionVO sessionUser = sessionService.getSession(sessionId);
+            if (sessionUser == null) {
+                throw new CustomException("Session is expired");
+            } else {
+                //                SessionScopeUtil.setContextSession(sessionUser);
+                return true;
+            }
+        } else if (isExcludePattern(HttpMethod.valueOf(request.getMethod()), request.getRequestURI())) {
+            return true;
+        } else {
+            throw new CustomException("session_id is required");
+        }
+    }
+
+    private boolean verifyToken(String token) {
+        try {
+            JWTClaimsSet jwtClaimsSet = configurableJWTProcessor().process(token, null);
+            String cognitoPoolUrl = String.format("cognito url", "region", "userPoolId");
+            if (!jwtClaimsSet.getIssuer().equals(cognitoPoolUrl)
+                    || !jwtClaimsSet.getAudience().get(0).equals("clientId")
+                    || !jwtClaimsSet.getClaim("token_use").equals("id")) {
+                return false;
+            }
+
+            Date now = new Date(System.currentTimeMillis());
+            if (!now.before(jwtClaimsSet.getExpirationTime())) {
+                return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    private ConfigurableJWTProcessor configurableJWTProcessor() throws MalformedURLException {
+        ResourceRetriever resourceRetriever = new DefaultResourceRetriever(TOKEN_CONNECT_TIMEOUT, TOKEN_READ_TIMEOUT);
+        URL url = new URL(String.format("cognito url", "region", "userPoolId"));
+        JWKSource jwkSource = new RemoteJWKSet(url, resourceRetriever);
+        ConfigurableJWTProcessor configurableJWTProcessor = new DefaultJWTProcessor();
+        JWSKeySelector jwsKeySelector = new JWSVerificationKeySelector(JWSAlgorithm.RS256, jwkSource);
+        configurableJWTProcessor.setJWSKeySelector(jwsKeySelector);
+        return configurableJWTProcessor;
+    }
+
+    private boolean isExcludePattern(HttpMethod httpMethod, String requestUri) {
+        List<String> uriList = HttpUrlConstant.NO_AUTH_SESSION_HTTP_URI.get(httpMethod);
+        for (String uri : uriList) {
+            if (antPathMatcher.match(uri, requestUri)) return true;
+        }
+        return false;
+    }
+}
+
+---
+
+package prj.yong.modern.repository;
+
+import java.util.concurrent.TimeUnit;
+import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.stereotype.Repository;
+import prj.yong.modern.model.session.SessionVO;
+
+@Repository
+public class SessionRepository {
+@Value(value = "${spring.redis.session-ttl}")
+private int redisSessionTtl;
+
+    @Autowired
+    private RedisTemplate<String, SessionVO> redisSessionTemplate;
+
+    /**
+     * @Description
+     * @return
+     */
+    @Resource(name = "redisSessionTemplate")
+    ValueOperations<String, SessionVO> valueOperations;
+
+    public void createSession(String key, SessionVO sessionVO) {
+        /**
+         * @Description
+         * @return
+         */
+        valueOperations.set(key, sessionVO);
+        redisSessionTemplate.expire(key, redisSessionTtl, TimeUnit.SECONDS);
+    }
+
+    public SessionVO getSession(String key) {
+        redisSessionTemplate.expire(key, redisSessionTtl, TimeUnit.SECONDS);
+        return valueOperations.get(key);
+    }
+
+    public Boolean deleteSession(String key) {
+        return redisSessionTemplate.delete(key);
+    }
+}
+
+---
+
+package prj.yong.modern.util;
+
+import lombok.experimental.UtilityClass;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import prj.yong.modern.constants.SessionConstant;
+import prj.yong.modern.model.session.SessionVO;
+
+@UtilityClass
+public class SessionUtil {
+public static void setSessionContext(String key, Object value) {
+RequestContextHolder.getRequestAttributes().setAttribute(key, value, RequestAttributes.SCOPE_REQUEST);
+}
+
+    public static Object getSessionContext(String key) {
+        return RequestContextHolder.getRequestAttributes().getAttribute(key, RequestAttributes.SCOPE_REQUEST);
+    }
+
+    public static void setSession(Object value) {
+        setSessionContext(SessionConstant.sessionKey, value);
+    }
+
+    public static SessionVO getSessionVO() {
+        return (SessionVO) getSessionContext(SessionConstant.sessionKey);
+    }
+}
+
+---
+
+package prj.yong.modern.util;
+
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.experimental.UtilityClass;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import prj.yong.modern.constants.HttpStatusConstant;
+import prj.yong.modern.model.spring.CommonResponseVO;
+
+@UtilityClass
+public class ResponseUtil {
+@JsonSerialize
+public static class EmptyJsonResponse {}
+
+    public static ResponseEntity<CommonResponseVO> createSuccessResponse() {
+        return createSuccessCommonResponseVO(HttpStatusConstant.SUCCESS, null, HttpStatus.OK);
+    }
+
+    public static ResponseEntity<CommonResponseVO> createSuccessResponse(Object data) {
+        return createSuccessResponse(HttpStatusConstant.SUCCESS, data);
+    }
+
+    public static ResponseEntity<CommonResponseVO> createSuccessResponse(String status, Object data) {
+        return createSuccessResponse(status, data, HttpStatus.OK);
+    }
+
+    public static ResponseEntity<CommonResponseVO> createSuccessResponse(
+            String status, Object data, HttpStatus httpStatus) {
+        return createSuccessCommonResponseVO(status, data, httpStatus);
+    }
+
+    private static ResponseEntity<CommonResponseVO> createSuccessCommonResponseVO(
+            String status, Object data, HttpStatus httpStatus) {
+        if (data == null) {
+            data = new EmptyJsonResponse();
+        }
+        return new ResponseEntity<>(
+                CommonResponseVO.builder().status(status).data(data).build(), httpStatus);
+    }
+
+    public static ResponseEntity<CommonResponseVO> createFailResponse() {
+        return createFailResponse(HttpStatus.OK);
+    }
+
+    public static ResponseEntity<CommonResponseVO> createFailResponse(HttpStatus httpStatus) {
+        return createFailResponse(HttpStatusConstant.FAIL, httpStatus);
+    }
+
+    public static ResponseEntity<CommonResponseVO> createFailResponse(String status) {
+        return createFailResponse(status, HttpStatus.OK);
+    }
+
+    public static ResponseEntity<CommonResponseVO> createFailResponse(String status, HttpStatus httpStatus) {
+        return new ResponseEntity<>(createFailCommonResponseVO(status), httpStatus);
+    }
+
+    public static ResponseEntity<CommonResponseVO> createFailResponse(
+            String status, HttpHeaders httpHeaders, HttpStatus httpStatus) {
+        return new ResponseEntity<>(createFailCommonResponseVO(status), httpHeaders, httpStatus);
+    }
+
+    private static CommonResponseVO createFailCommonResponseVO(String status) {
+        return CommonResponseVO.builder().status(status).build();
+    }
+}
+
+---
+
+package prj.yong.modern.constants;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import org.springframework.http.HttpMethod;
+
+public class HttpUrlConstant {
+
+    public static final Map<HttpMethod, List<String>> NO_AUTH_SESSION_HTTP_URI = new EnumMap<>(HttpMethod.class);
+
+    static {
+        String[] getExcludeUrl = {};
+
+        String[] postExcludeUrl = {};
+
+        String[] putExcludeUrl = {};
+
+        String[] deleteExcludeUrl = {};
+
+        NO_AUTH_SESSION_HTTP_URI.put(HttpMethod.GET, new ArrayList<>());
+        NO_AUTH_SESSION_HTTP_URI.put(HttpMethod.POST, new ArrayList<>());
+        NO_AUTH_SESSION_HTTP_URI.put(HttpMethod.PUT, new ArrayList<>());
+        NO_AUTH_SESSION_HTTP_URI.put(HttpMethod.DELETE, new ArrayList<>());
+        NO_AUTH_SESSION_HTTP_URI.put(HttpMethod.PATCH, new ArrayList<>());
+
+        addExcludeHttpPathUrl(HttpMethod.GET, getExcludeUrl);
+        addExcludeHttpPathUrl(HttpMethod.POST, postExcludeUrl);
+        addExcludeHttpPathUrl(HttpMethod.PUT, putExcludeUrl);
+        addExcludeHttpPathUrl(HttpMethod.DELETE, deleteExcludeUrl);
+    }
+
+    private static void addExcludeHttpPathUrl(HttpMethod httpMethod, String[] patternList) {
+        List<String> urlList = NO_AUTH_SESSION_HTTP_URI.get(httpMethod);
+        Collections.addAll(urlList, patternList);
+    }
+}
+
+---
+
+package prj.yong.modern.config;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+@Configuration
+@EnableWebMvc
+public class CorsConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOriginPatterns("*")
+                .allowedMethods("GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
+                .exposedHeaders("Content-Disposition")
+                .allowCredentials(true);
+    }
+}
+
+---
+
+package prj.yong.modern.config;
+
+import java.util.Arrays;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.format.FormatterRegistry;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import prj.yong.modern.config.converter.SpringConverter;
+import prj.yong.modern.interceptor.AuthenticationInterceptor;
+
+@Configuration
+@EnableWebMvc
+public class InterceptorConfig implements WebMvcConfigurer {
+@Autowired
+private AuthenticationInterceptor authenticationInterceptor;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry interceptorRegistry) {
+        List<String> urlPatterns = Arrays.asList("/**");
+        interceptorRegistry
+                .addInterceptor(authenticationInterceptor)
+                .addPathPatterns(urlPatterns)
+                .excludePathPatterns("");
+    }
+
+    /**
+     * @Description
+     *  Controller 단에서 Param으로 enum 형태를 바로 받을 수 있다.
+     *  URL의 경우엔 대부분 소문자로 되어 있고 enum은 대문자로 되어 있기 때문에 이럴 경우 Not Match Error가 발생한다.
+     *  URL에서 넘어온 enum 값을 자동으로 대문자로 변환하도록 아래와 같이 Converter를 추가해줄 수 있다.
+     * @param registry
+     */
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+        registry.addConverter(new SpringConverter());
+    }
+}
+
+---
+
+package prj.yong.modern.config;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
+import prj.yong.modern.model.session.SessionVO;
+
+@Configuration
+@EnableRedisRepositories
+public class RedisConfig {
+
+    @Value(value = "${spring.redis.host}")
+    private String redisHost;
+
+    @Value(value = "${spring.redis.port}")
+    private int redisPort;
+
+    /**
+     * @Description
+     * @return
+     */
+    @Bean
+    public LettuceConnectionFactory connectionFactory() {
+        return new LettuceConnectionFactory(new RedisStandaloneConfiguration(redisHost, redisPort));
+    }
+
+    /**
+     * @Description
+     * @return
+     */
+    @Bean
+    public RedisTemplate<String, SessionVO> redisSessionTemplate() {
+        RedisTemplate<String, SessionVO> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(this.connectionFactory());
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(SessionVO.class));
+        return redisTemplate;
+    }
+}
+
+
+---
+
+package prj.yong.modern.config;
+
+import java.nio.charset.Charset;
+import java.time.Duration;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
+
+/**
+* @Description
+*
+* @Reference
+*   - https://www.baeldung.com/spring-rest-template-builder
+      */
+      @Configuration
+      public class RestTemplateConfig {
+      @Value(value = "${spring.rest-template.connection-timeout}")
+      private int connectionTimeout;
+
+@Value(value = "${spring.rest-template.read-timeout}")
+private int readTimeout;
+
+@Value(value = "${spring.rest-template.max-connection}")
+private int maxConnection;
+
+@Value(value = "${spring.rest-template.max-per-route}")
+private int maxPerRoute;
+
+@Bean
+public RestTemplate restTemplate(final RestTemplateBuilder restTemplateBuilder) {
+HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
+factory.setHttpClient(HttpClientBuilder.create()
+.setMaxConnTotal(maxConnection) // 최대 오픈되는 Connection 수. (연결할 유지할 최대 숫자)
+.setMaxConnPerRoute(maxPerRoute) // IP, PORT 쌍에 대해서 수행할 Connection 수. (특정 경로당 최대 숫자)
+.build());
+return restTemplateBuilder
+.requestFactory(() -> factory)
+.setConnectTimeout(Duration.ofMillis(connectionTimeout)) // connection=timeout
+.setReadTimeout(Duration.ofMillis(readTimeout)) // read-timeout
+.additionalMessageConverters(new StringHttpMessageConverter(Charset.forName("UTF-8")))
+.defaultHeader("Content-Type", "application/json")
+.build();
+}
+}
+
+
 
 Reference
 ===
