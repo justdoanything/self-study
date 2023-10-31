@@ -4,11 +4,14 @@
   * [Spring Handler VO](#spring-handler-vo)
   * [Bean 간 순환 참조 문제](#bean-간-순환-참조-문제)
   * [GET Parameter에서 한글 깨지는 문제](#get-parameter에서-한글-깨지는-문제)
+  * [특정 Class와 필드 이름을 입력 받아서 해당 필드 기준으로 값을 정렬하는 함수](#특정-class와-필드-이름을-입력-받아서-해당-필드-기준으로-값을-정렬하는-함수)
+  * [특정 날짜가 시작일, 마감일 사이인지 체크하는 함수](#특정-날짜가-시작일-마감일-사이인지-체크하는-함수)
 * [SQL](#sql)
-  * [ORDER BY INTSTR](#order-by-intstr)
-  * [ORDER BY FIELD](#order-by-field)
-  * [ORDER BY CASE](#order-by-case)
+  * [ORDER BY INTSTR (검색 조건과 가장 많이 일치하는 순으로 정렬하고 싶을 때)](#order-by-intstr--검색-조건과-가장-많이-일치하는-순으로-정렬하고-싶을-때-)
+  * [ORDER BY FIELD (특정한 값을 우선적으로 정렬하고 싶을 때)](#order-by-field--특정한-값을-우선적으로-정렬하고-싶을-때-)
+  * [ORDER BY CASE (결과값의 첫자리가 숫자 -> 한글 -> 영어 -> 그 외(특수문자)로 정렬하고 싶을 때)](#order-by-case--결과값의-첫자리가-숫자----한글----영어----그-외--특수문자--로-정렬하고-싶을-때-)
   * [IGNORE CASE & INSERT ON DUPLICATATE UPDATE](#ignore-case--insert-on-duplicatate-update)
+  * [REGEXP & REPLACE (구분자로 여러 값을 한번에 조회하고 싶을 때)](#regexp--replace--구분자로-여러-값을-한번에-조회하고-싶을-때-)
 * [React](#react)
   * [React Component](#react-component)
     * [Function - 핸드폰에 있는 주소록처럼 첫글자로 그룹핑하는 함수](#function---핸드폰에-있는-주소록처럼-첫글자로-그룹핑하는-함수)
@@ -261,10 +264,53 @@ public static void sortByFieldName(List target, String fieldName, String orderBy
 }
 ```
 
+## 특정 날짜가 시작일, 마감일 사이인지 체크하는 함수
+```java
+public static boolean isBetweenDateTime(
+        Temporal targetDateTime,
+        Temporal beginDateTime,
+        Temporal endDateTime,
+        boolean isIncludeToday) {
+    if (Objects.isNull(targetDateTime)
+            || Objects.isNull(beginDateTime)
+            || Objects.isNull(endDateTime)) {
+        return false;
+    }
+
+    if (targetDateTime instanceof LocalDate) {
+        LocalDate targetDate = (LocalDate) targetDateTime;
+        LocalDate beginDate = (LocalDate) beginDateTime;
+        LocalDate endDate = (LocalDate) endDateTime;
+
+        if (isIncludeToday) {
+            return (targetDate.isAfter(beginDate) || targetDate.isEqual(beginDate))
+                    && (targetDate.isBefore(endDate) || targetDate.isEqual(endDate));
+        } else {
+            return targetDate.isAfter(beginDate) && targetDate.isBefore(endDate);
+        }
+    } else if (targetDateTime instanceof LocalDateTime) {
+        LocalDateTime targetDateAndTime = (LocalDateTime) targetDateTime;
+        LocalDateTime beginDateAndTime = (LocalDateTime) beginDateTime;
+        LocalDateTime endDateAndTime = (LocalDateTime) endDateTime;
+
+        if (isIncludeToday) {
+            return (targetDateAndTime.isAfter(beginDateAndTime)
+                            || targetDateAndTime.isEqual(beginDateAndTime))
+                    && (targetDateAndTime.isBefore(endDateAndTime)
+                            || targetDateAndTime.isEqual(endDateAndTime));
+        } else {
+            return targetDateAndTime.isAfter(beginDateAndTime)
+                    && targetDateAndTime.isBefore(endDateAndTime);
+        }
+    }
+    return false;
+}
+```
+
 ---
 
 # SQL
-## ORDER BY INTSTR
+## ORDER BY INTSTR (검색 조건과 가장 많이 일치하는 순으로 정렬하고 싶을 때)
 - 검색 조건과 가장 많이 일치하는 순으로 정렬하고 싶을 때 INTSTR(검색 조건으로 시작하는 인덱스를 반환)을 사용한다.
 - `yong`으로 검색한 결과가 `yongwoo`, `leeyong`, `lyong` 라고 했을 때 _INSTR_ 을 사용하면 `GROUP BY 1, 4, 2, name` 순으로 되고 yongwoo, lyong, leeyong 순으로 정렬할 수 있다.
   ```sql
@@ -274,7 +320,7 @@ public static void sortByFieldName(List target, String fieldName, String orderBy
   ORDER BY INSTR(name, #{name}), name
   ```
 
-## ORDER BY FIELD
+## ORDER BY FIELD (특정한 값을 우선적으로 정렬하고 싶을 때)
 - 특정한 값을 우선적으로 정렬할 때 사용한다
   ```sql
   SELECT *
@@ -297,8 +343,8 @@ public static void sortByFieldName(List target, String fieldName, String orderBy
   LIMIT 3
   ```
 
-## ORDER BY CASE
-- name이 결과값을 첫자리가 숫자 -> 한글 -> 영어 -> 그 외(특수문자)로 정렬하는 방법
+## ORDER BY CASE (결과값의 첫자리가 숫자 -> 한글 -> 영어 -> 그 외(특수문자)로 정렬하고 싶을 때)
+- name의 첫자리가 숫자 -> 한글 -> 영어 -> 그 외(특수문자)로 정렬하는 방법
   ```sql
   ORDER BY CASE
     WHEN name REGEXP '^[0-9]' THEN 1
@@ -316,7 +362,7 @@ public static void sortByFieldName(List target, String fieldName, String orderBy
     ON DUPLICATE KEY UPDATE city = VALUES(city)
     ```
 
-## REGEXP & REPLACE
+## REGEXP & REPLACE (구분자로 여러 값을 한번에 조회하고 싶을 때)
 - 구분자로 여러 값을 한번에 조회하고 싶을 때 사용
 ```sql
 SELECT *
