@@ -401,7 +401,243 @@ Netty와 NIO
 
   ![image](https://user-images.githubusercontent.com/21374902/150284969-db228409-e99e-4583-9a52-3de516011a31.png)
 
-- Reference : https://velog.io/@monami/Netty
+- 샘플 코드
+```
+dependencies {
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter', version: '2.4.0'
+    compile group: 'io.netty', name: 'netty-all', version: '4.1.24.Final'
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+    testCompileOnly 'org.projectlombok:lombok:1.18.12'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+}
+```
+```java
+@Component
+@RequiredArgsConstructor
+public class ApplicationStartupTask implements ApplicationListener<ApplicationReadyEvent> {
+
+    private final NettyServerSocket nettyServerSocket;
+
+    @Override
+    public void onApplicationEvent(ApplicationReadyEvent event) {
+        nettyServerSocket.start();
+    }
+}
+```
+```java
+@Slf4j
+@RequiredArgsConstructor
+@Component
+public class NettyServerSocket {
+    private final ServerBootstrap serverBootstrap;
+    private final InetSocketAddress tcpPort;
+    private Channel serverChannel;
+
+    public void start() {
+        try {
+            ChannelFuture serverChannelFuture = serverBootstrap.bind(tcpPort).sync();
+            serverChannel = serverChannelFuture.channel().closeFuture().sync().channel();
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @PreDestroy
+    public void stop() {
+        if (serverChannel != null) {
+            serverChannel.close();
+            serverChannel.parent().closeFuture();
+        }
+    }
+}
+```
+```java
+@Configuration
+@RequiredArgsConstructor
+public class NettyConfiguration {
+
+    @Value("${server.host}")
+    private String host;
+    @Value("${server.port}")
+    private int port;
+    @Value("${server.netty.boss-count}")
+    private int bossCount;
+    @Value("${server.netty.worker-count}")
+    private int workerCount;
+    @Value("${server.netty.keep-alive}")
+    private boolean keepAlive;
+    @Value("${server.netty.backlog}")
+    private int backlog;
+
+    @Bean
+    public ServerBootstrap serverBootstrap(NettyChannelInitializer nettyChannelInitializer) {
+        ServerBootstrap serverBootstrap = new ServerBootstrap();
+        serverBootstrap.group(bossGroup(), workerGroup())
+                .channel(NioServerSocketChannel.class)
+                .handler(new LoggingHandler(LogLevel.DEBUG))
+                .childHandler(nettyChannelInitializer);
+
+        serverBootstrap.option(ChannelOption.SO_BACKLOG, backlog)
+                .childOptiion(ChannelOption.SO_KEEPALIVE, true);
+
+        return serverBootstrap;
+    }
+
+    @Bean(destroyMethod = "shutdownGracefully")
+    public NioEventLoopGroup bossGroup() {
+        return new NioEventLoopGroup(bossCount);
+    }
+
+    @Bean(destroyMethod = "shutdownGracefully")
+    public NioEventLoopGroup workerGroup() {
+        return new NioEventLoopGroup(workerCount);
+    }
+
+    @Bean
+    public InetSocketAddress inetSocketAddress() {
+        return new InetSocketAddress(host, port);
+    }
+}
+```
+```java
+@Component
+public class NettyChannelInitializer extends ChannelInitialzer<SocketChannel> {
+    @Override
+    protected void initChannel(SocketChannel socketChannel){
+        ChannelPipeline channelPipeline = socketChannel.pipeline();
+
+        TestDecoder decoder = new TestDecoder();
+        TestHandler handler = new TestHandler();
+        
+        channelPipeline.addLast(decoder);
+        channelPipeline.addLast(handler);
+    }
+}
+```
+```java
+@Component
+@RequiredArgsConstructor
+public class TestDecoder extends ByteToMessageDecoder {
+    private int DATA_LENGTH = 2048;
+
+    @Override
+    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+        if (in.readableBytes() < DATA_LENGTH) {
+            out.add(in.readBytes(in.readableBytes()));
+        }else {
+            out.add(in.readBytes(DATA_LENGTH));
+        }
+    }
+}
+```
+```java
+@Slf4j
+@Component
+@ChannelHandler.Sharable
+@RequiredArgsConstructor
+public class TestHandler extends ChannelInboundHandlerAdapter {
+    /*  함수 실행 순서
+        handlerAdded
+        channelRegistered
+        channelActive
+        channelRead
+        channelReadComplete
+        channelInactive
+        channelUnregistered
+        handlerRemoved
+     */
+    private int DATA_LENGTH = 2048;
+    private ByteBuf buff;
+
+    @Override
+    public void handlerAdded(ChannelHandlerContext ctx) {
+        buff = ctx.alloc().buffer(DATA_LENGTH);
+    }
+
+    @Override
+    public void handlerRemoved(ChannelHandlerContext ctx) {
+        buff = null;
+    }
+
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) {
+        String remoteAddress = ctx.channel().remoteAddress().toString();
+        log.info("Remote Address: " + remoteAddress);
+    }
+
+
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg){
+        ByteBuf tempBuf = (ByteBuf) msg;
+        log.info("channelRead message size ==> " + tempBuf.readableBytes());
+        buff.writeBytes(tempBuf);
+        tempBuf.release();
+    }
+    
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) throws CommonException {
+        log.info("channelReadComplete total buff size ==> " + buff.readableBytes());
+        
+        if(buff.readableBytes() > 0){
+            Charset charset = Charset.forName("UTF-8");
+            String receiveMessage = buff.toString(charset);
+            
+            // Service 호출 등 비지니스 로직
+            
+            ByteBuffer responseMessage = service.doSomething();
+            
+            ctx.writeAndFlush(Unpooled.wrappedBuffer(responseMessage));
+        }
+        buff.clear();
+    }
+    
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        ctx.close();
+        cause.printStackTrace();
+    }
+}
+```
+```java
+public class NettyClientSocket {
+    public static void main(String[] args) throws IOException {
+        Socket socket = new Socket("localhost", 9999);
+        socket.setSoTimeout(3000);
+        
+        try {
+            OutputStream output = socket.getOutputStream();
+            StringBuffer sb = new StringBuffer();
+            
+            String sendMessage = "hello";
+            log.info("Request ==> " + sendMessage);
+            
+            byte[] sendData = sb.append(sendMessage).toString().getBytes("UTF-8");
+            output.write(sendData);
+            output.flush();
+            
+            InputStream is = socket.getIntputStream();
+            byte[] response = new byte[10000];
+            is.read(response, 0, response.length);
+            
+            log.info("Response ==> " + new String(response));
+        }catch (Excetpion e){
+            e.printStackTrace();
+        }finally {
+            socket.close();
+        }
+        
+    }
+}
+```
+
+- Reference
+  - https://velog.io/@monami/Netty
+  - https://i-hope9.github.io/2020/12/14/SpringBoot-Netty-2-SocketServer.html 
 
 ---
 
