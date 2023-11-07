@@ -168,3 +168,13 @@ SQL Indexing
 - Reference : https://hckcksrl.medium.com/index를-타지않는-쿼리-41f0417bfe03
 
 ---
+
+SQL Tuning
+===
+
+JOIN 할 때 사용되는 필드는 반드시 인덱싱이 걸려있어야 한다.
+
+int형과 varchat형의 타입을 비교할 땐 CAST 해줘야 한다.
+
+실행계획에서 엉뚱한 인덱스가 적용되고 있을 경우 FORCE INDEX를 사용해서 원하는 인덱스를 사용하도록 강제할 수 있다.
+
