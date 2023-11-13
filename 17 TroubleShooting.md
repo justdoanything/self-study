@@ -307,6 +307,62 @@ public static boolean isBetweenDateTime(
 }
 ```
 
+## TCP 통신 - IP 단편화
+- [Netty 관련 정리 및 코드](https://github.com/justdoanything/self-study/blob/main/03%20ApplicationModernization.md#netty와-nio)
+- 문제상황 : 프로젝트에서 TCP Server/Client를 구축하고 테스트하는 과정에서 로컬에서 Server/Client를 구동해서 테스트하면 잘 됐는데 EKS, EC2 환경에서 하면 패킷이 유실되는 문제가 있었다. 원인은 IP 단편화 때문이었다.
+- 원인 : IP fragmentation (단편화)
+  - 패킷이 전송될 때 크기가 `MTU(Maximum Transmission Unit)`을 넘어가면 한번에 전송되지 않는다.
+  - 각 라우터마다 MTU는 다를 수 있고 MTU가 너무 크면 라우터에 따라 재전송해야 하는 이슈가 있고 너무 작으면 송수신에 오버헤드가 커진다.
+  - IP 프로토콜은 network layer의 거의 유일한 프로토콜로 '패킷을 어디로 어떻게 처리할지'를 담당한다. 전송되는 과정중에 fragmentation이 발생하기도 하며, 목적지에 도착하고 나서 재조합된다.
+  - `MTU(Maximum Transmission Unit)`
+    - MTU는 최대 전송 단위로서 TCP/IP Network 등과 같이 패킷 또는 프레임 기반의 네트워크에서 전송될 수 있는 최대 크기의 패킷 또는 프레임을 가리키며 대개 옥텟을 단위로 사용한다.
+    - 4000바이트의 패킷을 전송하려고 하는데 MTU가 1500이다.
+    - 패킷은 아래와 같이 분할된다.
+      - 각 단편 모두 헤더를 가져야 하기 때문에 최대 1480 Bytes로 분할 될 수 있다.
+      - 1번 2번 단편은 뒤에 이어질 단편이 있으므로 More Flag가 1이다.
+      - offset은 8 Bytes 단위로 표시된다.
+
+        | No  | Payload | Header | Flag | Offset |
+        |-----|---------|--------|------|--------|
+        | 1   | 1480    | 20     | 1    | 0      |
+        | 2   | 1480    | 20     | 1    | 185    |
+        | 3   | 1020    | 20     | 0    | 370    |
+- 해결 : 구현했던 Decode 부분을 수정해서 IP 단편화 문제를 해결했다.
+```java
+@Override
+protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+    ByteBuf copyBuf = in.duplicate();
+    String commandString = readString(copyBuf);
+    int packetLength = 0;
+    if(commandString.length() > 6){
+        packetLength = Integer.parseInt(commandString.substring(0,6));
+    }else{
+        return;
+    }
+    
+    if (in.readableBytes() == packetLength) {
+        out.add(in.readBytes(in.readableBytes()));
+    }else{
+        return;
+    }
+}
+
+public String readString(ByteBuf buf) {
+    String result = null;
+    String charSet = "EUC_KR";
+    int bytes = buf.bytesBefore((byte) 0);
+    if (bytes == -1) {
+        bytes = buf.readableBytes();
+        result= buf.toString(buf.readerIndex(), bytes, Charset.forName(charSet));
+        buf.skipBytes(bytes);
+    } else {
+        result = buf.toString(buf.readerIndex(), bytes, Charset.forName(charSet));
+        buf.skipBytes(bytes + 1);
+    }
+    return result;
+}
+```
+
 ---
 
 # SQL
