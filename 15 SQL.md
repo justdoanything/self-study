@@ -171,10 +171,16 @@ SQL Indexing
 
 SQL Tuning
 ===
+1. Index Scan을 위해 조인 대상 필드가 varchar와 Integer이면 Interger를 char로 cast 해야 한다.
+2. Index Range Scan을 위해 힌트를 추가할 수 있다.
+3. Full Scan 등 특정 상황에서 정해진 인덱스를 사용해서 스캔하도록 지정한다.
+4. COUNT(*) 대신에 COUNT(1)를 사용한다.
+5. JOIN에 사용되는 필드는 반드시 인덱싱 대상이어야 한다.
+```sql
+SELECT COUNT(1) -- 4
+/*+ JOIN_ORDER(oi, o) +*/ -- 3
+FROM order_item oi FORCE INDEX(index_order_item_04) -- 2
+LEFT JOIN order o FORCE INDEX(PRIMARY) ON cast(oi.item_id as char) = o.ref_value -- 1,5
+```
 
-JOIN 할 때 사용되는 필드는 반드시 인덱싱이 걸려있어야 한다.
-
-int형과 varchat형의 타입을 비교할 땐 CAST 해줘야 한다.
-
-실행계획에서 엉뚱한 인덱스가 적용되고 있을 경우 FORCE INDEX를 사용해서 원하는 인덱스를 사용하도록 강제할 수 있다.
 
