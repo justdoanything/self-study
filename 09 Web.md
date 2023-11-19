@@ -7,7 +7,7 @@ Web
 * [목차](#목차)
 * [Web Server And WAS](#web-server-and-was)
 * [REST API](#rest-api)
-* [TCP / UDP / HTTP](#tcp--udp--http)
+* [FTP/SFTP, TCP/IP, UDP, HTTP](#ftpsftp-tcpip-udp-http)
 * [Restful API](#restful-api)
 * [PWA (Progressive Web App)](#pwa--progressive-web-app-)
 * [Web App 비교](#web-app-비교)
@@ -231,35 +231,49 @@ REST API
             - Operation에서 사용하는 파라미터가 기존 것은 그대로 유지된 상태이고 새로 추가
 
 ---
-TCP / UDP / HTTP
+FTP/SFTP, TCP/IP, UDP, HTTP
 ===
-- ### IP (Internet Protocol)
-    - IP 패킷은 우체국 송장처럼 전송 데이터를 무사히 목적지까지 전송하기 위해 출발지 IP, 목적지 IP와 같은 정보가 포함되어 있습니다.
-    - 한계점
-        - 비연결성 : 패킷을 받을 대상이 없거나 서비스 불능 상태여도 패킷을 전송
-        - 비신뢰성 : 전송 과정에서 패킷이 사라질 수 있고 순서를 보장하지 않음
+## FTP/SFTP (File Transfer Protocol/Secure File Transfer Protocol)
+- 파일 전송에 사용되며, SFTP는 보안을 강화한 버전입니다.
+- 주로 응용 계층에서 사용되며, 전송 계층(TCP)을 기반으로 동작합니다.
+- SFTP는 SSH(암호화된 터널을 만들어주는 프로토콜) 위에서 동작하므로 보안이 강화됩니다.
 
+## TCP/IP (Transmission Control Protocol/Internet Protocol)
+- 신뢰성 있는 연결 기반의 프로토콜로, 데이터의 순서와 에러 복구를 보장합니다.
+- 전송 계층(TCP)과 네트워크 계층(IP)에서 동작합니다.
+- 신뢰성 있는 데이터 전송이 필요한 응용에 적합합니다.
 - ### TCP (Transmission Control Protocol)
-    - 네트워크에서 데이터를 송수신할 수 있도록 IP 패킷을 사용하기 전에, TCP 데이터를 소켓에 담기고 그 데이터가 IP 패킷에 담겨 전송됩니다.
-    - TCP Segment에는 IP 패킷의 출발지 IP/PORT, 목적지 IP/PORT, 전송 제어, 순서 등의 정보를 포함하고 있습니다.
-    - IP 의 한계였던 데이터 전달과 순서를 보증 및 보장하고, TCP 3 way Handshake를 통한 연결 지향적 프로토콜로, 신뢰성 있는 프로토콜입니다
-    - TCP 3 Ways Handshake
-        - 클라이언트는 서버에 접속을 요청하는 SYN(Syncronize) 패킷을 보냅니다.
-        - 서버는 SYN 패킷을 받고, 클라이언트에게 접속 요청을 수락한다는 ACK(Acknowledgment)와 SYN가 설정된 패킷을 발송합니다.
-        - 클라이언트가 서버에게 ACK 요청을 보냅니다. 이후로 클라이언트와 서버간의 연결이 성립됩니다.
-        - 데이터를 전송합니다.
+  - 네트워크에서 데이터를 송수신할 수 있도록 IP 패킷을 사용하기 전에, TCP 데이터를 소켓에 담기고 그 데이터가 IP 패킷에 담겨 전송됩니다.
+  - TCP Segment에는 IP 패킷의 출발지 IP/PORT, 목적지 IP/PORT, 전송 제어, 순서 등의 정보를 포함하고 있습니다.
+  - IP 의 한계였던 데이터 전달과 순서를 보증 및 보장하고, TCP 3 way Handshake를 통한 연결 지향적 프로토콜로, 신뢰성 있는 프로토콜입니다
+  - TCP 3 Ways Handshake
+    - 클라이언트는 서버에 접속을 요청하는 SYN(Syncronize) 패킷을 보냅니다.
+    - 서버는 SYN 패킷을 받고, 클라이언트에게 접속 요청을 수락한다는 ACK(Acknowledgment)와 SYN가 설정된 패킷을 발송합니다.
+    - 클라이언트가 서버에게 ACK 요청을 보냅니다. 이후로 클라이언트와 서버간의 연결이 성립됩니다.
+    - 데이터를 전송합니다.
+- ### IP (Internet Protocol)
+  - IP 패킷은 우체국 송장처럼 전송 데이터를 무사히 목적지까지 전송하기 위해 출발지 IP, 목적지 IP와 같은 정보가 포함되어 있습니다.
+  - 한계점
+    - 비연결성 : 패킷을 받을 대상이 없거나 서비스 불능 상태여도 패킷을 전송
+    - 비신뢰성 : 전송 과정에서 패킷이 사라질 수 있고 순서를 보장하지 않음
 
 <img width="763" alt="image" src="https://user-images.githubusercontent.com/21374902/184526572-79632bbe-7a80-4620-8b35-b973f9134499.png">
 
-- ### UDP(User Datagram Protocol)
-    - IP에 PORT, 체크섬 필드 정보만 추가된 TCP 보다 단순한 프로토콜입니다.
-    - 신뢰성이 낮고 순서를 보증하지 않지만 빠른 속도를 보장합니다.
-    - 비 연결지향이고 데이터 수신 여부를 확인하지 않습니다.
+## UDP (User Datagram Protocol)
+- 비연결성, 신뢰성이 낮지만 속도가 빠르며 실시간 통신에 적합합니다.
+- 전송 계층(UDP)에서 동작합니다.
+- 실시간 음성 및 비디오 스트리밍과 같이 신속한 데이터 전송이 중요한 응용에 적합합니다.
+- IP에 PORT, 체크섬 필드 정보만 추가된 TCP 보다 단순한 프로토콜입니다.
+- 신뢰성이 낮고 순서를 보증하지 않지만 빠른 속도를 보장합니다.
+- 비 연결지향이고 데이터 수신 여부를 확인하지 않습니다.
 
-- ### HTTP (HyperText Transfer Protocol)
-    - HTTP는 Server-Client 구조를 갖습니다.
-    - 서버가 클라이언트의 상태를 보존하지 않는 무상태(Stateless) Protocol 입니다. 따라서 서버 확장이 용이합니다.
-    - HTTP는 비연결성을 유지하기 때문에 최소한의 자원으로 서버 유지가 가능합니다.
+## HTTP (Hypertext Transfer Protocol))
+- 웹에서 문서를 전송하는 데 사용되며, 주로 비연결성이며 상태를 유지하지 않는 특징이 있습니다.
+- 응용 계층(HTTP)에서 동작하며, 전송 계층으로는 보통 TCP를 사용합니다.
+- 웹 브라우저와 웹 서버 간의 텍스트, 이미지, 비디오 등의 데이터 전송에 사용됩니다. 
+- HTTP는 Server-Client 구조를 갖습니다.
+- 서버가 클라이언트의 상태를 보존하지 않는 무상태(Stateless) Protocol 입니다. 따라서 서버 확장이 용이합니다.
+- HTTP는 비연결성을 유지하기 때문에 최소한의 자원으로 서버 유지가 가능합니다.
 
 - Reference
     - https://velog.io/@shitaikoto/CS-IP-TCP-UDP-HTTP
