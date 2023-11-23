@@ -1,4 +1,17 @@
 <!-- TOC -->
+* [Bundling & vite](#bundling--vite)
+  * [번들링이란?](#번들링이란)
+    * [모듈 번들러](#모듈-번들러)
+    * [빌드](#빌드)
+    * [번들링](#번들링)
+  * [Vite란?](#vite란)
+    * [Vite를 사용해야 하는 이유](#vite를-사용해야-하는-이유)
+      * [지루할 정도로 길었던 서버 구동](#지루할-정도로-길었던-서버-구동)
+      * [느렸던 소스 코드 갱신](#느렸던-소스-코드-갱신)
+      * [배포 시 번들링 과정이 필요한 이유](#배포-시-번들링-과정이-필요한-이유)
+      * [왜 번들링 시에는 Esbuild를 사용하지 않나요?](#왜-번들링-시에는-esbuild를-사용하지-않나요)
+      * [vite와 다른 도구의 차이점](#vite와-다른-도구의-차이점)
+  * [Reference](#reference)
 * [React](#react)
   * [React의 시작지점 파악해보기](#react의-시작지점-파악해보기)
   * [React를 사용하는 이유](#react를-사용하는-이유)
@@ -11,7 +24,7 @@
     * [Prop](#prop)
     * [Cleanup](#cleanup)
     * [useState & useEffect & useMemo & useCallback](#usestate--useeffect--usememo--usecallback)
-  * [Reference](#reference)
+  * [Reference](#reference-1)
 * [Nextjs](#nextjs)
   * [Next.js 의 개념과 주요 기능](#nextjs-의-개념과-주요-기능)
   * [요약해보기](#요약해보기)
@@ -27,18 +40,68 @@
     * [CssBaseline](#cssbaseline)
     * [react-next-keep-alive](#react-next-keep-alive)
     * [HOC (Higher Order Component)](#hoc--higher-order-component-)
-  * [Reference](#reference-1)
+  * [Reference](#reference-2)
 * [React Admin](#react-admin)
   * [Fetch Data](#fetch-data)
   * [Form 이동과 제어](#form-이동과-제어)
   * [Form 기본기능](#form-기본기능)
-  * [Reference](#reference-2)
+  * [Reference](#reference-3)
 * [상태관리](#상태관리)
   * [Recoil](#recoil)
-  * [Reference](#reference-3)
+  * [Reference](#reference-4)
 <!-- TOC -->
 
---- 
+---
+Bundling & vite
+===
+## 번들링이란?
+- 여러 제품이나 코드, 프로그램을 묶어서 패키지로 제공하는 행위
+- 사용자에게 웹 어플리케이션을 제공하기 위한 파일을 묶는 행위
+
+### 모듈 번들러
+- HTML, CSS, Javascript 등의 자원을 전부 각각의 모듈로 보고 이를 조합해 하나의 묶을으로 번들링하는 도구
+- 복잡성에 대응하기 위해 하나의 시작점(index.tsx 등)으로부터 의존성을 갖는 모듈을 모두 추적하여 하나의 결과물을 생성
+
+### 빌드
+- 개발이 완료된 앱을 배포하기 위해 하나의 폴더로 구성하여 준비하는 작업
+- React는 npm run build를 실행하면 index.html 파일에 압축되어 배포에 최적화된 상태를 제공
+
+### 번들링
+- 파일을 묶는 작업으로 여러 파일은 의존적 관계에 있는 파일들과 내부적으로 포함되어 있는 모듈
+- 모듈 간의 의존성 관계를 파악해서 그룹화 하는 작업
+- 웹 애플리케이션의 빠른 로딩과 높은 성능을 위해서 필요하다.
+- webpack : 여러 개의 파일을 하나의 파일로 합쳐주는 모듈 번들러를 의미
+
+## Vite란?
+- 빠르고 간결한 모던 웹 프로젝트 개발 경험에 초점을 맞춰 탄생한 빌드 도구
+- Native ES Module을 넘어 HMR과 같은 다양한 기능을 제공
+- `Native ES Module` : JavaScript에서 공식적으로 지원하는 ECMAScript 표준 모듈 시스템으로 JavaScript 파일 간의 모듈화를 위한 표준 방식을 제공하고 파일을 분리하고 다른 파일에서 필요한 기능을 가져와 사용할 수 있도록 한다.(import, export)
+  - 모듈은 단일 인스턴스로 로드되기 때문에 동일한 모듈을 여러 곳에서 import 해도 해당 모듈은 한 번만 로드된다.
+  - 필요한 시점에 비동기적으로 로딩된다.
+  - 모듈 간의 의존성이 미리 파악되기 때문에 불필요한 모듈은 로드되지 않는다.
+- `HMR(Hot Module Replacement)` : 애플리케이션이 실행되는 동안 코드가 변경됐을 때 자동으로 적용해주는 기능
+  번들링 시, Rollup 기반의 다양한 빌드 커맨드를 사용할 수 있어서 높은 수준으로 최적화된 정적 리소스들을 배포할 수 있도록 하며 미리 정의된 설정을 제공
+
+### Vite를 사용해야 하는 이유
+- 브라우저에서 ES Module을 지원하기 전까지 JavaScript 모듈화를 네이티브 레벨에서 진행할 수 없어서 소스 모듈을 브라우저에서 실행할 수 있는 파일로 크롤링, 처리 및 연결하는 Webpack, Rollup, Parcel과 같은 번들링 도구를 사용했습니다.
+- 현대 애플리케이션에선 모듈의 개수가 기하급수적으로 증가되면서 성능 병목 현상이 발생하거나 서버 구동 시간이 오래 걸리고 HMR을 사용해도 변경된 파일이 적용될 때 까지 수 초 이상 소요됐었습니다. Vite는 이런 부분에 초점을 맞춰 브라우저에서 지원하는 ES Module 및 네이티브 언어로 작성된 JavaScript 도구 등을 활용해 문제를 해결하고자 합니다.
+
+#### 지루할 정도로 길었던 서버 구동
+- 콜드 스타트(최초로 실행되어 이전에 캐싱한 데이터가 없는 경우) 방식으로 개발 서버를 구동할 때 번들러 기반의 도구는 애플리케이션 내 모든 소스 코드에 대해 크롤링 및 빌드 작업을 마쳐야지만 실제 페이지를 제공할 수 있었습니다.
+- vite는 애플리케이션의 모듈을 dependencies와 source code 2가지로 나누고 개발 서버의 시작 시간을 개선합니다.
+- dependencies : 개발 시 내용이 바뀌지 않을 Plain JavaScript 소스 코드입니다. 기존 번들러는 무거운 디펜던시에 대한 번들링 과정이 매우 비효율적이고 많은 시간을 필요로 했습니다. Vite의 사전 번들링 기능은 EsBuild를 사용하고 Go로 작성된 Esbuild는 Webpack과 같은 기존 번들러 대비 10~100배 빠른 속도를 제공한다.
+- Source code : JSX, CSS, Vue/Svelte 컴포넌트와 같이 컴파일링이 필요하고 수정 또한 매우 잦은 Non-plain JavaScript 소스 코드입니다. Vite는 Native ES Module을 이용해 소스 코드를 제공하고 브라우저가 번들러 작업의 일부를 차지할 수 있도록 합니다. vite는 브라우저가 요청하는 대로 소스 코드를 변환하고 제공하기만 합니다. 조건부 동적 import 이후의 코드는 현재 화면에서 실제로 사용되는 경우에만 처리됩니다.
+#### 느렸던 소스 코드 갱신
+#### 배포 시 번들링 과정이 필요한 이유
+#### 왜 번들링 시에는 Esbuild를 사용하지 않나요?
+#### vite와 다른 도구의 차이점
+
+## Reference
+- [React 번들링과 웹팩](https://velog.io/@starrypro/React-%EB%B2%88%EB%93%A4%EB%A7%81%EA%B3%BC-%EC%9B%B9%ED%8C%A9)
+- [Vite](https://ko.vitejs.dev/guide/)
+
+
+---
 
 # React
 
