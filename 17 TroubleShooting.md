@@ -428,6 +428,11 @@ WHERE user_name REGEXP REPLACE(REPLACE(#{userNames},' ',''),',','|')
 ```
 
 ## MySQL Table Lock 해결
+- ALTER TABLE을 할 때 LOCK을 방지하기 위한 옵션
+  ```sql
+  ALTER TABLE ...
+  , ALGORITHM=INPLACE, LOCK=NONE;
+  ```
 - 일반적으로 LOCK 걸린 테이블을 확인하고 해결하는 방법
   ```sql
   # LOCK 확인
