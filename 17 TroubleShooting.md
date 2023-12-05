@@ -12,6 +12,7 @@
   * [ORDER BY CASE (결과값의 첫자리가 숫자 -> 한글 -> 영어 -> 그 외(특수문자)로 정렬하고 싶을 때)](#order-by-case--결과값의-첫자리가-숫자----한글----영어----그-외--특수문자--로-정렬하고-싶을-때-)
   * [IGNORE CASE & INSERT ON DUPLICATATE UPDATE](#ignore-case--insert-on-duplicatate-update)
   * [REGEXP & REPLACE (구분자로 여러 값을 한번에 조회하고 싶을 때)](#regexp--replace--구분자로-여러-값을-한번에-조회하고-싶을-때-)
+  * [MySQL Table Lock 해결](#MySQL-Table-Lock-해결)
 * [React](#react)
   * [React Component](#react-component)
     * [Function - 핸드폰에 있는 주소록처럼 첫글자로 그룹핑하는 함수](#function---핸드폰에-있는-주소록처럼-첫글자로-그룹핑하는-함수)
@@ -425,6 +426,44 @@ SELECT *
 FROM users
 WHERE user_name REGEXP REPLACE(REPLACE(#{userNames},' ',''),',','|')
 ```
+
+## MySQL Table Lock 해결
+- 일반적으로 LOCK 걸린 테이블을 확인하고 해결하는 방법
+  ```sql
+  # LOCK 확인
+  SHOW PROCESSLIST;
+
+  # 프로세스 삭제
+  KILL ${PID};
+  ```
+- 하지만 `SHOW PROCESSLIST`에서 발견되지 않는 lock이 존재할 수 있습니다. `SHOW OPEN TABLES` 명령을 통해서 In_use 값을 조회하거나 의심되는 테이블에 조건을 걸어서 조회할 수 있습니다.
+  ```sql
+  SHOW OPEN TABLES WHERE In_use > 0;
+  ```
+- `SHOW OPEN TABLES` 명령어를 통해서 의심되는 테이블을 찾았다고 해도 `SHOW PROCESSLIST`에서 PID가 조회되지 않기 때문에 어떤 조치를 취하기 어렵습니다.
+- MySQL의 메타데이터 락
+  - 공식문서 : https://dev.mysql.com/doc/refman/8.0/en/metadata-locking.html
+  - MySQL의 메타데이터 락은 5.5 버전부터 생긴 개념으로 MySQL 서버는 메타데이터 락을 통해서 데이터베이스 개체(프로시저, 함수, 테이블, 트리거 등)에 대한 concurrent 요청을 관리하고 데이터 일관성을 보장합니다.
+  - 메타데이터 락은 두 경우에 의해 발생됩니다.
+    - 개체에 대한 변경작업을 시작할 때, 이 때 생기는 메타데이터 락은 ALTER 를 시도하는 세션을 kill 하면 됩니다.
+    - 개체에 대한 변경작업을 마무리할 때, 메타데이터 락을 유발하는 세션을 찾아서 kill 해야하는데 holder session를 찾아야 합니다.
+  - performance_schema 에서 threads 테이블과 processlist_info 테이블을 조합해서 어떤 세션이 메타데이터 락을 유발하고 있는지 찾고 kill 하면 됩니다.
+    ```sql
+    SELECT b.OBJECT_TYPE,
+           b.OBJECT_SCHEMA,
+           b.OBJECT_NAME,
+           b.LOCK_TYPE,
+           b.LOCK_STATUS,
+           c.THREAD_ID,
+           c.PROCESSLIST_ID,
+           c.PROCESSLIST_INFO
+    FROM information_schema.metadata_locks a
+      JOIN performance_schema.metadata_locks b ON a.OWNER_THREAD_ID <> b.OWNER_THREAD_ID
+                                                  AND a.OBJECT_NAME = b.OBJECT_NAME
+                                                  AND a.LOCK_STATUS = 'PENDING'
+      JOIN performance_schema.threads c ON b.OWNER_THREAD_ID = c.THREAD_ID;
+    ```
+- 참고자료 : https://leezzangmin.tistory.com/51
 
 ---
 
