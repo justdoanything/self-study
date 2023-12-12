@@ -6,13 +6,14 @@
   * [GET Parameter에서 한글 깨지는 문제](#get-parameter에서-한글-깨지는-문제)
   * [특정 Class와 필드 이름을 입력 받아서 해당 필드 기준으로 값을 정렬하는 함수](#특정-class와-필드-이름을-입력-받아서-해당-필드-기준으로-값을-정렬하는-함수)
   * [특정 날짜가 시작일, 마감일 사이인지 체크하는 함수](#특정-날짜가-시작일-마감일-사이인지-체크하는-함수)
+  * [TCP 통신 - IP 단편화](#tcp-통신---ip-단편화)
 * [SQL](#sql)
   * [ORDER BY INTSTR (검색 조건과 가장 많이 일치하는 순으로 정렬하고 싶을 때)](#order-by-intstr--검색-조건과-가장-많이-일치하는-순으로-정렬하고-싶을-때-)
   * [ORDER BY FIELD (특정한 값을 우선적으로 정렬하고 싶을 때)](#order-by-field--특정한-값을-우선적으로-정렬하고-싶을-때-)
   * [ORDER BY CASE (결과값의 첫자리가 숫자 -> 한글 -> 영어 -> 그 외(특수문자)로 정렬하고 싶을 때)](#order-by-case--결과값의-첫자리가-숫자----한글----영어----그-외--특수문자--로-정렬하고-싶을-때-)
   * [IGNORE CASE & INSERT ON DUPLICATATE UPDATE](#ignore-case--insert-on-duplicatate-update)
   * [REGEXP & REPLACE (구분자로 여러 값을 한번에 조회하고 싶을 때)](#regexp--replace--구분자로-여러-값을-한번에-조회하고-싶을-때-)
-  * [MySQL Table Lock 해결](#MySQL-Table-Lock-해결)
+  * [MySQL Table Lock 해결](#mysql-table-lock-해결)
 * [React](#react)
   * [React Component](#react-component)
     * [Function - 핸드폰에 있는 주소록처럼 첫글자로 그룹핑하는 함수](#function---핸드폰에-있는-주소록처럼-첫글자로-그룹핑하는-함수)
@@ -42,6 +43,7 @@
     * [Mapped Type](#mapped-type)
     * [Object.keys & Object.entries & Object.values](#objectkeys--objectentries--objectvalues)
     * [Partial & Pick & Omit](#partial--pick--omit)
+    * [InView 처리 (react-intersection-observer)](#inview-처리--react-intersection-observer-)
   * [formik & yup & 깊은 복사](#formik--yup--깊은-복사)
     * [formik](#formik)
     * [yup](#yup)
@@ -1650,7 +1652,7 @@ const getQueryStringFormat = (queryParams?: QueryParams): string => {
 - Reference
   - https://kyounghwan01.github.io/blog/TS/fundamentals/utility-types/#partial
   
-### InView 초리 (react-intersection-observer)
+### InView 처리 (react-intersection-observer)
 ```typescript
 import Box from '@/components/Box';
 import { FC, PropsWithChildren, useState } from 'react';
