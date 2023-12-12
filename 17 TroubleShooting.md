@@ -1606,6 +1606,31 @@ const getQueryStringFormat = (queryParams?: QueryParams): string => {
 - Reference
   - https://kyounghwan01.github.io/blog/TS/fundamentals/utility-types/#partial
   
+### InView 초리 (react-intersection-observer)
+```typescript
+import Box from '@/components/Box';
+import { FC, PropsWithChildren, useState } from 'react';
+import { InView, IntersectionOptions } from 'react-intersection-observer';
+
+interface InViewProps extends IntersectionOptions, Pick<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, 'className' | 'style'> {}
+
+const CommunityInView: FC<PropsWithChildren<InViewProps>> = ({ children, ...props }) => {
+  const [isShow, setIsShow] = useState<boolean>(false);
+
+  return (
+    <InView {...props}
+            onChange={(inView: boolean) => {
+              setIsShow(inView);
+            }}
+      rootMargin={'48% 0px 48% 0px'}
+    >
+      {isShow ? children : <Box style={{ visibility: 'hidden' }}>{children}</Box>}
+    </InView>
+  );
+};
+
+export default CommunityInView;
+```
 
 ## formik & yup & 깊은 복사
 ### formik
