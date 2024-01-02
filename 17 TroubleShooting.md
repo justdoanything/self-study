@@ -363,7 +363,7 @@ public String readString(ByteBuf buf) {
         buf.skipBytes(bytes + 1);
     }
     return result;
-}
+} 
 ```
 
 ## 무한 스크롤 구현 고려사항
