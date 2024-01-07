@@ -39,11 +39,15 @@
 
 Intro
 ===
-Spring은 Library가 아닌 Framework이고 Spring이 구동되면서 우리가 짜놓은 코드를 사용한다.
-Spring은 jackson 등 기본적으로 많인 기능들을 기본적으로 제공하며
-특정한 상황에서 개발자가 원하는 기능을 추가할 수 있도록 확장성을 제공한다.
+Spring은 Library가 아닌 Framework 이기 때문에 Spring이 구동되면서 우리가 짜놓은 코드를 사용한다.
+Spring은 jackson 등 기본적으로 많은 기능들을 기본적으로 제공하여 생산성을 높여주며 특정한 상황에서 개발자가 원하는 기능을 추가할 수 있도록 확장성을 제공한다.
 
-부록 : Spring과 SpringBoot의 차이점
+Spring AOP를 시작으로 Modern Application에서 Spring은 어떻게 사용되고 있으며, Spring이 기본적으로 제공하는 기능을 개발자가 어떻게 활용해서 특정 기능을 추가할 수 있을지 알아본다. 
+또한, 실제 프로젝트에서 사용했던 Spring AOP 방법과 개발하면서 고민하고 사용했던 내용들을 정리한다.
+
+[실제 코드와 테스트 코드](https://github.com/justdoanything/self-study/tree/main/Modern/SpringBoot/MODERN)를 작성하면서 아래 내용을 작성한다.
+
+부록 : [Spring과 SpringBoot의 차이점](https://github.com/justdoanything/self-study/blob/main/10%20Spring.md#spring-boot)
 
 ---
 

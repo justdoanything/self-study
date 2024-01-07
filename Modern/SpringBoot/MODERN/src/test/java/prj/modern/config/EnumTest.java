@@ -1,5 +1,6 @@
 package prj.modern.config;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,6 +20,7 @@ public class EnumTest {
     private MockMvc mockMvc;
 
     @Test
+    @DisplayName()
     public void doTestEnumConverterPathVariable() throws Exception {
         mockMvc.perform(get("/v1/test/enum/converter/path-variable/GOOGLE")
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
