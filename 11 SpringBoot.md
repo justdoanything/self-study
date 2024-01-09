@@ -1130,59 +1130,75 @@ public class prohibitedWordService {
 
 자주 쓰이는 Controller Annotation
 ===
+```java
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/order")
-
-@Tag(name = "Order", description = "주문 API")
-@Operation(summary = "주문 조회", description = "주문 조회 API")
-
-@GetMapping
-@PostMapping
-@PutMapping
-@DeleteMapping
-@PatchMapping
-- path
-- produces
-- consumes
-
-@PathVariable
-@RequestBody :  POST 또는 PUT
-@RequestParam
-
-@PathVariable: URL 경로에서 변수를 추출하는 데 사용됩니다. 주로 RESTful 웹 서비스에서 경로 매개변수를 추출하는 데 쓰입니다.
-URL 경로에서 특정 부분을 변수로 설정하고 사용하려면 @PathVariable을 사용합니다. 예를 들어, /products/{id}와 같은 경로에서 id를 추출할 때 사용합니다.
-
-@RequestParam: 요청의 쿼리 매개변수(파라미터)를 추출하는 데 사용됩니다. URL의 ? 뒤에 오는 매개변수를 읽어옵니다.
-쿼리 매개변수를 추출할 때 사용합니다. 예를 들어, /products?id=123와 같이 URL에서 id를 추출할 때 사용합니다.
-
-@Valid
+@RequiredArgsConstructor
+@Api(tags = "Order", description = "주문 API")
+public class VanController {
+    
+}
+```
+- ## Class
+  - ### @RestController
+  - ### @RequiredArgsConstructor
+  - ### @RequestMapping
+  - ### @RequiredArgsConstructor
+  - ### @Api, @Tag
+    - @Tag(name = "Order", description = "주문 API")
+    - @Operation(summary = "주문 조회", description = "주문 조회 API")
+- ## Method
+  - ### @ApiOperation, @Operation
+  - ### @RequestMapping
+    - #### @GetMapping
+    - #### @PostMapping
+    - #### @PutMapping
+    - #### @DeleteMapping
+    - #### @PatchMapping
+    - #### path, produces, consumes
+- ## Parameter
+  - ### @PathVariable
+    - Method : `GET`
+    - URL 경로에서 변수를 추출하는 데 사용됩니다. 주로 RESTful 웹 서비스에서 경로 매개변수를 추출하는 데 쓰입니다.
+    - URL 경로에서 특정 부분을 변수로 설정하고 사용하려면 @PathVariable을 사용합니다. 예를 들어, /products/{id}와 같은 경로에서 id를 추출할 때 사용합니다.
+  - ### @RequestParam
+    - Method : `GET`
+    - 요청의 쿼리 매개변수(파라미터)를 추출하는 데 사용됩니다. URL의 ? 뒤에 오는 매개변수를 읽어옵니다.
+    - 쿼리 매개변수를 추출할 때 사용합니다. 예를 들어, /products?id=123와 같이 URL에서 id를 추출할 때 사용합니다.
+  - ### @RequestBody
+    - Method : `POST`, `PUT`, `PATCH`
+    - HTTP 요청의 본문(body) 부분을 특정 자바 객체로 매핑하도록 지시합니다.
+    - 주로 POST나 PUT 요청과 함께 사용되며, 클라이언트가 JSON 또는 XML 형식으로 데이터를 전송할 때 사용됩니다.
+    - 예를 들어, 클라이언트가 JSON으로 데이터를 보내고 이를 자바 객체로 변환하려면 @RequestBody를 사용합니다.
+  - ### @Valid
 
 ---
 
 자주 쓰이는 Service Annotation
 ===
-@RequiredArgsConstructor
-@Service
-@Validated
-@Transactional
-- readOnly
-- rollbackFor
-- noRollbackFor
-- propagation
-- isolation
-- timeout
+- ## Class
+  - ### @Service
+  - ### @RequiredArgsConstructor
+  - ### @Validated
+- ## Method
+  - ### @Transactional
+    - #### readOnly
+    - #### rollbackFor
+    - #### noRollbackFor
+    - #### propagation
+    - #### isolation
+    - #### timeout
 
 ---
 
 자주 쓰이는 Model Annotation
 ===
-@AllArgsConstrutor(access = AccessLevel.PRIVATE)
-@NoArgsConstrutor
-@Data
-@Builder
-@SuperBuilder
-
+- ## Class
+  - ### @AllArgsConstrutor(access = AccessLevel.PRIVATE)
+  - ### @NoArgsConstrutor
+  - ### @Data
+  - ### @Builder, @SuperBuilder
+- ## Method
 
 ---
 
