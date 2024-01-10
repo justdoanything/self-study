@@ -19,16 +19,20 @@
   * [Serializer/Deserializer](#serializerdeserializer)
   * [HandlerMethodArgumentResolver](#handlermethodargumentresolver)
   * [ObjectMapper](#objectmapper)
+    * [JSON 요청을 Java 객체로 역직렬화](#json-요청을-java-객체로-역직렬화)
+    * [Java 객체를 JSON 응답으로 직렬화](#java-객체를-json-응답으로-직렬화)
 * [Exception 공통 처리 - Exception Advice](#exception-공통-처리---exception-advice)
   * [@ExceptionHandler](#exceptionhandler)
   * [@ControllerAdvice](#controlleradvice)
   * [@ControllerAdvice와 @RestControllerAdvice](#controlleradvice와-restcontrolleradvice)
 * [Service Interface는 왜 만들어야 할까?](#service-interface는-왜-만들어야-할까)
+  * [Service Interface](#service-interface)
+  * [JDK Dynamic Proxy와 CGLIB Proxy](#jdk-dynamic-proxy와-cglib-proxy)
 * [Aspect](#aspect-1)
 * [자주 쓰이는 Controller Annotation](#자주-쓰이는-controller-annotation)
 * [자주 쓰이는 Service Annotation](#자주-쓰이는-service-annotation)
 * [자주 쓰이는 Model Annotation](#자주-쓰이는-model-annotation)
-* [@Transactional](#transactional)
+* [@Transactional](#transactional-1)
 * [Request와 Response](#request와-response)
 * [Redis](#redis)
 * [Flyway](#flyway)
@@ -926,7 +930,14 @@ public class ExceptionAdvisor {
 
 Service Interface는 왜 만들어야 할까?
 ===
-예전부터 Spring을 사용한 사람이라면 Service를 구현할 때 Interface Service와 SericeImpl을 구현하는게 익숙할 수 있다. 규칙처럼 무심코 만들어서 사용했었는데 Interface Service를 사용하는 이유를 ChatGPT에게 물어보면 아래와 같은 답변을 한다.
+
+## Service Interface
+
+예전부터 Spring을 사용했던 개발자라면 Service를 구현할 때 아래 사진처럼 Interface Service와 ServiceImpl을 한 쌍으로 구현하는 코드를 볼 수 있었을 것이다.
+
+<img width="225" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/c0dff341-321d-4251-881c-d6be62c62fb0">
+
+규칙처럼 무심코 만들어서 사용했었는데 Interface Service를 사용하는 이유를 ChatGPT에게 물어보면 아래와 같은 답변을 얻을 수 있습니다.
 1. 추상화와 구체화의 분리 : 인터페이스를 사용하면 추상적인 개념과 구체적인 구현을 분리할 수 있다. 인터페이스는 서비스의 기능과 동작을 정의하고 실제 구현은 해당 인터페이스를 구현하는 클래스에서 수행된다. 이렇게 함으로써, 클라이언트는 인터페이스를 통해 서비스에 접근하고 사용할 수 있으며 실제 구현에 대한 의존성 줄일 수 있다.
 2. 유연성과 확장성 : 인터페이스를 사용하면 다른 구현을 손쉽게 교체할 수 있다. 예를 들어, 기존의 ServiceImpl 클래스를 다른 구현 클래스로 교체하더라도 클라이언트는 인터페이스를 통해 동일한 방식으로 서비스를 사용할 수 있다. 이는 유연성과 확장성을 높여준다.
 3. 단위 테스트 : 인터페이스를 사용하면 단위 테스트를 수행할 때, Mock 객체를 이용하여 테스트를 할 수 있다. Mock 객체는 인터페이스를 구현한 가짜 객체로 실제 구현과는 독립적으로 동작하여 테스트를 더욱 쉽게할 수 있다.
@@ -935,22 +946,43 @@ Service Interface는 왜 만들어야 할까?
 6. 구현 클래스 교체 : 인터페이스를 사용하면 구현 클래스를 쉽게 교체할 수 있다. 예를 들어, 현재 ServiceImpl 클래스를 사용하고 있다면 나중에 필요에 따라 다른 구현 클래스로 변경할 수 있다. 이 때 클라이언트 코드는 변경 없이도 인터페이스를 통해 동일한 방식으로 서비스를 호출할 수 있다. 이는 코드의 유지보수와 확장에 용이하다.
 7. 의존성 주입(Dependency Injection) : 인터페이스를 사용하면 의존성 주입을 쉽게 구현할 수 있다. 의존성 주입은 객체 간의 의존 관계를 외부에서 주입하여 코드 간의 결합도를 낮추고 유연한 구조를 구현하는 패턴이다. 인터페이스를 통해 의존성을 주입하면 다른 구현체를 주입해서 동일한 인터페이스를 사용하는 코드를 유지할 수 있다.
 
-Spring에서 Interface Service를 구현했을 때 얻는 장점이 아니라 Java Interface의 장점을 답변한 것 같았다. 추가적으로 구글링하면서 찾았던 내용들을 아래에 정리했다.
+CharGPT의 답변은 Spring에서 Interface Service를 구현했을 때 얻는 장점이 아니라 일반적으로 Java에서 사용하는 Interface의 장점을 답변한 것처럼 보였습니다. 
 
-짧게 정리하면, 예전에 Spring은 어노테이션을 관리하기 위해 사용되는 AOP Proxy가 JDK Dynamic Proxy 방식을 사용했었고 JDK Dynamic Proxy는 interface 기준으로 만들고 관리하기 때문에 Interface Service를 반드시 만들어서 사용해야만 했다.
-예를들어 Serivce 함수에 많이 쓰이는 @Transactional과 같은 어노테이션은 AOP Proxy를 만들어서 트랜잭션을 처리하기 때문에 인터페이스가 있어야 동작했었다.
+개발하면서 새로운 서비스 함수를 작성하거나 기존 함수를 수정할 때 Interface에 있는 함수를 찾고 수정해야 하는 작업은 꽤나 번거로운 작업이 되기도 했기 때문에 Spring에선 왜 Service Interface를 작성해야 하고 꼭 작성해야 하는지에 대해 찾아보았습니다.
 
-하지만 Class 기준으로 관리하는 CGLIB 방식을 사용되면서 Interface Service를 사용하지 않아도 됐다. 처음엔 Spring 설정에서 설정할 수 있게 했었고 Spring 3.2부터 CGLIB가 내장됐다.
+## JDK Dynamic Proxy와 CGLIB Proxy
+앞에서 설명한 [AOP (Aspect Oriented Programming)](https://github.com/justdoanything/self-study/blob/main/11%20SpringBoot.md#aop--aspect-oriented-programming-) 부분에서 AOP Proxy에 대한 내용을 설명할 때 JDK Dynamic Proxy와 CGLIB Proxy에 대한 내용이 잠깐 나왔었습니다.
+
+결론부터 말하자면 기존에 Spring은 어노테이션을 관리하기 위해 사용되는 AOP Proxy가 JDK Dynamic Proxy 방식을 사용했었고 JDK Dynamic Proxy 방식은 interface 기준으로 만들고 관리하기 때문에 Interface Service를 반드시 만들어서 사용해야만 했습니다. 예를들어 Service 함수에서 많이 쓰이는 @Transactional 과 같은 어노테이션은 AOP Proxy를 만들어서 트랜잭션을 처리하기 때문에 Service Interface가 있어야 동작했습니다.
+
+하지만 Class 기준으로 관리하는 CGLIB 방식을 사용하면서 Interface Service를 사용하지 않아도 됩니다.
+CGLIB 방식이 처음 도입됐을 땐 Spring 설정에서 JDK Dynamic Proxy 방식을 사용할지 CGLIB 방식을 사용할지 정할 수 있게 만들어두었고 Spring 3.2 부터는 CGLIB가 내장됐습니다.
+
 ```yml
 spring.aop.proxy-target-class=true # CGLIB
 spring.aop.proxy-target-class=false # JDK Dynamic Proxy
 ```
 
-네이버 로그인 Service, 카카오 로그인 Service와 같이 비슷한 기능을 하는 서비스를 관리하기 위해서 Interface Service를 사용하는 경우도 있으며
-하나의 Interface Serivce를 여러 개의 ServiceImpl이 상속받아 사용한다면 @Primary, @Qulifier를 사용해서 상황에 맞는 특정 클래스를 주입해서 사용해야 한다.
-Mockito와 같은 Mocking 라이브러리를 사용하면 인터페이스를 사용하지 않아도 단위 테스트를 무리없이 진행할 수 있다.
+Spring 3.2 버전부터는 CGLIB 방식이 내장되었기 때문에 CGLIB 방식을 사용하면 Service Interface를 구현하지 않아도 되지만 파라미터가 없는 default 생성자가 필수로 필요했고 4.0 버전부터는 default 생성자 없이 사용할 수 있게 되었습니다.
 
-- ## IoC 컨테이너와 Spring AOP Proxy
+상황에 따라 Interface Service를 구현하는게 더 유리한 경우도 있습니다. 
+
+예를들어 네이버 로그인 Service, 카카오 로그인 Service와 같이 비슷한 기능을 하는 서비스를 관리하기 위해서 Interface Service를 사용하는 경우도 있으며
+하나의 Interface Serivce를 여러 개의 ServiceImpl이 상속받아 사용한다면 @Primary, @Qulifier를 사용해서 상황에 맞는 특정 클래스를 주입해서 사용해야 합니다.
+
+Mockito와 같은 Mocking 라이브러리를 사용하면 인터페이스를 사용하지 않아도 단위 테스트를 무리없이 진행할 수 있습니다.
+
+추가적으로 Spring 4.3 버전부터 생성자 주입(Constructor Injection) 방식을 도입해서 @Autowired를 사용하지 않고 private final 필드를 직접 사용해서 의존성을 주입할 수 있습니다.
+```java
+// @Autowired를 통한 의존성 주입
+@Autowired
+private NaverService naverService;
+
+// private final을 통한 의존성 주입
+private final KakaoService kakaoService;
+```
+
+## IoC 컨테이너와 Spring AOP Proxy
   - 사용자의 특정 호출 시점에 IoC 컨테이너에 의해 AOP을 할 수 있는 Proxy Bean을 생성해준다. 동적으로 생성된 Proxy Bean은 target의 메소드가 호출되는 시점에 부가기능을 추가할 메소드를 자체적으로 판단하고 가로채서 부가기능을 주입해주는데 이처럼 호출 시점에 동적으로 위빙한다해서 Runtime Weaving 이라고 한다.
   - Spring AOP는 런타임 위빙의 방식을 기반으로 동작하고 있으며 Spring에선 런타임 위빙을 할 수 있도록 상황에 따라 JDK Dynamic Proxy와 CGLIB 방식을 통해 Proxy Bean을 생성해준다.
   - 타겟이 하나 이상의 인터페이스를 구현하고 있는 클래스라면 JDK Dynamic Proxy의 방식으로 생성되고 인터페이스를 구현하지 않은 클래스라면 CGLIB의 방식으로 AOP 프록시를 생성해줍니다.
