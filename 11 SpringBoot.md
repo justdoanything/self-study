@@ -19,7 +19,15 @@
       * [(1) Proxy 객체 생성 방식](#-1--proxy-객체-생성-방식)
       * [(2) CGLIB의 장단점](#-2--cglib의-장단점)
       * [(3) 초기 단계의 한계점과 보완된 점](#-3--초기-단계의-한계점과-보완된-점)
-* [VO와 DTO의 활용](#vo와-dto의-활용)
+* [VO 활용](#vo-활용)
+  * [VO와 DTO](#vo와-dto)
+  * [VO 종류](#vo-종류)
+    * [1. RequestVO/ResponseVO](#1-requestvoresponsevo)
+    * [2. 테이블VO](#2-테이블vo)
+    * [3. 일반VO](#3-일반vo)
+    * [4. 각 VO들의 사용성](#4-각-vo들의-사용성)
+  * [RequestVO와 ResponseVO의 사용성](#requestvo와-responsevo의-사용성)
+  * [TableVO의 사용성](#tablevo의-사용성)
 * [Request에 enum 클래스 처리하기](#request에-enum-클래스-처리하기)
   * [@Enum과 EnumValidator](#enum과-enumvalidator)
   * [Converter](#converter)
@@ -407,8 +415,6 @@ public Object invoke(Object proxy, Method proxyMethod, Object[] args) throws Thr
 - 첫번째 한계점: Spring이 기본적으로 지원하지 않는 방식이라서 별도의 의존성(`net.sf.cglib.proxy.Enhancer`)을 추가해야 했습니다.
 - 두번째 한계점: 구현을 위해선 반드시 파라미터가 없는 default 생성자가 필요했습니다.
 - 세번째 한계점: 불필요하게 타겟의 생성자 두 번 호출 됐습니다.
-
-
 - 개선점: Spring 3.2 버전부터는 CGLIB 방식이 공식적으로 내장되었습니다. -> 첫번째 한계점 해결
 - 개선점: Spring 4.0 버전부터는 Objensis 라이브러리의 도움을 받아 default 생성자 없이 Proxy를 생성할 수 있습니다. -> 두번째, 세번째 한계점 해결
 
@@ -416,15 +422,24 @@ public Object invoke(Object proxy, Method proxyMethod, Object[] args) throws Thr
 
 VO 활용
 ===
-대부분의 프로젝트 초반에 Code Convention과 관련한 내용을 SE와 SA가 모여 정할 때 React에 관련된 Convention은 크게 이견이 없지만 Spring에서 VO를 어떻게 사용할지에 대한 내용은 다양한 의견이 나오곤 했습니다. 
-왜냐하면 Spring과  MyBatis를 같이 사용하면 VO 클래스는 SQL 수에 비례해서 많아질 수 밖에 없고 이를 효율적으로 관리하는 것은 코드 품질과 관련된 중요한 문제 중 하나입니다.
 
-근래에 말하는 좋은 코드는 재사용성과 확장성이 좋은 코드, 직관적이고 읽기 편하며 읽으면서 이해할 수 있는 코드를 말한다고 생각합니다. 
-그리고 코드 규모가 커짐에 따라 유지보수와 디버깅이 수월한 코드 구조를 만드는 것 또한 중요한 문제이고 이를 위해선 코드의 중복을 줄이고 의존성을 낮추는 것이 중요합니다.
+프로젝트 초반에 Code Convention과 관련한 내용을 SE와 SA가 모여 정할 때 React에 관련된 Convention은 크게 이견이 없지만 Spring에서 VO를 어떻게 사용할지에 대한 내용은 다양한 의견이 나오곤 했습니다.
 
-VO 활용에 대한 문제는 정답이 없는 문제이기 때문에 다양한 의견이 존재하고 상황에 따라 적절하게 사용하는 것이 중요한 것 같습니다. 여러 의견을 나누며 토론하고 프로젝트 상황에 맞는 방향을 정하는 과정은 좋은 코드를 만들기 위한 중요한 과정이라고 생각합니다. 
+왜냐하면 Spring과 MyBatis를 같이 사용했을 때 코드 규모가 커짐에 따라(SQL의 수가 많아지면) 가장 많아지는 클래스는 VO 클래스이기 때문입니다.
 
-제가 경험했던 프로젝트를 바탕으로 VO를 어떻게 활용하고 사용했는지 정리해보았습니다.  
+이는 프로젝트 후반부에 기능을 수정할 때 원하는 VO를 찾는 것 부터 수정해야 하는 코드의 범위(Controller, Service, Repository, SQL, 테스트 코드)에 영향을 미치며 사이드 이펙트를 발생시키는 원인이 됩니다.
+
+따라서 VO를 효율적으로 관리하는 것은 코드 품질과 관련된 중요한 문제 중 하나라고 생각합니다.
+
+(근래에 말하는 좋은 코드는 재사용성과 확장성이 좋고 직관적이고 읽기 편하며 읽으면서 이해할 수 있는 코드를 말한다고 생각합니다. 
+그리고 코드 규모가 커짐에 따라 유지보수와 디버깅이 수월한 코드 구조를 만드는 것 또한 중요한 문제이고 이를 위해선 코드의 중복을 줄이고 의존성을 낮추는 것이 중요합니다.)
+
+VO 활용에 대한 문제는 정답이 없는 문제이기 때문에 다양한 의견이 존재하고 상황에 따라 적절하게 사용하는 것이 중요한 것 같습니다. 
+여러 의견을 나누며 토론하고 프로젝트 상황에 맞는 방향을 정하는 과정은 좋은 코드를 만들기 위한 중요한 과정이라고 생각합니다.
+
+쿠팡은 Micro Model 이라고 해서 API 하나에 VO를 한 그룹씩 만들어서 사용하고 각각의 API는 모델을 공유하지 않는 방법도 있다고 들었었는데 제 프로젝트에선 업무 구분과 사용 용도에 따라 VO를 만들어서 사용했습니다.
+
+이 페이지에선 제가 경험했던 프로젝트를 바탕으로 VO를 어떻게 활용하고 사용했는지 정리해보았습니다.  
 
 ## VO와 DTO
 Spring에서 Model을 다룰 때 VO와 DTO를 사용합니다. VO와 DTO의 사전적인 의미를 보면 `VO`는 `Value Object`로 특정 값을 표현하기 위한 객체이고 `DTO`는 `Data Transfer Object`로 데이터 전달을 위한 객체라고 볼 수 있습니다.
@@ -449,25 +464,87 @@ Spring에서 Model을 다룰 때 VO와 DTO를 사용합니다. VO와 DTO의 사�
 
 ## VO 종류
 ### 1. RequestVO/ResponseVO
-  - 주로 Front-end와 통신할 때 사용되며 Front-end로 부터 넘어오는 값들을 받을 때 사용하고 Front-end로 값들을 넘길 때 사용되기 때문에 VO 내의 필드 값은 Front-end에 맞춰져 있었다.
-  - 안전하게 사용하기 위해서 RequestVO -> 일반VO(Service) -> 테이블VO(Repository) -> 일반VO(Service) -> ResponseVO 단계를 거치도록 개발했었다.
+- 주로 Front-end(FE)와 통신할 때 사용되며 FE로 부터 넘어오는 데이터를 받거나 FE로 데이터를 보내는 용도로 사용합니다.
+- RequestVO/ResponseVO는 데이터를 주고 받을 용도로 쓰이기 때문에 VO의 사전적인 의미와 가장 닮아있다고 볼 수 있습니다. 따라서 Service Layer에서 RequestVO는 불변 객체로 사용되고 ResponseVO는 가장 마지막에 불변 객체로 만들어 사용합니다.
+- RequestVO/ResponseVO를 가장 안전하게 사용하는 방법(💡¹)은 `RequestVO` → `일반VO(Service)` → `테이블VO(Repository)` → `일반VO(Service)` → `ResponseVO` 단계를 거치는 것 입니다. 
+- #### RequestVO
+  - FE에서 넘어오는 데이터를 받기 위해서 Controller Layer에서 사용되며 RequestVO는 주로 Session 정보(💡²)와 함께 Service Layer로 전달합니다.
+  - RequestVO는 VO의 사전적 의미처럼 toVO 같은 비지니스 로직을 담을 수 있지만 그 안에 있는 값을 변경하지 않아야 합니다. (setter 사용 ❌)
+  - 대신 API 하나에 RequestVO/ResponseVO는 하나씩 사용되기 때문에 필요하지 않다면 equals()와 hashCode()를 구현해주지 않아도 됩니다. (Controller의 함수 : RequestVO : ResponseVO = 1 : 1 : 1)
+  - RequestVO는 주로 Service 함수 초반부에 toVO 함수를 통해 일반VO를 생성하거나 Service 내에서 FE로 부터 받은 값을 사용하기 위해 getter 함수를 통해 final 변수에 할당해서 사용합니다.
+- #### ResponseVO
+  - FE로 데이터를 넘기기 위한 불변 객체로 사용되어야 하며 주로 Service의 반환 객체에 사용됩니다.
+  - Service 함수 마지막에 생성자 혹은 Builder를 사용해서 ResponseVO를 생성하고 반환합니다.(💡³)
+  - ResponseVO를 비지니스 로직 중간에 생성하고 비지니스 로직에 따라 내부 값을 변경(setter)하는 것은 지양해야 합니다. (setter 사용 ❌)
+- #### RequestVO와 ResponseVO의 사용 예시
+  ```java
+  public ResponseVO method(RequestVO requestVO, String customerId) {
+
+    // toVO 사용과 final 변수 할당 이후 requestVO는 변경되거나 사용하지 않아야 함
+    GetVO getVO = requestVO.toGetVO();
+    final String name = requestVO.getName();
+    
+    /* 비지니스 로직 */
+    ResultVO resultVO = repository.findSomething(getVO);
+  
+    // ResponseVO는 함수 마지막에 생성자 혹은 Builder를 사용해서 생성하고 반환
+    return ResponseVO.builder()
+      .name(resultVO.getName())
+      .age(resultVO.getAge())
+      .build(); 
+  }
+  ```
+
+  ```java
+  // ❌ 지양해야할 코드 ❌
+  public ResponseVO method(RequestVO requestVO, String customerId) {
+  
+    // ❌ RequestVO가 Repository에 바로 사용됨
+    GetVO getVO = repository.getSomething(requestVO);
+    
+    /* 비지니스 로직 */
+  
+    // ❌ 함수 중간에 생성된 값이 requestVO에 새로 할당되고 변경 된 requestVO가 또 다시 비지니스 로직에 사용됨
+    String changedName = repository.findName();
+    requestVO.setName(changedName);
+    externalService.updateSomething(requestVO);
+  
+    /* 비지니스 로직 */
+  
+    // ❌ ResponseVO가 함수 중간에 생성되고 비지니스에 의해 값이 변경되거나 내부 값이 사용됨
+    ResponseVO responseVO = repository.findResponse();
+    externalService.updateSomething(responseVO.getName());
+    /* 비지니스 로직 */
+    reponseVO.setAge(newAge);
+    return responseVO;
+  }
+  ```
+  
+- #### 💡¹ - 일반VO를 꼭 써야할까? SQL에서 RequestVO와 ResponseVO를 바로 사용한다면?
+- #### 💡² - Session 관련된 정보들은 Controller에서 넘겨줘야 할까? 아니면 Service 안에서 가져와야 할까? 
+- #### 💡³ - ResponseVO 조립
+
+
 ### 2. 테이블VO
-  - JPA의 Entity와 동일한 목적으로 Table은 주로 flyway로 관리하고 생성된 테이블에 매칭되는 테이블VO를 만들어서 사용했다.
-  - SQL에서 Parameter로 사용되는 VO들을 SQL 하나당 하나를 만든다면 너무 많은 VO가 생성되기 때문에 주로 Service Layer에서 RequestVO, 일반VO로 테이블VO를 만들고 테이블VO를 SQL에서 사용했었다.
-  - 하니의 테이블에 데이터를 CUD 하거나 Parameter로 사용되는 필드들이 하나의 테이블에 종속되어 있다면 하나의 테이블VO에 값을 set하고 SQL에서 사용하도록 했다.
-  - 테이블VO와 대부분의 필드를 공유하는 경우에 테이블VO를 상속받는 VO를 만들어서 사용했고 따라서 테이블VO는 주로 SuperBuild를 사용했다.
+- JPA의 Entity와 동일한 목적으로 Table은 주로 flyway로 관리하고 생성된 테이블에 매칭되는 테이블VO를 만들어서 사용했다.
+- SQL에서 Parameter로 사용되는 VO들을 SQL 하나당 하나를 만든다면 너무 많은 VO가 생성되기 때문에 주로 Service Layer에서 RequestVO, 일반VO로 테이블VO를 만들고 테이블VO를 SQL에서 사용했었다.
+- 하니의 테이블에 데이터를 CUD 하거나 Parameter로 사용되는 필드들이 하나의 테이블에 종속되어 있다면 하나의 테이블VO에 값을 set하고 SQL에서 사용하도록 했다.
+- 테이블VO와 대부분의 필드를 공유하는 경우에 테이블VO를 상속받는 VO를 만들어서 사용했고 따라서 테이블VO는 주로 SuperBuild를 사용했다.
+- UpdateVO를 사용하면 SQL 쿼리 하나당 VO 하나가 필요함. 대신 테이블VO에서 필드 이름이 변경되면 관련 부분을 찾아서 수정해야함. 찾기는 쉬운편. 사용하지 않는 필드도 있어서 null exception이 발생할 수 있음.
+
 ### 3. 일반VO
-  - GetVO, UpdateVO 등... UpdateVO는 SQL과 1:1로 갖고 있어야 하기 때문에 TableVO를 사용하는게 좋을 것 같다.
-  - 테이블이 JOIN 되어 있거나 중간에 테이블VO로 모든 필드를 사용할 수 없는 경우 추가로 VO를 생성해서 사용했다.
-  - 테이블VO를 상속해서 사용하지만 RequestVO/ResponseVO를 상속하지 않으며 다른 VO로 변환하는 toVO와 값 변환에 필요한 비지니스 로직을 포함하는 VO로 사용했다.
+- GetVO, UpdateVO 등... UpdateVO는 SQL과 1:1로 갖고 있어야 하기 때문에 TableVO를 사용하는게 좋을 것 같다.
+- 테이블이 JOIN 되어 있거나 중간에 테이블VO로 모든 필드를 사용할 수 없는 경우 추가로 VO를 생성해서 사용했다.
+- 테이블VO를 상속해서 사용하지만 RequestVO/ResponseVO를 상속하지 않으며 다른 VO로 변환하는 toVO와 값 변환에 필요한 비지니스 로직을 포함하는 VO로 사용했다.
+
 ### 4. 각 VO들의 사용성
-  - 테이블VO는 테이블과 매칭되는 테이블로 별도의 toVO 함수나 비지니스 로직을 포함하지 않았다. 주로 setter/getter로만 사용하기 때문에 DTO의 사전적인 의미와 비슷하다고 생각했다.
-  - RequestVO/ResponseVO는 주로 toVO 함수를 갖고 있으면서 Front-end와 Back-end 사이에 존재하는 필드 이름에 대한 차이와 단순한 값 변환헤 들어가는 로직들을 포함했다.
-  - Front-end와 Back-end의 Dabatase 필드값이 같을 경우, RequestVO를 SQL에서 바로 사용하는 경우도 있는데 이는 유지보수에 안좋다고 생각했다.
-    Front-end의 필드명이 바뀌는 경우 혹은 데이터베이스의 필드명이 변경될 경우 수정해야 하는 파일들이 너무 많게 되고 Request에서 들어오는 값들을 SQL에서 그대로 사용하는 것은 위험성이 높다고 생각했다.
-  - toVO 함수를 사용한다면 Request에서 오는 값을 검증하는 로직 후 테이블VO를 만들 수 있으며 Front-end와 데이터베이스의 필드명 변경은 toVO 함수만 수정하면 되기 때문에 유지보수에 유리하다.
-  - 회사에선 한 스토리로 Front-end와 Back-end를 한 사람이 개발하는 경우가 많아서 Front-end 필드와 데이터베이스 필드가 같아서 RequestVO를 SQL에서 바로 사용하는 사람들이 많았는데
-    toVO를 사용하는 것이 안전하다고 생각해서 같은 필드 이름을 쓰더라도 꼭 toVO를 사용했었다.
+- 테이블VO는 테이블과 매칭되는 테이블로 별도의 toVO 함수나 비지니스 로직을 포함하지 않았다. 주로 setter/getter로만 사용하기 때문에 DTO의 사전적인 의미와 비슷하다고 생각했다.
+- RequestVO/ResponseVO는 주로 toVO 함수를 갖고 있으면서 Front-end와 Back-end 사이에 존재하는 필드 이름에 대한 차이와 단순한 값 변환헤 들어가는 로직들을 포함했다.
+- Front-end와 Back-end의 Dabatase 필드값이 같을 경우, RequestVO를 SQL에서 바로 사용하는 경우도 있는데 이는 유지보수에 안좋다고 생각했다.
+  Front-end의 필드명이 바뀌는 경우 혹은 데이터베이스의 필드명이 변경될 경우 수정해야 하는 파일들이 너무 많게 되고 Request에서 들어오는 값들을 SQL에서 그대로 사용하는 것은 위험성이 높다고 생각했다.
+- toVO 함수를 사용한다면 Request에서 오는 값을 검증하는 로직 후 테이블VO를 만들 수 있으며 Front-end와 데이터베이스의 필드명 변경은 toVO 함수만 수정하면 되기 때문에 유지보수에 유리하다.
+- 회사에선 한 스토리로 Front-end와 Back-end를 한 사람이 개발하는 경우가 많아서 Front-end 필드와 데이터베이스 필드가 같아서 RequestVO를 SQL에서 바로 사용하는 사람들이 많았는데
+  toVO를 사용하는 것이 안전하다고 생각해서 같은 필드 이름을 쓰더라도 꼭 toVO를 사용했었다.
 
 
 ## RequestVO와 ResponseVO의 사용성
@@ -475,6 +552,9 @@ Spring에서 Model을 다룰 때 VO와 DTO를 사용합니다. VO와 DTO의 사�
 ## TableVO의 사용성
 Request와 Response
 FE와 BE를 한번에 개발하지 않으며 변수명은 달라야한다.
+
+
+GetVO는 private final String을 써서 enum 값을 넘겨서 사용함.
 
 
 
