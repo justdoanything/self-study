@@ -548,6 +548,45 @@ Spring에서 Model을 다룰 때 VO와 DTO를 사용합니다. VO와 DTO의 사�
     - 그리고 나중에 비지니스 로직이 변경되서 Service 함수를 수정해야할 때 Service 로직만 수정하면 되기 때문에 유지보수에 유리합니다. (첫번째 예시 코드는 `repository.findSomething(requestVO)`를 분리해서 작성해야하는데 수정 범위가 넓고 사이드 이펙트를 발생시킬 수 있습니다.)
     - SQL에서 공통 코드 값을 사용할 때 일반VO에 private final 필드를 선언해서 사용할 수 있습니다. RequestVO에 안에도 private final 필드를 선언할 수 있지만 RequestVO의 의미와 맞지 않으며 Swagger를 사용하면 @Ignore와 같은 어노테이션으로 숨겨야합니다.
   - 결론적으로 코드의 재사용성과 확장성, 유지보수의 편리함을 생각해봤을 때 일반VO를 사용하는 것이 좋다고 생각합니다. 하지만 경우에 따라 간단한 로직의 경우엔 첫번째 예시 코드처럼 SQL에서 RequestVO와 ResponseVO를 바로 사용하는 것도 나쁘지 않다고 생각합니다.
+
+  - 📌 VO 안에서 private final 필드 사용 - 공통 코드와 enum 필드
+    - 주문 타입, 컨텐츠 타입 등 공통 코드를 만들어서 관리하는 방법은 여러가 입니다.
+    - 변경이 자주 된다면 사용할 때마다 공통 코드를 조회해서 사용하거나 주기적으로 공통 코드를 조회해서 static 변수로 사용할 수 있습니다.
+    - 프로젝트에선 공통 코드가 거의 변하지 않아서 enum 변수를 만들어서 사용했었고 enum으로 선언한 코드를 SQL에서 사용하기 위해 VO 안에 private final 변수로 사용했습니다.
+    - 변수의 이름은 반드시 SQL에도 의미를 알 수 있도록 변수 이름을 정했습니다.
+      ```java
+      public enum ContentsTypeCode {
+          FEED("001"),
+          COMMENT("002"),
+          NOTICE("003"),
+          COUPON("004"),
+          VOTE("005");
+      
+          ContentsTypeCode(String code) {
+              this.code = code;
+          }
+      
+          private String code;
+      
+          public String code() {
+              return code;
+          }
+      }
+      ```
+      ```java
+      public class ContentsFeedGetVO {
+          private String contentsType;
+          private String title;
+          private String contents;
+          private String customerId;
+          private final String contentsTypeFeedCode = ContentsTypeCode.FEED.code();
+      }
+      ```
+      ```sql
+      SELECT ...
+      FROM contents c
+      WHERE c.contents_type = #{contentsTypeFeedCode}
+      ```
 - #### 💡² - Session 관련된 정보들은 Controller에서 넘겨줘야 할까? 아니면 Service 안에서 가져와야 할까?
   - 주로 로그인한 사용자의 customerId는 Session에서 정보를 가져옵니다. 이 Session 정보는 Controller 함수 내에서 가져와서 Service에 넘겨주거나 Service 함수 내부에서 가져올 수 있습니다.
     ```java
@@ -589,8 +628,8 @@ Spring에서 Model을 다룰 때 VO와 DTO를 사용합니다. VO와 DTO의 사�
     ```java
     // ResponseVO의 생성자 활용
     public class ResponseVO {
-      private final String name;
-      private final int age;
+      private String name;
+      private int age;
       
       public ResponseVO(GetVO getVO) {
         this.name = getVO.getName();
@@ -601,8 +640,8 @@ Spring에서 Model을 다룰 때 VO와 DTO를 사용합니다. VO와 DTO의 사�
     ```java
     // toVO 함수를 만들어서 활용
     public class GetVO {
-      private final String name;
-      private final int age;
+      private String name;
+      private int age;
     
       public ResponseVO toResponseVO() {
         return ResponseVO.builder()
