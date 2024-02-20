@@ -25,9 +25,11 @@
     * [1. RequestVO/ResponseVO](#1-requestvoresponsevo)
     * [2. 테이블VO](#2-테이블vo)
     * [3. 일반VO](#3-일반vo)
-    * [4. 각 VO들의 사용성](#4-각-vo들의-사용성)
-  * [RequestVO와 ResponseVO의 사용성](#requestvo와-responsevo의-사용성)
-  * [TableVO의 사용성](#tablevo의-사용성)
+    * [4. 정리](#4-정리)
+* [Exception 공통 처리 - Exception Advice](#exception-공통-처리---exception-advice)
+  * [@ExceptionHandler](#exceptionhandler)
+  * [@ControllerAdvice](#controlleradvice)
+  * [@ControllerAdvice와 @RestControllerAdvice](#controlleradvice와-restcontrolleradvice)
 * [Request에 enum 클래스 처리하기](#request에-enum-클래스-처리하기)
   * [@Enum과 EnumValidator](#enum과-enumvalidator)
   * [Converter](#converter)
@@ -41,16 +43,11 @@
   * [ObjectMapper](#objectmapper)
     * [JSON 요청을 Java 객체로 역직렬화](#json-요청을-java-객체로-역직렬화)
     * [Java 객체를 JSON 응답으로 직렬화](#java-객체를-json-응답으로-직렬화)
-* [Exception 공통 처리 - Exception Advice](#exception-공통-처리---exception-advice)
-  * [@ExceptionHandler](#exceptionhandler)
-  * [@ControllerAdvice](#controlleradvice)
-  * [@ControllerAdvice와 @RestControllerAdvice](#controlleradvice와-restcontrolleradvice)
 * [Aspect](#aspect-1)
 * [자주 쓰이는 Controller Annotation](#자주-쓰이는-controller-annotation)
 * [자주 쓰이는 Service Annotation](#자주-쓰이는-service-annotation)
 * [자주 쓰이는 Model Annotation](#자주-쓰이는-model-annotation)
 * [@Transactional](#transactional-1)
-* [Request와 Response](#request와-response)
 * [Redis](#redis)
 * [Flyway](#flyway)
 * [Reference](#reference)
@@ -806,6 +803,12 @@ CRUD에서 사용되는 경우 목적성을 나타내기 위해 ~GetVO, ~UpdateV
 
 일반VO는 사용되는 목적에 맞게 네이밍을 해서 직관적인 코드를 짤 수 있도록 하는게 중요 포인트 입니다.
 
+조회에 사용되는 VO의 경우 테이블에 JOIN이 걸려있거나 FE로부터 받은 값들을 사용하기 때문에 GetVO와 같이 일반VO를 만들어서 사용했습니다.
+
+GetVO는 RequestVO에서 toVO 함수를 통해 만들고 공통 코드(private final) 값을 받아서 사용했습니다.
+
+### 4. 정리
+
 프로젝트 후반부에 코드의 규모가 커지고 같은 코드를 여러명의 개발자가 수정하면서 혹은 공통 부분이 수정되면서 영향을 받는 부분들은 늘어나게 됩니다.
 
 디버깅하고 버그를 수정하거나 요구사항이 변경되어 미리 짜놓은 코드를 수정해야할 때 내가 수정해야하는 부분과 연관되어 있는 클래스와 기능을 찾는 것이 점점 어려워지고 예상하지 못한 사이드 이펙트가 발생하기도 합니다.
@@ -815,6 +818,95 @@ CRUD에서 사용되는 경우 목적성을 나타내기 위해 ~GetVO, ~UpdateV
 여러 프로젝트를 경험하면서 직관적이고 확장성이 좋은 코드, 독립적인 코드를 효율적으로 잘 짜는게 중요하다고 매번 느끼게 됩니다.
 
 코드에 정답은 없기 때문에 다른 개발자와 토론을 거쳐 양질의 코드를 만들어내는 과정이 가장 중요하다고 생각합니다.
+
+---
+
+Exception 공통 처리 - Exception Advice
+===
+- Java에서 기본적으로 사용되는 Exception은 여러 종류가 있고 필요할 땐 직접 Exception을 만들어서 사용할 수 있다. 이러한 Exception을 처리하기 위해서 try-catch문을 사용할 수도 있고 Controller, Service 와 같은 클래스 및 함수에서 throw Exception...을 사용하고 최상단에서 공통처리할 수 있다.
+- 하지만 `@ControllerAdvice`, `@ExceptionHandler`를 사용하면 공통 클래스 내에서 예외 처리를 할 수 있다. 특정 Exception에 따라서 status, code, message 등을 다르게 처리하기에도 용이하다.
+
+## @ExceptionHandler
+- @Controller, @RestController가 적용된 Bean 내에서 발생하는 Exception을 잡아서 처리할 수 있도록 해준다.
+- @ExceptionHandler를 단독으로 사용하면 하나의 Controller 클래스 안에 위치해야하고 해당 Controller에서 발생하는 Exception만 처리해야 하기 때문에 모든 Controller에 적용하기에는 무리가 있다.
+- 따라서 주로 @ControllerAdvice와 함께 사용된다.
+
+## @ControllerAdvice
+- @Controller가 사용된 모든 Controller 클래스에서 발생하는 모든 Exception을 잡아서 처리할 수 있도록 해준다.
+- Exception 종류별로 나눠서 처리할 수 있다.
+```java
+@ControllerAdvice
+public class ExceptionAdvice {
+    @ExceptionHandler({RuntimeException.class, Exception.class})
+    protected CommonResponseEntity handleRuntimeException(RuntimeException e) {
+        return CommonResponseEntity.builder()
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .code("INTERNAL_SERVER_ERROR")
+                .message(e.getMessage())
+                .build();
+    }
+}
+```
+## @ControllerAdvice와 @RestControllerAdvice
+- 이름이 비슷한 2개의 어노테이션은 비슷한 기능을 수행하지만 약간의 차이점이 존재한다. 사용성엔 정해진 것이 없지만 주로 아래와 같이 사용된다.
+  ```java
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Documented
+  @Component
+  public @interface ControllerAdvice { ... }
+  ```
+  ```java
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Documented
+  @ControllerAdvice
+  @ResponseBody
+  public @interface RestControllerAdvice { ... }
+  ```
+  - 정의된 코드를 보면 `@RestControllerAdvice`는 `@ControllerAdvice` + `@ResponseBody` 인 것을 볼 수 있다.
+  - `@ControllerAdvice`는 주로 Spring MVC에서 `@Controller`를 사용하고 있는 Controller에서 예외 처리를 하고 ModelAndView를 반환할 때 사용된다.
+  - `@RestControllerAdvice`는 `@ResponseBody`를 포함하고 있기 때문에 주로 `@RestController`를 사용하고 있는 RESTful 기반의 Controller의 예외을 처리할 때 사용된다.
+- 하지만 `@ExceptionHandler`는 어떤 응답 객체도 가질 수 있기 때문에 @ControllerAdvice로 예외를 수집하고 CommonResponseEntity와 같은 응답 객체를 만들어서 사용할 수 있다.
+- 수행했던 프로젝트에선 Service Layer에서 비지니스 로직에 대한 예외 처리를 위해서 CustomizeException 클래스를 만들고 RuntimeException을 상속받아서 사용했다.
+
+```java
+@Slf4j
+@RestControllerAdvice
+public class ExceptionAdvisor {
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<CommonResponseVO> customExceptionHandler(Exception exception) {
+    log.error(exception.getMessage(), exception);
+    return ResponseUtil.createFailResponse(StatusCodeMessageConstant.BAD_REQUEST, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(ApplicationException.class)
+  public ResponseEntity<CommonResponseVO> applicationExceptionHandler(ApplicationException applicationException){
+    log.error(applicationException.getMessage(), applicationException);
+    return ResponseUtil.createFailResponse(applicationException.getStatusCodeMessage());
+  }
+
+  @ExceptionHandler({
+          ConstraintViolationException.class
+          , MethodArgumentTypeMismatchException.class
+          , HttpMessageNotReadableException.class
+  })
+  public ResponseEntity<CommonResponseVO> invalidParameterValueExceptionHandler(Exception exception) {
+    log.error(exception.getMessage(), exception);
+    return ResponseUtil.createFailResponse(StatusCodeMessageConstant.PARAMETER_VALUE_ERROR, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler({
+          MissingServletRequestParameterException.class
+          , MethodArgumentNotValidException.class
+          , BindException.class
+  })
+  public ResponseEntity<CommonResponseVO> invalidMandatoryParameterExceptionHandler(Exception exception) {
+    log.error(exception.getMessage(), exception);
+    return ResponseUtil.createFailResponse(StatusCodeMessageConstant.MANDATORY_PARAMETER_ERROR, HttpStatus.BAD_REQUEST);
+  }
+}
+```
 
 ---
 
@@ -1382,95 +1474,6 @@ public class MyController {
 
 ---
 
-Exception 공통 처리 - Exception Advice
-===
-- Java에서 기본적으로 사용되는 Exception은 여러 종류가 있고 필요할 땐 직접 Exception을 만들어서 사용할 수 있다. 이러한 Exception을 처리하기 위해서 try-catch문을 사용할 수도 있고 Controller, Service 와 같은 클래스 및 함수에서 throw Exception...을 사용하고 최상단에서 공통처리할 수 있다.
-- 하지만 `@ControllerAdvice`, `@ExceptionHandler`를 사용하면 공통 클래스 내에서 예외 처리를 할 수 있다. 특정 Exception에 따라서 status, code, message 등을 다르게 처리하기에도 용이하다.
-
-## @ExceptionHandler
-- @Controller, @RestController가 적용된 Bean 내에서 발생하는 Exception을 잡아서 처리할 수 있도록 해준다.
-- @ExceptionHandler를 단독으로 사용하면 하나의 Controller 클래스 안에 위치해야하고 해당 Controller에서 발생하는 Exception만 처리해야 하기 때문에 모든 Controller에 적용하기에는 무리가 있다.
-- 따라서 주로 @ControllerAdvice와 함께 사용된다.
-
-## @ControllerAdvice
-- @Controller가 사용된 모든 Controller 클래스에서 발생하는 모든 Exception을 잡아서 처리할 수 있도록 해준다.
-- Exception 종류별로 나눠서 처리할 수 있다.
-```java
-@ControllerAdvice
-public class ExceptionAdvice {
-    @ExceptionHandler({RuntimeException.class, Exception.class})
-    protected CommonResponseEntity handleRuntimeException(RuntimeException e) {
-        return CommonResponseEntity.builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .code("INTERNAL_SERVER_ERROR")
-                .message(e.getMessage())
-                .build();
-    }
-}
-```
-## @ControllerAdvice와 @RestControllerAdvice
-- 이름이 비슷한 2개의 어노테이션은 비슷한 기능을 수행하지만 약간의 차이점이 존재한다. 사용성엔 정해진 것이 없지만 주로 아래와 같이 사용된다.
-  ```java
-  @Target(ElementType.TYPE)
-  @Retention(RetentionPolicy.RUNTIME)
-  @Documented
-  @Component
-  public @interface ControllerAdvice { ... }
-  ```
-  ```java
-  @Target(ElementType.TYPE)
-  @Retention(RetentionPolicy.RUNTIME)
-  @Documented
-  @ControllerAdvice
-  @ResponseBody
-  public @interface RestControllerAdvice { ... }
-  ```
-  - 정의된 코드를 보면 `@RestControllerAdvice`는 `@ControllerAdvice` + `@ResponseBody` 인 것을 볼 수 있다.
-  - `@ControllerAdvice`는 주로 Spring MVC에서 `@Controller`를 사용하고 있는 Controller에서 예외 처리를 하고 ModelAndView를 반환할 때 사용된다.
-  - `@RestControllerAdvice`는 `@ResponseBody`를 포함하고 있기 때문에 주로 `@RestController`를 사용하고 있는 RESTful 기반의 Controller의 예외을 처리할 때 사용된다.
-- 하지만 `@ExceptionHandler`는 어떤 응답 객체도 가질 수 있기 때문에 @ControllerAdvice로 예외를 수집하고 CommonResponseEntity와 같은 응답 객체를 만들어서 사용할 수 있다.
-- 수행했던 프로젝트에선 Service Layer에서 비지니스 로직에 대한 예외 처리를 위해서 CustomizeException 클래스를 만들고 RuntimeException을 상속받아서 사용했다.
-
-```java
-@Slf4j
-@RestControllerAdvice
-public class ExceptionAdvisor {
-  @ExceptionHandler(Exception.class)
-  public ResponseEntity<CommonResponseVO> customExceptionHandler(Exception exception) {
-    log.error(exception.getMessage(), exception);
-    return ResponseUtil.createFailResponse(StatusCodeMessageConstant.BAD_REQUEST, HttpStatus.BAD_REQUEST);
-  }
-
-  @ExceptionHandler(ApplicationException.class)
-  public ResponseEntity<CommonResponseVO> applicationExceptionHandler(ApplicationException applicationException){
-    log.error(applicationException.getMessage(), applicationException);
-    return ResponseUtil.createFailResponse(applicationException.getStatusCodeMessage());
-  }
-
-  @ExceptionHandler({
-          ConstraintViolationException.class
-          , MethodArgumentTypeMismatchException.class
-          , HttpMessageNotReadableException.class
-  })
-  public ResponseEntity<CommonResponseVO> invalidParameterValueExceptionHandler(Exception exception) {
-    log.error(exception.getMessage(), exception);
-    return ResponseUtil.createFailResponse(StatusCodeMessageConstant.PARAMETER_VALUE_ERROR, HttpStatus.BAD_REQUEST);
-  }
-
-  @ExceptionHandler({
-          MissingServletRequestParameterException.class
-          , MethodArgumentNotValidException.class
-          , BindException.class
-  })
-  public ResponseEntity<CommonResponseVO> invalidMandatoryParameterExceptionHandler(Exception exception) {
-    log.error(exception.getMessage(), exception);
-    return ResponseUtil.createFailResponse(StatusCodeMessageConstant.MANDATORY_PARAMETER_ERROR, HttpStatus.BAD_REQUEST);
-  }
-}
-```
-
----
-
 Aspect
 ===
 LogAspect
@@ -1645,10 +1648,6 @@ public class VanController {
 
 ---
 
-Request와 Response
-===
-
----
 Redis
 ===
 - docker exec -it springboot-redis-1 redis-cli
