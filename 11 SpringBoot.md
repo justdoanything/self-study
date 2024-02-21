@@ -821,19 +821,45 @@ GetVO는 RequestVO에서 toVO 함수를 통해 만들고 공통 코드(private f
 
 ---
 
-Exception 공통 처리 - Exception Advice
+Exception 공통 처리
 ===
-- Java에서 기본적으로 사용되는 Exception은 여러 종류가 있고 필요할 땐 직접 Exception을 만들어서 사용할 수 있다. 이러한 Exception을 처리하기 위해서 try-catch문을 사용할 수도 있고 Controller, Service 와 같은 클래스 및 함수에서 throw Exception...을 사용하고 최상단에서 공통처리할 수 있다.
-- 하지만 `@ControllerAdvice`, `@ExceptionHandler`를 사용하면 공통 클래스 내에서 예외 처리를 할 수 있다. 특정 Exception에 따라서 status, code, message 등을 다르게 처리하기에도 용이하다.
+Java에서 기본적으로 사용되는 Exception은 여러 종류가 있고 필요할 땐 직접 Exception을 만들어서 사용할 수 있습니다. 
+
+이러한 Exception을 처리하기 위해서 try-catch문을 사용할 수도 있고 Controller, Service 와 같은 클래스 및 함수에서 throw Exception...을 사용하고 최상단에서 공통처리할 수 있습니다.
+
+하지만 `@ControllerAdvice`, `@ExceptionHandler`를 사용하면 공통 클래스 내에서 예외 처리를 할 수 있습니다. 
+
+특정 Exception에 따라서 status, code, message 등을 다르게 처리하기에도 용이합니다.
 
 ## @ExceptionHandler
-- @Controller, @RestController가 적용된 Bean 내에서 발생하는 Exception을 잡아서 처리할 수 있도록 해준다.
-- @ExceptionHandler를 단독으로 사용하면 하나의 Controller 클래스 안에 위치해야하고 해당 Controller에서 발생하는 Exception만 처리해야 하기 때문에 모든 Controller에 적용하기에는 무리가 있다.
-- 따라서 주로 @ControllerAdvice와 함께 사용된다.
+- `@Controller`, `@RestController`가 적용된 Bean 내에서 발생하는 Exception을 잡아서 처리할 수 있도록 해줍니다.
+- `@ExceptionHandler`를 단독으로 사용하면 하나의 Controller 클래스 안에 위치해야하고 해당 Controller에서 발생하는 Exception만 처리해야 하기 때문에 모든 Controller에 적용하기에는 무리가 있습니다.
+- 따라서 주로 `@ControllerAdvice`와 함께 사용됩니다.
+```java
+@RestController
+public class Controller {
+
+    @GetMapping("/example")
+    public ResponseEntity<CommonResponseVO> method() {
+        return service.method();   
+    }
+
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<String> handleCustomException(CustomException ex) {
+        return new ResponseEntity<>(ResponseUtil.createError(ex.getMessage(), HttpStatus.BAD_REQUEST));
+    }
+
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<String> handleCustomException(CustomException ex) {
+        return new ResponseEntity<>(ResponseUtil.createError(ex.getMessage(), HttpStatus.BAD_REQUEST));
+    }
+}
+```
 
 ## @ControllerAdvice
-- @Controller가 사용된 모든 Controller 클래스에서 발생하는 모든 Exception을 잡아서 처리할 수 있도록 해준다.
-- Exception 종류별로 나눠서 처리할 수 있다.
+- @Controller가 사용된 모든 Controller 클래스에서 발생하는 모든 Exception을 잡아서 처리할 수 있도록 해줍니다.
+- Exception 종류별로 나눠서 처리할 수 있습니다.
+
 ```java
 @ControllerAdvice
 public class ExceptionAdvice {
@@ -847,8 +873,10 @@ public class ExceptionAdvice {
     }
 }
 ```
+
 ## @ControllerAdvice와 @RestControllerAdvice
-- 이름이 비슷한 2개의 어노테이션은 비슷한 기능을 수행하지만 약간의 차이점이 존재한다. 사용성엔 정해진 것이 없지만 주로 아래와 같이 사용된다.
+- 이름이 비슷한 2개의 어노테이션은 비슷한 기능을 수행하지만 약간의 차이점이 존재합니다. 사용성엔 정해진 것이 없지만 주로 아래와 같이 사용됩니다.
+
   ```java
   @Target(ElementType.TYPE)
   @Retention(RetentionPolicy.RUNTIME)
@@ -856,6 +884,7 @@ public class ExceptionAdvice {
   @Component
   public @interface ControllerAdvice { ... }
   ```
+
   ```java
   @Target(ElementType.TYPE)
   @Retention(RetentionPolicy.RUNTIME)
@@ -864,16 +893,17 @@ public class ExceptionAdvice {
   @ResponseBody
   public @interface RestControllerAdvice { ... }
   ```
-  - 정의된 코드를 보면 `@RestControllerAdvice`는 `@ControllerAdvice` + `@ResponseBody` 인 것을 볼 수 있다.
-  - `@ControllerAdvice`는 주로 Spring MVC에서 `@Controller`를 사용하고 있는 Controller에서 예외 처리를 하고 ModelAndView를 반환할 때 사용된다.
-  - `@RestControllerAdvice`는 `@ResponseBody`를 포함하고 있기 때문에 주로 `@RestController`를 사용하고 있는 RESTful 기반의 Controller의 예외을 처리할 때 사용된다.
-- 하지만 `@ExceptionHandler`는 어떤 응답 객체도 가질 수 있기 때문에 @ControllerAdvice로 예외를 수집하고 CommonResponseEntity와 같은 응답 객체를 만들어서 사용할 수 있다.
-- 수행했던 프로젝트에선 Service Layer에서 비지니스 로직에 대한 예외 처리를 위해서 CustomizeException 클래스를 만들고 RuntimeException을 상속받아서 사용했다.
+  - 정의된 코드를 보면 `@RestControllerAdvice`는 `@ControllerAdvice` + `@ResponseBody` 인 것을 볼 수 있습니다.
+  - `@ControllerAdvice`는 주로 Spring MVC에서 `@Controller`를 사용하고 있는 Controller에서 예외 처리를 하고 ModelAndView를 반환할 때 사용됩니다.
+  - `@RestControllerAdvice`는 `@ResponseBody`를 포함하고 있기 때문에 주로 `@RestController`를 사용하고 있는 RESTful 기반의 Controller의 예외을 처리할 때 사용됩니다.
+- 하지만 `@ExceptionHandler`는 어떤 응답 객체도 가질 수 있기 때문에 @ControllerAdvice로 예외를 수집하고 CommonResponseEntity와 같은 응답 객체를 만들어서 사용할 수 있습니다.
+- 수행했던 프로젝트에선 Service Layer에서 비지니스 로직에 대한 예외 처리를 위해서 CustomizeException 클래스를 만들고 RuntimeException을 상속받아서 사용했습니다.
 
 ```java
 @Slf4j
 @RestControllerAdvice
 public class ExceptionAdvisor {
+  
   @ExceptionHandler(Exception.class)
   public ResponseEntity<CommonResponseVO> customExceptionHandler(Exception exception) {
     log.error(exception.getMessage(), exception);
