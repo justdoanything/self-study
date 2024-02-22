@@ -26,10 +26,12 @@
     * [2. 테이블VO](#2-테이블vo)
     * [3. 일반VO](#3-일반vo)
     * [4. 정리](#4-정리)
-* [Exception 공통 처리 - Exception Advice](#exception-공통-처리---exception-advice)
+* [Exception 공통 처리](#exception-공통-처리)
   * [@ExceptionHandler](#exceptionhandler)
+  * [@Controller/@ControllerAdvice와 @RestController/@RestControllerAdvice](#controllercontrolleradvice와-restcontrollerrestcontrolleradvice)
   * [@ControllerAdvice](#controlleradvice)
-  * [@ControllerAdvice와 @RestControllerAdvice](#controlleradvice와-restcontrolleradvice)
+  * [ResponseStatusException](#responsestatusexception)
+  * [ResponseUtility](#responseutility)
 * [Request에 enum 클래스 처리하기](#request에-enum-클래스-처리하기)
   * [@Enum과 EnumValidator](#enum과-enumvalidator)
   * [Converter](#converter)
@@ -823,23 +825,26 @@ GetVO는 RequestVO에서 toVO 함수를 통해 만들고 공통 코드(private f
 
 Exception 공통 처리
 ===
-Java에서 기본적으로 사용되는 Exception은 여러 종류가 있고 필요할 땐 직접 Exception을 만들어서 사용할 수 있습니다. 
+Spring에서 기본적으로 사용되는 Exception이 있고 필요할 땐 직접 Exception을 만들어서 사용할 수 있습니다.
 
-이러한 Exception을 처리하기 위해서 try-catch문을 사용할 수도 있고 Controller, Service 와 같은 클래스 및 함수에서 throw Exception...을 사용하고 최상단에서 공통처리할 수 있습니다.
+여러가지의 Exception을 처리하기 위해서 기본적으로 `try-catch`문을 사용하거나 Controller/Service와 같은 클래스 및 함수에서 `throw new ...`를 사용하고 최상단 클래스에서 처리하기도 합니다.
 
-하지만 `@ControllerAdvice`, `@ExceptionHandler`를 사용하면 공통 클래스 내에서 예외 처리를 할 수 있습니다. 
+하지만 위와 같은 방법은 모든 클래스/함수에서 예외 처리에 대한 코드를 작성해야 하기 때문에 코드의 중복이 발생하고 예외 처리에 대한 통일성이 없을 수 있습니다.
 
-특정 Exception에 따라서 status, code, message 등을 다르게 처리하기에도 용이합니다.
+따라서 Spring에선 `@ExceptionHandler`, `@ControllerAdvice`를 사용해서 Exception을 공통으로 처리할 수 있습니다.
+
+(Exception은 HandlerExceptionResolver를 사용해서 공통 처리할 수 있지만 사용법이 약간 복잡하고 응답에 message를 담을 수 없기 때문에 SpringBoot에선 주로 `@ExceptionHandler`, `@ControllerAdvice`를 사용해서 처리합니다.)
 
 ## @ExceptionHandler
-- `@Controller`, `@RestController`가 적용된 Bean 내에서 발생하는 Exception을 잡아서 처리할 수 있도록 해줍니다.
-- `@ExceptionHandler`를 단독으로 사용하면 하나의 Controller 클래스 안에 위치해야하고 해당 Controller에서 발생하는 Exception만 처리해야 하기 때문에 모든 Controller에 적용하기에는 무리가 있습니다.
-- 따라서 주로 `@ControllerAdvice`와 함께 사용됩니다.
+- `@ExceptionHandler`는 `@Controller`, `@ControllerAdvice`가 적용된 클래스에서 사용할 수 있습니다.
+- `@Controller`가 적용된 Controller 클래스 안에서 `@ExceptionHandler`를 사용하면 해당 Controller 안에서 발생하는 Exception만 처리할 수 있습니다.
+- 따라서 Controller 클래스가 여러개라면 모든 클래스 안에 `@ExceptionHandler`에 대한 코드를 작성해서 처리해야 하기 때문에 코드가 중복되고 일관적인 에러 처리가 어려워집니다.
 ```java
-@RestController
-public class Controller {
+/* ExcetpionHandler의 사용 예시 */
+@Controller
+public class FirstController {
 
-    @GetMapping("/example")
+    @GetMapping("/first/example")
     public ResponseEntity<CommonResponseVO> method() {
         return service.method();   
     }
@@ -848,18 +853,80 @@ public class Controller {
     public ResponseEntity<String> handleCustomException(CustomException ex) {
         return new ResponseEntity<>(ResponseUtil.createError(ex.getMessage(), HttpStatus.BAD_REQUEST));
     }
+}
+```
+```java
+/* 모든 Controller 클래스에 @ExceptionHandler 코드를 적어줘야 한다. */
+@Controller
+public class SecondController {
 
-    @ExceptionHandler(CustomException.class)
+    @GetMapping("/second/example")
+    public ResponseEntity<CommonResponseVO> method() {
+        return service.method();
+    }
+
+    /* 중복 코드 */
+    @ExceptionHandler({CustomException.class, BindException.class})
     public ResponseEntity<String> handleCustomException(CustomException ex) {
         return new ResponseEntity<>(ResponseUtil.createError(ex.getMessage(), HttpStatus.BAD_REQUEST));
     }
 }
 ```
 
-## @ControllerAdvice
-- @Controller가 사용된 모든 Controller 클래스에서 발생하는 모든 Exception을 잡아서 처리할 수 있도록 해줍니다.
-- Exception 종류별로 나눠서 처리할 수 있습니다.
+## @Controller/@ControllerAdvice와 @RestController/@RestControllerAdvice
+이름이 비슷한 2개의 어노테이션은 비슷한 기능을 수행하지만 약간의 차이점이 존재합니다.
 
+아래의 정의된 코드를 보면 `@RestController`는 `@Controller` + `@ResponseBody`이고 `@RestControllerAdvice`는 `@ControllerAdvice` + `@ResponseBody`인 것을 볼 수 있습니다.
+
+즉, @Rest~로 시작하는 어노테이션에는 `@ResponseBody`를 포함되어 있고 이는 주로 RESTful API의 응답 데이터를 만드는데 사용된다는 것을 알 수 있습니다.
+
+- `@Controller`
+  - 주로 전통적인 Spring MVC의 Controller를 나타냅니다. 
+  - View를 반환하며, 주로 JSP, Thymeleaf, Freemarker 등과 같은 템플릿 엔진을 이용하여 HTML 페이지를 생성합니다. 
+  - 반환되는 데이터가 주로 모델(Model)을 통해 View에 전달되어 화면을 렌더링하는 데 사용됩니다.
+
+- `@RestController`
+  - 주로 RESTful 웹 서비스를 처리할 때 사용됩니다. 
+  - `@ResponseBody` 어노테이션을 포함하고 있고 메서드 자체가 응답 데이터를 반환하며, 주로 JSON 또는 XML 형식으로 데이터를 반환합니다.
+
+하지만 RESTful API에서 반드시 @Rest~를 사용해야 하는 것은 아닙니다.
+
+예를들어 `@ExceptionHandler`는 어떠한 응답 객체도 가질 수 있기 때문에 `@ControllerAdvice`로 예외를 수집하고 RESTful API처럼 ResponseEntity 객체를 만들어서 사용할 수 있습니다.
+
+```java
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Controller
+@ResponseBody
+public @interface RestController { ... }
+
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Component
+public @interface ControllerAdvice { ... }
+```
+
+```java
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Component
+public @interface Controller { ... }
+
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@ControllerAdvice
+@ResponseBody
+public @interface RestControllerAdvice { ... }
+```
+
+## @ControllerAdvice
+- Spring 3.2 버전부터 사용할 수 있습니다.
+- `@ControllerAdvice`를 선언한 클래스 안에서 `@ExceptionHandler`를 통해서 원하는 Exception를 분류해서 처리할 수 있습니다.
+- `@ControllerAdvice`는 `@Controller`가 사용된 모든 클래스에서 발생하는 모든 Exception을 공통적으로 처리할 수 있습니다.
 ```java
 @ControllerAdvice
 public class ExceptionAdvice {
@@ -873,34 +940,7 @@ public class ExceptionAdvice {
     }
 }
 ```
-
-## @ControllerAdvice와 @RestControllerAdvice
-- 이름이 비슷한 2개의 어노테이션은 비슷한 기능을 수행하지만 약간의 차이점이 존재합니다. 사용성엔 정해진 것이 없지만 주로 아래와 같이 사용됩니다.
-
-  ```java
-  @Target(ElementType.TYPE)
-  @Retention(RetentionPolicy.RUNTIME)
-  @Documented
-  @Component
-  public @interface ControllerAdvice { ... }
-  ```
-
-  ```java
-  @Target(ElementType.TYPE)
-  @Retention(RetentionPolicy.RUNTIME)
-  @Documented
-  @ControllerAdvice
-  @ResponseBody
-  public @interface RestControllerAdvice { ... }
-  ```
-  - 정의된 코드를 보면 `@RestControllerAdvice`는 `@ControllerAdvice` + `@ResponseBody` 인 것을 볼 수 있습니다.
-  - `@ControllerAdvice`는 주로 Spring MVC에서 `@Controller`를 사용하고 있는 Controller에서 예외 처리를 하고 ModelAndView를 반환할 때 사용됩니다.
-  - `@RestControllerAdvice`는 `@ResponseBody`를 포함하고 있기 때문에 주로 `@RestController`를 사용하고 있는 RESTful 기반의 Controller의 예외을 처리할 때 사용됩니다.
-- 하지만 `@ExceptionHandler`는 어떤 응답 객체도 가질 수 있기 때문에 @ControllerAdvice로 예외를 수집하고 CommonResponseEntity와 같은 응답 객체를 만들어서 사용할 수 있습니다.
-- 수행했던 프로젝트에선 Service Layer에서 비지니스 로직에 대한 예외 처리를 위해서 CustomizeException 클래스를 만들고 RuntimeException을 상속받아서 사용했습니다.
-
 ```java
-@Slf4j
 @RestControllerAdvice
 public class ExceptionAdvisor {
   
@@ -935,6 +975,49 @@ public class ExceptionAdvisor {
     log.error(exception.getMessage(), exception);
     return ResponseUtil.createFailResponse(StatusCodeMessageConstant.MANDATORY_PARAMETER_ERROR, HttpStatus.BAD_REQUEST);
   }
+}
+```
+
+## ResponseStatusException
+직접 사용해보진 않았지만 Spring 5 버전부터는 ResponseStatusException 클래스를 사용할 수 있다고 합니다.
+
+간단하게 HTTP 응답 코드와 메세지를 만들어서 사용할 수 있는 장점이 있지만 공통 처리를 위해 사용하기에는 적합하지 않다고 합니다.
+
+```java
+@GetMapping("/user/{id}")
+public ResponseEntity method(@PathVariable Long id){
+    try{
+        return service.metohd(id);
+    }catch(Exception e)
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND,"error");
+    }
+}
+```
+
+## ResponseUtility
+RESTful API는 ResponseEntity를 갖으며 여러 HTTP 상태 코드와 메세지를 만들기 위해서 ResponseUtility를 사용하기도 했습니다.
+
+`@UtilityClass`를 사용하면 final 클래스로 생성하고 private 생성자를 자동으로 생성해주며 정적 메서드로 인스턴스 생성 없이 사용할 수 있습니다.
+
+```java
+@UtilityClass
+public class ResponseUtility를 {
+    
+    public ResponseEntity<CommonResponseVO> createSuccessResponse() {
+        return this.createSuccessResponse(null, HttpStatus.OK);
+    }
+    
+    public ResponseEntity<CommonResponseVO> createSuccessResponse(CommonResponseVO commonResponseVO) {
+        return this.createSuccessResponse(commonResponseVO, HttpStatus.OK);
+    }
+    
+    public ResponseUtility<CommonResponseVO> createSuccessResponse(HttpStatus httpStatus) {
+        return this.createSuccessResponse(null, httpStatus);
+    }
+
+    public ResponseEntity<CommonResponseVO> createSuccessResponse(CommonResponseVO commonResponseVO, HttpStatus httpStatus) {
+        return ResponseEntity.status(httpStatus).body(commonResponseVO);
+    }
 }
 ```
 
@@ -2103,7 +2186,7 @@ RequestContextHolder.getRequestAttributes().setAttribute(key, value, RequestAttr
 }
 
 ---
-
+```java
 package prj.yong.modern.util;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -2116,8 +2199,8 @@ import prj.yong.modern.model.spring.CommonResponseVO;
 
 @UtilityClass
 public class ResponseUtil {
-@JsonSerialize
-public static class EmptyJsonResponse {}
+    @JsonSerialize
+    public static class EmptyJsonResponse {}
 
     public static ResponseEntity<CommonResponseVO> createSuccessResponse() {
         return createSuccessCommonResponseVO(HttpStatusConstant.SUCCESS, null, HttpStatus.OK);
@@ -2170,9 +2253,10 @@ public static class EmptyJsonResponse {}
         return CommonResponseVO.builder().status(status).build();
     }
 }
+```
 
 ---
-
+```java
 package prj.yong.modern.constants;
 
 import java.util.ArrayList;
@@ -2212,9 +2296,9 @@ public class HttpUrlConstant {
         Collections.addAll(urlList, patternList);
     }
 }
-
+```
 ---
-
+```java
 package prj.yong.modern.config;
 
 import org.springframework.context.annotation.Configuration;
@@ -2235,9 +2319,9 @@ public class CorsConfig implements WebMvcConfigurer {
                 .allowCredentials(true);
     }
 }
-
+```
 ---
-
+```java
 package prj.yong.modern.config;
 
 import java.util.Arrays;
@@ -2278,9 +2362,9 @@ private AuthenticationInterceptor authenticationInterceptor;
         registry.addConverter(new SpringConverter());
     }
 }
-
+```
 ---
-
+```java
 package prj.yong.modern.config;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -2326,10 +2410,11 @@ public class RedisConfig {
         return redisTemplate;
     }
 }
-
+```
 
 ---
 
+```java
 package prj.yong.modern.config;
 
 import java.nio.charset.Charset;
@@ -2379,7 +2464,7 @@ return restTemplateBuilder
 .build();
 }
 }
-
+```
 
 
 Reference
