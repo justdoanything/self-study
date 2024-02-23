@@ -28,7 +28,7 @@
     * [4. 정리](#4-정리)
 * [Exception 공통 처리](#exception-공통-처리)
   * [@ExceptionHandler](#exceptionhandler)
-  * [@Controller/@ControllerAdvice와 @RestController/@RestControllerAdvice](#controllercontrolleradvice와-restcontrollerrestcontrolleradvice)
+  * [@Rest~의 차이](#rest--의-차이)
   * [@ControllerAdvice](#controlleradvice)
   * [ResponseStatusException](#responsestatusexception)
   * [ResponseUtility](#responseutility)
@@ -873,8 +873,8 @@ public class SecondController {
 }
 ```
 
-## @Controller/@ControllerAdvice와 @RestController/@RestControllerAdvice
-이름이 비슷한 2개의 어노테이션은 비슷한 기능을 수행하지만 약간의 차이점이 존재합니다.
+## @Rest~의 차이
+@Controller와@ControllerAdvice, @RestController와@RestControllerAdvice 비슷한 2개의 어노테이션은 비슷한 기능을 수행하지만 약간의 차이점이 존재합니다.
 
 아래의 정의된 코드를 보면 `@RestController`는 `@Controller` + `@ResponseBody`이고 `@RestControllerAdvice`는 `@ControllerAdvice` + `@ResponseBody`인 것을 볼 수 있습니다.
 
@@ -889,17 +889,12 @@ public class SecondController {
   - 주로 RESTful 웹 서비스를 처리할 때 사용됩니다. 
   - `@ResponseBody` 어노테이션을 포함하고 있고 메서드 자체가 응답 데이터를 반환하며, 주로 JSON 또는 XML 형식으로 데이터를 반환합니다.
 
-하지만 RESTful API에서 반드시 @Rest~를 사용해야 하는 것은 아닙니다.
-
-예를들어 `@ExceptionHandler`는 어떠한 응답 객체도 가질 수 있기 때문에 `@ControllerAdvice`로 예외를 수집하고 RESTful API처럼 ResponseEntity 객체를 만들어서 사용할 수 있습니다.
-
 ```java
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Controller
-@ResponseBody
-public @interface RestController { ... }
+@Component
+public @interface Controller { ... }
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -912,8 +907,9 @@ public @interface ControllerAdvice { ... }
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Component
-public @interface Controller { ... }
+@Controller
+@ResponseBody
+public @interface RestController { ... }
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -923,10 +919,10 @@ public @interface Controller { ... }
 public @interface RestControllerAdvice { ... }
 ```
 
-## @ControllerAdvice
-- Spring 3.2 버전부터 사용할 수 있습니다.
-- `@ControllerAdvice`를 선언한 클래스 안에서 `@ExceptionHandler`를 통해서 원하는 Exception를 분류해서 처리할 수 있습니다.
-- `@ControllerAdvice`는 `@Controller`가 사용된 모든 클래스에서 발생하는 모든 Exception을 공통적으로 처리할 수 있습니다.
+하지만 RESTful API에서 반드시 @Rest~를 사용해야 하는 것은 아닙니다.
+
+예를들어 `@ExceptionHandler`는 어떠한 응답 객체도 가질 수 있기 때문에 `@ControllerAdvice`로 예외를 수집하고 RESTful API처럼 ResponseEntity 객체를 만들어서 사용할 수 있습니다.
+
 ```java
 @ControllerAdvice
 public class ExceptionAdvice {
@@ -940,6 +936,12 @@ public class ExceptionAdvice {
     }
 }
 ```
+
+## @ControllerAdvice
+- Spring 3.2 버전부터 사용할 수 있습니다.
+- `@ControllerAdvice`를 선언한 클래스 안에서 `@ExceptionHandler`를 통해서 원하는 Exception를 분류해서 처리할 수 있습니다.
+- `@ControllerAdvice`는 `@Controller`가 사용된 모든 클래스에서 발생하는 모든 Exception을 공통적으로 처리할 수 있습니다.<br>(`@RestController`가 사용된 클래스에 대한 Exception도 처리할 수 있습니다.)
+
 ```java
 @RestControllerAdvice
 public class ExceptionAdvisor {
@@ -997,7 +999,9 @@ public ResponseEntity method(@PathVariable Long id){
 ## ResponseUtility
 RESTful API는 ResponseEntity를 갖으며 여러 HTTP 상태 코드와 메세지를 만들기 위해서 ResponseUtility를 사용하기도 했습니다.
 
-`@UtilityClass`를 사용하면 final 클래스로 생성하고 private 생성자를 자동으로 생성해주며 정적 메서드로 인스턴스 생성 없이 사용할 수 있습니다.
+상황에 따라 success와 fail을 나누어서 사용하기도 했습니다. fail은 Exception을 발생시키지 않고 내부적으로 응답 안에 status를 만들어 성공, 실패 여부를 반환했습니다. 
+
+📌 `@UtilityClass`를 사용하면 (1) final 클래스로 생성하고 (2) private 생성자를 자동으로 생성하고 (3) 내부 함수를 정적 메서드로 사용할 수 있습니다.
 
 ```java
 @UtilityClass
