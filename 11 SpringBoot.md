@@ -1696,7 +1696,7 @@ public class prohibitedWordService {
 | @RequestMapping                                                               | Class     | 함수 레벨에 사용할 수 있지만 함수 레벨에는 @GetMapping과 같은 HTTP 메소드 레벨의 어노테이션을 사용하고 클래스 레벨에는 @RequestMapping을 사용합니다.<br>Controller에 포함된 모든 함수에 공통 적용할 공통 경로와 같은 내용을 적습니다.                                                                               |
 | @Api, @Tag                                                                    | Class     | Swagger를 사용할 때 사용하는 어노테이션입니다.<br>Swagger 버전에 따라 사용되는 어노테이션의 이름이 조금씩 다릅니다.                                                                                                                                                             |
 | @ApiOperation, @Operation                                                     | Method    | Swagger를 사용할 때 사용하는 어노테이션입니다.<br>Swagger 버전에 따라 사용되는 어노테이션의 이름이 조금씩 다릅니다.                                                                                                                                                             |
-| @GetMapping<br>@PostMapping<br>@PutMapping<br>@DeleteMapping<br>@PatchMapping | Method    | - @RequestMapping의 하위 어노테이션으로 각 함수마다 사용하는 HTTP 메소드에 따라 지정해서 사용합니다.<br/>- path : 각 API의 하위 경로를 명시<br/>- produces,consumes : 요청과 응답의 형식을 지정할 때 사용합니다. 주로 JSON 형태로 통신하기 때문에 `MediaType.APPLICATION_JSON_VALUE`를 사용했습니다.                  |
+| @GetMapping<br>@PostMapping<br>@PutMapping<br>@DeleteMapping<br>@PatchMapping | Method    | - @RequestMapping의 하위 어노테이션으로 각 함수마다 사용하는 HTTP 메소드에 따라 지정해서 사용합니다.<br/>- path : 각 API의 하위 경로를 명시<br/>- consumes(요청), produces(응답) : 요청과 응답의 형식을 지정할 때 사용합니다. 주로 JSON 형태로 통신하기 때문에 `MediaType.APPLICATION_JSON_VALUE`를 사용했습니다.         |
 | @PathVariable                                                                 | Parameter | - Method : `GET`<br>- URL 경로에서 변수를 추출하는 데 사용됩니다. 주로 RESTful 웹 서비스에서 경로 매개변수를 추출하는 데 쓰입니다.<br>- URL 경로에서 특정 부분을 변수로 설정하고 사용하려면 @PathVariable을 사용합니다. <br/>- `/products/{id}`와 같은 경로에서 id를 추출할 때 사용합니다.                                 |
 | @RequestParam                                                                 | Parameter | - Method : `GET`<br>- 요청의 쿼리 매개변수(파라미터)를 추출하는 데 사용됩니다. URL의 ? 뒤에 오는 매개변수를 읽어옵니다.<br>- 쿼리 매개변수를 추출할 때 사용합니다. <br/>- `/products?id=123`와 같이 URL에서 id를 추출할 때 사용합니다.<br/>- 전달되는 파라미터가 많을 경우 VO 클래스를 사용하면 클래스 내 필드와 자동으로 맵핑해줍니다. (데이터 바인딩) |
 | @RequestBody                                                                  | Parameter | - Method : `POST`, `PUT`, `PATCH`<br>- HTTP 요청의 본문(body) 부분을 특정 자바 객체로 매핑하도록 지시합니다.<br>- 주로 POST나 PUT 요청과 함께 사용되며, 클라이언트가 JSON 또는 XML 형식으로 데이터를 전송할 때 사용됩니다.<br>- 예를 들어, 클라이언트가 JSON으로 데이터를 보내고 이를 자바 객체로 변환하려면 @RequestBody를 사용합니다.  |
@@ -1735,29 +1735,69 @@ public class SearchController {
 
 자주 쓰이는 Service Annotation
 ===
-- ## Class
-  - ### @Service
-  - ### @RequiredArgsConstructor
-  - ### @Validated
-- ## Method
-  - ### @Transactional
-    - #### readOnly
-    - #### rollbackFor
-    - #### noRollbackFor
-    - #### propagation
-    - #### isolation
-    - #### timeout
+
+| 이름                       | 위치     | 내용  |
+|--------------------------|--------|-----|
+| @Service                 | Class  |     |
+| @RequiredArgsConstructor | Class  |     |
+| @Validated               | Method |     |
+| @Transactional           | Method | readOnly, rollbackFor, noRollbackFor, propagation, isolation, timeout    |
+|                          |        |     |
+
+```java
+@Service
+@RequiredArgsConstructor
+public class SearchService {
+    private final SearchKeywordHistoryRepository searchKeywordHistoryRepository;
+
+    private final KakaoService kakaoService;
+    private final NaverService naverService;
+
+    @PersistenceContext
+    private EntityManager em;
+
+    @HystrixCommand(fallbackMethod = "fallbackGetKakaoBlogs")
+    public PaginationResponseVO getKakaoBlogs(SearchKakaoBlogRequestVO searchKakaoBlogRequestVO) {
+        KakaoBlogRequestDTO kakaoBlogRequestDTO = searchKakaoBlogRequestVO.toKakaoBlogRequestDTO();
+        KakaoBlogResponseDTO kakaoBlogResponseDTO = kakaoService.getKakaoBlog(kakaoBlogRequestDTO);
+        kakaoBlogResponseDTO.getMeta().setQuery(kakaoBlogRequestDTO.getQuery());
+        searchKeywordHistoryRepository.save(SearchKeywordHistoryEntity.builder().keyword(searchKakaoBlogRequestVO.getKeyword()).build());
+        return new PaginationResponseVO(kakaoBlogResponseDTO.getMeta(), kakaoBlogResponseDTO.getDocuments());
+    }
+
+    @HystrixCommand(fallbackMethod = "fallbackGetNaverBlogs")
+    public PaginationResponseVO getNaverBlogs(SearchNaverBlogRequestVO searchNaverBlogRequestVO) {
+        NaverBlogRequestDTO naverBlogRequestDTO = searchNaverBlogRequestVO.toNaverBlogRequestDTO();
+        NaverBlogResponseDTO naverBlogResponseDTO = naverService.getNaverBlog(naverBlogRequestDTO);
+        searchKeywordHistoryRepository.save(SearchKeywordHistoryEntity.builder().keyword(searchNaverBlogRequestVO.getKeyword()).build());
+        return new PaginationResponseVO(naverBlogResponseDTO.getMeta(naverBlogRequestDTO.getQuery()), naverBlogResponseDTO.getItems());
+    }
+
+    public PaginationResponseVO fallbackGetKakaoBlogs(SearchKakaoBlogRequestVO searchKakaoBlogRequestVO) {
+        return getNaverBlogs(searchKakaoBlogRequestVO.toSearchNaverBlogRequestVO());
+    }
+
+    public PaginationResponseVO fallbackGetNaverBlogs(SearchNaverBlogRequestVO searchNaverBlogRequestVO) {
+        return getKakaoBlogs(searchNaverBlogRequestVO.toSearchKakaoBlogRequestVO());
+    }
+}
+```
 
 ---
 
 자주 쓰이는 Model Annotation
 ===
-- ## Class
-  - ### @AllArgsConstrutor(access = AccessLevel.PRIVATE)
-  - ### @NoArgsConstrutor
-  - ### @Data
-  - ### @Builder, @SuperBuilder
-- ## Method
+| 이름                                               | 위치    | 내용  |
+|--------------------------------------------------|-------|-----|
+| @AllArgsConstrutor(access = AccessLevel.PRIVATE) | Class |     |
+| @NoArgsConstrutor                                | Class |     |
+| @Data                                            | Class |     |
+| @Builder                                         | Class |     |
+| @SuperBuilder                                    | Class |     |
+| @Builder.default                                 | Field |     |
+| @ApiModelProperty                                | Field |     |
+| @Min(1)<br/>@Max(20)                             | Field |     |
+| @NotEmpty<br/>@NotNull<br/>@NotBlank             | Field |     |
 
 ---
 
