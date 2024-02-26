@@ -49,7 +49,7 @@
 * [자주 쓰이는 Controller Annotation](#자주-쓰이는-controller-annotation)
 * [자주 쓰이는 Service Annotation](#자주-쓰이는-service-annotation)
 * [자주 쓰이는 Model Annotation](#자주-쓰이는-model-annotation)
-* [@Transactional](#transactional-1)
+* [@Transactional](#transactional)
 * [Redis](#redis)
 * [Flyway](#flyway)
 * [Reference](#reference)
@@ -1736,13 +1736,11 @@ public class SearchController {
 자주 쓰이는 Service Annotation
 ===
 
-| 이름                       | 위치     | 내용  |
-|--------------------------|--------|-----|
-| @Service                 | Class  |     |
-| @RequiredArgsConstructor | Class  |     |
-| @Validated               | Method |     |
-| @Transactional           | Method | readOnly, rollbackFor, noRollbackFor, propagation, isolation, timeout    |
-|                          |        |     |
+| 이름                       | 위치     | 내용                                                                                                                                                                                                                                                     |
+|--------------------------|--------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| @Service                 | Class  | @Controller와 비슷한 역할을 합니다.<br/>컴포넌트 스캔 대상이 되고 Spring Container에 Bean으로 등록됩니다.<br/>해당 클래스가 비지니스 로직을 처리하는 Service 클래스라는 것을 나타내기도 합니다.                                                                                                                     |
+| @RequiredArgsConstructor | Class  | Controller에서 사용되는 이유와 같습니다. 생성자 의존성 주입을 위해서 사용되며 <br/>`private final Repository repository`와 같이 사용됩니다.                                                                                                                                                 |
+| @Transactional           | Method | DB의 트랜잭션을 만들고 관리하기 위해서 사용합니다.<br/>단순히 @Transactional만 적어주면 실행되는 함수가 하나의 트랜잭션으로 묶여서 중간에 에러가 발생하면 DB에 Rollback을 실행합니다.<br/>readOnly, rollbackFor, noRollbackFor, propagation, isolation, timeout와 같은 옵션으로 트랜잭션을 나눌 수 있습니다.<br/>자세한 내용은 별도의 파트에서 다룹니다. |
 
 ```java
 @Service
@@ -1756,6 +1754,7 @@ public class SearchService {
     @PersistenceContext
     private EntityManager em;
 
+    @Transactional
     @HystrixCommand(fallbackMethod = "fallbackGetKakaoBlogs")
     public PaginationResponseVO getKakaoBlogs(SearchKakaoBlogRequestVO searchKakaoBlogRequestVO) {
         KakaoBlogRequestDTO kakaoBlogRequestDTO = searchKakaoBlogRequestVO.toKakaoBlogRequestDTO();
@@ -1765,6 +1764,7 @@ public class SearchService {
         return new PaginationResponseVO(kakaoBlogResponseDTO.getMeta(), kakaoBlogResponseDTO.getDocuments());
     }
 
+    @Transactional
     @HystrixCommand(fallbackMethod = "fallbackGetNaverBlogs")
     public PaginationResponseVO getNaverBlogs(SearchNaverBlogRequestVO searchNaverBlogRequestVO) {
         NaverBlogRequestDTO naverBlogRequestDTO = searchNaverBlogRequestVO.toNaverBlogRequestDTO();
@@ -1787,17 +1787,70 @@ public class SearchService {
 
 자주 쓰이는 Model Annotation
 ===
-| 이름                                               | 위치    | 내용  |
-|--------------------------------------------------|-------|-----|
-| @AllArgsConstrutor(access = AccessLevel.PRIVATE) | Class |     |
-| @NoArgsConstrutor                                | Class |     |
-| @Data                                            | Class |     |
-| @Builder                                         | Class |     |
-| @SuperBuilder                                    | Class |     |
-| @Builder.default                                 | Field |     |
-| @ApiModelProperty                                | Field |     |
-| @Min(1)<br/>@Max(20)                             | Field |     |
-| @NotEmpty<br/>@NotNull<br/>@NotBlank             | Field |     |
+| 이름                                               | 위치    | 내용                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+|--------------------------------------------------|-------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| @AllArgsConstrutor(access = AccessLevel.PRIVATE)<br/>@NoArgsConstrutor | Class | 기본 생성자와 모든 필드를 포함한 생성자를 자동으로 생성해줍니다.<br/>필드가 많을 경우 생성자로 객체를 생성하면 필드 순서와 타입을 모두 맞춰야하기 때문에 휴먼에러를 만들어낼 가능성이 높아지게 됩니다.<br/>따라서 VO는 Builder로 생성하는 것을 추천하며 외부에서 생성자를 사용할 수 없도록 AccessLevel을 설정하기도 합니다.<br/>📌 Builder 패턴이 갖는 장점<br/>- **가독성과 유지보수 향상** : 생성자에 많은 매개변수가 있을 때 인자의 순서와 의미를 혼동할 수 있습니다. Builder 패턴을 사용하면 각각의 설정 메서드에 의미 있는 이름을 부여하고 가독성이 향상됩니다.<br/>- **필수 및 선택적 매개변수 지원** : 일부 필드는 필수이고 일부는 선택적일 때 Builder 패턴은 특히 유용합니다. 필요한 필드만 설정하고 나머지는 기본값으로 초기화할 수 있습니다.<br/>- **인자 순서에 구애받지 않음** : 생성자의 인자 순서에 구애받지 않아도 되므로 새로운 필드를 추가하거나 기존 필드를 변경해도 기존 코드에 영향을 주지 않으면서 객체를 생성할 수 있습니다.<br/>- **가변성을 감소시켜 객체의 일관성 강화** : Builder 패턴을 사용하면 가변성을 감소시킴으로써 객체의 일관성을 강화할 수 있습니다. 객체 생성 이후에는 더 이상 변경할 수 없게 되어 객체의 상태를 안정적으로 유지할 수 있습니다. |
+| @Data                                            | Class | @Getter, @Setter, @ToString, @EqualsAndHashCode, @RequiredArgsConstructor 를 합친 Annotation<br/>@RequiredArgsConstructor은 초기화 되지 않은 모든 final 필드, @NonNull과 같이 제약조건이 설정되어있는 모든 필드들에 대한 생성자를 자동으로 생성한다.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| @Builder                                         | Class | Builder 패턴을 자동으로 생성해줍니다.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| @SuperBuilder                                    | Class | VO를 상속 받아서 사용하는 경우 부모의 필드를 Builder에서 사용할 수 있도록 해줍니다.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| @Builder.default                                 | Field | Builder로 생성할 때 기본값을 지정해주기 위해서 사용합니다.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| @ApiModelProperty                                | Field | Swagger를 사용할 때 사용하는 어노테이션입니다.<br>Swagger 버전에 따라 사용되는 어노테이션의 이름이 조금씩 다릅니다.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| @Min(1)<br/>@Max(20)                             | Field | @Vaild와 같이 사용되며 VO 안에 있는 필드 값의 유효성 검사를 해줍니다.<br/>@Min, @Max 이외에도 @Positive, @PositiveOrZero 등 여러 종류의 Annotation을 사용할 수 있습니다.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| @NotNull<br/>@NotEmpty<br/>@NotBlank             | Field | @NotNull : Null 여부 체크 <br/>@NotEmpty : Null 여부, 빈 문자열(""), 빈 객체(List)인지 체크<br/>@NotBlank : Null 여부, 빈 문자열(""), 빈 객체(List), 공백 문자열(" ")인지 체크                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 
+
+```java
+@Getter
+@ToString
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@EqualsAndHashCode(callSuper = false)
+public class SearchKakaoBlogRequestVO extends PaginationRequestVO {
+    @Builder.Default
+    @Enum(enumClass = DefaultBlogSortType.class)
+    @ApiModelProperty(value = "블로그를 조회하는 정렬 기준 (기본값: ACCURACY)", notes = "블로그 조회 정렬 기준", example = "RECENCY", allowableValues = "ACCURACY, RECENCY")
+    private String sortType = DefaultBlogSortType.ACCURACY.name();
+
+    @ApiModelProperty(value = "특정 블로그 URL", notes = "특정 블로그 글만 검색하고 싶은 경우")
+    private String blogUrl;
+
+    @ApiModelProperty(value = "블로그를 검색하는 기준 키워드", notes = "블로그 검색 키워드", required = true)
+    @NotEmpty
+    private String keyword;
+
+    @Min(1)
+    @Max(50)
+    @Builder.Default
+    @ApiModelProperty(value = "Page 단위로 조회 시 한 번에 가져올 Page의 크기 (기본값: 10)", notes = "1~50 사이의 정수", example = "10")
+    private Integer pageSize = 10;
+
+    @Min(1)
+    @Max(50)
+    @Builder.Default
+    @ApiModelProperty(value = "Page 단위로 조회 시 데이터 조회 시작 건 수 (기본값: 1)", notes = "1~50 사이의 정수", example = "1")
+    private Integer start = 1;
+
+    public KakaoBlogRequestDTO toKakaoBlogRequestDTO() {
+        String query = ObjectUtils.isEmpty(blogUrl) ? keyword : blogUrl + " " + keyword;
+        String sort = sortType.toLowerCase();
+        return KakaoBlogRequestDTO.builder()
+                .query(query)
+                .sort(sort)
+                .page(this.start)
+                .size(this.pageSize)
+                .build();
+    }
+
+    public SearchNaverBlogRequestVO toSearchNaverBlogRequestVO() {
+        return SearchNaverBlogRequestVO.builder()
+                .keyword(keyword)
+                .sortType(sortType)
+                .start(this.start)
+                .pageSize(this.pageSize)
+                .build();
+    }
+}
+```
 
 ---
 
