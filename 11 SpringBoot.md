@@ -23,7 +23,17 @@
   * [VO와 DTO](#vo와-dto)
   * [VO 종류](#vo-종류)
     * [1. RequestVO/ResponseVO](#1-requestvoresponsevo)
+      * [RequestVO](#requestvo)
+      * [ResponseVO](#responsevo)
+      * [RequestVO와 ResponseVO의 사용 예시](#requestvo와-responsevo의-사용-예시)
+      * [💡¹) toVO함수의 사용](#--tovo함수의-사용)
+      * [💡²) 일반VO를 꼭 써야할까? SQL에서 RequestVO와 ResponseVO를 바로 사용한다면?](#--일반vo를-꼭-써야할까-sql에서-requestvo와-responsevo를-바로-사용한다면)
+      * [📌 VO 안에서 private final 필드 사용 - 공통 코드와 enum 필드](#-vo-안에서-private-final-필드-사용---공통-코드와-enum-필드)
+      * [💡³)Session 관련된 정보들은 Controller에서 넘겨줘야 할까? 아니면 Service 안에서 가져와야 할까?](#--session-관련된-정보들은-controller에서-넘겨줘야-할까-아니면-service-안에서-가져와야-할까)
+      * [💡⁴) ResponseVO 조립](#--responsevo-조립)
+      * [**📌 Check Point**](#-check-point)
     * [2. 테이블VO](#2-테이블vo)
+      * [**📌 Check Point**](#-check-point-1)
     * [3. 일반VO](#3-일반vo)
     * [4. 정리](#4-정리)
 * [Exception 공통 처리](#exception-공통-처리)
@@ -32,6 +42,9 @@
   * [@ControllerAdvice](#controlleradvice)
   * [ResponseStatusException](#responsestatusexception)
   * [ResponseUtility](#responseutility)
+* [자주 쓰이는 Controller Annotation](#자주-쓰이는-controller-annotation)
+* [자주 쓰이는 Service Annotation](#자주-쓰이는-service-annotation)
+* [자주 쓰이는 Model Annotation](#자주-쓰이는-model-annotation)
 * [Request에 enum 클래스 처리하기](#request에-enum-클래스-처리하기)
   * [@Enum과 EnumValidator](#enum과-enumvalidator)
   * [Converter](#converter)
@@ -46,9 +59,6 @@
     * [JSON 요청을 Java 객체로 역직렬화](#json-요청을-java-객체로-역직렬화)
     * [Java 객체를 JSON 응답으로 직렬화](#java-객체를-json-응답으로-직렬화)
 * [Aspect](#aspect-1)
-* [자주 쓰이는 Controller Annotation](#자주-쓰이는-controller-annotation)
-* [자주 쓰이는 Service Annotation](#자주-쓰이는-service-annotation)
-* [자주 쓰이는 Model Annotation](#자주-쓰이는-model-annotation)
 * [@Transactional](#transactional)
 * [Redis](#redis)
 * [Flyway](#flyway)
@@ -469,16 +479,18 @@ Spring에서 Model을 다룰 때 VO와 DTO를 사용합니다. VO와 DTO의 사�
 
   <img width="859" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/41d31e95-0b59-4d84-97f9-d884918d0b61">
 
-- #### RequestVO
-  - FE에서 넘어오는 데이터를 받기 위해서 Controller Layer에서 사용되며 RequestVO는 주로 **Session 정보(💡³)** 와 함께 Service Layer로 전달합니다.
-  - RequestVO는 VO의 사전적 의미처럼 toVO 같은 비지니스 로직을 담을 수 있지만 그 안에 있는 값을 변경하지 않아야 합니다. (setter 사용 ❌)
-  - 대신 API 하나에 RequestVO/ResponseVO는 하나씩 사용되기 때문에 필요하지 않다면 equals()와 hashCode()를 구현해주지 않아도 됩니다. (Controller의 함수 : RequestVO : ResponseVO = 1 : 1 : 1)
-  - RequestVO는 주로 Service 함수 초반부에 toVO 함수를 통해 일반VO를 생성하거나 Service 내에서 FE로 부터 받은 값을 사용하기 위해 getter 함수를 통해 final 변수에 할당해서 사용합니다.
-- #### ResponseVO
-  - FE로 데이터를 넘기기 위한 불변 객체로 사용되어야 하며 주로 Service의 반환 객체에 사용됩니다.
-  - Service 함수 마지막에 생성자 혹은 Builder를 사용해서 **ResponseVO를 생성(💡⁴)** 하고 반환합니다.
-  - ResponseVO를 비지니스 로직 중간에 생성하고 비지니스 로직에 따라 내부 값을 변경(setter)하는 것은 지양해야 합니다. (setter 사용 ❌)
-- #### RequestVO와 ResponseVO의 사용 예시
+#### RequestVO
+- FE에서 넘어오는 데이터를 받기 위해서 Controller Layer에서 사용되며 RequestVO는 주로 **Session 정보(💡³)** 와 함께 Service Layer로 전달합니다.
+- RequestVO는 VO의 사전적 의미처럼 toVO 같은 비지니스 로직을 담을 수 있지만 그 안에 있는 값을 변경하지 않아야 합니다. (setter 사용 ❌)
+- 대신 API 하나에 RequestVO/ResponseVO는 하나씩 사용되기 때문에 필요하지 않다면 equals()와 hashCode()를 구현해주지 않아도 됩니다. (Controller의 함수 : RequestVO : ResponseVO = 1 : 1 : 1)
+- RequestVO는 주로 Service 함수 초반부에 toVO 함수를 통해 일반VO를 생성하거나 Service 내에서 FE로 부터 받은 값을 사용하기 위해 getter 함수를 통해 final 변수에 할당해서 사용합니다.
+
+#### ResponseVO
+- FE로 데이터를 넘기기 위한 불변 객체로 사용되어야 하며 주로 Service의 반환 객체에 사용됩니다.
+- Service 함수 마지막에 생성자 혹은 Builder를 사용해서 **ResponseVO를 생성(💡⁴)** 하고 반환합니다.
+- ResponseVO를 비지니스 로직 중간에 생성하고 비지니스 로직에 따라 내부 값을 변경(setter)하는 것은 지양해야 합니다. (setter 사용 ❌)
+
+#### RequestVO와 ResponseVO의 사용 예시
   ```java
   public ResponseVO method(RequestVO requestVO, String customerId) {
 
@@ -521,189 +533,193 @@ Spring에서 Model을 다룰 때 VO와 DTO를 사용합니다. VO와 DTO의 사�
     return responseVO;
   }
   ```
-- 
-- #### 💡¹) toVO함수의 사용
-  - toVO 함수는 VO에서 VO로 변환할 때 사용합니다. toVO 함수도 비지니스 로직 중 한 부분이기 때문에 VO에선 갖지만 DTO에선 갖지 않습니다.
-  - toVO 함수를 사용하는 이유는 Service 함수 내에는 중요한 비지니스 부분만 나타내기 위함입니다.
-  - toVO 함수에서 하는 단순한 값 복사나 값 변환 같은 코드를 Service에 두게 되면 Service 코드를 봤을 때 비지니스 로직에 집중하기 어려워 집니다.
-  - 따라서 VO에서 다른 VO를 만들 때 필요한 값 복사나 값의 변환은 toVO 함수 내에 적어야 합니다.
-  
-    ```java
-    /* RequestVO의 값 복사 */
-    public class RequestVO {
-        private String name;
-        private int age;
-    
-        public GetVO toGetVO() {
-            return GetVO.builder()
-                .name(name)
-                .age(age)
-                .build();
-        }
-    }  
-    ```
-    ```java
-    /* VO의 값 변환 */
-    public class CustomGetVO {
-        private int id;
-        private ReplyTypeCode replyTypeCode;
-        private String name;
-        private String contents;
-    
-        public ReplyUpdateVO toReplyUpdateVO(String customerId) {
-            String type = replyTypeCode == ReplyTypeCode.NORMAL ? ReplyTypeCode.NORMAL.code() : ReplyTypeCode.SECRET.code();
-            return ReplyUpdateVO.builder()
-                        .id(id)
-                        .type(type)
-                        .name(name)
-                        .contents(contents)
-                        .customerId(customerId)
-                        .build(); 
-        }
-    }
-    ```
-  
-- #### 💡²) 일반VO를 꼭 써야할까? SQL에서 RequestVO와 ResponseVO를 바로 사용한다면?
-  - 회사에서 경험했던 프로젝트에서 SE(개발자)의 역할은 Agile 기반의 Sprint를 수행하면서 Story 기반의 개발을 할 때 한 명의 개발자가 FE/BE(React/SpringBoot)를 모두 개발했었습니다.
-  - 이렇게하다보니 FE에서 사용하는 인터페이스 필드와 RequestVO 필드의 이름을 모두 같게 작명하고 간단한 조회성 API의 경우 아래 코드와 같이 RequestVO와 ResponseVO를 SQL에서 바로 사용해도 기능상엔 문제가 없습니다.
-    ```java
-    public ResponseVO method(RequestVO requestVO, String customerId) {
-      return repository.findSomething(requestVO);
-    }
-    ```
-  - FE와 BE에서 사용되는 변수의 용도는 조금씩 다를 수 있고 FE와 BE에 Naming Convention이 같으면 좋지 않다고 생각을 하지만 한 명의 개발자가 FE와 BE 기능 모두를 개발하기 때문에 편의상 필드 이름을 같게하고 SQL에서 사용하는 필드 이름도 맞춰서 사용하기 때문에 `SQL에서 RequestVO와 ResponseVO를 바로 사용한다고해도 기능상에는 문제가 없을 것 같습니다.`
-  - 하지만 이는 유지보수와 코드 품질엔 좋지 않다고 생각합니다. 기본적으로 RequestVO와 ResponseVO를 독립적으로 사용해야 하고 필드명이 수정되면 FE, BE, SQL 모두 수정해야하는 번거로움이 있습니다. SQL에서의 오타는 테스크 코드 등을 통해서 방지할 수 있지만 기본적으로 런타임 에러이기 때문에 유지보수에 안좋다고 생각합니다.
-    ```java
-    public ResponseVO method(RequestVO requestVO, String customerId) {
-      GetVO getVO = requestVO.toGetVO();
-      GetResultVO getResultVO = repository.findSomething(getVO);
-      return new ResponseVO(getResultVO);
-    }
-    ```
-  - 따라서 FE와 BE의 필드명을 다르게 가져간다면 toVO로 일반VO를 만들어서 사용하는 것이 안정적이고 그렇지 않다면 아래와 같은 장단점이 있습니다.
-  - 일반VO를 사용했을 때의 단점
-    - toVO 함수는 단순한 값을 복사만 하는 함수이기 때문에 불필요한 코드의 작성이 될 수 있습니다.
-    - Service 함수의 코드가 다소 길어집니다.
-    - 필드 이름이 변경되었을 경우 toVO 함수를 수정해야 합니다. (하지만 컴파일 에러가 발생하기 때문에 찾기는 쉽습니다.)
-  - 일반VO를 사용했을 때의 장점
-    - RequestVO의 필드명이 바뀌거나 Table의 필드명이 바꼈을 경우 toVO 함수만 수정하면 되기 때문에 유지보수에 유리합니다.
-    - RequestVO와 ResponseVO를 독립적으로 사용할 수 있어서 버그가 발생했을 때 RequestVO, Service 로직, SQL, ResponseVO를 분리해서 디버깅하기 쉽습니다.
-    - 그리고 나중에 비지니스 로직이 변경되서 Service 함수를 수정해야할 때 Service 로직만 수정하면 되기 때문에 유지보수에 유리합니다. (첫번째 예시 코드는 `repository.findSomething(requestVO)`를 분리해서 작성해야하는데 수정 범위가 넓고 사이드 이펙트를 발생시킬 수 있습니다.)
-    - SQL에서 공통 코드 값을 사용할 때 일반VO에 private final 필드를 선언해서 사용할 수 있습니다. RequestVO에 안에도 private final 필드를 선언할 수 있지만 RequestVO의 의미와 맞지 않으며 Swagger를 사용하면 @Ignore와 같은 어노테이션으로 숨겨야합니다.
-  - 결론적으로 코드의 재사용성과 확장성, 유지보수의 편리함을 생각해봤을 때 일반VO를 사용하는 것이 좋다고 생각합니다. 하지만 경우에 따라 간단한 로직의 경우엔 첫번째 예시 코드처럼 SQL에서 RequestVO와 ResponseVO를 바로 사용하는 것도 나쁘지 않다고 생각합니다.
 
-  - 📌 VO 안에서 private final 필드 사용 - 공통 코드와 enum 필드
-    - 주문 타입, 컨텐츠 타입 등 공통 코드를 만들어서 관리하는 방법은 여러가 입니다.
-    - 변경이 자주 된다면 사용할 때마다 공통 코드를 조회해서 사용하거나 주기적으로 공통 코드를 조회해서 static 변수로 사용할 수 있습니다.
-    - 프로젝트에선 공통 코드가 거의 변하지 않아서 enum 변수를 만들어서 사용했었고 enum으로 선언한 코드를 SQL에서 사용하기 위해 VO 안에 private final 변수로 사용했습니다.
-    - 변수의 이름은 반드시 SQL에도 의미를 알 수 있도록 변수 이름을 정했습니다.
-      ```java
-      public enum ContentsTypeCode {
-          FEED("001"),
-          COMMENT("002"),
-          NOTICE("003"),
-          COUPON("004"),
-          VOTE("005");
-      
-          ContentsTypeCode(String code) {
-              this.code = code;
-          }
-      
-          private String code;
-      
-          public String code() {
-              return code;
-          }
+#### 💡¹) toVO함수의 사용
+- toVO 함수는 VO에서 VO로 변환할 때 사용합니다. toVO 함수도 비지니스 로직 중 한 부분이기 때문에 VO에선 갖지만 DTO에선 갖지 않습니다.
+- toVO 함수를 사용하는 이유는 Service 함수 내에는 중요한 비지니스 부분만 나타내기 위함입니다.
+- toVO 함수에서 하는 단순한 값 복사나 값 변환 같은 코드를 Service에 두게 되면 Service 코드를 봤을 때 비지니스 로직에 집중하기 어려워 집니다.
+- 따라서 VO에서 다른 VO를 만들 때 필요한 값 복사나 값의 변환은 toVO 함수 내에 적어야 합니다.
+
+  ```java
+  /* RequestVO의 값 복사 */
+  public class RequestVO {
+      private String name;
+      private int age;
+  
+      public GetVO toGetVO() {
+          return GetVO.builder()
+              .name(name)
+              .age(age)
+              .build();
       }
-      ```
-      ```java
-      public class ContentsFeedGetVO {
-          private String contentsType;
-          private String title;
-          private String contents;
-          private String customerId;
-          private final String contentsTypeFeedCode = ContentsTypeCode.FEED.code();
+  }  
+  ```
+  ```java
+  /* VO의 값 변환 */
+  public class CustomGetVO {
+      private int id;
+      private ReplyTypeCode replyTypeCode;
+      private String name;
+      private String contents;
+  
+      public ReplyUpdateVO toReplyUpdateVO(String customerId) {
+          String type = replyTypeCode == ReplyTypeCode.NORMAL ? ReplyTypeCode.NORMAL.code() : ReplyTypeCode.SECRET.code();
+          return ReplyUpdateVO.builder()
+                      .id(id)
+                      .type(type)
+                      .name(name)
+                      .contents(contents)
+                      .customerId(customerId)
+                      .build(); 
       }
-      ```
-      ```sql
-      SELECT ...
-      FROM contents c
-      WHERE c.contents_type = #{contentsTypeFeedCode}
-      ```
-- #### 💡³)Session 관련된 정보들은 Controller에서 넘겨줘야 할까? 아니면 Service 안에서 가져와야 할까?
-  - 주로 로그인한 사용자의 customerId는 Session에서 정보를 가져옵니다. 이 Session 정보는 Controller 함수 내에서 가져와서 Service에 넘겨주거나 Service 함수 내부에서 가져올 수 있습니다.
+  }
+  ```
+  
+#### 💡²) 일반VO를 꼭 써야할까? SQL에서 RequestVO와 ResponseVO를 바로 사용한다면?
+- 회사에서 경험했던 프로젝트에서 SE(개발자)의 역할은 Agile 기반의 Sprint를 수행하면서 Story 기반의 개발을 할 때 한 명의 개발자가 FE/BE(React/SpringBoot)를 모두 개발했었습니다.
+- 이렇게하다보니 FE에서 사용하는 인터페이스 필드와 RequestVO 필드의 이름을 모두 같게 작명하고 간단한 조회성 API의 경우 아래 코드와 같이 RequestVO와 ResponseVO를 SQL에서 바로 사용해도 기능상엔 문제가 없습니다.
+  ```java
+  public ResponseVO method(RequestVO requestVO, String customerId) {
+    return repository.findSomething(requestVO);
+  }
+  ```
+- FE와 BE에서 사용되는 변수의 용도는 조금씩 다를 수 있고 FE와 BE에 Naming Convention이 같으면 좋지 않다고 생각을 하지만 한 명의 개발자가 FE와 BE 기능 모두를 개발하기 때문에 편의상 필드 이름을 같게하고 SQL에서 사용하는 필드 이름도 맞춰서 사용하기 때문에 `SQL에서 RequestVO와 ResponseVO를 바로 사용한다고해도 기능상에는 문제가 없을 것 같습니다.`
+- 하지만 이는 유지보수와 코드 품질엔 좋지 않다고 생각합니다. 기본적으로 RequestVO와 ResponseVO를 독립적으로 사용해야 하고 필드명이 수정되면 FE, BE, SQL 모두 수정해야하는 번거로움이 있습니다. SQL에서의 오타는 테스크 코드 등을 통해서 방지할 수 있지만 기본적으로 런타임 에러이기 때문에 유지보수에 안좋다고 생각합니다.
+  ```java
+  public ResponseVO method(RequestVO requestVO, String customerId) {
+    GetVO getVO = requestVO.toGetVO();
+    GetResultVO getResultVO = repository.findSomething(getVO);
+    return new ResponseVO(getResultVO);
+  }
+  ```
+- 따라서 FE와 BE의 필드명을 다르게 가져간다면 toVO로 일반VO를 만들어서 사용하는 것이 안정적이고 그렇지 않다면 아래와 같은 장단점이 있습니다.
+- 일반VO를 사용했을 때의 단점
+  - toVO 함수는 단순한 값을 복사만 하는 함수이기 때문에 불필요한 코드의 작성이 될 수 있습니다.
+  - Service 함수의 코드가 다소 길어집니다.
+  - 필드 이름이 변경되었을 경우 toVO 함수를 수정해야 합니다. (하지만 컴파일 에러가 발생하기 때문에 찾기는 쉽습니다.)
+- 일반VO를 사용했을 때의 장점
+  - RequestVO의 필드명이 바뀌거나 Table의 필드명이 바꼈을 경우 toVO 함수만 수정하면 되기 때문에 유지보수에 유리합니다.
+  - RequestVO와 ResponseVO를 독립적으로 사용할 수 있어서 버그가 발생했을 때 RequestVO, Service 로직, SQL, ResponseVO를 분리해서 디버깅하기 쉽습니다.
+  - 그리고 나중에 비지니스 로직이 변경되서 Service 함수를 수정해야할 때 Service 로직만 수정하면 되기 때문에 유지보수에 유리합니다. (첫번째 예시 코드는 `repository.findSomething(requestVO)`를 분리해서 작성해야하는데 수정 범위가 넓고 사이드 이펙트를 발생시킬 수 있습니다.)
+  - SQL에서 공통 코드 값을 사용할 때 일반VO에 private final 필드를 선언해서 사용할 수 있습니다. RequestVO에 안에도 private final 필드를 선언할 수 있지만 RequestVO의 의미와 맞지 않으며 Swagger를 사용하면 @Ignore와 같은 어노테이션으로 숨겨야합니다.
+- 결론적으로 코드의 재사용성과 확장성, 유지보수의 편리함을 생각해봤을 때 일반VO를 사용하는 것이 좋다고 생각합니다. 하지만 경우에 따라 간단한 로직의 경우엔 첫번째 예시 코드처럼 SQL에서 RequestVO와 ResponseVO를 바로 사용하는 것도 나쁘지 않다고 생각합니다.
+
+#### 📌 VO 안에서 private final 필드 사용 - 공통 코드와 enum 필드
+- 주문 타입, 컨텐츠 타입 등 공통 코드를 만들어서 관리하는 방법은 여러가 입니다.
+- 변경이 자주 된다면 사용할 때마다 공통 코드를 조회해서 사용하거나 주기적으로 공통 코드를 조회해서 static 변수로 사용할 수 있습니다.
+- 프로젝트에선 공통 코드가 거의 변하지 않아서 enum 변수를 만들어서 공통 코드를 관리했습니다.
+- enum 타입은 내부적으로 code 필드를 갖고 있어서 name과 code 값을 모두 갖고 Spring 코드 내에선 `ContentsTypeCode.FEED.code()`처럼 사용해서 코드의 가독성을 높였습니다.<br/>(`ContentsTypeCode.001.eqauls(contents)`와 같이 사용한다면 `001`이 어떤 값을 의미하는지 한 눈에 알 수 없습니다.)
+- 공통 코드를 SQL에서 사용하기 위해서 VO 내부에 `private final` 변수를 만들어서 사용했었고 SQL에서도 해당 변수가 어떤 코드 값을 나타내고 있는지 한 눈에 알아볼 수 있도록 변수 이름을 정하는게 포인트였습니다. 
+- SQL에서 #{contentsTypeFeedCode}을 봤을 때 ContentsType 중에 FEED에 대한 내용인 것을 바로 알 수 있습니다.
     ```java
-    /* Controller 함수 내에서 customerId 가져온 후 Service로 전달 */
-    private final Service service;
-    public CommonResponseVO<ResponseVO> method(RequestVO requestVO) {
-      String customerId = SessionUtility.getCustomerId();
-      return CommonResponseUtility.createSuccess(service.method(requestVO, customerId));
+    public enum ContentsTypeCode {
+        FEED("001"),
+        COMMENT("002"),
+        NOTICE("003"),
+        COUPON("004"),
+        VOTE("005");
+    
+        ContentsTypeCode(String code) {
+            this.code = code;
+        }
+    
+        private String code;
+    
+        public String code() {
+            return code;
+        }
     }
     ```
     ```java
-    /* Service 함수 내에서 customerId 가져오기 */
-    public ResponseVO method(RequestVO requestVO) {
-      String customerId = SessionUtility.getCustomerId();
-      ...
-      return new ResponseVO();
+    public class ContentsFeedGetVO {
+        private String contentsType;
+        private String title;
+        private String contents;
+        private String customerId;
+        private final String contentsTypeFeedCode = ContentsTypeCode.FEED.code();
     }
     ```
-  - 결론적으로 customerId는 Controller에서 가져온 후 Servce 함수로 전달해주는게 맞다고 생각합니다.
-  - 주로 권한 체크나 유저 등급 체크, 로그인 여부 체크 등 권한과 관련된 공통 처리는 Service 함수를 호출하기 전에 Controller에서 수행하기 때문에 세션 정보인 customerId도 Controller에서 먼저 취득 후 Service로 넘겨주는게 자연스럽습니다. 공통 처리를 위해 customerId를 Controller에서 취득하고 Service 함수 내에서 또 취득한다면 중복 코드가 됩니다.
-  - Service 함수는 다른 Service에서 호출될 수 있습니다. 만약 다른 Service에서 로그인한 유저의 customerId가 아니라 특정 유저의 customerId로 데이터를 가져오고 싶을 때 Service 함수 내부에서 customerId를 취득한다면 이를 구분하기 위해서 Service 내 비지니스 로직이 불필요하게 복잡해지고 Service 함수를 호출하는 입장에서도 신경 써야할 부분들이 늘어나게 됩니다.
-  - Service 함수의 파라미터로 customerId를 명시함으로서 해당 Service 함수는 내부에서 Session 정보를 사용하는 함수인지 사용하지 않는 함수인지 직관적으로 알 수 있습니다.
-- #### 💡⁴) ResponseVO 조립
-  - 일반적으로 Service 함수 내 비지니스 로직에서 발생되는 값으로 ResponseVO를 만들 경우 `Builder 패턴`을 사용해서 ResponseVO를 만듭니다. (생성자의 파라미터로 각 필드를 넘기지 않습니다. 이는 Builder를 쓰는 이유에 반대됩니다.)
-    ```java
-    public ResponseVO method(RequestVO requestVO) {
+    ```sql
+    SELECT ...
+    FROM contents c
+    WHERE c.contents_type = #{contentsTypeFeedCode}
+    ```
+
+#### 💡³)Session 관련된 정보들은 Controller에서 넘겨줘야 할까? 아니면 Service 안에서 가져와야 할까?
+- 주로 로그인한 사용자의 customerId는 Session에서 정보를 가져옵니다. 이 Session 정보는 Controller 함수 내에서 가져와서 Service에 넘겨주거나 Service 함수 내부에서 가져올 수 있습니다.
+  ```java
+  /* Controller 함수 내에서 customerId 가져온 후 Service로 전달 */
+  private final Service service;
+  public CommonResponseVO<ResponseVO> method(RequestVO requestVO) {
+    String customerId = SessionUtility.getCustomerId();
+    return CommonResponseUtility.createSuccess(service.method(requestVO, customerId));
+  }
+  ```
+  ```java
+  /* Service 함수 내에서 customerId 가져오기 */
+  public ResponseVO method(RequestVO requestVO) {
+    String customerId = SessionUtility.getCustomerId();
+    ...
+    return new ResponseVO();
+  }
+  ```
+- 결론적으로 customerId는 Controller에서 가져온 후 Servce 함수로 전달해주는게 맞다고 생각합니다.
+- 주로 권한 체크나 유저 등급 체크, 로그인 여부 체크 등 권한과 관련된 공통 처리는 Service 함수를 호출하기 전에 Controller에서 수행하기 때문에 세션 정보인 customerId도 Controller에서 먼저 취득 후 Service로 넘겨주는게 자연스럽습니다. 공통 처리를 위해 customerId를 Controller에서 취득하고 Service 함수 내에서 또 취득한다면 중복 코드가 됩니다.
+- Service 함수는 다른 Service에서 호출될 수 있습니다. 만약 다른 Service에서 로그인한 유저의 customerId가 아니라 특정 유저의 customerId로 데이터를 가져오고 싶을 때 Service 함수 내부에서 customerId를 취득한다면 이를 구분하기 위해서 Service 내 비지니스 로직이 불필요하게 복잡해지고 Service 함수를 호출하는 입장에서도 신경 써야할 부분들이 늘어나게 됩니다.
+- Service 함수의 파라미터로 customerId를 명시함으로서 해당 Service 함수는 내부에서 Session 정보를 사용하는 함수인지 사용하지 않는 함수인지 직관적으로 알 수 있습니다.
+
+#### 💡⁴) ResponseVO 조립
+- 일반적으로 Service 함수 내 비지니스 로직에서 발생되는 값으로 ResponseVO를 만들 경우 `Builder 패턴`을 사용해서 ResponseVO를 만듭니다. (생성자의 파라미터로 각 필드를 넘기지 않습니다. 이는 Builder를 쓰는 이유에 반대됩니다.)
+  ```java
+  public ResponseVO method(RequestVO requestVO) {
+    return ResponseVO.builder()
+      .name(changedName)
+      .age(changedAge)
+      .build();
+  }
+  ```
+- 만약 사용하는 필드가 너무 많거나 특정 VO로 ResponseVO를 만들 경우 `생성자`를 이용합니다. 아니면 `toVO 함수`를 만들어서 사용할 수 있습니다.
+  ```java
+  public ResponseVO method(RequestVO requestVO) {
+    return new ResponseVO(getVO);
+  }
+  ```
+  ```java
+  // ResponseVO의 생성자 활용
+  public class ResponseVO {
+    private String name;
+    private int age;
+    
+    public ResponseVO(GetVO getVO) {
+      this.name = getVO.getName();
+      this.age = getVO.getAge();
+    }
+  }
+  ```
+  ```java
+  // toVO 함수를 만들어서 활용
+  public class GetVO {
+    private String name;
+    private int age;
+  
+    public ResponseVO toResponseVO() {
       return ResponseVO.builder()
-        .name(changedName)
-        .age(changedAge)
+        .name(this.name)
+        .age(this.age)
         .build();
     }
-    ```
-  - 만약 사용하는 필드가 너무 많거나 특정 VO로 ResponseVO를 만들 경우 `생성자`를 이용합니다. 아니면 `toVO 함수`를 만들어서 사용할 수 있습니다.
-    ```java
-    public ResponseVO method(RequestVO requestVO) {
-      return new ResponseVO(getVO);
-    }
-    ```
-    ```java
-    // ResponseVO의 생성자 활용
-    public class ResponseVO {
-      private String name;
-      private int age;
-      
-      public ResponseVO(GetVO getVO) {
-        this.name = getVO.getName();
-        this.age = getVO.getAge();
-      }
-    }
-    ```
-    ```java
-    // toVO 함수를 만들어서 활용
-    public class GetVO {
-      private String name;
-      private int age;
-    
-      public ResponseVO toResponseVO() {
-        return ResponseVO.builder()
-          .name(this.name)
-          .age(this.age)
-          .build();
-      }
-    }
-    ```
-  - 만약 조회 결과를 사용해서 List<ReponseVO>를 만들 경우 `Stream과 생성자`를 활용해서 만들 수 있습니다.
-    ```java
-    // Stream&생성자 활용
-    public ResponseVO method(RequestVO requestVO) {
-      List<GetVO> getVOs = repository.findSomethings(requestVO);
-      return getVOs.stream().map(ResponseVO::new).collect(Collectors.toList());
-    }
-    ```
+  }
+  ```
+- 만약 조회 결과를 사용해서 List<ReponseVO>를 만들 경우 `Stream과 생성자`를 활용해서 만들 수 있습니다.
+  ```java
+  // Stream&생성자 활용
+  public ResponseVO method(RequestVO requestVO) {
+    List<GetVO> getVOs = repository.findSomethings(requestVO);
+    return getVOs.stream().map(ResponseVO::new).collect(Collectors.toList());
+  }
+  ```
 
-**📌 Check Point**
+#### **📌 Check Point**
 - RequestVO와 ResponseVO를 불변 객체로 Service 함수 처음과 마지막에만 사용하고 비지니스 로직 중간에 값을 변경하거나 직접적으로 사용하는 것을 지양합니다.
    (RequestVO와 ResponseVO엔 setter 함수를 구현하지 않는 것이 좋습니다.)
 - FE와 BE의 Naming Convention을 될 수 있으면 다르게 가져가고 편의상 같은 필드 이름을 써도 크게 상관은 없습니다.
@@ -792,7 +808,7 @@ public interface CommunityRepository {
 
 코드의 규모가 커질수록 테이블VO를 사용하는 것이 장점이 더 많다고 생각하지만 정답은 아니기 때문에 프로젝트 상황에 맞춰 정해야 합니다.
 
-**📌 Check Point**
+#### **📌 Check Point**
 - 테이블VO는 JPA의 Entity처럼 테이블과 1대1로 맵핑되는 VO 입니다.
 - 테이블VO를 사용하는 가장 큰 이유는 CUD(생성/수정/삭제)는 테이블 안에 있는 필드만 사용하기 때문에 하나의 테이블VO로 통일해서 사용하기 위함입니다.
 - 테이블VO를 사용하면 불필요하게 중복된 필드를 갖는 VO를 여러개 만들 필요가 없으며 테이블이 수정되면 테이블VO를 수정하고 테이블VO가 사용되고 있는 곳을 추적하기 쉽기 때문에 수정에도 용이합니다.
@@ -1027,22 +1043,214 @@ public class ResponseUtility를 {
 
 ---
 
+자주 쓰이는 Controller Annotation
+===
+
+| 이름                                                                            | 위치        | 내용                                                                                                                                                                                                                                    |
+|-------------------------------------------------------------------------------|-----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| @RestController                                                               | Class     | Spring의 컴포넌트 스캔 대상이 되도록 하고 HTTP 요청과 응답을 자동으로 매핑되도록 하는 등 Spring에서 Controller로 동작할 수 있도록 기본적인 동작을 담고있는 어노테이션입니다.<br>@Controller와 @RequestBody가 합쳐진 어노테이션으로 RESTful 웹 서비스에서 주로 사용됩니다.                                                    |
+| @RequiredArgsConstructor                                                      | Class     | Spring 4.3부터는 @Autowired를 통한 의존성 주입보다 생성자를 통합 의존성 주입을 권장하고 있습니다.<br>@RequiredArgsConstructor를 사용하면 생성자 코드를 따로 적지 않아도 됩니다.<br>`private final Service service`와 같이 사용됩니다.                                                               |
+| @RequestMapping                                                               | Class     | 함수 레벨에 사용할 수 있지만 함수 레벨에는 @GetMapping과 같은 HTTP 메소드 레벨의 어노테이션을 사용하고 클래스 레벨에는 @RequestMapping을 사용합니다.<br>Controller에 포함된 모든 함수에 공통 적용할 공통 경로와 같은 내용을 적습니다.                                                                               |
+| @Api, @Tag                                                                    | Class     | Swagger를 사용할 때 사용하는 어노테이션입니다.<br>Swagger 버전에 따라 사용되는 어노테이션의 이름이 조금씩 다릅니다.                                                                                                                                                             |
+| @ApiOperation, @Operation                                                     | Method    | Swagger를 사용할 때 사용하는 어노테이션입니다.<br>Swagger 버전에 따라 사용되는 어노테이션의 이름이 조금씩 다릅니다.                                                                                                                                                             |
+| @GetMapping<br>@PostMapping<br>@PutMapping<br>@DeleteMapping<br>@PatchMapping | Method    | - @RequestMapping의 하위 어노테이션으로 각 함수마다 사용하는 HTTP 메소드에 따라 지정해서 사용합니다.<br/>- path : 각 API의 하위 경로를 명시<br/>- consumes(요청), produces(응답) : 요청과 응답의 형식을 지정할 때 사용합니다. 주로 JSON 형태로 통신하기 때문에 `MediaType.APPLICATION_JSON_VALUE`를 사용했습니다.         |
+| @PathVariable                                                                 | Parameter | - Method : `GET`<br>- URL 경로에서 변수를 추출하는 데 사용됩니다. 주로 RESTful 웹 서비스에서 경로 매개변수를 추출하는 데 쓰입니다.<br>- URL 경로에서 특정 부분을 변수로 설정하고 사용하려면 @PathVariable을 사용합니다. <br/>- `/products/{id}`와 같은 경로에서 id를 추출할 때 사용합니다.                                 |
+| @RequestParam                                                                 | Parameter | - Method : `GET`<br>- 요청의 쿼리 매개변수(파라미터)를 추출하는 데 사용됩니다. URL의 ? 뒤에 오는 매개변수를 읽어옵니다.<br>- 쿼리 매개변수를 추출할 때 사용합니다. <br/>- `/products?id=123`와 같이 URL에서 id를 추출할 때 사용합니다.<br/>- 전달되는 파라미터가 많을 경우 VO 클래스를 사용하면 클래스 내 필드와 자동으로 맵핑해줍니다. (데이터 바인딩) |
+| @RequestBody                                                                  | Parameter | - Method : `POST`, `PUT`, `PATCH`<br>- HTTP 요청의 본문(body) 부분을 특정 자바 객체로 매핑하도록 지시합니다.<br>- 주로 POST나 PUT 요청과 함께 사용되며, 클라이언트가 JSON 또는 XML 형식으로 데이터를 전송할 때 사용됩니다.<br>- 예를 들어, 클라이언트가 JSON으로 데이터를 보내고 이를 자바 객체로 변환하려면 @RequestBody를 사용합니다.  |
+| @Valid                                                                        | Parameter | 요청 파라미터를 데이터 바인딩 할 때 객체의 유효성을 검사합니다. <br/>@NotNull, @NotEmpty, @Size, @Pattern와 같은 Hibernate Validator로 정의된 어노테이션과 같이 사용됩니다.<br/>VO 클래스를 사용할 경우 각 필드에 필요한 유효성 검사 어노테이션을 붙여서 요청을 손쉽게 필터링할 수 있습니다.                                      |
+
+```java
+@RestController
+@RequestMapping("/v1")
+@Api(tags = {"Search"})
+@RequiredArgsConstructor
+public class SearchController {
+
+    private final SearchService searchService;
+
+    @ApiOperation(value = "카카오 블로그 검색", httpMethod = "GET", notes = "카카오 블로그 사이트를 블로그를 검색한다. 카카오 API가 작동하지 않을 시 네이버 API를 대체하여 사용한다.")
+    @GetMapping(path = "/kakao/blogs", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CommonResponseVO> getKakaoBlogs(@Valid SearchKakaoBlogRequestVO searchKakaoBlogRequestVO) {
+        return ResponseUtil.createSuccessResponse(searchService.getKakaoBlogs(searchKakaoBlogRequestVO));
+    }
+
+    @ApiOperation(value = "네이버 블로그 검색", httpMethod = "GET", notes = "네이버 블로그 사이트를 블로그를 검색한다.")
+    @GetMapping(path = "/naver/blogs", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CommonResponseVO> getNaverBlogs(@Valid SearchNaverBlogRequestVO naverBlogRequestVO) {
+        return ResponseUtil.createSuccessResponse(searchService.getNaverBlogs(naverBlogRequestVO));
+    }
+
+    @ApiOperation(value = "인기 키워드 검색", httpMethod = "GET", notes = "특정 기간 안에 있는 인기 검색어 목록을 검색한다.")
+    @GetMapping(path = "/popular-keyword", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CommonResponseVO> getPopularKeywords(@Valid SearchPopularKeywordRequestVO searchPopularKeywordRequestVO) {
+        return ResponseUtil.createSuccessResponse(searchService.getPopularKeywords(searchPopularKeywordRequestVO));
+    }
+
+}
+```
+---
+
+자주 쓰이는 Service Annotation
+===
+
+| 이름                       | 위치     | 내용                                                                                                                                                                                                                                                     |
+|--------------------------|--------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| @Service                 | Class  | @Controller와 비슷한 역할을 합니다.<br/>컴포넌트 스캔 대상이 되고 Spring Container에 Bean으로 등록됩니다.<br/>해당 클래스가 비지니스 로직을 처리하는 Service 클래스라는 것을 나타내기도 합니다.                                                                                                                     |
+| @RequiredArgsConstructor | Class  | Controller에서 사용되는 이유와 같습니다. 생성자 의존성 주입을 위해서 사용되며 <br/>`private final Repository repository`와 같이 사용됩니다.                                                                                                                                                 |
+| @Transactional           | Method | DB의 트랜잭션을 만들고 관리하기 위해서 사용합니다.<br/>단순히 @Transactional만 적어주면 실행되는 함수가 하나의 트랜잭션으로 묶여서 중간에 에러가 발생하면 DB에 Rollback을 실행합니다.<br/>readOnly, rollbackFor, noRollbackFor, propagation, isolation, timeout와 같은 옵션으로 트랜잭션을 나눌 수 있습니다.<br/>자세한 내용은 별도의 파트에서 다룹니다. |
+
+```java
+@Service
+@RequiredArgsConstructor
+public class SearchService {
+    private final SearchKeywordHistoryRepository searchKeywordHistoryRepository;
+
+    private final KakaoService kakaoService;
+    private final NaverService naverService;
+
+    @PersistenceContext
+    private EntityManager em;
+
+    @Transactional
+    @HystrixCommand(fallbackMethod = "fallbackGetKakaoBlogs")
+    public PaginationResponseVO getKakaoBlogs(SearchKakaoBlogRequestVO searchKakaoBlogRequestVO) {
+        KakaoBlogRequestDTO kakaoBlogRequestDTO = searchKakaoBlogRequestVO.toKakaoBlogRequestDTO();
+        KakaoBlogResponseDTO kakaoBlogResponseDTO = kakaoService.getKakaoBlog(kakaoBlogRequestDTO);
+        kakaoBlogResponseDTO.getMeta().setQuery(kakaoBlogRequestDTO.getQuery());
+        searchKeywordHistoryRepository.save(SearchKeywordHistoryEntity.builder().keyword(searchKakaoBlogRequestVO.getKeyword()).build());
+        return new PaginationResponseVO(kakaoBlogResponseDTO.getMeta(), kakaoBlogResponseDTO.getDocuments());
+    }
+
+    @Transactional
+    @HystrixCommand(fallbackMethod = "fallbackGetNaverBlogs")
+    public PaginationResponseVO getNaverBlogs(SearchNaverBlogRequestVO searchNaverBlogRequestVO) {
+        NaverBlogRequestDTO naverBlogRequestDTO = searchNaverBlogRequestVO.toNaverBlogRequestDTO();
+        NaverBlogResponseDTO naverBlogResponseDTO = naverService.getNaverBlog(naverBlogRequestDTO);
+        searchKeywordHistoryRepository.save(SearchKeywordHistoryEntity.builder().keyword(searchNaverBlogRequestVO.getKeyword()).build());
+        return new PaginationResponseVO(naverBlogResponseDTO.getMeta(naverBlogRequestDTO.getQuery()), naverBlogResponseDTO.getItems());
+    }
+
+    public PaginationResponseVO fallbackGetKakaoBlogs(SearchKakaoBlogRequestVO searchKakaoBlogRequestVO) {
+        return getNaverBlogs(searchKakaoBlogRequestVO.toSearchNaverBlogRequestVO());
+    }
+
+    public PaginationResponseVO fallbackGetNaverBlogs(SearchNaverBlogRequestVO searchNaverBlogRequestVO) {
+        return getKakaoBlogs(searchNaverBlogRequestVO.toSearchKakaoBlogRequestVO());
+    }
+}
+```
+
+---
+
+자주 쓰이는 Model Annotation
+===
+| 이름                                               | 위치    | 내용                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+|--------------------------------------------------|-------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| @AllArgsConstrutor(access = AccessLevel.PRIVATE)<br/>@NoArgsConstrutor | Class | 기본 생성자와 모든 필드를 포함한 생성자를 자동으로 생성해줍니다.<br/>필드가 많을 경우 생성자로 객체를 생성하면 필드 순서와 타입을 모두 맞춰야하기 때문에 휴먼에러를 만들어낼 가능성이 높아지게 됩니다.<br/>따라서 VO는 Builder로 생성하는 것을 추천하며 외부에서 생성자를 사용할 수 없도록 AccessLevel을 설정하기도 합니다.<br/>📌 Builder 패턴이 갖는 장점<br/>- **가독성과 유지보수 향상** : 생성자에 많은 매개변수가 있을 때 인자의 순서와 의미를 혼동할 수 있습니다. Builder 패턴을 사용하면 각각의 설정 메서드에 의미 있는 이름을 부여하고 가독성이 향상됩니다.<br/>- **필수 및 선택적 매개변수 지원** : 일부 필드는 필수이고 일부는 선택적일 때 Builder 패턴은 특히 유용합니다. 필요한 필드만 설정하고 나머지는 기본값으로 초기화할 수 있습니다.<br/>- **인자 순서에 구애받지 않음** : 생성자의 인자 순서에 구애받지 않아도 되므로 새로운 필드를 추가하거나 기존 필드를 변경해도 기존 코드에 영향을 주지 않으면서 객체를 생성할 수 있습니다.<br/>- **가변성을 감소시켜 객체의 일관성 강화** : Builder 패턴을 사용하면 가변성을 감소시킴으로써 객체의 일관성을 강화할 수 있습니다. 객체 생성 이후에는 더 이상 변경할 수 없게 되어 객체의 상태를 안정적으로 유지할 수 있습니다. |
+| @Data                                            | Class | @Getter, @Setter, @ToString, @EqualsAndHashCode, @RequiredArgsConstructor 를 합친 Annotation<br/>@RequiredArgsConstructor은 초기화 되지 않은 모든 final 필드, @NonNull과 같이 제약조건이 설정되어있는 모든 필드들에 대한 생성자를 자동으로 생성한다.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| @Builder                                         | Class | Builder 패턴을 자동으로 생성해줍니다.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| @SuperBuilder                                    | Class | VO를 상속 받아서 사용하는 경우 부모의 필드를 Builder에서 사용할 수 있도록 해줍니다.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| @Builder.default                                 | Field | Builder로 생성할 때 기본값을 지정해주기 위해서 사용합니다.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| @ApiModelProperty                                | Field | Swagger를 사용할 때 사용하는 어노테이션입니다.<br>Swagger 버전에 따라 사용되는 어노테이션의 이름이 조금씩 다릅니다.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| @Min(1)<br/>@Max(20)                             | Field | @Vaild와 같이 사용되며 VO 안에 있는 필드 값의 유효성 검사를 해줍니다.<br/>@Min, @Max 이외에도 @Positive, @PositiveOrZero 등 여러 종류의 Annotation을 사용할 수 있습니다.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| @NotNull<br/>@NotEmpty<br/>@NotBlank             | Field | @NotNull : Null 여부 체크 <br/>@NotEmpty : Null 여부, 빈 문자열(""), 빈 객체(List)인지 체크<br/>@NotBlank : Null 여부, 빈 문자열(""), 빈 객체(List), 공백 문자열(" ")인지 체크                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 
+
+```java
+@Getter
+@ToString
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@EqualsAndHashCode(callSuper = false)
+public class SearchKakaoBlogRequestVO extends PaginationRequestVO {
+    @Builder.Default
+    @Enum(enumClass = DefaultBlogSortType.class)
+    @ApiModelProperty(value = "블로그를 조회하는 정렬 기준 (기본값: ACCURACY)", notes = "블로그 조회 정렬 기준", example = "RECENCY", allowableValues = "ACCURACY, RECENCY")
+    private String sortType = DefaultBlogSortType.ACCURACY.name();
+
+    @ApiModelProperty(value = "특정 블로그 URL", notes = "특정 블로그 글만 검색하고 싶은 경우")
+    private String blogUrl;
+
+    @ApiModelProperty(value = "블로그를 검색하는 기준 키워드", notes = "블로그 검색 키워드", required = true)
+    @NotEmpty
+    private String keyword;
+
+    @Min(1)
+    @Max(50)
+    @Builder.Default
+    @ApiModelProperty(value = "Page 단위로 조회 시 한 번에 가져올 Page의 크기 (기본값: 10)", notes = "1~50 사이의 정수", example = "10")
+    private Integer pageSize = 10;
+
+    @Min(1)
+    @Max(50)
+    @Builder.Default
+    @ApiModelProperty(value = "Page 단위로 조회 시 데이터 조회 시작 건 수 (기본값: 1)", notes = "1~50 사이의 정수", example = "1")
+    private Integer start = 1;
+
+    public KakaoBlogRequestDTO toKakaoBlogRequestDTO() {
+        String query = ObjectUtils.isEmpty(blogUrl) ? keyword : blogUrl + " " + keyword;
+        String sort = sortType.toLowerCase();
+        return KakaoBlogRequestDTO.builder()
+                .query(query)
+                .sort(sort)
+                .page(this.start)
+                .size(this.pageSize)
+                .build();
+    }
+
+    public SearchNaverBlogRequestVO toSearchNaverBlogRequestVO() {
+        return SearchNaverBlogRequestVO.builder()
+                .keyword(keyword)
+                .sortType(sortType)
+                .start(this.start)
+                .pageSize(this.pageSize)
+                .build();
+    }
+}
+```
+
+---
+
 Request에 enum 클래스 처리하기
 ===
-우리는 특정 타입에 대해서 범위를 지정하고 검증하고 싶을 때 enum 클래스를 자주 사용한다. SpringBoot에선 주로 Request로 들어오는 값 중에서 특정 필드의 값이 원하는 범위에 속해야할 때 이를 처리하기 위해서 사용했다.
+여러 개발자들이 사용해야 하는 공통 기능은 더 적은 코드로 간단하게 적용할 수 있어야 마이너한 버그르 방지할 수 있습니다.
 
-예를들어 아래와 같은 RequestVO에 있는 필드 중에서 orderType은 `[ORDER, CANCEL, REFUND]` 중 하나만 올 수 있어야 한다고 가정했을 때 if문을 사용해서 검증할 수 있겠지만 이는 많은 중복코드를 발생시킬 수 있고 가독성을 떨어트리게 된다. 
+Spring에서 특정 범위의 값을 갖는 변수를 처리하기 위해서 `enum` 타입을 만들어서 사용합니다.<br>
+특히 공통 코드를 관리하는 방법은 여러가지가 있지만 프로젝트에선 주로 enum 타입으로 만들어서 관리했습니다.<br>
+[(📌 VO 안에서 private final 필드 사용 - 공통 코드와 enum 필드)](#-vo-안에서-private-final-필드-사용---공통-코드와-enum-필드)<br>
+그리고 이 공통 코드는 FE에서도 사용되고 FE가 BE와 통신할 때에도 사용됩니다.
+
+결과적으로 공통 코드는 FE/BE/SQL에서 모두 사용되며 BE에서 enum 타입으로 관리된다면 FE와 통신할 때 RequestVO에 enum 타입을 바로 사용해서 enum 타입의 장점을 사용해야 합니다.
+
+공통 코드가 name과 code 값을 갖는 형태라면 FE에선 name 값만 필요하고 DB에서는 code 값으로 저장되기 때문에 BE는 FE로부터 name 값을 받아 code 값으로 DB에 접근해야 합니다.
+1. RequestVO에 enum 타입을 바로 사용해서 enum 범위에서 벗어난 값이 들어오면 자동으로 유효성 검사가 되도록 하고 싶습니다.
+2. BE에서 code 필드를 갖는 enum 타입으로 관리되고 있다면 FE에서 name 값이나 code 값이 왔을 때 모두 수용하고 싶습니다.<br>(실제 프로젝트에선 FE에서도 code&name 값을 모두 갖고 있었기 때문에 확장성을 고려해서 BE는 code 값이 오나 name 값이 오나 모두 수용할 수 있도록 만들고 싶습니다.)
+
+    <img width="568" alt="image" src="https://github.com/justdoanything/self-study/assets/21374902/daae32f0-5dda-49ba-bbc3-de5294ef1b3a">
+
+예를들어 아래와 같은 RequestVO에 있는 필드 중에서 contentsType을 별도의 처리 없이 ContentsTypeCode 타입으로 사용하면 제대로 동작하지 않습니다.
+
+String 타입으로 받으면 별도의 검증 코드를 만들어서 처리해야 하는데 enum 타입을 쓰는 곳마다 코드를 검증 코드를 사용해야 하고 enum 탕비이 수십개가 된다면 불필요한 코드의 양도 늘어나서 관리하기 어려워집니다.
+
+이 문제를 해결하기 위한 방법을 하나씩 살펴보며 가장 좋은 방법이 뭔지 찾아보겠습니다.
+
 ```java
-public class OrderStatusRequestVO {
-    private String orderType;
-    private String item;
-    private int price;
-    private String address;
+public class RequestVO {
+    // ❌ 별도의 처리 없이 ContentsTypeCode를 타입으로 바로 받으면 제대로 동작하지 않음.
+    private ContentsTypeCode contentsType;
+    private String title;
+    private String contents;
+    ...
 }
 ```
 ```java
-final String orderType = requestVO.getOrderType();
-if ("ORDER".equalsIgnoreCase(orderType) || "CANCEL".equalsIgnoreCase(orderType) || "REFUND".equalsIgnoreCase(orderType)) { ... }
+public static boolean isValidName(String name) {
+    for(ContentsTypeCode contentsTypeCode : ContentsTypeCode.values()) {
+        if(contentsTypeCode.name().equalsIgnoreCase(name) || contentsTypeCode.code().equalsIgnoreCase(name)) {
+            return true;
+        }
+    }
+}   
 ```
 
 ## @Enum과 EnumValidator 
@@ -1683,174 +1891,6 @@ public class prohibitedWordService {
 
 - Trie ?
 
-
----
-
-자주 쓰이는 Controller Annotation
-===
-
-| 이름                                                                            | 위치        | 내용                                                                                                                                                                                                                                    |
-|-------------------------------------------------------------------------------|-----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| @RestController                                                               | Class     | Spring의 컴포넌트 스캔 대상이 되도록 하고 HTTP 요청과 응답을 자동으로 매핑되도록 하는 등 Spring에서 Controller로 동작할 수 있도록 기본적인 동작을 담고있는 어노테이션입니다.<br>@Controller와 @RequestBody가 합쳐진 어노테이션으로 RESTful 웹 서비스에서 주로 사용됩니다.                                                    |
-| @RequiredArgsConstructor                                                      | Class     | Spring 4.3부터는 @Autowired를 통한 의존성 주입보다 생성자를 통합 의존성 주입을 권장하고 있습니다.<br>@RequiredArgsConstructor를 사용하면 생성자 코드를 따로 적지 않아도 됩니다.<br>`private final Service service`와 같이 사용됩니다.                                                               |
-| @RequestMapping                                                               | Class     | 함수 레벨에 사용할 수 있지만 함수 레벨에는 @GetMapping과 같은 HTTP 메소드 레벨의 어노테이션을 사용하고 클래스 레벨에는 @RequestMapping을 사용합니다.<br>Controller에 포함된 모든 함수에 공통 적용할 공통 경로와 같은 내용을 적습니다.                                                                               |
-| @Api, @Tag                                                                    | Class     | Swagger를 사용할 때 사용하는 어노테이션입니다.<br>Swagger 버전에 따라 사용되는 어노테이션의 이름이 조금씩 다릅니다.                                                                                                                                                             |
-| @ApiOperation, @Operation                                                     | Method    | Swagger를 사용할 때 사용하는 어노테이션입니다.<br>Swagger 버전에 따라 사용되는 어노테이션의 이름이 조금씩 다릅니다.                                                                                                                                                             |
-| @GetMapping<br>@PostMapping<br>@PutMapping<br>@DeleteMapping<br>@PatchMapping | Method    | - @RequestMapping의 하위 어노테이션으로 각 함수마다 사용하는 HTTP 메소드에 따라 지정해서 사용합니다.<br/>- path : 각 API의 하위 경로를 명시<br/>- consumes(요청), produces(응답) : 요청과 응답의 형식을 지정할 때 사용합니다. 주로 JSON 형태로 통신하기 때문에 `MediaType.APPLICATION_JSON_VALUE`를 사용했습니다.         |
-| @PathVariable                                                                 | Parameter | - Method : `GET`<br>- URL 경로에서 변수를 추출하는 데 사용됩니다. 주로 RESTful 웹 서비스에서 경로 매개변수를 추출하는 데 쓰입니다.<br>- URL 경로에서 특정 부분을 변수로 설정하고 사용하려면 @PathVariable을 사용합니다. <br/>- `/products/{id}`와 같은 경로에서 id를 추출할 때 사용합니다.                                 |
-| @RequestParam                                                                 | Parameter | - Method : `GET`<br>- 요청의 쿼리 매개변수(파라미터)를 추출하는 데 사용됩니다. URL의 ? 뒤에 오는 매개변수를 읽어옵니다.<br>- 쿼리 매개변수를 추출할 때 사용합니다. <br/>- `/products?id=123`와 같이 URL에서 id를 추출할 때 사용합니다.<br/>- 전달되는 파라미터가 많을 경우 VO 클래스를 사용하면 클래스 내 필드와 자동으로 맵핑해줍니다. (데이터 바인딩) |
-| @RequestBody                                                                  | Parameter | - Method : `POST`, `PUT`, `PATCH`<br>- HTTP 요청의 본문(body) 부분을 특정 자바 객체로 매핑하도록 지시합니다.<br>- 주로 POST나 PUT 요청과 함께 사용되며, 클라이언트가 JSON 또는 XML 형식으로 데이터를 전송할 때 사용됩니다.<br>- 예를 들어, 클라이언트가 JSON으로 데이터를 보내고 이를 자바 객체로 변환하려면 @RequestBody를 사용합니다.  |
-| @Valid                                                                        | Parameter | 요청 파라미터를 데이터 바인딩 할 때 객체의 유효성을 검사합니다. <br/>@NotNull, @NotEmpty, @Size, @Pattern와 같은 Hibernate Validator로 정의된 어노테이션과 같이 사용됩니다.<br/>VO 클래스를 사용할 경우 각 필드에 필요한 유효성 검사 어노테이션을 붙여서 요청을 손쉽게 필터링할 수 있습니다.                                      |
-
-```java
-@RestController
-@RequestMapping("/v1")
-@Api(tags = {"Search"})
-@RequiredArgsConstructor
-public class SearchController {
-
-    private final SearchService searchService;
-
-    @ApiOperation(value = "카카오 블로그 검색", httpMethod = "GET", notes = "카카오 블로그 사이트를 블로그를 검색한다. 카카오 API가 작동하지 않을 시 네이버 API를 대체하여 사용한다.")
-    @GetMapping(path = "/kakao/blogs", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CommonResponseVO> getKakaoBlogs(@Valid SearchKakaoBlogRequestVO searchKakaoBlogRequestVO) {
-        return ResponseUtil.createSuccessResponse(searchService.getKakaoBlogs(searchKakaoBlogRequestVO));
-    }
-
-    @ApiOperation(value = "네이버 블로그 검색", httpMethod = "GET", notes = "네이버 블로그 사이트를 블로그를 검색한다.")
-    @GetMapping(path = "/naver/blogs", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CommonResponseVO> getNaverBlogs(@Valid SearchNaverBlogRequestVO naverBlogRequestVO) {
-        return ResponseUtil.createSuccessResponse(searchService.getNaverBlogs(naverBlogRequestVO));
-    }
-
-    @ApiOperation(value = "인기 키워드 검색", httpMethod = "GET", notes = "특정 기간 안에 있는 인기 검색어 목록을 검색한다.")
-    @GetMapping(path = "/popular-keyword", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CommonResponseVO> getPopularKeywords(@Valid SearchPopularKeywordRequestVO searchPopularKeywordRequestVO) {
-        return ResponseUtil.createSuccessResponse(searchService.getPopularKeywords(searchPopularKeywordRequestVO));
-    }
-
-}
-```
----
-
-자주 쓰이는 Service Annotation
-===
-
-| 이름                       | 위치     | 내용                                                                                                                                                                                                                                                     |
-|--------------------------|--------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| @Service                 | Class  | @Controller와 비슷한 역할을 합니다.<br/>컴포넌트 스캔 대상이 되고 Spring Container에 Bean으로 등록됩니다.<br/>해당 클래스가 비지니스 로직을 처리하는 Service 클래스라는 것을 나타내기도 합니다.                                                                                                                     |
-| @RequiredArgsConstructor | Class  | Controller에서 사용되는 이유와 같습니다. 생성자 의존성 주입을 위해서 사용되며 <br/>`private final Repository repository`와 같이 사용됩니다.                                                                                                                                                 |
-| @Transactional           | Method | DB의 트랜잭션을 만들고 관리하기 위해서 사용합니다.<br/>단순히 @Transactional만 적어주면 실행되는 함수가 하나의 트랜잭션으로 묶여서 중간에 에러가 발생하면 DB에 Rollback을 실행합니다.<br/>readOnly, rollbackFor, noRollbackFor, propagation, isolation, timeout와 같은 옵션으로 트랜잭션을 나눌 수 있습니다.<br/>자세한 내용은 별도의 파트에서 다룹니다. |
-
-```java
-@Service
-@RequiredArgsConstructor
-public class SearchService {
-    private final SearchKeywordHistoryRepository searchKeywordHistoryRepository;
-
-    private final KakaoService kakaoService;
-    private final NaverService naverService;
-
-    @PersistenceContext
-    private EntityManager em;
-
-    @Transactional
-    @HystrixCommand(fallbackMethod = "fallbackGetKakaoBlogs")
-    public PaginationResponseVO getKakaoBlogs(SearchKakaoBlogRequestVO searchKakaoBlogRequestVO) {
-        KakaoBlogRequestDTO kakaoBlogRequestDTO = searchKakaoBlogRequestVO.toKakaoBlogRequestDTO();
-        KakaoBlogResponseDTO kakaoBlogResponseDTO = kakaoService.getKakaoBlog(kakaoBlogRequestDTO);
-        kakaoBlogResponseDTO.getMeta().setQuery(kakaoBlogRequestDTO.getQuery());
-        searchKeywordHistoryRepository.save(SearchKeywordHistoryEntity.builder().keyword(searchKakaoBlogRequestVO.getKeyword()).build());
-        return new PaginationResponseVO(kakaoBlogResponseDTO.getMeta(), kakaoBlogResponseDTO.getDocuments());
-    }
-
-    @Transactional
-    @HystrixCommand(fallbackMethod = "fallbackGetNaverBlogs")
-    public PaginationResponseVO getNaverBlogs(SearchNaverBlogRequestVO searchNaverBlogRequestVO) {
-        NaverBlogRequestDTO naverBlogRequestDTO = searchNaverBlogRequestVO.toNaverBlogRequestDTO();
-        NaverBlogResponseDTO naverBlogResponseDTO = naverService.getNaverBlog(naverBlogRequestDTO);
-        searchKeywordHistoryRepository.save(SearchKeywordHistoryEntity.builder().keyword(searchNaverBlogRequestVO.getKeyword()).build());
-        return new PaginationResponseVO(naverBlogResponseDTO.getMeta(naverBlogRequestDTO.getQuery()), naverBlogResponseDTO.getItems());
-    }
-
-    public PaginationResponseVO fallbackGetKakaoBlogs(SearchKakaoBlogRequestVO searchKakaoBlogRequestVO) {
-        return getNaverBlogs(searchKakaoBlogRequestVO.toSearchNaverBlogRequestVO());
-    }
-
-    public PaginationResponseVO fallbackGetNaverBlogs(SearchNaverBlogRequestVO searchNaverBlogRequestVO) {
-        return getKakaoBlogs(searchNaverBlogRequestVO.toSearchKakaoBlogRequestVO());
-    }
-}
-```
-
----
-
-자주 쓰이는 Model Annotation
-===
-| 이름                                               | 위치    | 내용                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-|--------------------------------------------------|-------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| @AllArgsConstrutor(access = AccessLevel.PRIVATE)<br/>@NoArgsConstrutor | Class | 기본 생성자와 모든 필드를 포함한 생성자를 자동으로 생성해줍니다.<br/>필드가 많을 경우 생성자로 객체를 생성하면 필드 순서와 타입을 모두 맞춰야하기 때문에 휴먼에러를 만들어낼 가능성이 높아지게 됩니다.<br/>따라서 VO는 Builder로 생성하는 것을 추천하며 외부에서 생성자를 사용할 수 없도록 AccessLevel을 설정하기도 합니다.<br/>📌 Builder 패턴이 갖는 장점<br/>- **가독성과 유지보수 향상** : 생성자에 많은 매개변수가 있을 때 인자의 순서와 의미를 혼동할 수 있습니다. Builder 패턴을 사용하면 각각의 설정 메서드에 의미 있는 이름을 부여하고 가독성이 향상됩니다.<br/>- **필수 및 선택적 매개변수 지원** : 일부 필드는 필수이고 일부는 선택적일 때 Builder 패턴은 특히 유용합니다. 필요한 필드만 설정하고 나머지는 기본값으로 초기화할 수 있습니다.<br/>- **인자 순서에 구애받지 않음** : 생성자의 인자 순서에 구애받지 않아도 되므로 새로운 필드를 추가하거나 기존 필드를 변경해도 기존 코드에 영향을 주지 않으면서 객체를 생성할 수 있습니다.<br/>- **가변성을 감소시켜 객체의 일관성 강화** : Builder 패턴을 사용하면 가변성을 감소시킴으로써 객체의 일관성을 강화할 수 있습니다. 객체 생성 이후에는 더 이상 변경할 수 없게 되어 객체의 상태를 안정적으로 유지할 수 있습니다. |
-| @Data                                            | Class | @Getter, @Setter, @ToString, @EqualsAndHashCode, @RequiredArgsConstructor 를 합친 Annotation<br/>@RequiredArgsConstructor은 초기화 되지 않은 모든 final 필드, @NonNull과 같이 제약조건이 설정되어있는 모든 필드들에 대한 생성자를 자동으로 생성한다.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| @Builder                                         | Class | Builder 패턴을 자동으로 생성해줍니다.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| @SuperBuilder                                    | Class | VO를 상속 받아서 사용하는 경우 부모의 필드를 Builder에서 사용할 수 있도록 해줍니다.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| @Builder.default                                 | Field | Builder로 생성할 때 기본값을 지정해주기 위해서 사용합니다.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| @ApiModelProperty                                | Field | Swagger를 사용할 때 사용하는 어노테이션입니다.<br>Swagger 버전에 따라 사용되는 어노테이션의 이름이 조금씩 다릅니다.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| @Min(1)<br/>@Max(20)                             | Field | @Vaild와 같이 사용되며 VO 안에 있는 필드 값의 유효성 검사를 해줍니다.<br/>@Min, @Max 이외에도 @Positive, @PositiveOrZero 등 여러 종류의 Annotation을 사용할 수 있습니다.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| @NotNull<br/>@NotEmpty<br/>@NotBlank             | Field | @NotNull : Null 여부 체크 <br/>@NotEmpty : Null 여부, 빈 문자열(""), 빈 객체(List)인지 체크<br/>@NotBlank : Null 여부, 빈 문자열(""), 빈 객체(List), 공백 문자열(" ")인지 체크                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 
-
-```java
-@Getter
-@ToString
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@EqualsAndHashCode(callSuper = false)
-public class SearchKakaoBlogRequestVO extends PaginationRequestVO {
-    @Builder.Default
-    @Enum(enumClass = DefaultBlogSortType.class)
-    @ApiModelProperty(value = "블로그를 조회하는 정렬 기준 (기본값: ACCURACY)", notes = "블로그 조회 정렬 기준", example = "RECENCY", allowableValues = "ACCURACY, RECENCY")
-    private String sortType = DefaultBlogSortType.ACCURACY.name();
-
-    @ApiModelProperty(value = "특정 블로그 URL", notes = "특정 블로그 글만 검색하고 싶은 경우")
-    private String blogUrl;
-
-    @ApiModelProperty(value = "블로그를 검색하는 기준 키워드", notes = "블로그 검색 키워드", required = true)
-    @NotEmpty
-    private String keyword;
-
-    @Min(1)
-    @Max(50)
-    @Builder.Default
-    @ApiModelProperty(value = "Page 단위로 조회 시 한 번에 가져올 Page의 크기 (기본값: 10)", notes = "1~50 사이의 정수", example = "10")
-    private Integer pageSize = 10;
-
-    @Min(1)
-    @Max(50)
-    @Builder.Default
-    @ApiModelProperty(value = "Page 단위로 조회 시 데이터 조회 시작 건 수 (기본값: 1)", notes = "1~50 사이의 정수", example = "1")
-    private Integer start = 1;
-
-    public KakaoBlogRequestDTO toKakaoBlogRequestDTO() {
-        String query = ObjectUtils.isEmpty(blogUrl) ? keyword : blogUrl + " " + keyword;
-        String sort = sortType.toLowerCase();
-        return KakaoBlogRequestDTO.builder()
-                .query(query)
-                .sort(sort)
-                .page(this.start)
-                .size(this.pageSize)
-                .build();
-    }
-
-    public SearchNaverBlogRequestVO toSearchNaverBlogRequestVO() {
-        return SearchNaverBlogRequestVO.builder()
-                .keyword(keyword)
-                .sortType(sortType)
-                .start(this.start)
-                .pageSize(this.pageSize)
-                .build();
-    }
-}
-```
 
 ---
 
