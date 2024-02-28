@@ -20,22 +20,22 @@ public class SimpleController {
 
     @PostMapping("/post/request")
     public ResponseEntity methodPostRequest(@RequestBody RequestVO requestVO) {
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(requestVO);
     }
 
     @GetMapping("/get/request")
     public ResponseEntity methodGetRequest(RequestVO requestVO) {
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(requestVO);
     }
 
     @GetMapping("/get/request/path-variable/{contentsTypeCode}")
     public ResponseEntity methodGetRequestPathVariable(@PathVariable ContentsTypeCode contentsTypeCode) {
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(contentsTypeCode);
     }
 
     @GetMapping("/get/request/request-param")
     public ResponseEntity methodGetRequestRequestParam(@RequestParam ContentsTypeCode contentsTypeCode) {
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(contentsTypeCode);
     }
 
 }

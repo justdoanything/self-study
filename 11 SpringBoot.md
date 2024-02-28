@@ -1253,8 +1253,180 @@ public static boolean isValidName(String name) {
 }   
 ```
 
+## 테스트 환경
+- Framework : SpringBoot version 3.2.3
+- Language : OpenJDK 17
+- dependency
+  - implementation 'org.springframework.boot:spring-boot-starter-web'
+  - testImplementation 'org.springframework.boot:spring-boot-starter-test'
+  - compileOnly 'org.projectlombok:lombok'
+  - annotationProcessor 'org.projectlombok:lombok'
+- enum
+  ```java
+  public enum ContentsTypeCode {
+      FEED("001"),
+      COMMENT("002"),
+      NOTICE("003"),
+      COUPON("004"),
+      VOTE("005");
+  
+      ContentsTypeCode(String code) {
+          this.code = code;
+      }
+  
+      private String code;
+  
+      public String code() {
+          return code;
+      }
+  }
+  ```
+- RequestVO
+  ```java
+  @Getter
+  @ToString
+  @Builder
+  public class RequestVO {
+      private ContentsTypeCode contentsTypeCode;
+      private String title;
+      private String contents;
+  }
+  ```
+- Controller
+  ```java
+  @RestController
+  @RequestMapping("/v1")
+  @RequiredArgsConstructor
+  public class SimpleController {
+  
+      @PostMapping("/post/request")
+      public ResponseEntity methodPostRequest(@RequestBody RequestVO requestVO) {
+          return ResponseEntity.ok().body(requestVO);
+      }
+  
+      @GetMapping("/get/request")
+      public ResponseEntity methodGetRequest(RequestVO requestVO) {
+          return ResponseEntity.ok().body(requestVO);
+      }
+  
+      @GetMapping("/get/request/path-variable/{contentsTypeCode}")
+      public ResponseEntity methodGetRequestPathVariable(@PathVariable ContentsTypeCode contentsTypeCode) {
+          return ResponseEntity.ok().body(contentsTypeCode);
+      }
+  
+      @GetMapping("/get/request/request-param")
+      public ResponseEntity methodGetRequestRequestParam(@RequestParam ContentsTypeCode contentsTypeCode) {
+          return ResponseEntity.ok().body(contentsTypeCode);
+      }
+  }
+  ```
+
+## RequestVO에 enum 타입 바로 사용하기
+예전에 프로젝트를 진행할 때 별도의 처리 없이 enum 타입을 바로 사용하면 제대로 동작하지 않았던 것으로 기억하고 있는데 이번에 다시 테스트를 해보니 enum 타입을 바로 사용해도 간단한 동작은 했습니다.
+
+Request에 `[FEED, COMMENT, NOTICE, COUPON, VOTE]` 이 외의 값을 넣으면 400 Bad Request가 발생했고 `[001, 002, 003, 004]` 값을 넣어도 정상적으로 200 응답을 받았습니다.
+
+하지만 `005`는 400 에러를 발생시켰고 좀 더 찾아보니 enum이 갖고 있는 값의 인덱스는 수용하고 있었습니다.
+
+즉, ContenteTypeCode는 5개의 값을 포함하고 있기 때문에`[001, 002, 003 ,004]` 값을 자동으로 `[1, 2, 3, 4]` 으로 인식하고 정상 응답을 한 것이었습니다. 하지만 인덱스는 0부터 4까지 잡히기 때문에 `005`는 400 에러를 발생시켰습니다.
+
+결과적으로 아무런 처리 없이 enum 타입을 바로 사용하면 아래와 같습니다.
+- `enum의 name 값의 범위만 보장합니다.`<br>→ ContentsTypeCode는 name과 code 값을 한 쌍으로 갖고 있고 <u>code에 대한 값도 수용도 하고 싶습니다.</u>
+- `name의 대소문자가 다르면 400 에러를 발생시킵니다.`<br>→ <u>대소문자를 구분하지 않고 수용하고 싶습니다.</u>
+- `범위를 벗어났을 때 발생하는 에러에 대한 핸들링이 어렵습니다.`<br>→ 범위를 벗어났을 때 응답을 수신하는 쪽에서 에러 원인을 파악하기 쉽도록 <u>에러 메세지를 만들어서 반환하고 싶습니다.</u>  
+- `enum이 갖고 있는 값만큼의 index 값을 수용합니다.`<br>→ 001,002,003,004 등 code 값과 혼동될 수 있는 <u>index 값은 수용하고 싶지 않습니다.</u>
+- `null 값을 허용합니다.`<br>→ <u>상황에 따라 null 값을 허용하고 싶지 않습니다.</u>
+
+<h3>검증코드</h3>
+```java
+@SpringBootTest
+@AutoConfigureMockMvc
+class RequestEnumTestApplicationTests {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Test
+    @DisplayName("성공_올바른 ContentsTypeCode을 사용해서 성공한다.")
+    public void happy_basic_case() throws Exception {
+        //given
+        Map<String, String> request = Map.of(
+                "title", "title",
+                "contents", "contents",
+                "contentsTypeCode", "FEED"
+        );
+
+        //then
+        mockMvc.perform(post("/v1/post/request")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("성공_ContentsTypeCode의 null 값을 허용한다.")
+    public void happy_basic_null_case() throws Exception {
+        //given
+        Map<String, String> request = Map.of(
+                "title", "title",
+                "contents", "contents"
+        );
+
+        //then
+        mockMvc.perform(post("/v1/post/request")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("실패_범위에서 벗어난 ContentsTypeCode을 사용해서 실패한다.")
+    public void fail_basic_case() throws Exception {
+        //given
+        Map<String, String> request = Map.of(
+                "title", "title",
+                "contents", "contents",
+                "contentsTypeCode", "YOUTUBE"
+        );
+
+        //then
+        mockMvc.perform(post("/v1/post/request")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("실패_소문자 값을 보냈을 때 실패합니다.")
+    public void fail_basic_lower_case() throws Exception {
+        //given
+        Map<String, String> request = Map.of(
+                "title", "title",
+                "contents", "contents",
+                "contentsTypeCode", "feed"
+        );
+
+        //then
+        mockMvc.perform(post("/v1/post/request")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andDo(print());
+    }
+}
+```
+
 ## @Enum과 EnumValidator 
-위 문제를 해결하기 위해서 처음으로 접했던 방법은 `@Enum`과 `EnumValidator`을 구현해서 아래와 같은 방법으로 사용했었다.
+우선 처음으로 적용해볼 방법은 `@Enum`과 `EnumValidator`를 만들어서 사용하는 방법입니다.
+
+`@Enum`은 `@Constraint`를 사용해서 만들어진 어노테이션으로 `@Enum`을 사용하는 곳에서 `EnumValidator`를 통해 유효성 검사를 수행합니다.
+
 ```java
 @Target({ElementType.TYPE_USE, ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
@@ -1324,6 +1496,15 @@ public class ContentsTypeConverter implements Converter<String, ContentsType> {
     @Override
     public ContentsType convert(String value) {
         return ContentsType.valueOf(value.toUpperCase());
+    }
+}
+```
+```java
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+        registry.addConverter(new ContentsTypeConverter());
     }
 }
 ```

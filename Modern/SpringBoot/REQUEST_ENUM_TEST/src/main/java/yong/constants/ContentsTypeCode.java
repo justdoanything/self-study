@@ -16,5 +16,4 @@ public enum ContentsTypeCode {
     public String code() {
         return code;
     }
-
 }

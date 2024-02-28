@@ -9,7 +9,7 @@ import yong.constants.ContentsTypeCode;
 @ToString
 @Builder
 public class RequestVO {
-    private String contentsTypeCode;
+    private ContentsTypeCode contentsTypeCode;
     private String title;
     private String contents;
 }

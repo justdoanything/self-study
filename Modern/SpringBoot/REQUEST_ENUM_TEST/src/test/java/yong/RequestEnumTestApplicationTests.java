@@ -15,7 +15,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import yong.constants.ContentsTypeCode;
 import yong.model.RequestVO;
+
+import java.util.Map;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -28,16 +31,74 @@ class RequestEnumTestApplicationTests {
     private ObjectMapper objectMapper;
 
     @Test
-    @DisplayName("")
-    public void happy() throws Exception {
+    @DisplayName("성공_올바른 ContentsTypeCode을 사용해서 성공한다.")
+    public void happy_basic_case() throws Exception {
         //given
-        RequestVO requestVO = RequestVO.builder().build();
+        Map<String, String> request = Map.of(
+                "title", "title",
+                "contents", "contents",
+                "contentsTypeCode", "FEED"
+        );
 
         //then
         mockMvc.perform(post("/v1/post/request")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestVO)))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("성공_ContentsTypeCode의 null 값을 허용한다.")
+    public void happy_basic_null_case() throws Exception {
+        //given
+        Map<String, String> request = Map.of(
+                "title", "title",
+                "contents", "contents"
+        );
+
+        //then
+        mockMvc.perform(post("/v1/post/request")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("실패_범위에서 벗어난 ContentsTypeCode을 사용해서 실패한다.")
+    public void fail_basic_case() throws Exception {
+        //given
+        Map<String, String> request = Map.of(
+                "title", "title",
+                "contents", "contents",
+                "contentsTypeCode", "YOUTUBE"
+        );
+
+        //then
+        mockMvc.perform(post("/v1/post/request")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("실패_소문자 값을 보냈을 때 실패합니다.")
+    public void fail_basic_lower_case() throws Exception {
+        //given
+        Map<String, String> request = Map.of(
+                "title", "title",
+                "contents", "contents",
+                "contentsTypeCode", "feed"
+        );
+
+        //then
+        mockMvc.perform(post("/v1/post/request")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andDo(print());
     }
 }
 
