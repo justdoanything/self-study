@@ -1,6 +1,5 @@
 package yong;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,14 +14,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import yong.constants.ContentsTypeCode;
-import yong.model.RequestVO;
 
 import java.util.Map;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class RequestEnumTestApplicationTests {
+class PostTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -97,7 +94,7 @@ class RequestEnumTestApplicationTests {
         mockMvc.perform(post("/v1/post/request")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(print());
     }
 }
