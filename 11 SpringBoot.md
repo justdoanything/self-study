@@ -1354,6 +1354,10 @@ Request에 `[FEED, COMMENT, NOTICE, COUPON, VOTE]` 이 외의 값을 넣으면 4
 
 `EnumValidator`은 `ConstraintValidator`을 상속 받아서 `initialize`와 `isValid` 함수에 어떤 유효성 검사를 할지 정의합니다.
 
+유효성 검사를 어떻게 할지는 `EnumValidator`의 initialize, isValid 함수를 개발자가 직접 작성해서 정할 수 있습니다.
+
+RequsetVO에서 enum 타입을 쓰지 않고 일반 타입을 사용하고 `@Enum` 어노테이션을 붙여서 유효성 검사를 하는 것이 특징입니다.
+
 ```java
 @Target({ElementType.TYPE_USE, ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
