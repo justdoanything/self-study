@@ -23,11 +23,6 @@ public class SimpleController {
         return ResponseEntity.ok().body(requestVO);
     }
 
-    @GetMapping("/get/request")
-    public ResponseEntity methodGetRequest(RequestVO requestVO) {
-        return ResponseEntity.ok().body(requestVO);
-    }
-
     @GetMapping("/get/request/path-variable/{contentsTypeCode}")
     public ResponseEntity methodGetRequestPathVariable(@PathVariable ContentsTypeCode contentsTypeCode) {
         return ResponseEntity.ok().body(contentsTypeCode);
@@ -37,5 +32,4 @@ public class SimpleController {
     public ResponseEntity methodGetRequestRequestParam(@RequestParam ContentsTypeCode contentsTypeCode) {
         return ResponseEntity.ok().body(contentsTypeCode);
     }
-
 }

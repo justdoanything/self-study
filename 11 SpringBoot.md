@@ -1046,18 +1046,18 @@ public class ResponseUtility를 {
 자주 쓰이는 Controller Annotation
 ===
 
-| 이름                                                                            | 위치        | 내용                                                                                                                                                                                                                                    |
-|-------------------------------------------------------------------------------|-----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| @RestController                                                               | Class     | Spring의 컴포넌트 스캔 대상이 되도록 하고 HTTP 요청과 응답을 자동으로 매핑되도록 하는 등 Spring에서 Controller로 동작할 수 있도록 기본적인 동작을 담고있는 어노테이션입니다.<br>@Controller와 @RequestBody가 합쳐진 어노테이션으로 RESTful 웹 서비스에서 주로 사용됩니다.                                                    |
-| @RequiredArgsConstructor                                                      | Class     | Spring 4.3부터는 @Autowired를 통한 의존성 주입보다 생성자를 통합 의존성 주입을 권장하고 있습니다.<br>@RequiredArgsConstructor를 사용하면 생성자 코드를 따로 적지 않아도 됩니다.<br>`private final Service service`와 같이 사용됩니다.                                                               |
-| @RequestMapping                                                               | Class     | 함수 레벨에 사용할 수 있지만 함수 레벨에는 @GetMapping과 같은 HTTP 메소드 레벨의 어노테이션을 사용하고 클래스 레벨에는 @RequestMapping을 사용합니다.<br>Controller에 포함된 모든 함수에 공통 적용할 공통 경로와 같은 내용을 적습니다.                                                                               |
-| @Api, @Tag                                                                    | Class     | Swagger를 사용할 때 사용하는 어노테이션입니다.<br>Swagger 버전에 따라 사용되는 어노테이션의 이름이 조금씩 다릅니다.                                                                                                                                                             |
-| @ApiOperation, @Operation                                                     | Method    | Swagger를 사용할 때 사용하는 어노테이션입니다.<br>Swagger 버전에 따라 사용되는 어노테이션의 이름이 조금씩 다릅니다.                                                                                                                                                             |
-| @GetMapping<br>@PostMapping<br>@PutMapping<br>@DeleteMapping<br>@PatchMapping | Method    | - @RequestMapping의 하위 어노테이션으로 각 함수마다 사용하는 HTTP 메소드에 따라 지정해서 사용합니다.<br/>- path : 각 API의 하위 경로를 명시<br/>- consumes(요청), produces(응답) : 요청과 응답의 형식을 지정할 때 사용합니다. 주로 JSON 형태로 통신하기 때문에 `MediaType.APPLICATION_JSON_VALUE`를 사용했습니다.         |
-| @PathVariable                                                                 | Parameter | - Method : `GET`<br>- URL 경로에서 변수를 추출하는 데 사용됩니다. 주로 RESTful 웹 서비스에서 경로 매개변수를 추출하는 데 쓰입니다.<br>- URL 경로에서 특정 부분을 변수로 설정하고 사용하려면 @PathVariable을 사용합니다. <br/>- `/products/{id}`와 같은 경로에서 id를 추출할 때 사용합니다.                                 |
-| @RequestParam                                                                 | Parameter | - Method : `GET`<br>- 요청의 쿼리 매개변수(파라미터)를 추출하는 데 사용됩니다. URL의 ? 뒤에 오는 매개변수를 읽어옵니다.<br>- 쿼리 매개변수를 추출할 때 사용합니다. <br/>- `/products?id=123`와 같이 URL에서 id를 추출할 때 사용합니다.<br/>- 전달되는 파라미터가 많을 경우 VO 클래스를 사용하면 클래스 내 필드와 자동으로 맵핑해줍니다. (데이터 바인딩) |
-| @RequestBody                                                                  | Parameter | - Method : `POST`, `PUT`, `PATCH`<br>- HTTP 요청의 본문(body) 부분을 특정 자바 객체로 매핑하도록 지시합니다.<br>- 주로 POST나 PUT 요청과 함께 사용되며, 클라이언트가 JSON 또는 XML 형식으로 데이터를 전송할 때 사용됩니다.<br>- 예를 들어, 클라이언트가 JSON으로 데이터를 보내고 이를 자바 객체로 변환하려면 @RequestBody를 사용합니다.  |
-| @Valid                                                                        | Parameter | 요청 파라미터를 데이터 바인딩 할 때 객체의 유효성을 검사합니다. <br/>@NotNull, @NotEmpty, @Size, @Pattern와 같은 Hibernate Validator로 정의된 어노테이션과 같이 사용됩니다.<br/>VO 클래스를 사용할 경우 각 필드에 필요한 유효성 검사 어노테이션을 붙여서 요청을 손쉽게 필터링할 수 있습니다.                                      |
+| 이름                                                                            | 위치        | 내용                                                                                                                                                                                                                                                                                                                                                                                |
+|-------------------------------------------------------------------------------|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| @RestController                                                               | Class     | Spring의 컴포넌트 스캔 대상이 되도록 하고 HTTP 요청과 응답을 자동으로 매핑되도록 하는 등 Spring에서 Controller로 동작할 수 있도록 기본적인 동작을 담고있는 어노테이션입니다.<br>@Controller와 @RequestBody가 합쳐진 어노테이션으로 RESTful 웹 서비스에서 주로 사용됩니다.                                                                                                                                                                                                |
+| @RequiredArgsConstructor                                                      | Class     | Spring 4.3부터는 @Autowired를 통한 의존성 주입보다 생성자를 통합 의존성 주입을 권장하고 있습니다.<br>@RequiredArgsConstructor를 사용하면 생성자 코드를 따로 적지 않아도 됩니다.<br>`private final Service service`와 같이 사용됩니다.                                                                                                                                                                                                           |
+| @RequestMapping                                                               | Class     | 함수 레벨에 사용할 수 있지만 함수 레벨에는 @GetMapping과 같은 HTTP 메소드 레벨의 어노테이션을 사용하고 클래스 레벨에는 @RequestMapping을 사용합니다.<br>Controller에 포함된 모든 함수에 공통 적용할 공통 경로와 같은 내용을 적습니다.                                                                                                                                                                                                                           |
+| @Api, @Tag                                                                    | Class     | Swagger를 사용할 때 사용하는 어노테이션입니다.<br>Swagger 버전에 따라 사용되는 어노테이션의 이름이 조금씩 다릅니다.                                                                                                                                                                                                                                                                                                         |
+| @ApiOperation, @Operation                                                     | Method    | Swagger를 사용할 때 사용하는 어노테이션입니다.<br>Swagger 버전에 따라 사용되는 어노테이션의 이름이 조금씩 다릅니다.                                                                                                                                                                                                                                                                                                         |
+| @GetMapping<br>@PostMapping<br>@PutMapping<br>@DeleteMapping<br>@PatchMapping | Method    | - @RequestMapping의 하위 어노테이션으로 각 함수마다 사용하는 HTTP 메소드에 따라 지정해서 사용합니다.<br/>- path : 각 API의 하위 경로를 명시<br/>- consumes(요청), produces(응답) : 요청과 응답의 형식을 지정할 때 사용합니다. 주로 JSON 형태로 통신하기 때문에 `MediaType.APPLICATION_JSON_VALUE`를 사용했습니다.                                                                                                                                                     |
+| @PathVariable                                                                 | Parameter | - Method : `GET`<br>- URL 경로에서 변수를 추출하는 데 사용됩니다. 주로 RESTful 웹 서비스에서 경로 매개변수를 추출하는 데 쓰입니다.<br>- URL 경로에서 특정 부분을 변수로 설정하고 사용하려면 @PathVariable을 사용합니다. <br/>- `/products/{id}`와 같은 경로에서 id를 추출할 때 사용합니다.                                                                                                                                                                             |
+| @RequestParam                                                                 | Parameter | - Method : `GET`<br>- 요청의 쿼리 매개변수(파라미터)를 추출하는 데 사용됩니다. URL의 ? 뒤에 오는 매개변수를 읽어옵니다.<br>- 쿼리 매개변수를 추출할 때 사용합니다. <br/>- `/products?id=123`와 같이 URL에서 id를 추출할 때 사용합니다.<br/>- 전달되는 파라미터가 많을 경우 VO 클래스를 사용하면 클래스 내 필드와 자동으로 맵핑해줍니다. (데이터 바인딩)<br/>- `POST`, `PUT`, `PATCH`에도 Request가 form 데이터 형식으로 온다면 (URL 뒤에 Query String 형태로 온다면) 사용할 수 있지만 JSON 형태는 수용하지 못하기 때문에 주로 `GET`에서만 사용합니다.) |
+| @RequestBody                                                                  | Parameter | - Method : `POST`, `PUT`, `PATCH`<br>- HTTP 요청의 본문(body) 부분을 특정 자바 객체로 매핑하도록 지시합니다.<br>- 주로 POST나 PUT 요청과 함께 사용되며, 클라이언트가 JSON 또는 XML 형식으로 데이터를 전송할 때 사용됩니다.<br>- 예를 들어, 클라이언트가 JSON으로 데이터를 보내고 이를 자바 객체로 변환하려면 @RequestBody를 사용합니다.                                                                                                                                              |
+| @Valid                                                                        | Parameter | 요청 파라미터를 데이터 바인딩 할 때 객체의 유효성을 검사합니다. <br/>@NotNull, @NotEmpty, @Size, @Pattern와 같은 Hibernate Validator로 정의된 어노테이션과 같이 사용됩니다.<br/>VO 클래스를 사용할 경우 각 필드에 필요한 유효성 검사 어노테이션을 붙여서 요청을 손쉽게 필터링할 수 있습니다.                                                                                                                                                                                  |
 
 ```java
 @RestController
@@ -1240,7 +1240,6 @@ public class RequestVO {
     private ContentsTypeCode contentsType;
     private String title;
     private String contents;
-    ...
 }
 ```
 ```java
@@ -1250,76 +1249,73 @@ public static boolean isValidName(String name) {
             return true;
         }
     }
+    return false;
 }   
 ```
 
 ## 테스트 환경
 - Framework : SpringBoot version 3.2.3
 - Language : OpenJDK 17
-- dependency
+- Dependency
   - implementation 'org.springframework.boot:spring-boot-starter-web'
   - testImplementation 'org.springframework.boot:spring-boot-starter-test'
   - compileOnly 'org.projectlombok:lombok'
   - annotationProcessor 'org.projectlombok:lombok'
-- enum
-  ```java
-  public enum ContentsTypeCode {
-      FEED("001"),
-      COMMENT("002"),
-      NOTICE("003"),
-      COUPON("004"),
-      VOTE("005");
+- Project : [REQUEST_ENUM_TEST](https://github.com/justdoanything/self-study/tree/main/Modern/SpringBoot/REQUEST_ENUM_TEST)
+  - enum
+    ```java
+    public enum ContentsTypeCode {
+        FEED("001"),
+        COMMENT("002"),
+        NOTICE("003"),
+        COUPON("004"),
+        VOTE("005");
   
-      ContentsTypeCode(String code) {
-          this.code = code;
-      }
+        ContentsTypeCode(String code) {
+            this.code = code;
+        }
   
-      private String code;
+        private String code;
   
-      public String code() {
-          return code;
-      }
-  }
-  ```
-- RequestVO
-  ```java
-  @Getter
-  @ToString
-  @Builder
-  public class RequestVO {
-      private ContentsTypeCode contentsTypeCode;
-      private String title;
-      private String contents;
-  }
-  ```
-- Controller
-  ```java
-  @RestController
-  @RequestMapping("/v1")
-  @RequiredArgsConstructor
-  public class SimpleController {
+        public String code() {
+            return code;
+        }
+    }
+    ```
+  - RequestVO
+    ```java
+    @Getter
+    @ToString
+    @Builder
+    public class RequestVO {
+        private ContentsTypeCode contentsTypeCode;
+        private String title;
+        private String contents;
+    }
+    ```
+  - Controller
+    ```java
+    @RestController
+    @RequestMapping("/v1")
+    @RequiredArgsConstructor
+    public class SimpleController {
   
-      @PostMapping("/post/request")
-      public ResponseEntity methodPostRequest(@RequestBody RequestVO requestVO) {
-          return ResponseEntity.ok().body(requestVO);
-      }
-  
-      @GetMapping("/get/request")
-      public ResponseEntity methodGetRequest(RequestVO requestVO) {
-          return ResponseEntity.ok().body(requestVO);
-      }
-  
-      @GetMapping("/get/request/path-variable/{contentsTypeCode}")
-      public ResponseEntity methodGetRequestPathVariable(@PathVariable ContentsTypeCode contentsTypeCode) {
-          return ResponseEntity.ok().body(contentsTypeCode);
-      }
-  
-      @GetMapping("/get/request/request-param")
-      public ResponseEntity methodGetRequestRequestParam(@RequestParam ContentsTypeCode contentsTypeCode) {
-          return ResponseEntity.ok().body(contentsTypeCode);
-      }
-  }
-  ```
+        @PostMapping("/post/request")
+        public ResponseEntity methodPostRequest(@RequestBody RequestVO requestVO) {
+            return ResponseEntity.ok().body(requestVO);
+        }
+
+        @GetMapping("/get/request/path-variable/{contentsTypeCode}")
+        public ResponseEntity methodGetRequestPathVariable(@PathVariable ContentsTypeCode contentsTypeCode) {
+            return ResponseEntity.ok().body(contentsTypeCode);
+        }
+
+        @GetMapping("/get/request/request-param")
+        public ResponseEntity methodGetRequestRequestParam(@RequestParam ContentsTypeCode contentsTypeCode) {
+            return ResponseEntity.ok().body(contentsTypeCode);
+        }
+    }
+    ```
 
 ## RequestVO에 enum 타입 바로 사용하기
 예전에 프로젝트를 진행할 때 별도의 처리 없이 enum 타입을 바로 사용하면 제대로 동작하지 않았던 것으로 기억하고 있는데 이번에 다시 테스트를 해보니 enum 타입을 바로 사용해도 간단한 동작은 했습니다.
@@ -1328,104 +1324,35 @@ Request에 `[FEED, COMMENT, NOTICE, COUPON, VOTE]` 이 외의 값을 넣으면 4
 
 하지만 `005`는 400 에러를 발생시켰고 좀 더 찾아보니 enum이 갖고 있는 값의 인덱스는 수용하고 있었습니다.
 
-즉, ContenteTypeCode는 5개의 값을 포함하고 있기 때문에`[001, 002, 003 ,004]` 값을 자동으로 `[1, 2, 3, 4]` 으로 인식하고 정상 응답을 한 것이었습니다. 하지만 인덱스는 0부터 4까지 잡히기 때문에 `005`는 400 에러를 발생시켰습니다.
+즉, ContenteTypeCode는 5개의 값을 포함하고 있기 때문에`[001, 002, 003 ,004]` 값을 자동으로 `[1, 2, 3, 4]` 으로 인식하고 정상 응답을 한 것이었습니다. 
 
-결과적으로 아무런 처리 없이 enum 타입을 바로 사용하면 아래와 같습니다.
+하지만 인덱스는 0부터 4까지 잡히기 때문에 `000`은 200 성공 응답이 오지만 `005`는 400 에러를 발생시켰습니다.
+
+결과적으로 아무런 처리 없이 enum 타입을 바로 사용하면 아래와 같습니다.<br>(화살표로 표시한 아래 조건을 모두 만족하는 코드를 짜는게 목표입니다.)
 - `enum의 name 값의 범위만 보장합니다.`<br>→ ContentsTypeCode는 name과 code 값을 한 쌍으로 갖고 있고 <u>code에 대한 값도 수용도 하고 싶습니다.</u>
 - `name의 대소문자가 다르면 400 에러를 발생시킵니다.`<br>→ <u>대소문자를 구분하지 않고 수용하고 싶습니다.</u>
-- `범위를 벗어났을 때 발생하는 에러에 대한 핸들링이 어렵습니다.`<br>→ 범위를 벗어났을 때 응답을 수신하는 쪽에서 에러 원인을 파악하기 쉽도록 <u>에러 메세지를 만들어서 반환하고 싶습니다.</u>  
 - `enum이 갖고 있는 값만큼의 index 값을 수용합니다.`<br>→ 001,002,003,004 등 code 값과 혼동될 수 있는 <u>index 값은 수용하고 싶지 않습니다.</u>
 - `null 값을 허용합니다.`<br>→ <u>상황에 따라 null 값을 허용하고 싶지 않습니다.</u>
+- `범위를 벗어났을 때 발생하는 에러에 대한 핸들링이 어렵습니다.`<br>→ 범위를 벗어났을 때 응답을 수신하는 쪽에서 에러 원인을 파악하기 쉽도록 <u>에러 메세지를 만들어서 반환하고 싶습니다.</u>
 
-<h3>검증코드</h3>
-```java
-@SpringBootTest
-@AutoConfigureMockMvc
-class RequestEnumTestApplicationTests {
+| 테스트 시나리오                                            | POST        | GET<br/>(RequestParam) | GET<br/>(PathVariable) |
+|-----------------------------------------------------|-------------|------------------------|------------------------|
+| 성공_올바른 ContentsTypeCode의 name 값을 사용했을 때 성공한다.       | O           | O                      | O                      |
+| 실패_범위에서 벗어난 ContentsTypeCode의 name 값을 사용했을 때 실패한다.  | O           | O                      | O                      |
+| 성공_올바른 ContentsTypeCode의 code 값을 사용했을 때 성공한다.       | X           | X                      | X                      |
+| 실패_범위에서 벗어난 ContentsTypeCode의 code 값을 사용했을 때 실패한다.  | O           | O                      | O                      |
+| 실패_올바른 ContentsTypeCode의 소문자 값을 보냈을 때 성공한다.         | X           | X                      | X                      |
+| 실패_ContentsTypeCode의 null 값을 사용했을 때 실패한다.           | X<br/>(200) | O                      | X<br/>(404)            |
+| 실패_ContentsTypeCode의 index 값을 사용했을 때 실패한다.          | X           | O                      | O                      |
+| 성공_범위에서 벗어난 ContentsTypeCode을 사용했을 때 응답에 에러 문구가 있다. | X           | X                      | X                      |
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Test
-    @DisplayName("성공_올바른 ContentsTypeCode을 사용해서 성공한다.")
-    public void happy_basic_case() throws Exception {
-        //given
-        Map<String, String> request = Map.of(
-                "title", "title",
-                "contents", "contents",
-                "contentsTypeCode", "FEED"
-        );
-
-        //then
-        mockMvc.perform(post("/v1/post/request")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andDo(print());
-    }
-
-    @Test
-    @DisplayName("성공_ContentsTypeCode의 null 값을 허용한다.")
-    public void happy_basic_null_case() throws Exception {
-        //given
-        Map<String, String> request = Map.of(
-                "title", "title",
-                "contents", "contents"
-        );
-
-        //then
-        mockMvc.perform(post("/v1/post/request")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andDo(print());
-    }
-
-    @Test
-    @DisplayName("실패_범위에서 벗어난 ContentsTypeCode을 사용해서 실패한다.")
-    public void fail_basic_case() throws Exception {
-        //given
-        Map<String, String> request = Map.of(
-                "title", "title",
-                "contents", "contents",
-                "contentsTypeCode", "YOUTUBE"
-        );
-
-        //then
-        mockMvc.perform(post("/v1/post/request")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andDo(print());
-    }
-
-    @Test
-    @DisplayName("실패_소문자 값을 보냈을 때 실패합니다.")
-    public void fail_basic_lower_case() throws Exception {
-        //given
-        Map<String, String> request = Map.of(
-                "title", "title",
-                "contents", "contents",
-                "contentsTypeCode", "feed"
-        );
-
-        //then
-        mockMvc.perform(post("/v1/post/request")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andDo(print());
-    }
-}
-```
 
 ## @Enum과 EnumValidator 
 우선 처음으로 적용해볼 방법은 `@Enum`과 `EnumValidator`를 만들어서 사용하는 방법입니다.
 
-`@Enum`은 `@Constraint`를 사용해서 만들어진 어노테이션으로 `@Enum`을 사용하는 곳에서 `EnumValidator`를 통해 유효성 검사를 수행합니다.
+`@Enum`은 `@Constraint`를 사용해서 만들어진 어노테이션으로 유효성 검사를 할 필드를 지정하는 역할을 합니다.
+
+`EnumValidator`은 `ConstraintValidator`을 상속 받아서 `initialize`와 `isValid` 함수에 어떤 유효성 검사를 할지 정의합니다.
 
 ```java
 @Target({ElementType.TYPE_USE, ElementType.FIELD, ElementType.PARAMETER})
