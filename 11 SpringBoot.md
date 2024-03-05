@@ -46,7 +46,14 @@
 * [자주 쓰이는 Service Annotation](#자주-쓰이는-service-annotation)
 * [자주 쓰이는 Model Annotation](#자주-쓰이는-model-annotation)
 * [Request에 enum 클래스 처리하기](#request에-enum-클래스-처리하기)
+  * [테스트 환경](#테스트-환경)
+  * [RequestVO에 enum 타입 바로 사용하기](#requestvo에-enum-타입-바로-사용하기)
   * [@Enum과 EnumValidator](#enum과-enumvalidator)
+    * [1. 가장 먼저 `@Enum`과 `EnumValidator` 작성](#1-가장-먼저-enum-과-enumvalidator-작성)
+    * [2. RequestVO에서 검사할 필드에 `@Enum`과 옵션 적용](#2-requestvo에서-검사할-필드에-enum-과-옵션-적용)
+    * [3. Controller에서 `@Enum`과 `@Valid` 적용](#3-controller에서-enum-과-valid-적용)
+    * [4. `@Enum`에서 만든 message를 사용하기 위해서 `ResponseVO`와 `CommonExceptionHandler` 생성](#4-enum-에서-만든-message를-사용하기-위해서-responsevo-와-commonexceptionhandler-생성)
+    * [5. 결과 및 정리](#5-결과-및-정리)
   * [Converter](#converter)
   * [Code 값을 갖는 Enum 형태는?](#code-값을-갖는-enum-형태는)
   * [ConverterFactory](#converterfactory)
@@ -1021,7 +1028,7 @@ RESTful API는 ResponseEntity를 갖으며 여러 HTTP 상태 코드와 메세�
 
 ```java
 @UtilityClass
-public class ResponseUtility를 {
+public class ResponseUtility {
     
     public ResponseEntity<CommonResponseVO> createSuccessResponse() {
         return this.createSuccessResponse(null, HttpStatus.OK);
@@ -1031,7 +1038,7 @@ public class ResponseUtility를 {
         return this.createSuccessResponse(commonResponseVO, HttpStatus.OK);
     }
     
-    public ResponseUtility<CommonResponseVO> createSuccessResponse(HttpStatus httpStatus) {
+    public ResponseEntity<CommonResponseVO> createSuccessResponse(HttpStatus httpStatus) {
         return this.createSuccessResponse(null, httpStatus);
     }
 
@@ -1258,6 +1265,8 @@ public static boolean isValidName(String name) {
 - Language : OpenJDK 17
 - Dependency
   - implementation 'org.springframework.boot:spring-boot-starter-web'
+  - implementation 'org.springframework.boot:spring-boot-starter-validation'
+  - implementation 'org.apache.commons:commons-lang3:3.12.0'
   - testImplementation 'org.springframework.boot:spring-boot-starter-test'
   - compileOnly 'org.projectlombok:lombok'
   - annotationProcessor 'org.projectlombok:lombok'
@@ -1304,14 +1313,19 @@ public static boolean isValidName(String name) {
         public ResponseEntity methodPostRequest(@RequestBody RequestVO requestVO) {
             return ResponseEntity.ok().body(requestVO);
         }
-
-        @GetMapping("/get/request/path-variable/{contentsTypeCode}")
-        public ResponseEntity methodGetRequestPathVariable(@PathVariable ContentsTypeCode contentsTypeCode) {
+    
+        @GetMapping("/get/request")
+        public ResponseEntity methodGetRequest(RequestVO requestVO) {
+            return ResponseEntity.ok().body(requestVO);
+        }
+    
+        @GetMapping("/get/request/request-param")
+        public ResponseEntity methodGetRequestRequestParam(@RequestParam ContentsTypeCode contentsTypeCode) {
             return ResponseEntity.ok().body(contentsTypeCode);
         }
 
-        @GetMapping("/get/request/request-param")
-        public ResponseEntity methodGetRequestRequestParam(@RequestParam ContentsTypeCode contentsTypeCode) {
+        @GetMapping("/get/request/path-variable/{contentsTypeCode}")
+        public ResponseEntity methodGetRequestPathVariable(@PathVariable ContentsTypeCode contentsTypeCode) {
             return ResponseEntity.ok().body(contentsTypeCode);
         }
     }
@@ -1320,7 +1334,7 @@ public static boolean isValidName(String name) {
 ## RequestVO에 enum 타입 바로 사용하기
 예전에 프로젝트를 진행할 때 별도의 처리 없이 enum 타입을 바로 사용하면 제대로 동작하지 않았던 것으로 기억하고 있는데 이번에 다시 테스트를 해보니 enum 타입을 바로 사용해도 간단한 동작은 했습니다.
 
-Request에 `[FEED, COMMENT, NOTICE, COUPON, VOTE]` 이 외의 값을 넣으면 400 Bad Request가 발생했고 `[001, 002, 003, 004]` 값을 넣어도 정상적으로 200 응답을 받았습니다.
+Request에 `[FEED, COMMENT, NOTICE, COUPON, VOTE]` 이 외의 값을 넣으면 400 Bad Request가 발생하고 `[001, 002, 003, 004]` 값을 넣어도 정상적으로 200 응답을 받았습니다.
 
 하지만 `005`는 400 에러를 발생시켰고 좀 더 찾아보니 enum이 갖고 있는 값의 인덱스는 수용하고 있었습니다.
 
@@ -1335,31 +1349,28 @@ Request에 `[FEED, COMMENT, NOTICE, COUPON, VOTE]` 이 외의 값을 넣으면 4
 - `null 값을 허용합니다.`<br>→ <u>상황에 따라 null 값을 허용하고 싶지 않습니다.</u>
 - `범위를 벗어났을 때 발생하는 에러에 대한 핸들링이 어렵습니다.`<br>→ 범위를 벗어났을 때 응답을 수신하는 쪽에서 에러 원인을 파악하기 쉽도록 <u>에러 메세지를 만들어서 반환하고 싶습니다.</u>
 
-| 테스트 시나리오                                            | POST        | GET<br/>(RequestParam) | GET<br/>(PathVariable) |
-|-----------------------------------------------------|-------------|------------------------|------------------------|
-| 성공_올바른 ContentsTypeCode의 name 값을 사용했을 때 성공한다.       | O           | O                      | O                      |
-| 실패_범위에서 벗어난 ContentsTypeCode의 name 값을 사용했을 때 실패한다.  | O           | O                      | O                      |
-| 성공_올바른 ContentsTypeCode의 code 값을 사용했을 때 성공한다.       | X           | X                      | X                      |
-| 실패_범위에서 벗어난 ContentsTypeCode의 code 값을 사용했을 때 실패한다.  | O           | O                      | O                      |
-| 실패_올바른 ContentsTypeCode의 소문자 값을 보냈을 때 성공한다.         | X           | X                      | X                      |
-| 실패_ContentsTypeCode의 null 값을 사용했을 때 실패한다.           | X<br/>(200) | O                      | X<br/>(404)            |
-| 실패_ContentsTypeCode의 index 값을 사용했을 때 실패한다.          | X           | O                      | O                      |
-| 성공_범위에서 벗어난 ContentsTypeCode을 사용했을 때 응답에 에러 문구가 있다. | X           | X                      | X                      |
+| 테스트 시나리오                                            | POST        | GET<br>(VO 객체 사용) | GET<br/>(RequestParam) | GET<br/>(PathVariable) |
+|-----------------------------------------------------|-------------|-------------------|------------------------|------------------------|
+| 성공_올바른 ContentsTypeCode의 name 값을 사용했을 때 성공한다.       | O           | O                 | O                      | O                      |
+| 실패_범위에서 벗어난 ContentsTypeCode의 name 값을 사용했을 때 실패한다.  | O           | O                 | O                      | O                      |
+| 성공_올바른 ContentsTypeCode의 code 값을 사용했을 때 성공한다.       | X           | X                 | X                      | X                      |
+| 실패_범위에서 벗어난 ContentsTypeCode의 code 값을 사용했을 때 실패한다.  | O           | O                 | O                      | O                      |
+| 실패_올바른 ContentsTypeCode의 소문자 값을 보냈을 때 성공한다.         | X           | X                 | X                      | X                      |
+| 실패_ContentsTypeCode의 null 값을 사용했을 때 실패한다.           | X<br/>(200) | X<br/>(200)       | O                      | X<br/>(404)            |
+| 실패_ContentsTypeCode의 index 값을 사용했을 때 실패한다.          | X           | O                 | O                      | O                      |
+| 성공_범위에서 벗어난 ContentsTypeCode을 사용했을 때 응답에 에러 문구가 있다. | X           | X                 | X                      | X                      |
 
 
 ## @Enum과 EnumValidator 
 우선 처음으로 적용해볼 방법은 `@Enum`과 `EnumValidator`를 만들어서 사용하는 방법입니다.
 
-`@Enum`은 `@Constraint`를 사용해서 만들어진 어노테이션으로 유효성 검사를 할 필드를 지정하는 역할을 합니다.
+`@Enum`은 `@Constraint`를 사용해서 만드는 어노테이션으로 유효성 검사를 할 필드를 지정하는 역할을 합니다.
 
 `EnumValidator`은 `ConstraintValidator`을 상속 받아서 `initialize`와 `isValid` 함수에 어떤 유효성 검사를 할지 정의합니다.
 
-유효성 검사를 어떻게 할지는 `EnumValidator`의 initialize, isValid 함수를 개발자가 직접 작성해서 정할 수 있습니다.
-
-RequsetVO에서 enum 타입을 쓰지 않고 일반 타입을 사용하고 `@Enum` 어노테이션을 붙여서 유효성 검사를 하는 것이 특징입니다.
-
+### 1. 가장 먼저 `@Enum`과 `EnumValidator` 작성
 ```java
-@Target({ElementType.TYPE_USE, ElementType.FIELD, ElementType.PARAMETER})
+@Target({ElementType.TYPE_USE, ElementType.FIELD, ElementType.PARAMETER,})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = EnumValidator.class)
 public @interface Enum {
@@ -1377,47 +1388,170 @@ public @interface Enum {
 }
 ```
 ```java
-public class EnumValidator implements ConstraintValidator<EnumValid, String> {
-
-    private List<String> enumValues;
-    private EnumValid annotation;
+public class EnumValidator implements ConstraintValidator<Enum, String> {
+    private List<String> enumNames;
+    private List<String> enumCodes;
+    private Enum annotation;
 
     @Override
-    public void initialize(EnumValid enumValid) {
-        this.annotation = enumValid;
-        List<String> excludeEnumType =
-                Arrays.stream(this.annotation.excludeEnumType()).collect(Collectors.toList());
+    public void initialize(Enum value) {
+        this.annotation = value;
 
-        enumValues = Arrays.stream(this.annotation.enumClass().getEnumConstants())
+        List<String> excludeEnumType =
+                Arrays.stream(this.annotation.excludeEnumType()).toList();
+
+        enumNames = Arrays.stream(this.annotation.enumClass().getEnumConstants())
                 .map(constants ->
                         this.annotation.ignoreCase() ? constants.name().toUpperCase() : constants.name())
                 .filter(constants -> !excludeEnumType.contains(constants))
                 .collect(Collectors.toList());
+
+        boolean isHaveCodeMethod = Arrays.stream(value.enumClass().getMethods()).anyMatch(method -> "code".equals(method.getName()));
+
+        if (isHaveCodeMethod) {
+            enumCodes = Arrays.stream(this.annotation.enumClass().getEnumConstants()).map(constant -> {
+                try {
+                    return (String) constant.getClass().getMethod("code").invoke(constant);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }).collect(Collectors.toList());
+        } else {
+            enumCodes = Collections.emptyList();
+        }
     }
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        boolean retVal = false;
-
-        if (value != null && !value.isEmpty()) {
-            retVal = enumValues.contains(this.annotation.ignoreCase() ? value.toUpperCase() : value);
+        if (value == null) {
+            return false;
         } else {
-            retVal = true;
+            value = this.annotation.ignoreCase() ? value.toUpperCase() : value;
+            return enumNames.contains(value) || enumCodes.contains(value);
         }
-
-        return retVal;
     }
 }
 ```
+
+### 2. RequestVO에서 검사할 필드에 `@Enum`과 옵션 적용
 ```java
-public class OrderStatusRequestVO {
-    @Enum(enumClass = OrderType.class)
-    private String orderType;
-    private String item;
-    private int price;
-    private String address;
+@Getter
+@ToString
+@Builder
+public class RequestVO {
+    @Enum(enumClass = ContentsTypeCode.class
+            , message = "유효하지 않은 ContentsTypeCode 입니다."
+            , excludeEnumType = {"COMMENT"}
+            , ignoreCase = true)
+    private String contentsTypeCode;
+    private String title;
+    private String contents;
 }
 ```
+
+### 3. Controller에서 `@Enum`과 `@Valid` 적용
+```java
+@RestController
+@RequestMapping("/v1")
+@RequiredArgsConstructor
+public class SimpleController {
+
+    @PostMapping("/post/request")
+    public ResponseEntity methodPostRequest(@RequestBody @Valid RequestVO requestVO) {
+        return ResponseEntity.ok().body(requestVO);
+    }
+
+    @GetMapping("/get/request")
+    public ResponseEntity methodGetRequest(@Valid RequestVO requestVO) {
+        return ResponseEntity.ok().body(requestVO);
+    }
+
+    @GetMapping("/get/request/path-variable/{contentsTypeCode}")
+    public ResponseEntity methodGetRequestPathVariable(@PathVariable
+                                                       @Valid
+                                                       @Enum(enumClass = ContentsTypeCode.class
+                                                               , message = "유효하지 않은 ContentsTypeCode 입니다."
+                                                               , excludeEnumType = {"COMMENT"}
+                                                               , ignoreCase = true) String contentsTypeCode) {
+        return ResponseEntity.ok().body(contentsTypeCode);
+    }
+
+    @GetMapping("/get/request/request-param")
+    public ResponseEntity methodGetRequestRequestParam(@RequestParam
+                                                       @Valid
+                                                       @Enum(enumClass = ContentsTypeCode.class
+                                                               , message = "유효하지 않은 ContentsTypeCode 입니다."
+                                                               , excludeEnumType = {"COMMENT"}
+                                                               , ignoreCase = true) String contentsTypeCode) {
+        return ResponseEntity.ok().body(contentsTypeCode);
+    }
+}
+```
+
+### 4. `@Enum`에서 만든 message를 사용하기 위해서 `ResponseVO`와 `CommonExceptionHandler` 생성
+```java
+@Setter
+@Getter
+@ToString
+@Builder
+public class ResponseVO {
+    private String status;
+    private String message;
+}
+```
+```java
+@ControllerAdvice
+public class CommonExceptionHandler {
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ResponseVO> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+
+        StringBuilder errors = new StringBuilder();
+        ex.getBindingResult().getAllErrors().forEach(error ->
+                errors.append(error.getDefaultMessage()).append("; "));
+
+        return new ResponseEntity<>(ResponseVO.builder()
+                .status("fail")
+                .message(errors.toString())
+                .build(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ResponseVO> handleMethodArgumentNotValidException(HandlerMethodValidationException ex) {
+
+        StringBuilder errors = new StringBuilder();
+        ex.getAllErrors().forEach(error ->
+                errors.append(error.getDefaultMessage()).append("; "));
+
+        return new ResponseEntity<>(ResponseVO.builder()
+                .status("fail")
+                .message(errors.toString())
+                .build(), HttpStatus.BAD_REQUEST);
+    }
+}
+```
+
+### 5. 결과 및 정리
+| 테스트 시나리오                                            | POST | GET<br>(VO 객체 사용) | GET<br/>(RequestParam) | GET<br/>(PathVariable) |
+|-----------------------------------------------------|------|-------------------|------------------------|------------------------|
+| 성공_올바른 ContentsTypeCode의 name 값을 사용했을 때 성공한다.       | O    | O                 | O                      | O                      |
+| 실패_범위에서 벗어난 ContentsTypeCode의 name 값을 사용했을 때 실패한다.  | O    | O                 | O                      | O                      |
+| 성공_올바른 ContentsTypeCode의 code 값을 사용했을 때 성공한다.       | O    | O                 | O                      | O                      |
+| 실패_범위에서 벗어난 ContentsTypeCode의 code 값을 사용했을 때 실패한다.  | O    | O                 | O                      | O                      |
+| 실패_올바른 ContentsTypeCode의 소문자 값을 보냈을 때 성공한다.         | O    | O                 | O                      | O                      |
+| 실패_ContentsTypeCode의 null 값을 사용했을 때 실패한다.           | O    | O                 | O                      | X<br/>(404)            |
+| 실패_ContentsTypeCode의 index 값을 사용했을 때 실패한다.          | O    | O                 | O                      | O                      |
+| 성공_범위에서 벗어난 ContentsTypeCode을 사용했을 때 응답에 에러 문구가 있다. | O    | O                 | O                      | O                      |
+
+PathVarialbe의 null일 때 빼고는 모두 성공하는 것을 볼 수 있습니다.
+- 단점1. @PathVariable, @RequestParam을 쓰는 곳에 @Enum을 붙여야 해서 코드의 가독성이 떨어집니다.
+- 단점2. String으로 받아서 사용해야 합니다. ContentsTypeCode로 사용하면 기본적인 valid를 먼저 타고 @Enum을 타기 때문에 name 값 범위를 벗어나면 실패합니다.
+- 단점3. 결정적으로 Code 값을 받았을 때 받은 그대로 전달해주기 때문에 Service 안에서 code로 name을 찾아서 enum 타입을 찾아야 합니다. 이는 사용하는 목적과 많이 다릅니다.
+- 단점4. 쓰는 곳마다 @Enum을 적어야합니다. 누락될 수 있습니다.
+- 장점1. ignoreCase, excludeEnumType 등 좀 더 유연한 비교가 가능합니다.
+
 
 ## Converter
 @Enum 어노테이션으로는 아래와 같은 @PathVariable로 enum 클래스를 바로 사용하는 경우를 처리하지 못했고 이를 처리하기 위해서 각 enum 클래스마다 Converter 만들어서 사용했었다.
