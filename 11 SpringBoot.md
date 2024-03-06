@@ -652,6 +652,47 @@ Spring에서 Model을 다룰 때 VO와 DTO를 사용합니다. VO와 DTO의 사�
     WHERE c.contents_type = #{contentsTypeFeedCode}
     ```
 
+- 여러 개의 하위 값을 갖는 enum 타입
+  ```java
+  public enum CommonCode {
+      ORDER_TYPE("001", "", "", "", ""),
+      MODEL_TYPE("002", "", "", "", ""),
+      POS_TYPE("003", "", "", "", ""),
+      VAN_TYPE("004", "", "", "", ""),
+      CARD_TYPE("005", "", "", "", "");
+  
+      private final String code;
+      private final String referenceField1;
+      private final String referenceField2;
+      private final String referenceField3;
+      private final String referenceField4;
+      
+      CommonCode(String code, String referenceField1, String referenceField2, String referenceField3, String referenceField4) {
+          this.code = code;
+          this.referenceField1 = referenceField1;
+          this.referenceField2 = referenceField2;
+          this.referenceField3 = referenceField3;
+          this.referenceField4 = referenceField4;
+      }
+      
+      public String code() {
+          return code;
+      }
+      public String referenceField1() {
+          return referenceField1;
+      }
+      public String referenceField2() {
+          return referenceField2;
+      }
+      public String referenceField3() {
+          return referenceField3;
+      }
+      public String referenceField4() {
+          return referenceField4;
+      }
+  }
+  ```
+
 #### 💡³)Session 관련된 정보들은 Controller에서 넘겨줘야 할까? 아니면 Service 안에서 가져와야 할까?
 - 주로 로그인한 사용자의 customerId는 Session에서 정보를 가져옵니다. 이 Session 정보는 Controller 함수 내에서 가져와서 Service에 넘겨주거나 Service 함수 내부에서 가져올 수 있습니다.
   ```java
@@ -1384,6 +1425,8 @@ public @interface Enum {
 
     boolean ignoreCase() default false;
 
+    boolean isNullable() default false;
+
     String[] excludeEnumType() default {};
 }
 ```
@@ -1424,7 +1467,7 @@ public class EnumValidator implements ConstraintValidator<Enum, String> {
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (value == null) {
-            return false;
+            return this.annotation.isNullable();
         } else {
             value = this.annotation.ignoreCase() ? value.toUpperCase() : value;
             return enumNames.contains(value) || enumCodes.contains(value);
@@ -1442,6 +1485,7 @@ public class RequestVO {
     @Enum(enumClass = ContentsTypeCode.class
             , message = "유효하지 않은 ContentsTypeCode 입니다."
             , excludeEnumType = {"COMMENT"}
+            , isNullable = true
             , ignoreCase = true)
     private String contentsTypeCode;
     private String title;
@@ -1545,137 +1589,206 @@ public class CommonExceptionHandler {
 | 실패_ContentsTypeCode의 index 값을 사용했을 때 실패한다.          | O    | O                 | O                      | O                      |
 | 성공_범위에서 벗어난 ContentsTypeCode을 사용했을 때 응답에 에러 문구가 있다. | O    | O                 | O                      | O                      |
 
-PathVarialbe의 null일 때 빼고는 모두 성공하는 것을 볼 수 있습니다.
-- 단점1. @PathVariable, @RequestParam을 쓰는 곳에 @Enum을 붙여야 해서 코드의 가독성이 떨어집니다.
-- 단점2. String으로 받아서 사용해야 합니다. ContentsTypeCode로 사용하면 기본적인 valid를 먼저 타고 @Enum을 타기 때문에 name 값 범위를 벗어나면 실패합니다.
-- 단점3. 결정적으로 Code 값을 받았을 때 받은 그대로 전달해주기 때문에 Service 안에서 code로 name을 찾아서 enum 타입을 찾아야 합니다. 이는 사용하는 목적과 많이 다릅니다.
-- 단점4. 쓰는 곳마다 @Enum을 적어야합니다. 누락될 수 있습니다.
-- 장점1. ignoreCase, excludeEnumType 등 좀 더 유연한 비교가 가능합니다.
+테스트 결과를 보면 PathVarialbe의 null case 빼고는 모두 성공하는 것을 볼 수 있습니다.
 
+`@Enum`과 `EnumValidator`의 장점으론 ignoreCase, excludeEnumType, isNullable 등 <u>여러 속성 값을 만들어서 유효성 검증을 확장성 있게 만들 수 있다는 점입니다.</u>
+
+첫번째 한계점은 사용할 곳에 `@Enum`을 붙여야 하기 때문에 <u>(1) 누락이 될 수 있고</u> 
+
+두번째 한계점은 @PathVariable 처럼 VO가 아닌 파라미터에 직접 사용하는 경우 <u>(2) 코드가 불필요하게 길어져서 가독성이 떨어지게 됩니다.</u>
+
+세번째 한계점은 결정적으로 `@Enum`은 enum 타입이 아닌 String 과 같은 <u>(3) 일반 타입을 사용해야 합니다. </u> 왜냐하면 enum 타입을 사용할 경우 Spring이 enum 타입에 대한 기본 유효성 검사를 먼저 하고 그 다음에 `EnumValidator`의 유효성 검사를 하기 때문입니다. 즉, code 값을 받았을 때 enum 타입에 대한 **기본 검사에 위배(name 값 범위를 벗어남)** 되기 때문에 `EnumValidator`를 거치기 전에 에러를 반환합니다. 
+
+네번째 한계점은 code 값을 받으면 code 값 그대로 Service Layer로 넘겨야 하는데 해당 값이 어떤 name 값과 맵핑되는지 알 수 없기 때문에 <u>(4) code 값으로 enum을 찾아주는 별도의 로직이 필요합니다.</u>
+
+("001"이 들어왔을 때 ContentsTypeCode.FEED을 찾아주는 별도의 로직이 필요합니다.)
+
+위와 같은 이유로 `@Enum`과 `EnumValidator`를 사용하기엔 완벽하지 않았습니다.
 
 ## Converter
-@Enum 어노테이션으로는 아래와 같은 @PathVariable로 enum 클래스를 바로 사용하는 경우를 처리하지 못했고 이를 처리하기 위해서 각 enum 클래스마다 Converter 만들어서 사용했었다.
+일반 타입이 아니라 enum 타입을 바로 사용하기 위해서 적용해볼 수 있는 고전적인 방법은 `Converter`를 사용하는 사용하는 방법입니다.
+
+`Converter`는 주로 데이터를 타입 간에 변환할 때 사용됩니다. 문자열을 숫자로 변환하거나 enum 타입으로 변환할 때 사용할 수 있습니다.
+
+Spring에서는 Converter 인터페이스를 구현하여 커스텀한 검증 로직을 정의할 수 있습니다. 이는 주로 데이터 바인딩 시에 사용됩니다.
+
+이 방법을 사용하면 `EnumValidator`의 단점을 대부분 해소할 수 있지만 enum 타입 하나당 하나의 Converter를 만들어줘야 하기 때문에 enum 타입이 많아지면 코드의 양이 불필요하게 늘어나게 됩니다.
+
+따라서 실제 프로젝트에선 사용하지 않았습니다.
+
+### 1. Converter 생성
 ```java
-@Component
-public class ContentsTypeConverter implements Converter<String, ContentsType> {
+public class ContentsTypeCodeConverter implements Converter<String, ContentsTypeCode> {
+    Class<? extends Enum> enumClass = ContentsTypeCode.class;
+
     @Override
-    public ContentsType convert(String value) {
-        return ContentsType.valueOf(value.toUpperCase());
+    public ContentsTypeCode convert(String source) {
+        source = source.trim().toUpperCase();
+
+        if (ObjectUtils.isEmpty(source))
+            throw new IllegalArgumentException("유효하지 않은 ContentsTypeCode 입니다.");
+
+        boolean isPlainEnum = EnumUtils.isValidEnum(enumClass, source);
+
+        if (isPlainEnum) {
+            return ContentsTypeCode.valueOf(source);
+        } else {
+            boolean isEnumCode = Arrays.stream(enumClass.getMethods()).anyMatch(method -> "code".equals(method.getName()));
+
+            if (isEnumCode) {
+                ContentsTypeCode matchedEnum = null;
+                String enumCode;
+                for (Enum constant : enumClass.getEnumConstants()) {
+                    try {
+                        enumCode = (String) constant.getClass().getMethod("code").invoke(constant);
+                        if (enumCode.equals(source)) {
+                            matchedEnum = (ContentsTypeCode) constant;
+                            break;
+                        }
+                    } catch (Exception e) {
+                        throw new IllegalArgumentException("유효하지 않은 ContentsTypeCode 입니다.");
+                    }
+                }
+
+                if (matchedEnum == null)
+                    throw new IllegalArgumentException("유효하지 않은 ContentsTypeCode 입니다.");
+
+                return ContentsTypeCode.valueOf(matchedEnum.name());
+            } else {
+                throw new IllegalArgumentException("유효하지 않은 ContentsTypeCode 입니다.");
+            }
+        }
     }
 }
 ```
+
+### 2. Converter 등록
 ```java
 @Configuration
-public class WebConfig implements WebMvcConfigurer {
+public class WebConfiguration implements WebMvcConfigurer {
     @Override
     public void addFormatters(FormatterRegistry registry) {
-        registry.addConverter(new ContentsTypeConverter());
+        registry.addConverter(new ContentsTypeCodeConverter());
     }
 }
 ```
+
+### 3. Controller에서 enum 타입 바로 사용
 ```java
 @RestController
-@RequestMapping("/order")
-public class OrderController {
-    @GetMapping("/{orderType}")
-    public ResponseEntity<String> getFeedsByContentsType(@PathVariable OrderType orderType) {
-        return ResponseEntity.ok();
+@RequestMapping("/v1")
+@RequiredArgsConstructor
+public class SimpleController {
+
+    @PostMapping("/post/request")
+    public ResponseEntity methodPostRequest(@RequestBody RequestVO requestVO) {
+        return ResponseEntity.ok().body(requestVO);
+    }
+
+    @GetMapping("/get/request")
+    public ResponseEntity methodGetRequest(RequestVO requestVO) {
+        return ResponseEntity.ok().body(requestVO);
+    }
+
+    @GetMapping("/get/request/request-param")
+    public ResponseEntity methodGetRequestRequestParam(@RequestParam ContentsTypeCode contentsTypeCode) {
+        return ResponseEntity.ok().body(contentsTypeCode);
+    }
+
+    @GetMapping("/get/request/path-variable/{contentsTypeCode}")
+    public ResponseEntity methodGetRequestPathVariable(@PathVariable ContentsTypeCode contentsTypeCode) {
+        return ResponseEntity.ok().body(contentsTypeCode);
     }
 }
 ```
 
-EnumValidator와 Converter는 몇가지 문제점이 있다.
-- 사용하는 enum 클래스만큼 Converter를 각각 만들어줘야하는 점
-- VO에 각 필드에 @Enum 어노테이션을 넣어줘야 하는 점
-- `Code 값을 갖는 Enum 형태`를 호환하지 못하는 점
-
-## Code 값을 갖는 Enum 형태는?
-Code enum은 주로 공통코드를 관리하거나 한 변수가 name, code 혹은 다른 값들을 동시에 갖을 때 주로 사용했다. 
-
-프로젝트에서 공통 코드는 데이터베이스에서 테이블로 관리하고 Back-end에서 공통 코드 조회 API를 만들어서 Front-end에서 사용할 수 있도록 했었다. 
-공통 코드는 주로 name과 code값이 한 쌍으로 관리되며 Front-end에선 주로 name 값을 화면에 보여주고 내부적으론 code 값을 사용했다. 
-Back-end에서는 공통 코드를 사용할 때마다 데이터베이스를 조회할 수 없었기 때문에 `OrderTypeCode`와 같은 Code enum 클래스를 만들어서 사용했었다.
+### 4. ExceptionHandler에 IllegalArgumentException 추가
 ```java
-// 일반적인 Enum 형태
-public enum OrderType {
-  ORDER,
-  CANCEL,
-  REFUND
-} 
-```
-```java
-// Code Enum 형태
-public enum OrderTypeCode {
-  ORDER("001"),
-  CANCEL("002"),
-  REFUND("003");
+@ControllerAdvice
+public class CommonExceptionHandler {
 
-  private String code;
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ResponseVO> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
 
-  FeedContentsTypeCode(String code){
-    this.code = code;
-  }
-  
-  public String code() {
-    return code;
-  }
+        StringBuilder errors = new StringBuilder();
+        ex.getBindingResult().getAllErrors().forEach(error ->
+                errors.append(error.getDefaultMessage()).append("; "));
+
+        return new ResponseEntity<>(ResponseVO.builder()
+                .status("fail")
+                .message(errors.toString())
+                .build(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ResponseVO> handleMethodArgumentNotValidException(HandlerMethodValidationException ex) {
+
+        StringBuilder errors = new StringBuilder();
+        ex.getAllErrors().forEach(error ->
+                errors.append(error.getDefaultMessage()).append("; "));
+
+        return new ResponseEntity<>(ResponseVO.builder()
+                .status("fail")
+                .message(errors.toString())
+                .build(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ResponseVO> handleMethodArgumentNotValidException(IllegalArgumentException ex) {
+
+        String errorMessage = ex.getMessage();
+
+        return new ResponseEntity<>(ResponseVO.builder()
+                .status("fail")
+                .message(errorMessage)
+                .build(), HttpStatus.BAD_REQUEST);
+    }
 }
 ```
 
-Front-end에서 화면에는 name 값`[ORDER, CANCEL, REFUND]`을 노출하고, Back-end와 통신할 때는 code 값`[001, 002, 003]`을 사용했다.
+### 5. 정리
 
-Back-end 코드 내부에서 `OrderTypeCode.001.equals(contents)`와 같이 사용한다면 `001`이 어떤 값을 의미하는지 한 눈에 알 수 없기 때문에 Code enum 형태의 enum을 만들어서 사용했다.
+| 테스트 시나리오                                            | POST        | GET<br>(VO 객체 사용) | GET<br/>(RequestParam) | GET<br/>(PathVariable) |
+|-----------------------------------------------------|-------------|-------------------|------------------------|------------------------|
+| 성공_올바른 ContentsTypeCode의 name 값을 사용했을 때 성공한다.       | X           | O                 | O                      | O                      |
+| 실패_범위에서 벗어난 ContentsTypeCode의 name 값을 사용했을 때 실패한다.  | O           | O                 | O                      | O                      |
+| 성공_올바른 ContentsTypeCode의 code 값을 사용했을 때 성공한다.       | O           | O                 | O                      | O                      |
+| 실패_범위에서 벗어난 ContentsTypeCode의 code 값을 사용했을 때 실패한다.  | O           | O                 | O                      | O                      |
+| 실패_올바른 ContentsTypeCode의 소문자 값을 보냈을 때 성공한다.         | X           | O                 | O                      | O                      |
+| 실패_ContentsTypeCode의 null 값을 사용했을 때 실패한다.           | X<br/>(200) | X<br/>(200)       | O<br/>(400)            | X<br/>(404)            |
+| 실패_ContentsTypeCode의 index 값을 사용했을 때 실패한다.          | X           | O                 | O                      | O                      |
+| 성공_범위에서 벗어난 ContentsTypeCode을 사용했을 때 응답에 에러 문구가 있다. | X           | O                 | O                      | O                      |
 
-EnumValidator와 Converter에는 장단점이 존재한다.
-- 장점
-  - NULL 값을 호환한다는 점
-  - excludeEnumType, message 등 좀 더 유연한 비교가 가능하다는 점
-- 단점
-  - 사용하는 enum 클래스만큼 Converter를 각각 만들어줘야하는 점
-  - VO에 각 필드에 @Enum 어노테이션을 넣어줘야 하는 점
-  - `Code 값을 갖는 enum 형태`를 호환하지 못하는 점
+POST의 결과를 보면 아무 처리도 안했을 떄와 동일한 것을 볼 수 있습니다.
 
-```java
-// 여러개의 값을 갖는 Code Enum
-public enum CommonCode {
-    ORDER_TYPE("001", "", "", "", ""),
-    MODEL_TYPE("002", "", "", "", ""),
-    POS_TYPE("003", "", "", "", ""),
-    VAN_TYPE("004", "", "", "", ""),
-    CARD_TYPE("005", "", "", "", "")
-    ;
+Converter는 @RequestParam, @PathVariable에서 타입을 변경할 때 해당 타입에 대한 Converter가 있으면 그 Converter가 동작하게 됩니다. 
 
-    private final String code;
-    private final String referenceField1;
-    private final String referenceField2;
-    private final String referenceField3;
-    private final String referenceField4;
-    
-    CommonCode(String code, String referenceField1, String referenceField2, String referenceField3, String referenceField4) {
-        this.code = code;
-        this.referenceField1 = referenceField1;
-        this.referenceField2 = referenceField2;
-        this.referenceField3 = referenceField3;
-        this.referenceField4 = referenceField4;
-    }
-    
-    public String code() {
-        return code;
-    }
-    public String getReferenceField1() {
-        return referenceField1;
-    }
-    public String getReferenceField2() {
-        return referenceField2;
-    }
-    public String getReferenceField3() {
-        return referenceField3;
-    }
-    public String getReferenceField4() {
-        return referenceField4;
-    }
-}
-```
+하지만 @RequestBody는 MappingJackson2HttpMessageConverter가 기본적으로 동작하기 때문에 별도의 ContentsTypeCodeConverter가 동작하지 않습니다.
+
+아래 표에서 ContentsTypeCodeConverter 동작 여부를 표시했습니다.
+
+| 테스트 시나리오                                            | POST        | GET<br>(VO 객체 사용) | GET<br/>(RequestParam) | GET<br/>(PathVariable) |
+|-----------------------------------------------------|-------------|-------------------|------------------------|------------------------|
+| 성공_올바른 ContentsTypeCode의 name 값을 사용했을 때 성공한다.       | X           | O                 | O                      | O                      |
+| 실패_범위에서 벗어난 ContentsTypeCode의 name 값을 사용했을 때 실패한다.  | X           | O                 | O                      | O                      |
+| 성공_올바른 ContentsTypeCode의 code 값을 사용했을 때 성공한다.       | X           | O                 | O                      | O                      |
+| 실패_범위에서 벗어난 ContentsTypeCode의 code 값을 사용했을 때 실패한다.  | X           | O                 | O                      | O                      |
+| 실패_올바른 ContentsTypeCode의 소문자 값을 보냈을 때 성공한다.         | X           | O                 | O                      | O                      |
+| 실패_ContentsTypeCode의 null 값을 사용했을 때 실패한다.           | X<br/>(200) | X<br/>(200)       | X<br/>(400)            | X<br/>(404)            |
+| 실패_ContentsTypeCode의 index 값을 사용했을 때 실패한다.          | X           | O                 | O                      | O                      |
+| 성공_범위에서 벗어난 ContentsTypeCode을 사용했을 때 응답에 에러 문구가 있다. | X           | O                 | O                      | O                      |
+
+POST의 경우엔 @RequestBody를 사용했기 때문에 Converter를 모두 거치지 않았고 나머지의 경우엔 null case를 제외하고 모두 Converter를 거쳤습니다.
+
+Converter에 타입을 String으로 명시했기 때문에 null case는 Converter를 거치지 않았지만 응답코드는 200, 404로 상이했습니다.
+
+Converter를 단독으로 사용하면 (1) RequestBody에서 동작하지 않는 점과 (2) enum 타입마다 Converter를 만들어줘야하고 (3) formatter 등록을 다 해줘야해서 불필요한 코드가 많아진다는 한계점이 있습니다.
+
+(ConverterFactory를 사용하면 (2)번, (3)번 한계점을 해결할 수 있습니다. 이 부분은 아래에서 서술합니다.)
+
 
 ## ConverterFactory
 첫번째와 두번째 단점을 해결하기 위해서 ConverterFactory를 만들어서 사용할 수 있다. 여러 VO에 @Enum 어노테이션을 적어줄 필요도 없고 각 enum 클래스마다 Converter를 만들어줄 필요도 없다.
@@ -1923,6 +2036,10 @@ public class EumConverterFactory implements ConverterFactory<String, Enum> {
   }
 }
 ```
+
+Validator, Converter는 꼭 enum을 처리하기 위해서만 사용하는 것은 아닙니다.
+
+Spring에는 이런 기능이 있고 특정한 경우에 활용하면 됩니다.
 
 ---
 
