@@ -1789,87 +1789,9 @@ Converter를 단독으로 사용하면 (1) RequestBody에서 동작하지 않는
 
 (ConverterFactory를 사용하면 (2)번, (3)번 한계점을 해결할 수 있습니다. 이 부분은 아래에서 서술합니다.)
 
-
-## ConverterFactory
-첫번째와 두번째 단점을 해결하기 위해서 ConverterFactory를 만들어서 사용할 수 있다. 여러 VO에 @Enum 어노테이션을 적어줄 필요도 없고 각 enum 클래스마다 Converter를 만들어줄 필요도 없다.
-```java
-public class EnumConverterFactory implements ConverterFactory<String, Enum<?>> {
-
-    @Override
-    public <T extends Enum<?>> Converter<String, T> getConverter(Class<T> targetType) {
-        return new StringToEnumConverter(getEnumType(targetType));
-    }
-
-    private static class StringToEnumConverter<T extends Enum<?>> implements Converter<String, T> {
-
-        private final Class<T> enumType;
-
-        public StringToEnumConverter(Class<T> enumType) {
-            this.enumType = enumType;
-        }
-
-        @Override
-        public T convert(String source) {
-            if (source.isEmpty()) {
-                return null;
-            }
-            return (T) Enum.valueOf(this.enumType, source.trim().toUpperCase());
-        }
-    }
-    
-    private static Class<?> getEnumType(Class targetType) {
-        Class<?> enumType = targetType;
-        while (enumType != null && !enumType.isEnum()) {
-            enumType = enumType.getSuperclass();
-        }
-        Assert.notNull(enumType, "The target type " + targetType.getName() + " does not refer to an enum");
-        return enumType;
-    }
-}
-```
-```java
-public class OrderStatusRequestVO {
-  private OrderType orderType;
-  private String item;
-  private int price;
-  private String address;
-}
-```
-
-## Converter 한 번에 등록하기
-위에서 Converter를 설명할 때 enum 클래스 개수만큼 등록해야한다고 설명했었지만 아래 코드를 보면 여러 Formatter, Converter, ConverterFactory를 한 번에 등록할 수 있다.
-```java
-@Configuration
-public class FormatterConfig implements WebMvcConfigurer {
-    @Autowired
-    private Formatter<?>[] formatters;
-    
-    @Autowired
-    private Converter<?, ?>[] converters;
-    
-    @Autowired
-    private ConverterFactory<?, ?>[] converterFactories;
-    
-    @Override
-    public void addFormatters(FormatterRegistry formatterRegistry) {
-        if(!ObjectUtils.isEmpty(formatters)){
-            formatters.forEach(formatterRegistry::addFormatter);
-        }
-
-        if(!ObjectUtils.isEmpty(converters)){
-            converters.forEach(formatterRegistry::addFormatter);
-        }
-
-        if(!ObjectUtils.isEmpty(converterFactories)){
-            converterFactories.forEach(formatterRegistry::addConverterFactory);
-        }
-    }
-}
-```
-
----
-
 ## Jackson의 Deserializer
+
+더 자세한건 다음 페이지에서 Jackson을 다룰때 설명한다.
 Jackson의 Serializer와 Deserialzer를 사용하면 기존에 있던 단점을 모두 보완하고 장점도 모두 사용할 수 있다.
 Jackson의 Serializer와 Deserializer는 Request로 들어오는 VO 객체, Response로 반환하는 VO 객체 내에 있는 필드의 특정 타입에 대한 공통 처리를 정의하거나 Jackson 내에 정의되어 있는 특정 함수들을 오버라이딩해서 커스터마이징이 가능했다.
 
@@ -2037,6 +1959,81 @@ public class EumConverterFactory implements ConverterFactory<String, Enum> {
 }
 ```
 
+한번에 등록하기
+```java
+@Configuration
+@RequiredArgsConstructor
+public class FormatterConfiguration implements WebMvcConfigurer {
+
+    private final Formatter<?>[] formatters;
+
+    private final Converter<?, ?>[] converters;
+
+    private final ConverterFactory<?, ?>[] converterFactories;
+
+    @Override
+    public void addFormatters(FormatterRegistry formatterRegistry) {
+        if (!ObjectUtils.isEmpty(formatters)) {
+            for (final Formatter<?> formatter : formatters){
+                formatterRegistry.addFormatter(formatter);
+            }
+        }
+
+        if (!ObjectUtils.isEmpty(converters)) {
+            for (final Converter<?, ?> converter : converters){
+                formatterRegistry.addConverter(converter);
+            }
+        }
+
+        if (!ObjectUtils.isEmpty(converterFactories)) {
+            for (final ConverterFactory<?, ?> converterFactory : converterFactories){
+                formatterRegistry.addConverterFactory(converterFactory);
+            }
+        }
+    }
+}
+```
+
+## ConverterFactory
+첫번째와 두번째 단점을 해결하기 위해서 ConverterFactory를 만들어서 사용할 수 있다. 여러 VO에 @Enum 어노테이션을 적어줄 필요도 없고 각 enum 클래스마다 Converter를 만들어줄 필요도 없다.
+```java
+public class EnumConverterFactory implements ConverterFactory<String, Enum<?>> {
+
+    @Override
+    public <T extends Enum<?>> Converter<String, T> getConverter(Class<T> targetType) {
+        return new StringToEnumConverter(getEnumType(targetType));
+    }
+
+    private static class StringToEnumConverter<T extends Enum<?>> implements Converter<String, T> {
+
+        private final Class<T> enumType;
+
+        public StringToEnumConverter(Class<T> enumType) {
+            this.enumType = enumType;
+        }
+
+        @Override
+        public T convert(String source) {
+            if (source.isEmpty()) {
+                return null;
+            }
+            return (T) Enum.valueOf(this.enumType, source.trim().toUpperCase());
+        }
+    }
+    
+    private static Class<?> getEnumType(Class targetType) {
+        Class<?> enumType = targetType;
+        while (enumType != null && !enumType.isEnum()) {
+            enumType = enumType.getSuperclass();
+        }
+        Assert.notNull(enumType, "The target type " + targetType.getName() + " does not refer to an enum");
+        return enumType;
+    }
+}
+```
+
+---
+
 Validator, Converter는 꼭 enum을 처리하기 위해서만 사용하는 것은 아닙니다.
 
 Spring에는 이런 기능이 있고 특정한 경우에 활용하면 됩니다.
@@ -2045,6 +2042,68 @@ Spring에는 이런 기능이 있고 특정한 경우에 활용하면 됩니다.
 
 Jackson
 ===
+
+Builder에서 Serializer, Deserializer를 등록할 수 있다.
+
+혹은 Serializer를 상속받고 필요한 곳에서 @JsonSerialize(using = CustomSerializer.class)를 사용할 수 있다.
+
+@annotation 활용법
+- @NoLogging 선언해두고 동작은 따로 선언 안함. JoinPoint에서 지점을 정해서 사용할 수 있다.
+```java
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface NoLogging {}
+```
+```java
+@Before("(execution(* com.example..*.*(..)) 
+              && !@annotation(com.example.annotation.NoLogging))"
+```
+
+- annotation을 선언해두고 동작은 Serialzier에서 선언하고 annotation을 통해 파라미터를 받아서 동작에서 사용한다.
+```java
+@Target({ElementType.FIELD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@JacksonAnnotationsInside
+@JsonSerialize(using = CustomSerializer.class)
+public @interface CustomAnnotation {
+    String value() default "";
+}
+```
+```java
+public class CustomSerializer extends StdSerializer<CustomAnnotation> implements ContextualSerializer {
+    String value;
+    
+    protected CustomSerializer() {
+        super(String.class);
+    }
+    
+    protected CustomSerializer(String value) {
+        super(String.class);
+        this.value = value;
+    }
+    
+    @Override
+    public void serialize(CustomAnnotation value, JsonGenerator gen, SerializerProvider provider)  {
+        gen.writeString(value.value());
+    }
+}
+```
+
+- annotation을 생성해두고 특정 동작도 동작은 Aspect에 선언해둔다.
+```java
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface CustomAnnotation {
+    String value() default "";
+}
+```
+```java
+@Around("@annotation(com.example.annotation.CustomAnnotation)")
+public Object doSomething(ProceedingJoinPoint joinPoint, CustomAnnotation customAnnotation) throws Throwable {
+    // 동작
+        customAnnotation.value();
+}
+```
 
 ## Serializer/Deserializer
 JSON 데이터를 Java 객체로 변환하기 (Deserialization)
