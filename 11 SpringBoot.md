@@ -1795,7 +1795,63 @@ Converter를 단독으로 사용하면 (1) RequestBody에서 동작하지 않는
 Jackson의 Serializer와 Deserialzer를 사용하면 기존에 있던 단점을 모두 보완하고 장점도 모두 사용할 수 있다.
 Jackson의 Serializer와 Deserializer는 Request로 들어오는 VO 객체, Response로 반환하는 VO 객체 내에 있는 필드의 특정 타입에 대한 공통 처리를 정의하거나 Jackson 내에 정의되어 있는 특정 함수들을 오버라이딩해서 커스터마이징이 가능했다.
 
-예를들어 날짜 타입의 형식을 지정할 때 DateUtil에 함수를 만들어서 Service Layer나 toVO 함수 내에서 지정할 필요 없이 LocalDate, LocalTime, LocalDateTime 타입에 대한 형식을 지정해주거나 Enum 타입의 값이 들어왔을 때 toUpperCase() 적용한 후에 비교를 할 수 있게 할 수 있다.
+### 1. EnumDeserializer 작성
+```java
+public class EnumDeserializer extends StdDeserializer<Enum <? extends Enum>> implements ContextualDeserializer {
+
+    public EnumDeserializer(Class<?> vc) {
+        super(vc);
+    }
+
+    @Override
+    public Enum<? extends Enum> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        Class<? extends Enum> enumType = (Class<? extends Enum>) this._valueClass;
+        JsonNode jsonNode = jsonParser.getCodec().readTree(jsonParser);
+        String input = jsonNode.asText().trim().toUpperCase();
+
+        if(ObjectUtils.isEmpty(input))
+            throw new IllegalArgumentException("유효하지 않은 ContentsTypeCode 입니다.");
+
+        boolean isPlainEnum = EnumUtils.isValidEnum(enumType, input);
+
+        if(isPlainEnum){
+            return Enum.valueOf(enumType, input);
+        } else {
+            boolean isEnumCode = Arrays.stream(enumType.getMethods()).anyMatch(method -> "code".equals(method.getName()));
+
+            if(isEnumCode){
+                Enum mathcEnum = null;
+                String enumValue;
+                for(Enum constant : enumType.getEnumConstants()){
+                    try {
+                        enumValue = (String) constant.getClass().getMethod("code").invoke(constant);
+                        if(enumValue.equals(input.trim().toUpperCase())){
+                            mathcEnum = constant;
+                            break;
+                        }
+                    } catch (Exception e) {
+                        throw new IllegalArgumentException("유효하지 않은 ContentsTypeCode 입니다.");
+                    }
+                }
+
+                if(mathcEnum == null)
+                    throw new IllegalArgumentException("유효하지 않은 ContentsTypeCode 입니다.");
+
+                return Enum.valueOf(enumType,mathcEnum.name());
+            } else {
+                throw new IllegalArgumentException("유효하지 않은 ContentsTypeCode 입니다.");
+            }
+        }
+    }
+
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext context, BeanProperty beanProperty) {
+        return new EnumDeserializer(beanProperty.getType().getRawClass());
+    }
+}
+```
+
+### 2. Jackson2ObjectMapperBuilderCustomizer를 상속받은 클래스 작성
 ```java
 public class JacksonMappingBuilderConfig implements Jackson2ObjectMapperBuilderCustomizer {
   @Override
@@ -1821,145 +1877,77 @@ public class JacksonMappingBuilderConfig implements Jackson2ObjectMapperBuilderC
 }
 ```
 
-Code enum 형태를 처리하기 위해 만든 `EnumDeserializer`는 enum 클래스를 처리하는 함수`public Enum<? extends Enum> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)`를 오버라이딩해서 커스터마이징 했다.
-타입이 enum 클래스일 경우 enum 클래스 내에 value 함수가 있는지 확인하고 value 함수가 있으면 value 함수의 결과인 코드 값으로 매칭되는 값이 있는지 확인하도록 했다. https://d2.naver.com/helloworld/0473330 를 참고했다.
-```java
-public class EnumDeserializer extends StdDeserializer<Enum <? extends Enum>> implements ContextualDeserializer {
-
-    protected EnumDeserializer(Class<?> vc) {
-        super(vc);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Enum<? extends Enum> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        JsonNode jsonNode = jsonParser.getCodec().readTree(jsonParser);
-        String input = jsonNode.asText().trim().toUpperCase();
-        Class<? extends Enum> enumType = (Class<? extends Enum>) this._valueClass;
-
-        if(ObjectUtils.isEmpty(input))
-            return null;
-
-        boolean isPlainEnum = EnumUtils.isValidEnum(enumType, input);
-        if(isPlainEnum){
-            return Enum.valueOf(enumType, input);
-        } else {
-            boolean isEnumCode = Arrays.stream(enumType.getMethods()).anyMatch(method -> "value".equals(method.getName()));
-
-            if(isEnumCode){
-                Enum mathcEnum = null;
-                String enumValue;
-                for(Enum constant : enumType.getEnumConstants()){
-                    try {
-                        enumValue = (String) constant.getClass().getMethod("value").invoke(constant);
-                        if(enumValue.equals(input.trim().toUpperCase())){
-                            mathcEnum = constant;
-                            break;
-                        }
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-
-                if(mathcEnum == null)
-                    throw new IllegalArgumentException("No enum constant " + enumType.getCanonicalName() + "." +input);
-
-                return Enum.valueOf(enumType,mathcEnum.name());
-            } else {
-                throw new IllegalArgumentException("No enum constant " + enumType.getCanonicalName() + "." +input);
-            }
-        }
-    }
-
-    @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext context, BeanProperty beanProperty) {
-        return new EnumDeserializer(beanProperty.getType().getRawClass());
-    }
-}
-```
-
-즉, FeedContentsTypeCode에서 기존에 비교하던 범위가 `[NORMAL, VOTE, SHARE, VIDEO]` 였다면 `[NORMAL, VOTE, SHARE, VIDEO, 001, 002, 003, 004]`로 코드 값까지 비교할 수 있도록 했다. VO 내에 타입에 enum 클래스를 바로 사용하면 되기 때문에 필드마다 어노테이션을 사용해야 하는 불편함도 없어졌다.
-```java
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class FeedGetVO extends PagingVO{
-  private FeedContentsTypeCode feedContentsTypeCode;
-}
-```
-
-@PathVariable는 Converter를 타기 때문에 공통 처리 Converter도 정의해줬다.
+### 3. ConverterFactory 작성
 ```java
 @Component
-public class EumConverterFactory implements ConverterFactory<String, Enum> {
-
-  @Override
-  public <T extends Enum> Converter<String, T> getConverter(Class<T> enumType) {
-    return new EnumConverter(getEnumType(enumType));
-  }
-
-  private class EnumConverter<T extends Enum> implements Converter<String, T> {
-
-    private final Class<T> enumType;
-
-    private EnumConverter(Class<T> enumType) {
-      this.enumType = enumType;
-    }
+public class EnumConverterFactory implements ConverterFactory<String, Enum> {
 
     @Override
-    public T convert(String input) {
-      if(input.isEmpty() || input == null)
-        return null;
+    public <T extends Enum> Converter<String, T> getConverter(Class<T> enumType) {
+        return new EnumConverter(getEnumType(enumType));
+    }
 
-      input = input.trim().toUpperCase();
-
-      boolean isPlainEnum = EnumUtils.isValidEnum(enumType, input);
-      if(isPlainEnum){
-        return (T) Enum.valueOf(this.enumType, input);
-      } else {
-        boolean isEnumCode = Arrays.stream(enumType.getMethods()).anyMatch(method -> "value".equals(method.getName()));
-
-        if(isEnumCode){
-          Enum mathcEnum = null;
-          String enumValue;
-          for(Enum constant : enumType.getEnumConstants()){
-            try {
-              enumValue = (String) constant.getClass().getMethod("value").invoke(constant);
-              if(enumValue.equals(input.trim().toUpperCase())){
-                mathcEnum = constant;
-                break;
-              }
-            } catch (Exception e) {
-              throw new RuntimeException(e);
-            }
-          }
-
-          if(mathcEnum == null)
-            throw new IllegalArgumentException("No enum constant " + enumType.getCanonicalName() + "." +input);
-
-          return (T) Enum.valueOf(enumType,mathcEnum.name());
-        } else {
-          throw new IllegalArgumentException("No enum constant " + enumType.getCanonicalName() + "." +input);
+    private Class<?> getEnumType(Class classType) {
+        Class<?> enumType = classType;
+        while (enumType != null && !enumType.isEnum()) {
+            enumType = enumType.getSuperclass();
         }
-      }
+        if (enumType == null) {
+            throw new IllegalArgumentException("This type " + enumType.getName() + " is not an enum type.");
+        }
+        return enumType;
     }
-  }
 
-  private Class<?> getEnumType(Class classType) {
-    Class<?> enumType = classType;
-    while(enumType != null && !enumType.isEnum()){
-      enumType = enumType.getSuperclass();
+    private class EnumConverter<T extends Enum> implements Converter<String, T> {
+
+        private final Class<T> enumType;
+
+        private EnumConverter(Class<T> enumType) {
+            this.enumType = enumType;
+        }
+
+        @Override
+        public T convert(String input) {
+            input = input.trim().toUpperCase();
+
+            if(ObjectUtils.isEmpty(input))
+                throw new IllegalArgumentException("유효하지 않은 ContentsTypeCode 입니다.");
+
+            boolean isPlainEnum = EnumUtils.isValidEnum(enumType, input);
+
+            if (isPlainEnum) {
+                return (T) Enum.valueOf(this.enumType, input);
+            } else {
+                boolean isEnumCode = Arrays.stream(enumType.getMethods()).anyMatch(method -> "code".equals(method.getName()));
+
+                if (isEnumCode) {
+                    Enum mathcEnum = null;
+                    String enumValue;
+                    for (Enum constant : enumType.getEnumConstants()) {
+                        try {
+                            enumValue = (String) constant.getClass().getMethod("code").invoke(constant);
+                            if (enumValue.equals(input.trim().toUpperCase())) {
+                                mathcEnum = constant;
+                                break;
+                            }
+                        } catch (Exception e) {
+                            throw new IllegalArgumentException("유효하지 않은 ContentsTypeCode 입니다.");
+                        }
+                    }
+
+                    if (mathcEnum == null)
+                        throw new IllegalArgumentException("유효하지 않은 ContentsTypeCode 입니다.");
+
+                    return (T) Enum.valueOf(enumType, mathcEnum.name());
+                } else {
+                    throw new IllegalArgumentException("유효하지 않은 ContentsTypeCode 입니다.");
+                }
+            }
+        }
     }
-    if(enumType == null) {
-      throw new IllegalArgumentException("This type " + enumType.getName() + " is not an enum type.");
-    }
-    return enumType;
-  }
 }
 ```
-
-한번에 등록하기
+### 4. Formatter 일괄 등록
 ```java
 @Configuration
 @RequiredArgsConstructor
@@ -1994,49 +1982,54 @@ public class FormatterConfiguration implements WebMvcConfigurer {
 }
 ```
 
-## ConverterFactory
-첫번째와 두번째 단점을 해결하기 위해서 ConverterFactory를 만들어서 사용할 수 있다. 여러 VO에 @Enum 어노테이션을 적어줄 필요도 없고 각 enum 클래스마다 Converter를 만들어줄 필요도 없다.
+### 5. 부록 : Jackson
+
+
+
+
+### 6. 정리
+| 테스트 시나리오                                            | POST        | GET<br>(VO 객체 사용) | GET<br/>(RequestParam) | GET<br/>(PathVariable) |
+|-----------------------------------------------------|-------------|-------------------|------------------------|------------------------|
+| 성공_올바른 ContentsTypeCode의 name 값을 사용했을 때 성공한다.       | O           | O                 | O                      | O                      |
+| 실패_범위에서 벗어난 ContentsTypeCode의 name 값을 사용했을 때 실패한다.  | O           | O                 | O                      | O                      |
+| 성공_올바른 ContentsTypeCode의 code 값을 사용했을 때 성공한다.       | O           | O                 | O                      | O                      |
+| 실패_범위에서 벗어난 ContentsTypeCode의 code 값을 사용했을 때 실패한다.  | O           | O                 | O                      | O                      |
+| 실패_올바른 ContentsTypeCode의 소문자 값을 보냈을 때 성공한다.         | O           | O                 | O                      | O                      |
+| 실패_ContentsTypeCode의 null 값을 사용했을 때 실패한다.           | X<br/>(200) | X<br/>(200)       | O                      | X<br/>(404)            |
+| 실패_ContentsTypeCode의 index 값을 사용했을 때 실패한다.          | O           | O                 | O                      | O                      |
+| 성공_범위에서 벗어난 ContentsTypeCode을 사용했을 때 응답에 에러 문구가 있다. | O           | O                 | O                      | O                      |
+
+
+
+
+
+예를들어 날짜 타입의 형식을 지정할 때 DateUtil에 함수를 만들어서 Service Layer나 toVO 함수 내에서 지정할 필요 없이 LocalDate, LocalTime, LocalDateTime 타입에 대한 형식을 지정해주거나 Enum 타입의 값이 들어왔을 때 toUpperCase() 적용한 후에 비교를 할 수 있게 할 수 있다.
+
+
+Code enum 형태를 처리하기 위해 만든 `EnumDeserializer`는 enum 클래스를 처리하는 함수`public Enum<? extends Enum> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)`를 오버라이딩해서 커스터마이징 했다.
+타입이 enum 클래스일 경우 enum 클래스 내에 value 함수가 있는지 확인하고 value 함수가 있으면 value 함수의 결과인 코드 값으로 매칭되는 값이 있는지 확인하도록 했다. https://d2.naver.com/helloworld/0473330 를 참고했다.
+
+즉, FeedContentsTypeCode에서 기존에 비교하던 범위가 `[NORMAL, VOTE, SHARE, VIDEO]` 였다면 `[NORMAL, VOTE, SHARE, VIDEO, 001, 002, 003, 004]`로 코드 값까지 비교할 수 있도록 했다. VO 내에 타입에 enum 클래스를 바로 사용하면 되기 때문에 필드마다 어노테이션을 사용해야 하는 불편함도 없어졌다.
 ```java
-public class EnumConverterFactory implements ConverterFactory<String, Enum<?>> {
-
-    @Override
-    public <T extends Enum<?>> Converter<String, T> getConverter(Class<T> targetType) {
-        return new StringToEnumConverter(getEnumType(targetType));
-    }
-
-    private static class StringToEnumConverter<T extends Enum<?>> implements Converter<String, T> {
-
-        private final Class<T> enumType;
-
-        public StringToEnumConverter(Class<T> enumType) {
-            this.enumType = enumType;
-        }
-
-        @Override
-        public T convert(String source) {
-            if (source.isEmpty()) {
-                return null;
-            }
-            return (T) Enum.valueOf(this.enumType, source.trim().toUpperCase());
-        }
-    }
-    
-    private static Class<?> getEnumType(Class targetType) {
-        Class<?> enumType = targetType;
-        while (enumType != null && !enumType.isEnum()) {
-            enumType = enumType.getSuperclass();
-        }
-        Assert.notNull(enumType, "The target type " + targetType.getName() + " does not refer to an enum");
-        return enumType;
-    }
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class FeedGetVO extends PagingVO{
+  private FeedContentsTypeCode feedContentsTypeCode;
 }
 ```
 
----
+@PathVariable는 Converter를 타기 때문에 공통 처리 Converter도 정의해줬다.
+
+한번에 등록하기
+
 
 Validator, Converter는 꼭 enum을 처리하기 위해서만 사용하는 것은 아닙니다.
 
 Spring에는 이런 기능이 있고 특정한 경우에 활용하면 됩니다.
+
+## 마무리
 
 ---
 
