@@ -55,10 +55,19 @@
     * [4. `@Enum`에서 만든 message를 사용하기 위해서 `ResponseVO`와 `CommonExceptionHandler` 생성](#4-enum-에서-만든-message를-사용하기-위해서-responsevo-와-commonexceptionhandler-생성)
     * [5. 결과 및 정리](#5-결과-및-정리)
   * [Converter](#converter)
-  * [Code 값을 갖는 Enum 형태는?](#code-값을-갖는-enum-형태는)
-  * [ConverterFactory](#converterfactory)
-  * [Converter 한 번에 등록하기](#converter-한-번에-등록하기)
+    * [1. Converter 생성](#1-converter-생성)
+    * [2. Converter 등록](#2-converter-등록)
+    * [3. Controller에서 enum 타입 바로 사용](#3-controller에서-enum-타입-바로-사용)
+    * [4. ExceptionHandler에 IllegalArgumentException 추가](#4-exceptionhandler에-illegalargumentexception-추가)
+    * [5. 정리](#5-정리)
   * [Jackson의 Deserializer](#jackson의-deserializer)
+    * [1. EnumDeserializer 작성](#1-enumdeserializer-작성)
+    * [2. Jackson2ObjectMapperBuilderCustomizer를 상속받은 클래스 작성](#2-jackson2objectmapperbuildercustomizer를-상속받은-클래스-작성)
+    * [3. ConverterFactory 작성](#3-converterfactory-작성)
+    * [4. Formatter 일괄 등록](#4-formatter-일괄-등록)
+    * [5. 부록 : Jackson](#5-부록--jackson)
+    * [6. 정리](#6-정리)
+  * [마무리](#마무리)
 * [Jackson](#jackson)
   * [Serializer/Deserializer](#serializerdeserializer)
   * [HandlerMethodArgumentResolver](#handlermethodargumentresolver)
@@ -1311,7 +1320,7 @@ public static boolean isValidName(String name) {
   - testImplementation 'org.springframework.boot:spring-boot-starter-test'
   - compileOnly 'org.projectlombok:lombok'
   - annotationProcessor 'org.projectlombok:lombok'
-- Project : [REQUEST_ENUM_TEST](https://github.com/justdoanything/self-study/tree/main/Modern/SpringBoot/REQUEST_ENUM_TEST)
+- Project : [REQUEST_ENUM_TEST](https://github.com/justdoanything/request-enum-test)
   - enum
     ```java
     public enum ContentsTypeCode {
@@ -1371,6 +1380,538 @@ public static boolean isValidName(String name) {
         }
     }
     ```
+
+  - Test
+
+    <details>
+    <summary>PostTest</summary>
+    
+    ```java
+    @SpringBootTest
+    @AutoConfigureMockMvc
+    class PostTest {
+    
+        @Autowired
+        private MockMvc mockMvc;
+    
+        @Autowired
+        private ObjectMapper objectMapper;
+    
+        @Test
+        @DisplayName("성공_올바른 ContentsTypeCode의 name 값을 사용했을 때 성공한다.")
+        public void success_enum_name_case() throws Exception {
+            //given
+            Map<String, String> request = Map.of(
+                    "title", "title",
+                    "contents", "contents",
+                    "contentsTypeCode", "FEED"
+            );
+    
+            //then
+            mockMvc.perform(post("/v1/post/request")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("실패_범위에서 벗어난 ContentsTypeCode의 name 값을 사용했을 때 실패한다.")
+        public void fail_out_of_enum_name_case() throws Exception {
+            //given
+            Map<String, String> request = Map.of(
+                    "title", "title",
+                    "contents", "contents",
+                    "contentsTypeCode", "YOUTUBE"
+            );
+    
+            //then
+            mockMvc.perform(post("/v1/post/request")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("성공_올바른 ContentsTypeCode의 code 값을 사용했을 때 성공한다.")
+        public void success_enum_code_case() throws Exception {
+            //given
+            Map<String, String> request = Map.of(
+                    "title", "title",
+                    "contents", "contents",
+                    "contentsTypeCode", "005"
+            );
+    
+            //then
+            mockMvc.perform(post("/v1/post/request")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("실패_범위에서 벗어난 ContentsTypeCode의 code 값을 사용했을 때 실패한다.")
+        public void fail_out_of_enum_code_case() throws Exception {
+            //given
+            Map<String, String> request = Map.of(
+                    "title", "title",
+                    "contents", "contents",
+                    "contentsTypeCode", "006"
+            );
+    
+            //then
+            mockMvc.perform(post("/v1/post/request")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("실패_올바른 ContentsTypeCode의 소문자 값을 보냈을 때 성공한다.")
+        public void success_enum_name_lower_case() throws Exception {
+            //given
+            Map<String, String> request = Map.of(
+                    "title", "title",
+                    "contents", "contents",
+                    "contentsTypeCode", "feed"
+            );
+    
+            //then
+            mockMvc.perform(post("/v1/post/request")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("실패_ContentsTypeCode의 null 값을 사용했을 때 실패한다.")
+        public void fail_enum_null_case() throws Exception {
+            //given
+            Map<String, String> request = Map.of(
+                    "title", "title",
+                    "contents", "contents"
+            );
+    
+            //then
+            mockMvc.perform(post("/v1/post/request")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("실패_ContentsTypeCode의 index 값을 사용했을 때 실패한다.")
+        public void happy_enum_index_case() throws Exception {
+            //given
+            Map<String, String> request = Map.of(
+                    "title", "title",
+                    "contents", "contents",
+                    "contentsTypeCode", "0"
+            );
+    
+            //then
+            mockMvc.perform(post("/v1/post/request")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("성공_범위에서 벗어난 ContentsTypeCode을 사용했을 때 응답에 에러 문구가 있다.")
+        public void happy_enum_error_message_case() throws Exception {
+            //given
+            Map<String, String> request = Map.of(
+                    "title", "title",
+                    "contents", "contents",
+                    "contentsTypeCode", "HOT"
+            );
+    
+            //when
+            MvcResult result = mockMvc.perform(post("/v1/post/request")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andDo(print())
+                    .andReturn();
+    
+            //then
+            Assertions.assertEquals(result.getResponse().getStatus(), HttpStatus.BAD_REQUEST.value());
+            Assertions.assertTrue(result.getResponse().getContentAsString().length() > 0);
+        }
+    }
+    ```
+    
+    </details>
+    
+    <details>
+    <summary>GetTest</summary>
+    
+    ```java
+    @SpringBootTest
+    @AutoConfigureMockMvc
+    class GetTest {
+    
+        @Autowired
+        private MockMvc mockMvc;
+    
+        @Test
+        @DisplayName("성공_올바른 ContentsTypeCode의 name 값을 사용했을 때 성공한다.")
+        public void success_enum_name_case() throws Exception {
+            //given
+            String contentsTypeCode = "FEED";
+    
+            //then
+            mockMvc.perform(get("/v1/get/request")
+                            .param("contentsTypeCode", contentsTypeCode))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("실패_범위에서 벗어난 ContentsTypeCode의 name 값을 사용했을 때 실패한다.")
+        public void fail_out_of_enum_name_case() throws Exception {
+            //given
+            String contentsTypeCode = "YOUTUBE";
+    
+            //then
+            mockMvc.perform(get("/v1/get/request")
+                            .param("contentsTypeCode", contentsTypeCode))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("성공_올바른 ContentsTypeCode의 code 값을 사용했을 때 성공한다.")
+        public void success_enum_code_case() throws Exception {
+            //given
+            String contentsTypeCode = "005";
+    
+            //then
+            mockMvc.perform(get("/v1/get/request")
+                            .param("contentsTypeCode", contentsTypeCode))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("실패_범위에서 벗어난 ContentsTypeCode의 code 값을 사용했을 때 실패한다.")
+        public void fail_out_of_enum_code_case() throws Exception {
+            //given
+            String contentsTypeCode = "006";
+    
+            //then
+            mockMvc.perform(get("/v1/get/request")
+                            .param("contentsTypeCode", contentsTypeCode))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("실패_올바른 ContentsTypeCode의 소문자 값을 보냈을 때 성공한다.")
+        public void success_enum_name_lower_case() throws Exception {
+            //given
+            String contentsTypeCode = "feed";
+    
+            //then
+            mockMvc.perform(get("/v1/get/request")
+                            .param("contentsTypeCode", contentsTypeCode))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("실패_ContentsTypeCode의 null 값을 사용했을 때 실패한다.")
+        public void fail_enum_null_case() throws Exception {
+            //given
+            String contentsTypeCode = null;
+    
+            //then
+            mockMvc.perform(get("/v1/get/request")
+                            .param("contentsTypeCode", contentsTypeCode))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("실패_ContentsTypeCode의 index 값을 사용했을 때 실패한다.")
+        public void happy_enum_index_case() throws Exception {
+            //given
+            String contentsTypeCode = "0";
+    
+            //then
+            mockMvc.perform(get("/v1/get/request")
+                            .param("contentsTypeCode", contentsTypeCode))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("성공_범위에서 벗어난 ContentsTypeCode을 사용했을 때 응답에 에러 문구가 있다.")
+        public void happy_enum_error_message_case() throws Exception {
+            //given
+            String contentsTypeCode = "HOT";
+    
+            //when
+            MvcResult result = mockMvc.perform(get("/v1/get/request")
+                            .param("contentsTypeCode", contentsTypeCode))
+                    .andDo(print())
+                    .andReturn();
+    
+            //then
+            Assertions.assertEquals(result.getResponse().getStatus(), HttpStatus.BAD_REQUEST.value());
+            Assertions.assertTrue(result.getResponse().getContentAsString().length() > 0);
+        }
+    }
+    ```
+    
+    </details>
+    
+    <details>
+    <summary>GetRequestParamTest</summary>
+    
+    ```java
+    @SpringBootTest
+    @AutoConfigureMockMvc
+    class GetRequestParamTest {
+    
+        @Autowired
+        private MockMvc mockMvc;
+    
+        @Test
+        @DisplayName("성공_올바른 ContentsTypeCode의 name 값을 사용했을 때 성공한다.")
+        public void success_enum_name_case() throws Exception {
+            //given
+            String contentsTypeCode = "FEED";
+    
+            //then
+            mockMvc.perform(get("/v1/get/request/request-param")
+                            .param("contentsTypeCode", contentsTypeCode))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("실패_범위에서 벗어난 ContentsTypeCode의 name 값을 사용했을 때 실패한다.")
+        public void fail_out_of_enum_name_case() throws Exception {
+            //given
+            String contentsTypeCode = "YOUTUBE";
+    
+            //then
+            mockMvc.perform(get("/v1/get/request/request-param")
+                            .param("contentsTypeCode", contentsTypeCode))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("성공_올바른 ContentsTypeCode의 code 값을 사용했을 때 성공한다.")
+        public void success_enum_code_case() throws Exception {
+            //given
+            String contentsTypeCode = "005";
+    
+            //then
+            mockMvc.perform(get("/v1/get/request/request-param")
+                            .param("contentsTypeCode", contentsTypeCode))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("실패_범위에서 벗어난 ContentsTypeCode의 code 값을 사용했을 때 실패한다.")
+        public void fail_out_of_enum_code_case() throws Exception {
+            //given
+            String contentsTypeCode = "006";
+    
+            //then
+            mockMvc.perform(get("/v1/get/request/request-param")
+                            .param("contentsTypeCode", contentsTypeCode))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("실패_올바른 ContentsTypeCode의 소문자 값을 보냈을 때 성공한다.")
+        public void success_enum_name_lower_case() throws Exception {
+            //given
+            String contentsTypeCode = "feed";
+    
+            //then
+            mockMvc.perform(get("/v1/get/request/request-param")
+                            .param("contentsTypeCode", contentsTypeCode))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("실패_ContentsTypeCode의 null 값을 사용했을 때 실패한다.")
+        public void fail_enum_null_case() throws Exception {
+            //given
+            String contentsTypeCode = null;
+    
+            //then
+            mockMvc.perform(get("/v1/get/request/request-param")
+                            .param("contentsTypeCode", contentsTypeCode))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("실패_ContentsTypeCode의 index 값을 사용했을 때 실패한다.")
+        public void happy_enum_index_case() throws Exception {
+            //given
+            String contentsTypeCode = "0";
+    
+            //then
+            mockMvc.perform(get("/v1/get/request/request-param")
+                            .param("contentsTypeCode", contentsTypeCode))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("성공_범위에서 벗어난 ContentsTypeCode을 사용했을 때 응답에 에러 문구가 있다.")
+        public void happy_enum_error_message_case() throws Exception {
+            //given
+            String contentsTypeCode = "HOT";
+    
+            //when
+            MvcResult result = mockMvc.perform(get("/v1/get/request/request-param")
+                            .param("contentsTypeCode", contentsTypeCode))
+                    .andDo(print())
+                    .andReturn();
+    
+            //then
+            Assertions.assertEquals(result.getResponse().getStatus(), HttpStatus.BAD_REQUEST.value());
+            Assertions.assertTrue(result.getResponse().getContentAsString().length() > 0);
+        }
+    }
+    ```
+    
+    </details>
+    
+    <details>
+    <summary>GetPathVariableTest</summary>
+    
+    ```java
+    @SpringBootTest
+    @AutoConfigureMockMvc
+    class GetPathVariableTest {
+    
+        @Autowired
+        private MockMvc mockMvc;
+    
+        @Autowired
+        private ObjectMapper objectMapper;
+    
+        @Test
+        @DisplayName("성공_올바른 ContentsTypeCode의 name 값을 사용했을 때 성공한다.")
+        public void success_enum_name_case() throws Exception {
+            //given
+            String contentsTypeCode = "FEED";
+    
+            //then
+            mockMvc.perform(get("/v1/get/request/path-variable/{contentsTypeCode}", contentsTypeCode))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("실패_범위에서 벗어난 ContentsTypeCode의 name 값을 사용했을 때 실패한다.")
+        public void fail_out_of_enum_name_case() throws Exception {
+            //given
+            String contentsTypeCode = "YOUTUBE";
+    
+            //then
+            mockMvc.perform(get("/v1/get/request/path-variable/{contentsTypeCode}", contentsTypeCode))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("성공_올바른 ContentsTypeCode의 code 값을 사용했을 때 성공한다.")
+        public void success_enum_code_case() throws Exception {
+            //given
+            String contentsTypeCode = "005";
+    
+            //then
+            mockMvc.perform(get("/v1/get/request/path-variable/{contentsTypeCode}", contentsTypeCode))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("실패_범위에서 벗어난 ContentsTypeCode의 code 값을 사용했을 때 실패한다.")
+        public void fail_out_of_enum_code_case() throws Exception {
+            //given
+            String contentsTypeCode = "006";
+    
+            //then
+            mockMvc.perform(get("/v1/get/request/path-variable/{contentsTypeCode}", contentsTypeCode))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("실패_올바른 ContentsTypeCode의 소문자 값을 보냈을 때 성공한다.")
+        public void success_enum_name_lower_case() throws Exception {
+            //given
+            String contentsTypeCode = "feed";
+    
+            //then
+            mockMvc.perform(get("/v1/get/request/path-variable/{contentsTypeCode}", contentsTypeCode))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("실패_ContentsTypeCode의 null 값을 사용했을 때 실패한다.")
+        public void fail_enum_null_case() throws Exception {
+            //given
+            String contentsTypeCode = null;
+    
+            //then
+            mockMvc.perform(get("/v1/get/request/path-variable/{contentsTypeCode}", contentsTypeCode))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("실패_ContentsTypeCode의 index 값을 사용했을 때 실패한다.")
+        public void happy_enum_index_case() throws Exception {
+            //given
+            String contentsTypeCode = "0";
+    
+            //then
+            mockMvc.perform(get("/v1/get/request/path-variable/{contentsTypeCode}", contentsTypeCode))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andDo(print());
+        }
+    
+        @Test
+        @DisplayName("성공_범위에서 벗어난 ContentsTypeCode을 사용했을 때 응답에 에러 문구가 있다.")
+        public void happy_enum_error_message_case() throws Exception {
+            //given
+            String contentsTypeCode = "HOT";
+    
+            //when
+            MvcResult result = mockMvc.perform(get("/v1/get/request/path-variable/{contentsTypeCode}", contentsTypeCode))
+                    .andDo(print())
+                    .andReturn();
+    
+            //then
+            Assertions.assertEquals(result.getResponse().getStatus(), HttpStatus.BAD_REQUEST.value());
+            Assertions.assertTrue(result.getResponse().getContentAsString().length() > 0);
+        }
+    }
+    ```
+    
+    </details>
+
 
 ## RequestVO에 enum 타입 바로 사용하기
 예전에 프로젝트를 진행할 때 별도의 처리 없이 enum 타입을 바로 사용하면 제대로 동작하지 않았던 것으로 기억하고 있는데 이번에 다시 테스트를 해보니 enum 타입을 바로 사용해도 간단한 동작은 했습니다.
@@ -1789,11 +2330,33 @@ Converter를 단독으로 사용하면 (1) RequestBody에서 동작하지 않는
 
 (ConverterFactory를 사용하면 (2)번, (3)번 한계점을 해결할 수 있습니다. 이 부분은 아래에서 서술합니다.)
 
-## Jackson의 Deserializer
+## Jackson의 Deserializer와 ConverterFactory
+Spring에선 `@RequestBody`를 사용했을 때와 `@RequestParam`, `@PathVariable`을 사용했을 때 각각 다른 방식으로 동작합니다.
 
-더 자세한건 다음 페이지에서 Jackson을 다룰때 설명한다.
-Jackson의 Serializer와 Deserialzer를 사용하면 기존에 있던 단점을 모두 보완하고 장점도 모두 사용할 수 있다.
-Jackson의 Serializer와 Deserializer는 Request로 들어오는 VO 객체, Response로 반환하는 VO 객체 내에 있는 필드의 특정 타입에 대한 공통 처리를 정의하거나 Jackson 내에 정의되어 있는 특정 함수들을 오버라이딩해서 커스터마이징이 가능했다.
+@RequestBody를 사용하면 `HttpMessageConverter`가 HTTP의 Request Body 내의 데이터를 객체로 변환합니다. (역직렬화)
+
+Content-Type이 application/json일 경우 `MappingJackson2HttpMessageConverter`를 사용해서 역직렬화를 하고 `MappingJackson2HttpMessageConverter`는 `ObjectMapper`를 사용해서 동작합니다.
+
+`@PathVariable`, `@RequestParam`을 사용했을 때는 타입에 대한 `Converter(org.springframework.core.convert.converter.Converter)`가 기본적으로 동작합니다.
+
+따라서 아무런 처리를 하지 않으면 Spring이 기본적으로 제공하는 검증 로직을 사용하게 되지만 필요할 경우 <u>특정 타입에 대해서 개발자가 원하는 검증 로직을 만들어서 사용할 수 있습니다.</u>
+
+`@RequestBody`의 경우 `Jackson2ObjectMapperBuilderCustomizer`의 `customize` 메소드를 오버라이딩해서 우리가 원하는 Serializer/Deserializer를 등록해서 사용할 수 있습니다.
+
+`@RequestParam`, `@PathVariable`의 경우 특정 타입의 `ConverterFactory`를 구현하고 `FormatterRegistry`의 `addConverter` 메소드를 사용해서 Converter를 등록해서 사용할 수 있습니다.
+
+윗 글에 `Converter`에서는 특정 Enum 타입인 `ContentsTypeCode`을 사용했지만 ConverterFactory에서는 Enum 타입 자체에 대한 처리를 합니다. 
+
+- Converter : `public class ContentsTypeCodeConverter implements Converter<String, ContentsTypeCode>`
+- ConverterFactory : `public class EnumConverterFactory implements ConverterFactory<String, Enum>`
+
+<h3>요약</h3>
+- `@RequestBody`
+  - `@RequestBody`를 사용하면 `HttpMessageConverter`가 Request Body를 역직렬화하고 Content-Type이 application/json일 경우 `MappingJackson2HttpMessageConverter`가 동작합니다.
+  - 특정 타입에 대해서 별도의 검증 로직을 사용하고 싶다면 `Serializer/Deserializer`를 구현하고 `Jackson2ObjectMapperBuilderCustomizer`의 `customize` 메소드에서 등록하여 사용할 수 있습니다.
+- `@PathVariable`, `@RequestParam`
+  - `@PathVariable`, `@RequestParam`을 사용하면 타입에 대한 `Converter`가 기본적으로 동작합니다.
+  - 특정 타입에 대해서 별도의 검증 로직을 사용하고 싶다면 `ConverterFactory`를 구현하고 `FormatterRegistry`의 `addConverter` 메소드를 사용해서 Converter를 등록하여 사용할 수 있습니다.
 
 ### 1. EnumDeserializer 작성
 ```java
@@ -1982,10 +2545,42 @@ public class FormatterConfiguration implements WebMvcConfigurer {
 }
 ```
 
-### 5. 부록 : Jackson
+### 5. 부록 : Jackson과 ObjectMapper
+### JSON 요청을 Java 객체로 역직렬화
+```java
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+@RestController
+public class MyController {
+    @Autowired
+    private ObjectMapper objectMapper;
 
+    @PostMapping("/createUser")
+    public ResponseEntity<User> createUser(@RequestBody String json) throws IOException {
+        User user = objectMapper.readValue(json, User.class);
+        // user 객체를 사용하여 작업을 수행
+        return ResponseEntity.ok(user);
+    }
+}
+```
 
+### Java 객체를 JSON 응답으로 직렬화
+```java
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+@RestController
+public class MyController {
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @GetMapping("/getUser")
+    public ResponseEntity<String> getUser() throws JsonProcessingException {
+        User user = new User("John", "Doe");
+        String json = objectMapper.writeValueAsString(user);
+        return ResponseEntity.ok(json);
+    }
+}
+```
 
 ### 6. 정리
 | 테스트 시나리오                                            | POST        | GET<br>(VO 객체 사용) | GET<br/>(RequestParam) | GET<br/>(PathVariable) |
@@ -2000,36 +2595,23 @@ public class FormatterConfiguration implements WebMvcConfigurer {
 | 성공_범위에서 벗어난 ContentsTypeCode을 사용했을 때 응답에 에러 문구가 있다. | O           | O                 | O                      | O                      |
 
 
+최종적으로 Jackson과 ConverterFactory를 사용해서 enum 타입을 처리했습니다.
+
+enum의 개수만큼 클래스를 생성 하지 않아도 되고 검증할 곳에 @Enum과 같은 어노테이션을 사용하지 않아도 되기 때문에 누락의 위험성도 사라졌습니다.
+
+검증 로직은 EnumDeserializer와 EnumConverterFactory 클래스 안에 있기 때문에 쉽게 찾고 수정할 수 있습니다.
+
+그리고 별도의 클래스 몇개만 더 만들면 enum 뿐만 아니라 다양한 타입을 공통 처리할 수 있게 되었습니다.
+
+단점이라면 `ignoreCase()`과 같은 옵션 값을 받기는 어려워서 상황에 따른 처리를 할 수 없다는 점이 있습니다. 
 
 
-
-예를들어 날짜 타입의 형식을 지정할 때 DateUtil에 함수를 만들어서 Service Layer나 toVO 함수 내에서 지정할 필요 없이 LocalDate, LocalTime, LocalDateTime 타입에 대한 형식을 지정해주거나 Enum 타입의 값이 들어왔을 때 toUpperCase() 적용한 후에 비교를 할 수 있게 할 수 있다.
-
-
-Code enum 형태를 처리하기 위해 만든 `EnumDeserializer`는 enum 클래스를 처리하는 함수`public Enum<? extends Enum> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)`를 오버라이딩해서 커스터마이징 했다.
-타입이 enum 클래스일 경우 enum 클래스 내에 value 함수가 있는지 확인하고 value 함수가 있으면 value 함수의 결과인 코드 값으로 매칭되는 값이 있는지 확인하도록 했다. https://d2.naver.com/helloworld/0473330 를 참고했다.
-
-즉, FeedContentsTypeCode에서 기존에 비교하던 범위가 `[NORMAL, VOTE, SHARE, VIDEO]` 였다면 `[NORMAL, VOTE, SHARE, VIDEO, 001, 002, 003, 004]`로 코드 값까지 비교할 수 있도록 했다. VO 내에 타입에 enum 클래스를 바로 사용하면 되기 때문에 필드마다 어노테이션을 사용해야 하는 불편함도 없어졌다.
-```java
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class FeedGetVO extends PagingVO{
-  private FeedContentsTypeCode feedContentsTypeCode;
-}
-```
-
-@PathVariable는 Converter를 타기 때문에 공통 처리 Converter도 정의해줬다.
-
-한번에 등록하기
-
+## 마무리
 
 Validator, Converter는 꼭 enum을 처리하기 위해서만 사용하는 것은 아닙니다.
 
 Spring에는 이런 기능이 있고 특정한 경우에 활용하면 됩니다.
 
-## 마무리
 
 ---
 
@@ -2173,43 +2755,6 @@ public class RequestParameterResolver implements HandlerMethodArgumentResolver {
     }
 }
 
-```
-
-## ObjectMapper
-### JSON 요청을 Java 객체로 역직렬화
-```java
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-@RestController
-public class MyController {
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @PostMapping("/createUser")
-    public ResponseEntity<User> createUser(@RequestBody String json) throws IOException {
-        User user = objectMapper.readValue(json, User.class);
-        // user 객체를 사용하여 작업을 수행
-        return ResponseEntity.ok(user);
-    }
-}
-```
-
-### Java 객체를 JSON 응답으로 직렬화
-```java
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-@RestController
-public class MyController {
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @GetMapping("/getUser")
-    public ResponseEntity<String> getUser() throws JsonProcessingException {
-        User user = new User("John", "Doe");
-        String json = objectMapper.writeValueAsString(user);
-        return ResponseEntity.ok(json);
-    }
-}
 ```
 
 ---
