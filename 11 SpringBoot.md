@@ -60,20 +60,18 @@
     * [3. Controller에서 enum 타입 바로 사용](#3-controller에서-enum-타입-바로-사용)
     * [4. ExceptionHandler에 IllegalArgumentException 추가](#4-exceptionhandler에-illegalargumentexception-추가)
     * [5. 정리](#5-정리)
-  * [Jackson의 Deserializer](#jackson의-deserializer)
+  * [Jackson의 Deserializer와 ConverterFactory](#jackson의-deserializer와-converterfactory)
     * [1. EnumDeserializer 작성](#1-enumdeserializer-작성)
     * [2. Jackson2ObjectMapperBuilderCustomizer를 상속받은 클래스 작성](#2-jackson2objectmapperbuildercustomizer를-상속받은-클래스-작성)
     * [3. ConverterFactory 작성](#3-converterfactory-작성)
     * [4. Formatter 일괄 등록](#4-formatter-일괄-등록)
-    * [5. 부록 : Jackson](#5-부록--jackson)
-    * [6. 정리](#6-정리)
+    * [5. NULL 케이스를 처리하기 위한 어노테이션 작성](#5-null-케이스를-처리하기-위한-어노테이션-작성)
+    * [6. 부록 : Jackson과 ObjectMapper](#6-부록--jackson과-objectmapper)
+    * [7. 정리](#7-정리)
   * [마무리](#마무리)
 * [Jackson](#jackson)
   * [Serializer/Deserializer](#serializerdeserializer)
   * [HandlerMethodArgumentResolver](#handlermethodargumentresolver)
-  * [ObjectMapper](#objectmapper)
-    * [JSON 요청을 Java 객체로 역직렬화](#json-요청을-java-객체로-역직렬화)
-    * [Java 객체를 JSON 응답으로 직렬화](#java-객체를-json-응답으로-직렬화)
 * [Aspect](#aspect-1)
 * [@Transactional](#transactional)
 * [Redis](#redis)
@@ -1876,7 +1874,7 @@ public static boolean isValidName(String name) {
     
             //then
             mockMvc.perform(get("/v1/get/request/path-variable/{contentsTypeCode}", contentsTypeCode))
-                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andExpect(MockMvcResultMatchers.status().isNotFound())
                     .andDo(print());
         }
     
@@ -1938,7 +1936,7 @@ Request에 `[FEED, COMMENT, NOTICE, COUPON, VOTE]` 이 외의 값을 넣으면 4
 | 성공_올바른 ContentsTypeCode의 code 값을 사용했을 때 성공한다.       | X           | X                 | X                      | X                      |
 | 실패_범위에서 벗어난 ContentsTypeCode의 code 값을 사용했을 때 실패한다.  | O           | O                 | O                      | O                      |
 | 실패_올바른 ContentsTypeCode의 소문자 값을 보냈을 때 성공한다.         | X           | X                 | X                      | X                      |
-| 실패_ContentsTypeCode의 null 값을 사용했을 때 실패한다.           | X<br/>(200) | X<br/>(200)       | O                      | X<br/>(404)            |
+| 실패_ContentsTypeCode의 null 값을 사용했을 때 실패한다.           | X<br/>(200) | X<br/>(200)       | O                      | O                      |
 | 실패_ContentsTypeCode의 index 값을 사용했을 때 실패한다.          | X           | O                 | O                      | O                      |
 | 성공_범위에서 벗어난 ContentsTypeCode을 사용했을 때 응답에 에러 문구가 있다. | X           | X                 | X                      | X                      |
 
@@ -2126,11 +2124,11 @@ public class CommonExceptionHandler {
 | 성공_올바른 ContentsTypeCode의 code 값을 사용했을 때 성공한다.       | O    | O                 | O                      | O                      |
 | 실패_범위에서 벗어난 ContentsTypeCode의 code 값을 사용했을 때 실패한다.  | O    | O                 | O                      | O                      |
 | 실패_올바른 ContentsTypeCode의 소문자 값을 보냈을 때 성공한다.         | O    | O                 | O                      | O                      |
-| 실패_ContentsTypeCode의 null 값을 사용했을 때 실패한다.           | O    | O                 | O                      | X<br/>(404)            |
+| 실패_ContentsTypeCode의 null 값을 사용했을 때 실패한다.           | O    | O                 | O                      | O                      |
 | 실패_ContentsTypeCode의 index 값을 사용했을 때 실패한다.          | O    | O                 | O                      | O                      |
 | 성공_범위에서 벗어난 ContentsTypeCode을 사용했을 때 응답에 에러 문구가 있다. | O    | O                 | O                      | O                      |
 
-테스트 결과를 보면 PathVarialbe의 null case 빼고는 모두 성공하는 것을 볼 수 있습니다.
+테스트 결과를 보면 모두 성공하는 것을 볼 수 있습니다.
 
 `@Enum`과 `EnumValidator`의 장점으론 ignoreCase, excludeEnumType, isNullable 등 <u>여러 속성 값을 만들어서 유효성 검증을 확장성 있게 만들 수 있다는 점입니다.</u>
 
@@ -2299,7 +2297,7 @@ public class CommonExceptionHandler {
 | 성공_올바른 ContentsTypeCode의 code 값을 사용했을 때 성공한다.       | O           | O                 | O                      | O                      |
 | 실패_범위에서 벗어난 ContentsTypeCode의 code 값을 사용했을 때 실패한다.  | O           | O                 | O                      | O                      |
 | 실패_올바른 ContentsTypeCode의 소문자 값을 보냈을 때 성공한다.         | X           | O                 | O                      | O                      |
-| 실패_ContentsTypeCode의 null 값을 사용했을 때 실패한다.           | X<br/>(200) | X<br/>(200)       | O<br/>(400)            | X<br/>(404)            |
+| 실패_ContentsTypeCode의 null 값을 사용했을 때 실패한다.           | X<br/>(200) | X<br/>(200)       | O<br/>(400)            | O<br/>(404)            |
 | 실패_ContentsTypeCode의 index 값을 사용했을 때 실패한다.          | X           | O                 | O                      | O                      |
 | 성공_범위에서 벗어난 ContentsTypeCode을 사용했을 때 응답에 에러 문구가 있다. | X           | O                 | O                      | O                      |
 
@@ -2545,8 +2543,55 @@ public class FormatterConfiguration implements WebMvcConfigurer {
 }
 ```
 
-### 5. 부록 : Jackson과 ObjectMapper
-### JSON 요청을 Java 객체로 역직렬화
+### 5. NULL 케이스를 처리하기 위한 어노테이션 작성
+- RequestVO에 필요할 경우 `@NotNull` 적용
+```java
+@Getter
+@ToString
+@Builder
+public class RequestVO {
+    @NotNull
+    private ContentsTypeCode contentsTypeCode;
+    private String title;
+    private String contents;
+}
+```
+
+- Controller에 `@Valid` 적용
+```java
+@RestController
+@RequestMapping("/v1")
+@RequiredArgsConstructor
+public class SimpleController {
+
+    @PostMapping("/post/request")
+    public ResponseEntity methodPostRequest(@RequestBody @Valid RequestVO requestVO) {
+        return ResponseEntity.ok().body(requestVO);
+    }
+
+    @GetMapping("/get/request")
+    public ResponseEntity methodGetRequest(@Valid RequestVO requestVO) {
+        return ResponseEntity.ok().body(requestVO);
+    }
+
+    @GetMapping("/get/request/request-param")
+    public ResponseEntity methodGetRequestRequestParam(@RequestParam ContentsTypeCode contentsTypeCode) {
+        return ResponseEntity.ok().body(contentsTypeCode);
+    }
+
+    @GetMapping("/get/request/path-variable/{contentsTypeCode}")
+    public ResponseEntity methodGetRequestPathVariable(@PathVariable ContentsTypeCode contentsTypeCode) {
+        return ResponseEntity.ok().body(contentsTypeCode);
+    }
+}
+```
+
+### 6. 부록 : Jackson과 ObjectMapper
+Jackson은 spring-boot-starter-web에 포함되어 있기 때문에 별도의 의존성을 추가할 필요가 없습니다.
+
+주로 `ObjectMapper`를 사용해서 JSON 요청을 객체로 직렬화 하거나 역직렬화 할 때 사용합니다.
+
+**JSON 요청을 Java 객체로 역직렬화**
 ```java
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -2556,7 +2601,7 @@ public class MyController {
     private ObjectMapper objectMapper;
 
     @PostMapping("/createUser")
-    public ResponseEntity<User> createUser(@RequestBody String json) throws IOException {
+    public ResponseEntity<User> createUser(@RequestBody String json) {
         User user = objectMapper.readValue(json, User.class);
         // user 객체를 사용하여 작업을 수행
         return ResponseEntity.ok(user);
@@ -2564,7 +2609,7 @@ public class MyController {
 }
 ```
 
-### Java 객체를 JSON 응답으로 직렬화
+**Java 객체를 JSON 응답으로 직렬화**
 ```java
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -2574,7 +2619,7 @@ public class MyController {
     private ObjectMapper objectMapper;
 
     @GetMapping("/getUser")
-    public ResponseEntity<String> getUser() throws JsonProcessingException {
+    public ResponseEntity<String> getUser() {
         User user = new User("John", "Doe");
         String json = objectMapper.writeValueAsString(user);
         return ResponseEntity.ok(json);
@@ -2582,17 +2627,27 @@ public class MyController {
 }
 ```
 
-### 6. 정리
-| 테스트 시나리오                                            | POST        | GET<br>(VO 객체 사용) | GET<br/>(RequestParam) | GET<br/>(PathVariable) |
-|-----------------------------------------------------|-------------|-------------------|------------------------|------------------------|
-| 성공_올바른 ContentsTypeCode의 name 값을 사용했을 때 성공한다.       | O           | O                 | O                      | O                      |
-| 실패_범위에서 벗어난 ContentsTypeCode의 name 값을 사용했을 때 실패한다.  | O           | O                 | O                      | O                      |
-| 성공_올바른 ContentsTypeCode의 code 값을 사용했을 때 성공한다.       | O           | O                 | O                      | O                      |
-| 실패_범위에서 벗어난 ContentsTypeCode의 code 값을 사용했을 때 실패한다.  | O           | O                 | O                      | O                      |
-| 실패_올바른 ContentsTypeCode의 소문자 값을 보냈을 때 성공한다.         | O           | O                 | O                      | O                      |
-| 실패_ContentsTypeCode의 null 값을 사용했을 때 실패한다.           | X<br/>(200) | X<br/>(200)       | O                      | X<br/>(404)            |
-| 실패_ContentsTypeCode의 index 값을 사용했을 때 실패한다.          | O           | O                 | O                      | O                      |
-| 성공_범위에서 벗어난 ContentsTypeCode을 사용했을 때 응답에 에러 문구가 있다. | O           | O                 | O                      | O                      |
+앞서 설명한 것처럼 Spring은 Contents-Type이 application/json 이면 ObjectMapper를 사용해서 Request Body를 VO로 역직렬화 하거나 VO를 Response Body로 직렬화할 때 사용합니다.
+
+요청 값의 경우 `@RequestBody`를 사용한 곳에서 동작하며 응답 값의 경우 `@ResponseBody`를 사용한 곳에서 동작하는데 `@RestController`는 `@ResponseBody`를 포함하고 있습니다.
+
+직렬화를 할 때는 Serializer를 사용하고 역직렬화를 할 때는 Deserializer를 사용하는데 개발자가 직접 만들어서 사용할 수 있도록 `Jackson2ObjectMapperBuilderCustomizer`를 제공하고 있습니다.
+
+따라서 특정 타입에 대해서 공통 처리를 하거나 원하는 검증 로직을 사용하고 싶다면 `Jackson2ObjectMapperBuilderCustomizer`를 사용해서 `Serializer/Deserializer`를 등록해서 사용할 수 있습니다.
+
+이 외에도 `@JsonInclude`, `@JsonIncludeProperties`, `@JsonIdentityInfo`, `@JsonTypeInfo`, `@JsonValueInstantiator`을 사용해서 필요한 정보만 직렬화하거나 제외할 수 있습니다.
+
+### 7. 정리
+| 테스트 시나리오                                            | POST | GET<br>(VO 객체 사용) | GET<br/>(RequestParam) | GET<br/>(PathVariable) |
+|-----------------------------------------------------|------|-------------------|------------------------|------------------------|
+| 성공_올바른 ContentsTypeCode의 name 값을 사용했을 때 성공한다.       | O    | O                 | O                      | O                      |
+| 실패_범위에서 벗어난 ContentsTypeCode의 name 값을 사용했을 때 실패한다.  | O    | O                 | O                      | O                      |
+| 성공_올바른 ContentsTypeCode의 code 값을 사용했을 때 성공한다.       | O    | O                 | O                      | O                      |
+| 실패_범위에서 벗어난 ContentsTypeCode의 code 값을 사용했을 때 실패한다.  | O    | O                 | O                      | O                      |
+| 실패_올바른 ContentsTypeCode의 소문자 값을 보냈을 때 성공한다.         | O    | O                 | O                      | O                      |
+| 실패_ContentsTypeCode의 null 값을 사용했을 때 실패한다.           | O    | O                 | O                      | O                      |
+| 실패_ContentsTypeCode의 index 값을 사용했을 때 실패한다.          | O    | O                 | O                      | O                      |
+| 성공_범위에서 벗어난 ContentsTypeCode을 사용했을 때 응답에 에러 문구가 있다. | O    | O                 | O                      | O                      |
 
 
 최종적으로 Jackson과 ConverterFactory를 사용해서 enum 타입을 처리했습니다.
@@ -2608,10 +2663,37 @@ enum의 개수만큼 클래스를 생성 하지 않아도 되고 검증할 곳�
 
 ## 마무리
 
-Validator, Converter는 꼭 enum을 처리하기 위해서만 사용하는 것은 아닙니다.
+Enum 타입을 처리하기 위해서 4가지의 방법을 정리해보았고 첫 페이지에서 정했던 목표를 기준으로 각 방법의 장단점을 살펴보겠습니다.
 
-Spring에는 이런 기능이 있고 특정한 경우에 활용하면 됩니다.
+- 목표
+  - ContentsTypeCode는 name과 code 값을 한 쌍으로 갖고 있고 <u>code에 대한 값도 수용도 하고 싶습니다.</u>
+  - <u>대소문자를 구분하지 않고 수용하고 싶습니다.</u>
+  - 001,002,003,004 등 code 값과 혼동될 수 있는 <u>index 값은 수용하고 싶지 않습니다.</u>
+  - <u>상황에 따라 null 값을 허용하고 싶지 않습니다.</u>
+  - 범위를 벗어났을 때 응답을 수신하는 쪽에서 에러 원인을 파악하기 쉽도록 <u>에러 메세지를 만들어서 반환하고 싶습니다.</u>
 
+#### (1) EnumValidator (Test Coverage : 100%)
+- 모든 케이스를 성공하고 ignoreCase, isNullable 등 여러 옵션 값을 지정해서 확장성 있게 사용할 수 있습니다.
+- 사용할 필드마다 @Enum을 명시해줘야 하기 때문에 누락될 위험성이 있습니다.
+- @RequestParam이나 @PathVariable처럼 VO가 아닌 파라미터에서 바로 사용할 때 코드가 불필요하게 길어져서 가독성이 떨어지게 됩니다. (Converter를 사용하면 이 부분은 해결할 수 있습니다.)
+- Enum 타입을 직접 사용하지 않고 일반 타입을 사용하기 때문에 Service Layer에서 사용할 때 Enum 타입으로 변환해주는 별도의 로직이 필요합니다.
+
+#### (2) Converter (Test Coverage : 90%)
+- @RequestBody에서 동작하지 않아서 POST 일 때 실패 케이스가 많습니다.
+- Enum 타입마다 Converter를 만들고 등록해줘야 합니다.
+
+#### (3) Jackson의 Deserializer & (4) ConverterFactory (Test Coverage : 100%)
+- 모든 케이스를 만족하며 검증 로직을 쉽게 찾고 수정할 수 있습니다.
+- enum 개수만큼 클래스를 생성하지 않아도 되고 검증할 필드를 따로 지정하지 않아도 되서 누락의 위험성이 없습니다.
+- ignoreCase, isNullable 등 여러 옵션 값을 사용하지 못합니다.
+
+결과적으로 Enum 타입을 처리하기 위해선 Jackson의 `Deserializer`와 `ConverterFactory`만 알고 있으면 됩니다.
+
+하지만 Deserializer와 ConverterFactory를 포함해서 @Enum과 Validator를 활용한 처리 방법, Converter는 Enum 타입 뿐만 아니라 <u>여러 상황에서 활용될 수 있는 기법이기 때문에 알고 있으면 좋을 것 같아서 같이 정리해봤습니다.</u>
+
+예를들어 String 타입으로 오는 핸드폰 번호에 대한 유효성 검증을 하고 싶다면 @Enum과 Validator를 활용한 방법이 가장 적절할 수 있습니다.
+
+Spring에서 사용할 수 있는 여러 기법들을 알고 상황에 맞게 사용할 수 있어야 합니다.
 
 ---
 
