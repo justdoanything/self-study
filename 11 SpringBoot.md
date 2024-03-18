@@ -40,6 +40,7 @@
   * [@ExceptionHandler](#exceptionhandler)
   * [@Rest~의 차이](#rest--의-차이)
   * [@ControllerAdvice](#controlleradvice)
+  * [CustomException](#customexception)
   * [ResponseStatusException](#responsestatusexception)
   * [ResponseUtility](#responseutility)
 * [자주 쓰이는 Controller Annotation](#자주-쓰이는-controller-annotation)
@@ -72,7 +73,8 @@
       * [(1) EnumValidator (Test Coverage : 100%)](#-1--enumvalidator--test-coverage--100-)
       * [(2) Converter (Test Coverage : 90%)](#-2--converter--test-coverage--90-)
       * [(3) Jackson의 Deserializer & (4) ConverterFactory (Test Coverage : 100%)](#-3--jackson의-deserializer---4--converterfactory--test-coverage--100-)
-* [Jackson](#jackson)
+* [Annotation 만들어서 처리하기](#annotation-만들어서-처리하기)
+  * [1. 특정 지점(JoinPoint) 지정](#1-특정-지점--joinpoint--지정)
   * [Serializer/Deserializer](#serializerdeserializer)
   * [HandlerMethodArgumentResolver](#handlermethodargumentresolver)
 * [Aspect](#aspect-1)
@@ -2728,27 +2730,157 @@ Spring에서 사용할 수 있는 여러 기법들을 알고 상황에 맞게 �
 
 ---
 
-Jackson
+Annotation 만들어서 처리하기
 ===
+@NotNull, @JsonInclude 등 Spring, Jakarta, Jackson에서 기본적으로 제공하는 annotation을 사용할 수 있지만 개발자가 직접 annotation을 만들고 사용할 수 있습니다.
 
-Builder에서 Serializer, Deserializer를 등록할 수 있다.
+아래는 몇가지 사례만 정리해두었고 annotation과 Aspect를 활용한 방법의 원리를 이해하고 특정한 상황에서 적절하게 사용할 수 있어야 합니다.
 
-혹은 Serializer를 상속받고 필요한 곳에서 @JsonSerialize(using = CustomSerializer.class)를 사용할 수 있다.
+## 1. @annotation을 사용한 특정 지점 지정 (JoinPoint)
+annotation으로 특정 지점을 지정하고 그 지점에서 동작을 정의할 수 있습니다.
 
-@annotation 활용법
-- @NoLogging 선언해두고 동작은 따로 선언 안함. JoinPoint에서 지점을 정해서 사용할 수 있다.
+예를들어 `@NoLogging` 이라는 Annotation을 만들어주고 @Target에 맞는 곳에 사용하고 @Before, @After 등 Advice와 관련된 동작을 정의하는 곳에서 사용할 수 있습니다.
+
+annotation을 단순한 지점을 지정할 때 사용됩니다.
+
 ```java
+// annotation 생성
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NoLogging {}
 ```
+
 ```java
-@Before("(execution(* com.example..*.*(..)) 
-              && !@annotation(com.example.annotation.NoLogging))"
+// annotation 사용
+@Before("(execution(* yong.config..*.*(..))"
+        + " or execution(* yong.controller..*.*(..)))"
+        + " && !@annotation(yong.annotation.NoLogging)")
+public void beforeMethod(final JoinPoint joinPoint) {
+    // ...
+}
 ```
 
-- annotation을 선언해두고 동작은 Serialzier에서 선언하고 annotation을 통해 파라미터를 받아서 동작에서 사용한다.
 ```java
+// annotation 지정
+@Service
+@RequiredArgsConstructor
+public class SimpleService {
+    @NoLogging
+    public ResponseEntity<String> method(RequestVO requestVO) {
+        ...
+    }
+}
+```
+## 2. @Around를 사용한 특정 동작 지정
+공통 처리를 하기 위해서 annotation을 만들고 @Around를 사용해서 어떤 동작을 할지 정의할 수 있습니다.
+
+만든 annotation을 사용해서 동작할 지점을 지정하면 해당 지점에서 정의해놓은 코드가 동작합니다.
+
+예를들어 금칙어 검사나 특정한 로직을 공통적으로 적용해야할 필드에 사용합니다.
+
+@Enum과 EnumValidator와 유사한 방식이지만 @Constraint을 사용하지는 않습니다.
+
+예제 코드에선 금칙어 그룹을 지정하고 금칙어 체크를 할 필드를 지정하는 방법입니다.
+
+- @ForbiddenWordsMethod : method 단위에서 사용되며 금칙어 그룹을 정합니다.
+- @ForbiddenWordsField : field, parameter 단위에서 사용되며 금칙어 체크를 할 필드를 정합니다.
+
+```java
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ForbiddenWordsMethod {
+    String group();
+}
+```
+
+```java
+@Target({ElementType.FIELD, ElementType.PARAMETER})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ForbiddenWordsField {}
+```
+
+```java
+@Aspect
+@Component
+@RequiredArgsConstructor
+public class ForbiddenWordsAspect {
+    private final ForbiddenWordsService forbiddenWordsService;
+    
+    @Around("@annotation(forbiddenWordsMethod)")
+    public Object forbiddenWordsMethod(final ProceedingJoinPoint joinPoint, ForbiddenWordsMethod forbiddenWordsMethod) throws Throwable {
+        String group = forbiddenWordsMethod.group();
+        List<Object> fields = new ArrayList<>();
+        
+        for (Object arg : joinPoint.getArgs()) {
+            if(String.class.equals(arg.getClass())
+                    && Arrays.stream(((MethjodSignature) joinPoint.getSignature())
+                                              .getMethod()
+                                              .getParameters())
+                    .filter(parameter -> parameter.isAnnotationPresent(ForbiddenWordsField.class))
+                    .count() == 1) {
+                fields.add(arg);
+            } else {
+                for(Field field : arg.getClass().getDeclaredFields()) {
+                    if(field.isAnnotationPresent(ForbiddenWordsField.class)) {
+                        field.setAccessible(true);
+                        fields.add(field.get(arg));
+                    }
+                }
+            }
+        }
+
+        ForbiddenWordsValidResponse forbiddenWordsValidResponse = forbiddenWordsService.validForbiddenWords(group, fields);
+        
+        if(forbiddenWordsValidResponse.getStatus().equals("fail")) {
+            return ResponseUtility.createFailResponse(
+                    CommonResponseVO.builder()
+                            .message(forbiddenWordsValidResponse.getMessage())
+                            .build());
+        } else {
+            return joinPoint.proceed();
+        }
+    }
+}
+```
+
+```java
+@Service
+@RequiredArgsConstructor
+public class ForbiddenWordsService {
+    private final ForbiddenWordsRepository forbiddenWordsRepository;
+    
+    public ForbiddenWordsValidResponse validForbiddenWords(String group, List<Object> fields) {
+
+        List<String> forbiddenWords = forbiddenWordsRepository.findForbiddenWordsByGroup(group);
+
+        LinkedHashSet<String> forbiddenWordsSet = new LinkedHashSet<>(forbiddenWords);
+        
+        Trie trie = Trie.builder()
+                .addKeywords(forbiddenWordsSet)
+                .build();
+
+        List<String> forbiddenWords = fields.stream()
+                .filter(Objects::nonNull)
+                .flatMap(field -> trie.parseText(field.toString().replaceAll("<[^>]*>", ""))
+                        .stream()
+                        .map(Emit::getKeyword))
+                .distinct()
+                .toList();
+        
+        return ForbiddenWordsValidResponse.builder()
+                .status(forbiddenWords.isEmpty() ? "success" : "fail")
+                .message(forbiddenWords.isEmpty() ? "" : "금칙어가 포함되어 있습니다.")
+                .build();
+    }
+}
+```
+
+## 3. Serializer/Deserializer와 같이 사용
+
+Serializer/Deserializer에 대한 동작을 별도의 클래스에 정의해두고 @JsonSerialize, @JsonDeserialize를 사용해서 특정 타입에 대한 동작을 정의할 수 있습니다.
+
+```java
+// annotation 생성
 @Target({ElementType.FIELD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @JacksonAnnotationsInside
@@ -2757,7 +2889,9 @@ public @interface CustomAnnotation {
     String value() default "";
 }
 ```
+
 ```java
+// annotation 동작 정의
 public class CustomSerializer extends StdSerializer<CustomAnnotation> implements ContextualSerializer {
     String value;
     
@@ -2777,25 +2911,13 @@ public class CustomSerializer extends StdSerializer<CustomAnnotation> implements
 }
 ```
 
-- annotation을 생성해두고 특정 동작도 동작은 Aspect에 선언해둔다.
 ```java
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface CustomAnnotation {
-    String value() default "";
+// annotation 지정
+public class RequestVO {
+    @CustomAnnotation("custom")
+    private String custom;
 }
 ```
-```java
-@Around("@annotation(com.example.annotation.CustomAnnotation)")
-public Object doSomething(ProceedingJoinPoint joinPoint, CustomAnnotation customAnnotation) throws Throwable {
-    // 동작
-        customAnnotation.value();
-}
-```
-
-## Serializer/Deserializer
-JSON 데이터를 Java 객체로 변환하기 (Deserialization)
-Java 객체를 JSON으로 직렬화하기 (Serialization)
 
 ## HandlerMethodArgumentResolver
 [Spring MVC](https://github.com/justdoanything/self-study/blob/main/10%20Spring.md#spring-mvc)를 정리한 자료를 보면 Spring이 어떻게 MVC 패턴으로 동작하고 변해왔는지 순서대로 알 수 있다. 이러한 변화과정은 개발자가 Spring을 사용할 때 좀 더 편하고 빠르게 개발할 수 있게 해준다. SpringBoot가 되면서 좀 더 빠르고 가벼워졌으며 개발자가 Spring을 사용할 때 반드시 해줘야했던 configure나 의존성 설정 등이 없어졌다.
