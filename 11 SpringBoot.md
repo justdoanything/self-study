@@ -69,6 +69,9 @@
     * [6. 부록 : Jackson과 ObjectMapper](#6-부록--jackson과-objectmapper)
     * [7. 정리](#7-정리)
   * [마무리](#마무리)
+      * [(1) EnumValidator (Test Coverage : 100%)](#-1--enumvalidator--test-coverage--100-)
+      * [(2) Converter (Test Coverage : 90%)](#-2--converter--test-coverage--90-)
+      * [(3) Jackson의 Deserializer & (4) ConverterFactory (Test Coverage : 100%)](#-3--jackson의-deserializer---4--converterfactory--test-coverage--100-)
 * [Jackson](#jackson)
   * [Serializer/Deserializer](#serializerdeserializer)
   * [HandlerMethodArgumentResolver](#handlermethodargumentresolver)
@@ -1048,6 +1051,33 @@ public class ExceptionAdvisor {
     log.error(exception.getMessage(), exception);
     return ResponseUtil.createFailResponse(StatusCodeMessageConstant.MANDATORY_PARAMETER_ERROR, HttpStatus.BAD_REQUEST);
   }
+}
+```
+
+## CustomException
+비지니스 로직이 실패한 경우 처리하는 방법으로 (1) HTTP Status는 200으로 보내고 응답 객체(CommonResponseVO)에 status=fail로 보내는 경우가 있고 (2) Service Layer 안에서 `throw new ...`를 통해 Exception을 발생시켜서 처리하는 경우가 있었습니다.
+
+HTTP Status에 따른 처리는 Front-end에서도 공통 처리하는 경우가 대부분이라서 일정한 그라운드 룰을 정해놓고 사용했습니다.
+
+만약 Service Layer 안에서 `throw new ...`를 통해 Excetpion을 발생시킬 경우 RuntimeException을 사용합니다.
+
+최상위 오브젝트인 Exception을 그대로 사용하면 (`throw new Exception`) Service 함수마다 `throws Exception { ... }`을 붙여줘야 하기 때문에 불필요하게 코드가 길어지게 됩니다.
+
+그리고 Service Layer에서 비지니스 로직 처리 중간에 임의로 발생시키는 Exception 이기 때문에 RuntimeException을 사용하는게 의미상 일치합니다.
+
+따라서 최상단 오브젝트인 Exception을 사용하는 것은 지양하고 @ExceptionHandler와 @ControllerAdvice를 통해 Exception 종류마다 처리하는 것이 가장 좋은 방법입니다.
+
+프로젝트에선 주로 RuntimeException을 바로 사용하지 않고 BusinessException, CustomException 클래스를 만들어서 RuntimeException을 상속했습니다.
+
+필요한 전/후처리를 명시할 수 있고 Service Layer 안에서 사용되기 때문에 의미상으로도 BusinessException이 더 적합하다고 생각했습니다.
+
+필요하다면 여러 개의 CustomException을 만들고 @ExceptionHandler에서 HTTP Status나 message 등을 공통 처리할 수 있습니다.
+
+```java
+public class BusinessException extends RuntimeException {
+    public BusinessException(String message) {
+        super(message);
+    }
 }
 ```
 
@@ -2684,6 +2714,7 @@ Enum 타입을 처리하기 위해서 4가지의 방법을 정리해보았고 �
 
 #### (3) Jackson의 Deserializer & (4) ConverterFactory (Test Coverage : 100%)
 - 모든 케이스를 만족하며 검증 로직을 쉽게 찾고 수정할 수 있습니다.
+- @RequestBody는 Deserializer를 거치고 @RequestParam, @PathVariable은 ConverterFactory를 거치게 됩니다.
 - enum 개수만큼 클래스를 생성하지 않아도 되고 검증할 필드를 따로 지정하지 않아도 되서 누락의 위험성이 없습니다.
 - ignoreCase, isNullable 등 여러 옵션 값을 사용하지 못합니다.
 
