@@ -77,10 +77,15 @@
   * [1. @annotation을 사용한 특정 지점 지정 (JoinPoint)](#1-annotation을-사용한-특정-지점-지정--joinpoint-)
   * [2. @Around를 사용한 특정 동작 지정](#2-around를-사용한-특정-동작-지정)
   * [3. Serializer/Deserializer와 같이 사용](#3-serializerdeserializer와-같이-사용)
-  * [HandlerMethodArgumentResolver](#handlermethodargumentresolver)
+* [Logging](#logging)
+* [Interceptor](#interceptor)
+* [Redis와 Session](#redis와-session)
+    * [RedisConfig](#redisconfig)
+    * [SessionRepository](#sessionrepository)
+    * [SessionUtil](#sessionutil)
 * [@Transactional](#transactional)
-* [Redis](#redis)
 * [Flyway](#flyway)
+* [HandlerMethodArgumentResolver](#handlermethodargumentresolver)
 * [Reference](#reference)
 <!-- TOC -->
 
@@ -2923,246 +2928,118 @@ public class RequestVO {
 }
 ```
 
-## HandlerMethodArgumentResolver
-[Spring MVC](https://github.com/justdoanything/self-study/blob/main/10%20Spring.md#spring-mvc)를 정리한 자료를 보면 Spring이 어떻게 MVC 패턴으로 동작하고 변해왔는지 순서대로 알 수 있다. 이러한 변화과정은 개발자가 Spring을 사용할 때 좀 더 편하고 빠르게 개발할 수 있게 해준다. SpringBoot가 되면서 좀 더 빠르고 가벼워졌으며 개발자가 Spring을 사용할 때 반드시 해줘야했던 configure나 의존성 설정 등이 없어졌다.
-예전에 Spring을 사용할 땐 tomcat을 따로 설치하고 Spring과 설정해줘야 동작했었는데 SpringBoot에선 embedded tomcat을 사용해서 별도의 설치나 설정 없이 바로 웹서버가 동작하고 있다.
+---
 
-이렇듯 대부분의 공통처리를 Spring에서 해주지만 상황에 따라 개발자가 customize해서 사용할 수 있게 동작한다. 예를들어 Resolver를 따로 정의하지 않아도 기본적인 동작들이 수행되고 아래에서 추가할 특정 타입, 상황에 따라 개발자가 원하는 로직을 사용하고 싶다면 Spring Handler를 상속받아 특정 함수를 Override해서 사용할 수 있다.
+Logging
+===
 
-주로 프로젝트에선 Request/Response 공통 처리를 위해 Jackson의 Serializer/Deserializer를 정의해서 사용하곤 한다. 로그인이나 인증을 처리하기 위해서 특정 DTO가 들어왔을 때 동작할 함수를 따로 정의하거나 Enum 타입의 Request가 왔을 때 validation하는 동작을 따로 정의하거나 응답하는 객체의 Date 타입에 따라 특정 format을 지정하는 등 공통처리를 하고 싶을 때 많이 사용했었다.
+기본적으로 함수 시작 전, 종료 후, 에러 발생 후 시점을 기준으로 자동으로 로그를 생성하도록 Aspect를 만들어서 사용할 수 있습니다.
 
-특히 여러 사람이 동시에 개발하는 경우 공통 기능을 함수로 만들거나 어노테이션으로 만든다면 누락되거나 사용성에 문제가 있을 수 있기 때문에 Resolver로 처리하는 것이 안정적이다.
+execution() 안에서 로그를 자동으로 남길 범위를 정할 수 있습니다.
+
+로깅이 필요하지 않은 함수의 경우 @NoLogging 어노테이션을 만들어서 처리할 수 있습니다. (민감 정보를 갖고 있거나 로깅이 필요하지 않은 함수 등)
+
+| Advice         | 실행 시점   | 설명                                                    |
+|----------------|---------|-------------------------------------------------------|
+| @Before        | 함수 시작 전 | 함수가 속한 클래스 이름, 함수 이름, 함수로 들어온 파라미터(args) 등을 로그로 남깁니다. |
+| @AfterReurning | 함수 종료 후 | 함수가 속한 클래스 이름, 함수 이름, 함수가 반환한 값(args) 등을 로그로 남깁니다.    |
+| @AfterThrowing | 에러 발생 후 | 함수가 속한 클래스 이름, 함수 이름, 에러 메시지 등을 로그로 남깁니다.             |
 
 ```java
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
-public @interface RequestParameter {
-    boolean required() default true;
-}
-
-```
-```java
-@Component
-public class RequestParameterResolver implements HandlerMethodArgumentResolver {
-    private final ObjectMapper c;
-    
-    @Override
-    public boolean supportsParameter(MethodParameter parameter) {
-        return parameter.hasParameterAnnotation(RequestParameter.class);
-    }
-    
-    @Override
-    public Object resolveArgument(
-            MethodParameter methodParameter, 
-            ModelAndViewContainer modelAndViewContainer, 
-            NativeWebRequest nativeWebRequest, 
-            WebDataBinderFactory webDataBinderFactory) throws Exception {
-        Map<String, String> requestParameters =
-                nativeWebRequest.getParameterMap()
-                        .entrySet()
-                        .stream()
-                        .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue()[0]));
-        
-        if(requestParameters.size() == 0) {
-            RequestParameter requestParameter = methodParameter.getParameterAnnotation(RequestParameter.class);
-            if(requestParameter != null && requestParameter.required()) {
-                HttpServletRequest httpServletRequest = nativeWebRequest.getNativeRequest(HttpServletRequest.class);
-                ServletServerHttpRequest servletServerHttpRequest = new ServletServerHttpRequest(httpServletRequest);
-                throw new MissingServletRequestParameterException(
-                        "Required request parameter is empty : " + methodParameter.getExecutable().toGenericString(),
-                        servletServerHttpRequest);
-            } else {
-                // 검증 로직 추가
-            }
-        }
-
-        Object resolver = mapper.convertValue(requestParameters, methodParameter.getParameterType());
-        
-        if(methodParameter.hasParameterAnnotation(Valid.class)) {
-            String parameterName = Conventions.getVariableNameForParameter(methodParameter);
-            WebDataBinder binder = webDataBinderFactory.createBinder(nativeWebRequest, resolver, parameterName);
-            if(binder.getTarget() != null) {
-                binder.validate();
-                BindingResult bindingResult = binder.getBindingResult();
-                if(bindingResult.hasError()) {
-                    throw new MethodArgumentNotValidException(methodParameter, bindingResult);
-                }
-            }
-        }
-        
-        return resolver;
-    }
-}
-
-```
-
----
-
-
-@Transactional
-===
-
----
-
-Redis
-===
-- docker exec -it springboot-redis-1 redis-cli
-  set testkey testvalue
-
-- 삭제
-  - del testkey
-  - 전체 : flushall
-
-- 조회
-  - get testkey
-  - 전체 : keys *
-
-
-- 만료일 조회 : ttl [key]
-  - ttl testkey
-
----
-
-Flyway
-===
-
----
-
-package prj.yong.modern.aop;
-
-import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.After;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.springframework.stereotype.Component;
-
-/**
-* @Reference : https://engkimbs.tistory.com/m/746 @Description AOP : Aspect Oriented Programming 관점
-* 지향 프로그래밍으로 어떤 로직을 기준으로 핵심적인 관점, 부가적인 괌점으로 나누어서 보고 그 관점을 기준으로 모듈화한다. 흩어진 관심사(Crosscutting
-* Concerns)를 Aspect로 모듈화하고 핵심적인 비지니스에선 분리하여 재사용하겠다는 것이다.
-  */
-  @Component
-  @Aspect
-  public class SpringAspect {
-  /**
-  * @Aspect : 흩어진 관심사를 모듈화한 결과 @Target : @Aspect 를 사용하는 곳 @Advice : 부가 기능이 실질적으로 어떻게 동작하는지 명시해놓은
-  * 구현체 @JoinPoint : @Advice 가 적용될 위치, 끼어들 수 있는 지점으로 Method 진입 시잠, 생성자 호출 시점 등 특정한 시점에 적용할 수
-  * 있다. @PointCut : @JoinPoint 의 상세한 스펙을 정의한 것으로 "메서드 진입 시점에 호출할 것" 과 같이 구체적인 @Advice 실행 시점을 정할 수
-  * 있다.
-    */
-    @Before( // Target 메서드를 감싸서 특정 @Advice 를 실행하기 위한 Annotation
-    "execution(* modern.service..*(..))" // 특정 패키지 아래에 있는 모든 함수에 @Aspect 를 적용
-    )
-    public void beforeMethod(JoinPoint joinPoint) {
-    System.out.println("Before Method");
-    }
-
-  @After("execution(* modern.service..*(..))")
-  public void afterMethod(JoinPoint joinPoint) {
-  System.out.println("After Method");
-  }
-  }
-
----
-
-package prj.yong.modern.aop;
-
-import javax.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.AfterReturning;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-
 @Component
 @Aspect
 @Slf4j
 public class LogAspect {
-private static final String CLASS_LOG_FORMAT = "Class Name : [";
-private static final String METHOD_LOG_FORMAT = "Method Name : [";
+    private static final String CLASS_LOG_FORMAT = "Class Name : [";
+    private static final String METHOD_LOG_FORMAT = "Method Name : [";
+    private static final Logger LOGGER = LoggerFactory.getLogger(LogAspect.class);
 
-    @Before("(execution(* modern.exception..*(..))"
-            + " || execution(* modern.interceptor..*(..))"
-            + " || execution(* modern.repository..*(..)))"
-            + " && !@annotation(NoLoggingAspect)")
-    public void beforeMethod(JoinPoint joinPointØ) {
+    @Before("(execution(* yong.exception..*(..))"
+            + " || execution(* yong.controller..*(..)))"
+            + " || execution(* yong.service..*(..)))"
+            + " && !@annotation(* yong.annotation.NoLogging)")
+    public void beforeMethod(final JoinPoint joinPoint) {
         HttpServletRequest request =
-                ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+                ObjectUtils.isEmpty(RequestContextHolder.getRequestAttributes())
+                        ? null
+                        : ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+
+        String declaringTypeName = joinPoint.getSignature().getDeclaringTypeName();
+        String name = joinPoint.getSignature().getName();
+        String args = Arrays.toString(joinPoint.getArgs());
 
         StringBuilder logStringBuilder = new StringBuilder();
-        String logInfo = logStringBuilder.append("원하는 LOG 내용").toString();
+        String logInfo = logStringBuilder
+                .append("원하는 LOG 내용")
+                .toString();
 
-        log.info(logInfo);
+        LOGGER.info("{}", logInfo);
     }
 
     @AfterReturning(
-            pointcut = "(execution(* modern.exception..*(..))"
-                    + " || execution(* modern.interceptor..*(..))"
-                    + " || execution(* modern.repository..*(..)))"
-                    + " && !@annotation(NoLoggingAspect)",
+            pointcut = "(execution(* yong.exception..*(..))"
+                    + " || execution(* yong.controller..*(..)))"
+                    + " || execution(* yong.service..*(..)))"
+                    + " && !@annotation(* yong.annotation.NoLogging)",
             returning = "result")
-    public void afterMethod(JoinPoint joinPoint, Object result) {
+    public void afterMethod(final JoinPoint joinPoint, final Object result) {
         HttpServletRequest request =
-                ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+                ObjectUtils.isEmpty(RequestContextHolder.getRequestAttributes())
+                        ? null
+                        : ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+
+        String declaringTypeName = joinPoint.getSignature().getDeclaringTypeName();
+        String name = joinPoint.getSignature().getName();
 
         StringBuilder logStringBuilder = new StringBuilder();
-        String logInfo = logStringBuilder.append("원하는 LOG 내용").toString();
+        String logInfo = logStringBuilder
+                .append("원하는 LOG 내용")
+                .toString();
 
-        log.info(logInfo);
+        LOGGER.info("{}", logInfo);
+    }
+
+    @AfterThrowing(
+            pointcut = "(execution(* yong.exception..*(..))"
+                    + " || execution(* yong.controller..*(..)))"
+                    + " || execution(* yong.service..*(..)))"
+                    + " && !@annotation(* yong.annotation.NoLogging)",
+            throwing = "exception")
+    public void afterThrowing(final JoinPoint joinPoint, final Exception exception) {
+        HttpServletRequest request =
+                ObjectUtils.isEmpty(RequestContextHolder.getRequestAttributes())
+                        ? null
+                        : ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+
+        String declaringTypeName = joinPoint.getSignature().getDeclaringTypeName();
+        String name = joinPoint.getSignature().getName();
+        String exceptionMessage = exception.getMessage();
+
+        StringBuilder logStringBuilder = new StringBuilder();
+        String logInfo = logStringBuilder
+                .append("원하는 LOG 내용")
+                .toString();
+
+        LOGGER.info("{}", logInfo);
     }
 }
+```
 
 ---
 
-package prj.yong.modern.aop;
+Interceptor
+===
+- CorsConfig
+- InterceptorConfig
+- AuthenticationFilter
+- AuthenticationProvider
+- 
 
-import java.util.Set;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
-import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.AfterReturning;
-import org.aspectj.lang.annotation.Aspect;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import prj.yong.modern.exception.CustomException;
+```java
 
-@Aspect
-@Component
-public class ResponseAspect {
-@Autowired
-private Validator validator;
+- Interceptor vs Filter
 
-    @AfterReturning(pointcut = "execution(* modern.controller..*(..))", returning = "response")
-    public void validateResponse(JoinPoint joinPoint, Object response) throws CustomException {
-        validateResponse(response);
-    }
-
-    private void validateResponse(Object object) throws CustomException {
-
-        Set<ConstraintViolation<Object>> validationResults = validator.validate(object);
-
-        if (validationResults.size() > 0) {
-
-            StringBuffer sb = new StringBuffer();
-
-            for (ConstraintViolation<Object> error : validationResults) {
-                sb.append(error.getPropertyPath())
-                        .append(" - ")
-                        .append(error.getMessage())
-                        .append("\n");
-            }
-
-            String msg = sb.toString();
-            throw new CustomException(msg);
-        }
-    }
-}
-
----
-
+```java
 package prj.yong.modern.interceptor;
 
 import com.nimbusds.jose.JWSAlgorithm;
@@ -3282,154 +3159,8 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         return false;
     }
 }
-
----
-
-package prj.yong.modern.repository;
-
-import java.util.concurrent.TimeUnit;
-import javax.annotation.Resource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.stereotype.Repository;
-import prj.yong.modern.model.session.SessionVO;
-
-@Repository
-public class SessionRepository {
-@Value(value = "${spring.redis.session-ttl}")
-private int redisSessionTtl;
-
-    @Autowired
-    private RedisTemplate<String, SessionVO> redisSessionTemplate;
-
-    /**
-     * @Description
-     * @return
-     */
-    @Resource(name = "redisSessionTemplate")
-    ValueOperations<String, SessionVO> valueOperations;
-
-    public void createSession(String key, SessionVO sessionVO) {
-        /**
-         * @Description
-         * @return
-         */
-        valueOperations.set(key, sessionVO);
-        redisSessionTemplate.expire(key, redisSessionTtl, TimeUnit.SECONDS);
-    }
-
-    public SessionVO getSession(String key) {
-        redisSessionTemplate.expire(key, redisSessionTtl, TimeUnit.SECONDS);
-        return valueOperations.get(key);
-    }
-
-    public Boolean deleteSession(String key) {
-        return redisSessionTemplate.delete(key);
-    }
-}
-
----
-
-package prj.yong.modern.util;
-
-import lombok.experimental.UtilityClass;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import prj.yong.modern.constants.SessionConstant;
-import prj.yong.modern.model.session.SessionVO;
-
-@UtilityClass
-public class SessionUtil {
-public static void setSessionContext(String key, Object value) {
-RequestContextHolder.getRequestAttributes().setAttribute(key, value, RequestAttributes.SCOPE_REQUEST);
-}
-
-    public static Object getSessionContext(String key) {
-        return RequestContextHolder.getRequestAttributes().getAttribute(key, RequestAttributes.SCOPE_REQUEST);
-    }
-
-    public static void setSession(Object value) {
-        setSessionContext(SessionConstant.sessionKey, value);
-    }
-
-    public static SessionVO getSessionVO() {
-        return (SessionVO) getSessionContext(SessionConstant.sessionKey);
-    }
-}
-
----
-```java
-package prj.yong.modern.util;
-
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.experimental.UtilityClass;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import prj.yong.modern.constants.HttpStatusConstant;
-import prj.yong.modern.model.spring.CommonResponseVO;
-
-@UtilityClass
-public class ResponseUtil {
-    @JsonSerialize
-    public static class EmptyJsonResponse {}
-
-    public static ResponseEntity<CommonResponseVO> createSuccessResponse() {
-        return createSuccessCommonResponseVO(HttpStatusConstant.SUCCESS, null, HttpStatus.OK);
-    }
-
-    public static ResponseEntity<CommonResponseVO> createSuccessResponse(Object data) {
-        return createSuccessResponse(HttpStatusConstant.SUCCESS, data);
-    }
-
-    public static ResponseEntity<CommonResponseVO> createSuccessResponse(String status, Object data) {
-        return createSuccessResponse(status, data, HttpStatus.OK);
-    }
-
-    public static ResponseEntity<CommonResponseVO> createSuccessResponse(
-            String status, Object data, HttpStatus httpStatus) {
-        return createSuccessCommonResponseVO(status, data, httpStatus);
-    }
-
-    private static ResponseEntity<CommonResponseVO> createSuccessCommonResponseVO(
-            String status, Object data, HttpStatus httpStatus) {
-        if (data == null) {
-            data = new EmptyJsonResponse();
-        }
-        return new ResponseEntity<>(
-                CommonResponseVO.builder().status(status).data(data).build(), httpStatus);
-    }
-
-    public static ResponseEntity<CommonResponseVO> createFailResponse() {
-        return createFailResponse(HttpStatus.OK);
-    }
-
-    public static ResponseEntity<CommonResponseVO> createFailResponse(HttpStatus httpStatus) {
-        return createFailResponse(HttpStatusConstant.FAIL, httpStatus);
-    }
-
-    public static ResponseEntity<CommonResponseVO> createFailResponse(String status) {
-        return createFailResponse(status, HttpStatus.OK);
-    }
-
-    public static ResponseEntity<CommonResponseVO> createFailResponse(String status, HttpStatus httpStatus) {
-        return new ResponseEntity<>(createFailCommonResponseVO(status), httpStatus);
-    }
-
-    public static ResponseEntity<CommonResponseVO> createFailResponse(
-            String status, HttpHeaders httpHeaders, HttpStatus httpStatus) {
-        return new ResponseEntity<>(createFailCommonResponseVO(status), httpHeaders, httpStatus);
-    }
-
-    private static CommonResponseVO createFailCommonResponseVO(String status) {
-        return CommonResponseVO.builder().status(status).build();
-    }
-}
 ```
 
----
 ```java
 package prj.yong.modern.constants;
 
@@ -3494,7 +3225,7 @@ public class CorsConfig implements WebMvcConfigurer {
     }
 }
 ```
----
+
 ```java
 package prj.yong.modern.config;
 
@@ -3523,21 +3254,29 @@ private AuthenticationInterceptor authenticationInterceptor;
                 .addPathPatterns(urlPatterns)
                 .excludePathPatterns("");
     }
-
-    /**
-     * @Description
-     *  Controller 단에서 Param으로 enum 형태를 바로 받을 수 있다.
-     *  URL의 경우엔 대부분 소문자로 되어 있고 enum은 대문자로 되어 있기 때문에 이럴 경우 Not Match Error가 발생한다.
-     *  URL에서 넘어온 enum 값을 자동으로 대문자로 변환하도록 아래와 같이 Converter를 추가해줄 수 있다.
-     * @param registry
-     */
-    @Override
-    public void addFormatters(FormatterRegistry registry) {
-        registry.addConverter(new SpringConverter());
-    }
 }
 ```
+
 ---
+
+Redis와 Session
+===
+- docker exec -it springboot-redis-1 redis-cli
+  set testkey testvalue
+
+- 삭제
+  - del testkey
+  - 전체 : flushall
+
+- 조회
+  - get testkey
+  - 전체 : keys *
+
+
+- 만료일 조회 : ttl [key]
+  - ttl testkey
+
+### RedisConfig
 ```java
 package prj.yong.modern.config;
 
@@ -3562,19 +3301,11 @@ public class RedisConfig {
     @Value(value = "${spring.redis.port}")
     private int redisPort;
 
-    /**
-     * @Description
-     * @return
-     */
     @Bean
     public LettuceConnectionFactory connectionFactory() {
         return new LettuceConnectionFactory(new RedisStandaloneConfiguration(redisHost, redisPort));
     }
 
-    /**
-     * @Description
-     * @return
-     */
     @Bean
     public RedisTemplate<String, SessionVO> redisSessionTemplate() {
         RedisTemplate<String, SessionVO> redisTemplate = new RedisTemplate<>();
@@ -3586,60 +3317,212 @@ public class RedisConfig {
 }
 ```
 
----
-
+### SessionRepository
 ```java
-package prj.yong.modern.config;
+package prj.yong.modern.repository;
 
-import java.nio.charset.Charset;
-import java.time.Duration;
-import org.apache.http.impl.client.HttpClientBuilder;
+import java.util.concurrent.TimeUnit;
+import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.stereotype.Repository;
+import prj.yong.modern.model.session.SessionVO;
 
-/**
-* @Description
-*
-* @Reference
-*   - https://www.baeldung.com/spring-rest-template-builder
-      */
-      @Configuration
-      public class RestTemplateConfig {
-      @Value(value = "${spring.rest-template.connection-timeout}")
-      private int connectionTimeout;
+@Repository
+public class SessionRepository {
+@Value(value = "${spring.redis.session-ttl}")
+private int redisSessionTtl;
 
-@Value(value = "${spring.rest-template.read-timeout}")
-private int readTimeout;
+    @Autowired
+    private RedisTemplate<String, SessionVO> redisSessionTemplate;
 
-@Value(value = "${spring.rest-template.max-connection}")
-private int maxConnection;
+    @Resource(name = "redisSessionTemplate")
+    ValueOperations<String, SessionVO> valueOperations;
 
-@Value(value = "${spring.rest-template.max-per-route}")
-private int maxPerRoute;
+    public void createSession(String key, SessionVO sessionVO) {
+        valueOperations.set(key, sessionVO);
+        redisSessionTemplate.expire(key, redisSessionTtl, TimeUnit.SECONDS);
+    }
 
-@Bean
-public RestTemplate restTemplate(final RestTemplateBuilder restTemplateBuilder) {
-HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
-factory.setHttpClient(HttpClientBuilder.create()
-.setMaxConnTotal(maxConnection) // 최대 오픈되는 Connection 수. (연결할 유지할 최대 숫자)
-.setMaxConnPerRoute(maxPerRoute) // IP, PORT 쌍에 대해서 수행할 Connection 수. (특정 경로당 최대 숫자)
-.build());
-return restTemplateBuilder
-.requestFactory(() -> factory)
-.setConnectTimeout(Duration.ofMillis(connectionTimeout)) // connection=timeout
-.setReadTimeout(Duration.ofMillis(readTimeout)) // read-timeout
-.additionalMessageConverters(new StringHttpMessageConverter(Charset.forName("UTF-8")))
-.defaultHeader("Content-Type", "application/json")
-.build();
-}
+    public SessionVO getSession(String key) {
+        redisSessionTemplate.expire(key, redisSessionTtl, TimeUnit.SECONDS);
+        return valueOperations.get(key);
+    }
+
+    public Boolean deleteSession(String key) {
+        return redisSessionTemplate.delete(key);
+    }
 }
 ```
 
+### SessionUtil
+```java
+package prj.yong.modern.util;
+
+import lombok.experimental.UtilityClass;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import prj.yong.modern.constants.SessionConstant;
+import prj.yong.modern.model.session.SessionVO;
+
+@UtilityClass
+public class SessionUtil {
+public static void setSessionContext(String key, Object value) {
+RequestContextHolder.getRequestAttributes().setAttribute(key, value, RequestAttributes.SCOPE_REQUEST);
+}
+
+    public static Object getSessionContext(String key) {
+        return RequestContextHolder.getRequestAttributes().getAttribute(key, RequestAttributes.SCOPE_REQUEST);
+    }
+
+    public static void setSession(Object value) {
+        setSessionContext(SessionConstant.sessionKey, value);
+    }
+
+    public static SessionVO getSessionVO() {
+        return (SessionVO) getSessionContext(SessionConstant.sessionKey);
+    }
+}
+```
+
+
+
+---
+
+
+@Transactional
+===
+
+---
+
+Flyway
+===
+```java
+@Configuration
+@RequiredArgsConstructor
+@Profile({"local", "dev"})
+public class FlywayConfig {
+
+    @Value("${spring.datasource.url}")
+    private final String url;
+
+    @Value("${spring.datasource.user}")
+    private final String user;
+
+    @Value("${spring.datasource.password}")
+    private final String password;
+
+    @Value("${spring.profiles.active}")
+    private final String profile;
+
+    @PostConstruct
+    public void migrate() {
+        Flyway flyway = Flyway.configure()
+                .dataSource(url, user, password)
+                .outOfOrder(true)
+                .locations("classpath:db/migration"
+                        , "classpath:db/data")
+                .baselineOnMigrate(true)
+                .cleanDisabled(false)
+                .baselineVersion("0.0")
+                .cleanOnValidationError(
+                        "local".equals(profile)
+                                || "dev".equals(profile))
+                .load();
+
+        flyway.migrate();
+    }
+}
+```
+
+---
+
+Feign
+===
+decoder
+
+Retryer
+
+---
+
+HandlerMethodArgumentResolver
+===
+
+[Spring MVC](https://github.com/justdoanything/self-study/blob/main/10%20Spring.md#spring-mvc)를 정리한 자료를 보면 Spring이 어떻게 MVC 패턴으로 동작하고 변해왔는지 순서대로 알 수 있다. 이러한 변화과정은 개발자가 Spring을 사용할 때 좀 더 편하고 빠르게 개발할 수 있게 해준다. SpringBoot가 되면서 좀 더 빠르고 가벼워졌으며 개발자가 Spring을 사용할 때 반드시 해줘야했던 configure나 의존성 설정 등이 없어졌다.
+예전에 Spring을 사용할 땐 tomcat을 따로 설치하고 Spring과 설정해줘야 동작했었는데 SpringBoot에선 embedded tomcat을 사용해서 별도의 설치나 설정 없이 바로 웹서버가 동작하고 있다.
+
+이렇듯 대부분의 공통처리를 Spring에서 해주지만 상황에 따라 개발자가 customize해서 사용할 수 있게 동작한다. 예를들어 Resolver를 따로 정의하지 않아도 기본적인 동작들이 수행되고 아래에서 추가할 특정 타입, 상황에 따라 개발자가 원하는 로직을 사용하고 싶다면 Spring Handler를 상속받아 특정 함수를 Override해서 사용할 수 있다.
+
+주로 프로젝트에선 Request/Response 공통 처리를 위해 Jackson의 Serializer/Deserializer를 정의해서 사용하곤 한다. 로그인이나 인증을 처리하기 위해서 특정 DTO가 들어왔을 때 동작할 함수를 따로 정의하거나 Enum 타입의 Request가 왔을 때 validation하는 동작을 따로 정의하거나 응답하는 객체의 Date 타입에 따라 특정 format을 지정하는 등 공통처리를 하고 싶을 때 많이 사용했었다.
+
+특히 여러 사람이 동시에 개발하는 경우 공통 기능을 함수로 만들거나 어노테이션으로 만든다면 누락되거나 사용성에 문제가 있을 수 있기 때문에 Resolver로 처리하는 것이 안정적이다.
+
+```java
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.PARAMETER)
+public @interface RequestParameter {
+    boolean required() default true;
+}
+
+```
+```java
+@Component
+public class RequestParameterResolver implements HandlerMethodArgumentResolver {
+    private final ObjectMapper c;
+    
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+        return parameter.hasParameterAnnotation(RequestParameter.class);
+    }
+    
+    @Override
+    public Object resolveArgument(
+            MethodParameter methodParameter, 
+            ModelAndViewContainer modelAndViewContainer, 
+            NativeWebRequest nativeWebRequest, 
+            WebDataBinderFactory webDataBinderFactory) throws Exception {
+        Map<String, String> requestParameters =
+                nativeWebRequest.getParameterMap()
+                        .entrySet()
+                        .stream()
+                        .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue()[0]));
+        
+        if(requestParameters.size() == 0) {
+            RequestParameter requestParameter = methodParameter.getParameterAnnotation(RequestParameter.class);
+            if(requestParameter != null && requestParameter.required()) {
+                HttpServletRequest httpServletRequest = nativeWebRequest.getNativeRequest(HttpServletRequest.class);
+                ServletServerHttpRequest servletServerHttpRequest = new ServletServerHttpRequest(httpServletRequest);
+                throw new MissingServletRequestParameterException(
+                        "Required request parameter is empty : " + methodParameter.getExecutable().toGenericString(),
+                        servletServerHttpRequest);
+            } else {
+                // 검증 로직 추가
+            }
+        }
+
+        Object resolver = mapper.convertValue(requestParameters, methodParameter.getParameterType());
+        
+        if(methodParameter.hasParameterAnnotation(Valid.class)) {
+            String parameterName = Conventions.getVariableNameForParameter(methodParameter);
+            WebDataBinder binder = webDataBinderFactory.createBinder(nativeWebRequest, resolver, parameterName);
+            if(binder.getTarget() != null) {
+                binder.validate();
+                BindingResult bindingResult = binder.getBindingResult();
+                if(bindingResult.hasError()) {
+                    throw new MethodArgumentNotValidException(methodParameter, bindingResult);
+                }
+            }
+        }
+        
+        return resolver;
+    }
+}
+
+```
+
+---
 
 Reference
 ===
