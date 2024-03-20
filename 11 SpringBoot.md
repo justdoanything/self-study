@@ -74,10 +74,10 @@
       * [(2) Converter (Test Coverage : 90%)](#-2--converter--test-coverage--90-)
       * [(3) Jackson의 Deserializer & (4) ConverterFactory (Test Coverage : 100%)](#-3--jackson의-deserializer---4--converterfactory--test-coverage--100-)
 * [Annotation 만들어서 처리하기](#annotation-만들어서-처리하기)
-  * [1. 특정 지점(JoinPoint) 지정](#1-특정-지점--joinpoint--지정)
-  * [Serializer/Deserializer](#serializerdeserializer)
+  * [1. @annotation을 사용한 특정 지점 지정 (JoinPoint)](#1-annotation을-사용한-특정-지점-지정--joinpoint-)
+  * [2. @Around를 사용한 특정 동작 지정](#2-around를-사용한-특정-동작-지정)
+  * [3. Serializer/Deserializer와 같이 사용](#3-serializerdeserializer와-같이-사용)
   * [HandlerMethodArgumentResolver](#handlermethodargumentresolver)
-* [Aspect](#aspect-1)
 * [@Transactional](#transactional)
 * [Redis](#redis)
 * [Flyway](#flyway)
@@ -1339,6 +1339,10 @@ public static boolean isValidName(String name) {
     return false;
 }   
 ```
+
+<h3>< Enum 객체의 비교에서 `==` 와 `.equals()`의 차이 ></h3>
+- `==`은 주소값을 비교하기 때문에 컴파일 시 타입 체크를 하고 다른 타입일 경우 컴파일 에러가 발생한다. 하지만 런타임에서 NPE는 검증하지 않는다.
+- `.equals()`는 Object 값을 비교할 때 내부적으로 == 을 사용하고 컴파일 단계에서 타입 체크를 하지 않는다. 런타임에서 NPE는 잡을 수 있다.
 
 ## 테스트 환경
 - Framework : SpringBoot version 3.2.3
@@ -2994,100 +2998,6 @@ public class RequestParameterResolver implements HandlerMethodArgumentResolver {
 
 ---
 
-Aspect
-===
-LogAspect
-
-Aspect
-```java
-@Target({ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ProhibitedWordChecker {
-    String checkerType();
-}
-```
-```java
-@Target({ElementType.FIELD, ElementType.PARAMETER})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ProhibitedWordField {}
-```
-```java
-@Aspect
-@Component
-@RequiredArgsConstructor
-public class ProhibitedWordAspect {
-    private final ProhibitedWordService prohibitedWordService;
-    
-    List<Object> fields = new ArrayList<>();
-    
-    @Around("@annotation(prohibitedWordChecker)")
-    public Object prohibitedWordCheck(
-            ProceedingJoinPoint joinPoint,
-            ProhibitedWordChecker prohibitedWordChecker) throws Throwable {
-        for(Object args: joinPoint.getArgs()) {
-            if(String.class.equals(args.getClass()) && Arrays.stream(
-                    ((MethodSignature) joinPoint.getSignature())
-                            .getMethod()
-                            .getParameters())
-                    .filter(
-                            parameter -> parameter.isAnnotationPresent(ProhibitedWordField.class))
-                    .count() == 1) {
-                fields.add(field.get(args));
-            }else {
-                for (Field field: args.getClass().getDeclaredFields()) {
-                    if(field.isAnnotationPresent(ProhibitedWordField.class)) {
-                        field.setAccessible(true);
-                        fields.add(field.get(args));
-                    }
-                }
-            }
-        }
-        
-        ProhibitedWordCheckerResponseVO prohibitedWordCheckerResponseVO =
-                prohibitedWordService.doProhibitedWordVerification(
-                        prohibitedWordChecker.checkerType(), fields);
-        
-        // 성공, 실패에 따른 Success Response 또는 Exception 반환
-        if(prohibitedWordCheckerResponseVO.isProhibitedWordExist()){
-            return ResponseUtil.createFailResponse(prohibitedWordCheckerResponseVO);
-        } else {
-            return joinPoint.proceed();
-        }
-    }
-}
-```
-```java
-@RequiredArgsConstructor
-@Service
-@Validated
-public class prohibitedWordService {
-    private final prohibitedWordRepository prohibitedWordRepository;
-    
-    public ProhibitedWordCheckerResponseVO doProhibitedWordVerification(String checkerType, List<Object> fields) {
-        // 금칙어 대상 가져오기
-        List<String> prohibitedWords = prohibitedWordRepository.findAllByCheckerType(checkerType);
-        
-        // 금칙어 검증
-        Trie prohibitedWordTrie = Trie.builder().addKeywords(prohibitedWords).build();
-        List<String> verifiedProhibitedWords = fields.stream()
-                .flatMap(
-                        field -> prohibitedWordTrie.parseText(field.toString()).stream().map(Emit::getKeyword))
-                .distinct()
-                .toList();
-        
-        // 응답 생성
-        new ProhibitedWordCheckerResponseVO.builder()
-                .prohibitedWordExist(!verifiedProhibitedWords.isEmpty())
-                .prohibitedWords(verifiedProhibitedWords)
-                .build();
-    }
-}
-```
-
-- Trie ?
-
-
----
 
 @Transactional
 ===
@@ -3115,48 +3025,6 @@ Redis
 
 Flyway
 ===
-
----
-
-package prj.yong.modern.annotation;
-
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
-
-/**
-* @Reference : https://jsy1110.github.io/2022/enum-class-validation/ @Description JAVA에서 기본적으로 제공하는
-* 원시타입의 경우 @NotBlacn, @NotNull 등 제공되는 annotation으로 validation을 할 수 있다. 개발자가 원하는 필드의 원하는 validation을
-* 걸고 싶다면 따로 정의해줘야 한다.
-*
-* <p>예를들어, private Gender gender; 필드가 있을 때 Gender는 MEN, WOMEN만 가능하다고 해보자. public enum Gender { MEN,
-* WOMEN } 으로 정의하고 @EnumValid annotaion을 적용해서 원하는 validation을 걸어줄 수 있다. @Useage @EnumValid(enumClass
-* = Gender.class) private Gender gender; @EnumValid(enumClass = EnumConstants.StoreType.class)
-* private String storeType;
-  */
-  public class SpringValidator implements ConstraintValidator<EnumValid, String> {
-  /**
-  * @Description 검증할 필드의 Type을 ConstraintValidator의 파라미터로 넘겨준다. String 타입의 필드를 검증하려면
-  * ConstraintValidator<EnumValid, String>가 되어야 하고 enum 타입의 필드를 검증하려면
-  * ConstraintValidator<EnumValid, Enum>가 되야 한다.
-    */
-    private EnumValid annotation;
-
-  /** @param enumValid annotation instance for a given constraint declaration */
-  @Override
-  public void initialize(EnumValid enumValid) {}
-
-  /**
-  * 실제 Validation 에 사용할 코드
-  *
-  * @param value object to validate
-  * @param context context in which the constraint is evaluated
-  * @return
-    */
-    @Override
-    public boolean isValid(String value, ConstraintValidatorContext context) {
-    return false;
-    }
-    }
 
 ---
 
@@ -3194,20 +3062,6 @@ import org.springframework.stereotype.Component;
   System.out.println("After Method");
   }
   }
-
----
-
-    /**
-     * @Description
-     * @Reference https://johnmarc.tistory.com/152
-     *  Enum 객체의 비교에서 == 와 .equals()의 차이
-     *  == 은 주소값을 비교하기 때문에 컴파일 시 타입 체크를 하고 다른 타입일 경우 컴파일 에러가 발생한다.
-     *  하지만 NPE는 검증하지 않는다.
-     *
-     *  .equals() 는 Object 값을 비교할 때 내부적으로 == 을 사용하고 컴파일 단계에서 타입 체크를 하지 않는다.
-     *  런타임에서 NPE는 잡을 수 있다.
-     *
-     */
 
 ---
 
@@ -3260,19 +3114,6 @@ private static final String METHOD_LOG_FORMAT = "Method Name : [";
         log.info(logInfo);
     }
 }
-
----
-
-package prj.yong.modern.aop;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-@Target({ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface NoLoggingAspect {}
 
 ---
 
