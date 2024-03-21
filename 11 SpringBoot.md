@@ -3033,9 +3033,24 @@ Interceptor
 - InterceptorConfig
 - AuthenticationFilter
 - AuthenticationProvider
-- 
 
+## CorsConfig
 ```java
+@Configuration
+public class CorsConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOriginPatterns("*")
+                .allowedMethods("GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
+                .exposedHeaders("Content-Disposition")
+                .allowCredentials(true)
+                .maxAge(3600L);
+    }
+}
+```
+
 
 - Interceptor vs Filter
 
@@ -3202,29 +3217,6 @@ public class HttpUrlConstant {
     }
 }
 ```
----
-```java
-package prj.yong.modern.config;
-
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-@Configuration
-@EnableWebMvc
-public class CorsConfig implements WebMvcConfigurer {
-
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOriginPatterns("*")
-                .allowedMethods("GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
-                .exposedHeaders("Content-Disposition")
-                .allowCredentials(true);
-    }
-}
-```
 
 ```java
 package prj.yong.modern.config;
@@ -3251,8 +3243,11 @@ private AuthenticationInterceptor authenticationInterceptor;
         List<String> urlPatterns = Arrays.asList("/**");
         interceptorRegistry
                 .addInterceptor(authenticationInterceptor)
-                .addPathPatterns(urlPatterns)
-                .excludePathPatterns("");
+                .addPathPatterns("/**")
+                .excludePathPatterns("/heath")
+                .excludePathPatterns("/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs")
+                // TODO : 필요시 추가적으로 제외하고 싶은 경로가 있으면 추가할 수 있다.
+                ;
     }
 }
 ```
