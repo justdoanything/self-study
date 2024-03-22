@@ -3256,36 +3256,27 @@ private AuthenticationInterceptor authenticationInterceptor;
 
 Redis와 Session
 ===
-- docker exec -it springboot-redis-1 redis-cli
-  set testkey testvalue
+Redis는 key-value 구조의 data store로 disk가 아니라 memory에 저장되는 in-memory 방식입니다.
 
-- 삭제
-  - del testkey
-  - 전체 : flushall
+Sorted-set 구조로 실시간 순위표를 만들 때 사용하거나 TTL을 사용해서 Session을 관리할 때 사용합니다.
 
-- 조회
-  - get testkey
-  - 전체 : keys *
+Redis의 대한 기본 설명은 [03 ApplicationModernization - Redis](https://github.com/justdoanything/self-study/blob/main/03%20ApplicationModernization.md#redis) 페이지에 정리했습니다.
 
-
-- 만료일 조회 : ttl [key]
-  - ttl testkey
+## Docker를 사용한 간단한 Redis 설치 및 테스트
+- ###  Redis 설치
+  - `docker run -d -p 6379:6379 --name redis redis`
+- ### Redis cli 접속
+  - `docker exec -it redis redis-cli`
+- ### Redis cli 테스트
+  - 생성 : `set ${key} ${value}`
+  - 조회 : `get ${key}` 
+  - 전체 조회 : `keys *`
+  - 삭제 : `del ${key}`
+  - 전체 삭제 : `flushall`
+  - 만료일 조회 : `ttl ${key}`
 
 ### RedisConfig
 ```java
-package prj.yong.modern.config;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
-import prj.yong.modern.model.session.SessionVO;
-
 @Configuration
 @EnableRedisRepositories
 public class RedisConfig {
@@ -3314,21 +3305,10 @@ public class RedisConfig {
 
 ### SessionRepository
 ```java
-package prj.yong.modern.repository;
-
-import java.util.concurrent.TimeUnit;
-import javax.annotation.Resource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.stereotype.Repository;
-import prj.yong.modern.model.session.SessionVO;
-
 @Repository
 public class SessionRepository {
-@Value(value = "${spring.redis.session-ttl}")
-private int redisSessionTtl;
+    @Value(value = "${spring.redis.session-ttl}")
+    private int redisSessionTtl;
 
     @Autowired
     private RedisTemplate<String, SessionVO> redisSessionTemplate;
@@ -3354,19 +3334,11 @@ private int redisSessionTtl;
 
 ### SessionUtil
 ```java
-package prj.yong.modern.util;
-
-import lombok.experimental.UtilityClass;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import prj.yong.modern.constants.SessionConstant;
-import prj.yong.modern.model.session.SessionVO;
-
 @UtilityClass
 public class SessionUtil {
-public static void setSessionContext(String key, Object value) {
-RequestContextHolder.getRequestAttributes().setAttribute(key, value, RequestAttributes.SCOPE_REQUEST);
-}
+    public static void setSessionContext(String key, Object value) {
+        RequestContextHolder.getRequestAttributes().setAttribute(key, value, RequestAttributes.SCOPE_REQUEST);
+    }
 
     public static Object getSessionContext(String key) {
         return RequestContextHolder.getRequestAttributes().getAttribute(key, RequestAttributes.SCOPE_REQUEST);
@@ -3381,8 +3353,6 @@ RequestContextHolder.getRequestAttributes().setAttribute(key, value, RequestAttr
     }
 }
 ```
-
-
 
 ---
 
@@ -3445,14 +3415,6 @@ Retryer
 HandlerMethodArgumentResolver
 ===
 
-[Spring MVC](https://github.com/justdoanything/self-study/blob/main/10%20Spring.md#spring-mvc)를 정리한 자료를 보면 Spring이 어떻게 MVC 패턴으로 동작하고 변해왔는지 순서대로 알 수 있다. 이러한 변화과정은 개발자가 Spring을 사용할 때 좀 더 편하고 빠르게 개발할 수 있게 해준다. SpringBoot가 되면서 좀 더 빠르고 가벼워졌으며 개발자가 Spring을 사용할 때 반드시 해줘야했던 configure나 의존성 설정 등이 없어졌다.
-예전에 Spring을 사용할 땐 tomcat을 따로 설치하고 Spring과 설정해줘야 동작했었는데 SpringBoot에선 embedded tomcat을 사용해서 별도의 설치나 설정 없이 바로 웹서버가 동작하고 있다.
-
-이렇듯 대부분의 공통처리를 Spring에서 해주지만 상황에 따라 개발자가 customize해서 사용할 수 있게 동작한다. 예를들어 Resolver를 따로 정의하지 않아도 기본적인 동작들이 수행되고 아래에서 추가할 특정 타입, 상황에 따라 개발자가 원하는 로직을 사용하고 싶다면 Spring Handler를 상속받아 특정 함수를 Override해서 사용할 수 있다.
-
-주로 프로젝트에선 Request/Response 공통 처리를 위해 Jackson의 Serializer/Deserializer를 정의해서 사용하곤 한다. 로그인이나 인증을 처리하기 위해서 특정 DTO가 들어왔을 때 동작할 함수를 따로 정의하거나 Enum 타입의 Request가 왔을 때 validation하는 동작을 따로 정의하거나 응답하는 객체의 Date 타입에 따라 특정 format을 지정하는 등 공통처리를 하고 싶을 때 많이 사용했었다.
-
-특히 여러 사람이 동시에 개발하는 경우 공통 기능을 함수로 만들거나 어노테이션으로 만든다면 누락되거나 사용성에 문제가 있을 수 있기 때문에 Resolver로 처리하는 것이 안정적이다.
 
 ```java
 @Retention(RetentionPolicy.RUNTIME)
