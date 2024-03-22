@@ -3419,39 +3419,39 @@ HandlerMethodArgumentResolver
 ```java
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-public @interface RequestParameter {
+public @interface RequestBind {
     boolean required() default true;
 }
-
 ```
 ```java
 @Component
-public class RequestParameterResolver implements HandlerMethodArgumentResolver {
-    private final ObjectMapper c;
-    
+@RequiredArgsConstructor
+public class RequestBindResolver implements HandlerMethodArgumentResolver {
+    private final ObjectMapper mapper;
+
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        return parameter.hasParameterAnnotation(RequestParameter.class);
+        return parameter.hasParameterAnnotation(RequestBind.class);
     }
-    
+
     @Override
     public Object resolveArgument(
-            MethodParameter methodParameter, 
-            ModelAndViewContainer modelAndViewContainer, 
-            NativeWebRequest nativeWebRequest, 
+            MethodParameter methodParameter,
+            ModelAndViewContainer modelAndViewContainer,
+            NativeWebRequest nativeWebRequest,
             WebDataBinderFactory webDataBinderFactory) throws Exception {
         Map<String, String> requestParameters =
                 nativeWebRequest.getParameterMap()
                         .entrySet()
                         .stream()
                         .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue()[0]));
-        
+
         if(requestParameters.size() == 0) {
-            RequestParameter requestParameter = methodParameter.getParameterAnnotation(RequestParameter.class);
-            if(requestParameter != null && requestParameter.required()) {
+            RequestBind requestBind = methodParameter.getParameterAnnotation(RequestBind.class);
+            if(requestBind != null && requestBind.required()) {
                 HttpServletRequest httpServletRequest = nativeWebRequest.getNativeRequest(HttpServletRequest.class);
                 ServletServerHttpRequest servletServerHttpRequest = new ServletServerHttpRequest(httpServletRequest);
-                throw new MissingServletRequestParameterException(
+                throw new HttpMessageNotReadableException(
                         "Required request parameter is empty : " + methodParameter.getExecutable().toGenericString(),
                         servletServerHttpRequest);
             } else {
@@ -3460,23 +3460,22 @@ public class RequestParameterResolver implements HandlerMethodArgumentResolver {
         }
 
         Object resolver = mapper.convertValue(requestParameters, methodParameter.getParameterType());
-        
+
         if(methodParameter.hasParameterAnnotation(Valid.class)) {
             String parameterName = Conventions.getVariableNameForParameter(methodParameter);
             WebDataBinder binder = webDataBinderFactory.createBinder(nativeWebRequest, resolver, parameterName);
             if(binder.getTarget() != null) {
                 binder.validate();
                 BindingResult bindingResult = binder.getBindingResult();
-                if(bindingResult.hasError()) {
+                if(bindingResult.hasErrors()) {
                     throw new MethodArgumentNotValidException(methodParameter, bindingResult);
                 }
             }
         }
-        
+
         return resolver;
     }
 }
-
 ```
 
 ---
