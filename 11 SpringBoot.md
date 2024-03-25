@@ -3029,10 +3029,27 @@ public class LogAspect {
 
 Interceptor
 ===
-- CorsConfig
-- InterceptorConfig
-- AuthenticationFilter
-- AuthenticationProvider
+
+Interceptor는 Controller의 요청과 응답을 가로채서 특정한 동작을 수행할 수 있습니다.
+
+Interceptor는 전체 애플리케이션에서 일관된 작업을 수행하고 로깅, 보안, 인증, 권한 부여 등과 같은 공통된 로직을 처리하는 데 유용합니다.
+
+Interceptor가 `HandlerInterceptor` 인터페이스를 구현하고 preHandle(), postHandle(), afterCompletion() 메소드를 오버라이드하여 사용합니다. 
+
+| 함수             | 동작시점                                        |
+|----------------|---------------------------------------------|
+| preHandle      | Controller 실행 이전                            |
+| postHandle     | Controller 실행 이후                            |
+| afterCompletion | View 처리 완료 이후 <br/>(RESTful API에서는 사용하지 않음) |
+
+
+비슷한 기능으로는 Filter와 AOP가 있습니다.
+
+| 항목          | 설명                                                                                                                                                                                                                                                               |
+|-------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Interceptor | - Spring MVC에서 제공되는 기능으로 HandlerInterceptor 인터페이스를 구현하여 생성<br/>- 컨트롤러의 요청과 응답을 가로채고 처리하는 데 사용<br/>- 주로 Spring MVC의 컨트롤러 로직 주변에서 요청 전/후 처리, 요청 핸들러 실행 전/후 처리, 예외 처리 등을 수행<br/>- 사용 사례 : 인증, 권한 부여 등과 같은 공통된 로직을 처리할 때 사용됩니다.                                      |
+| Filter      | - Java Servlet 스펙에서 제공되는 기능으로 javax.servlet.Filter 인터페이스를 구현하여 생성<br/>- Servlet 컨테이너 수준에서 요청과 응답을 가로채고 처리하는 데 사용<br/>- Servlet 컨테이너의 모든 요청에 대해 적용되며, Spring 컨텍스트와는 별도로 동작<br/>- 사용 사례 : 인코딩 변환, 캐싱, 보안 필터 등과 같은 Servlet 컨테이너 수준의 처리를 하고자 할 때 사용                  |
+| AOP         | - 관점 지향 프로그래밍의 개념을 기반으로 한 기술로, 메소드 실행 전/후 또는 메소드 실행 중에 특정한 작업을 수행<br/>- Spring AOP는 프록시를 사용하여 메소드 호출을 가로채고, 특정한 관심사(Aspect)를 적용<br/>- Interceptor와 비슷한 기능을 할 수 있지만 AOP는 비니지스를 중심으로 핵심 비즈니스 로직과는 별도로 관심사를 분리하여 코드를 구조화하고 유지보수성을 높일 때 사용<br/>- 사용 사례 : 로깅, 트랜잭션 관리 |
 
 ## CorsConfig
 ```java
@@ -3051,67 +3068,101 @@ public class CorsConfig implements WebMvcConfigurer {
 }
 ```
 
-
-- Interceptor vs Filter
+## HandlerInterceptor를 활용한 방법
 
 ```java
-package prj.yong.modern.interceptor;
-
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.jwk.source.RemoteJWKSet;
-import com.nimbusds.jose.proc.JWSKeySelector;
-import com.nimbusds.jose.proc.JWSVerificationKeySelector;
-import com.nimbusds.jose.util.DefaultResourceRetriever;
-import com.nimbusds.jose.util.ResourceRetriever;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
-import com.nimbusds.jwt.proc.DefaultJWTProcessor;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Date;
-import java.util.List;
-import java.util.regex.Pattern;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.util.ObjectUtils;
-import org.springframework.web.servlet.HandlerInterceptor;
-import prj.yong.modern.constants.HttpHeaderConstant;
-import prj.yong.modern.constants.HttpUrlConstant;
-import prj.yong.modern.exception.CustomException;
-import prj.yong.modern.model.session.SessionVO;
-import prj.yong.modern.service.session.SessionService;
-
-@Component
-public class AuthenticationInterceptor implements HandlerInterceptor {
-
-    private static final String HTTP_METHOD_OPTIONS = "OPTIONS";
-    private final AntPathMatcher antPathMatcher = new AntPathMatcher();
-
-    @Value("${cloud.token.connect.timeout}")
-    private int TOKEN_CONNECT_TIMEOUT;
-
-    @Value("${cloud.token.read.timeout}")
-    private int TOKEN_READ_TIMEOUT;
+@Configuration
+@EnabledWebMvc
+public class InterceptorConfig implements WebMvcConfigurer {
 
     @Autowired
-    SessionService sessionService;
+    private AuthenticationInterceptor authenticationInterceptor;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
-            throws CustomException {
-        String sessionId = request.getHeader(HttpHeaderConstant.SESSION_ID);
-        if (HTTP_METHOD_OPTIONS.equals(request.getMethod())) return true;
-        else if (!ObjectUtils.isEmpty(sessionId)) {
-            String authorization = request.getHeader(HttpHeaderConstant.AUTHORIZATION);
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(authenticationInterceptor)
+                .addPathPatterns("/**")
+                .excludePathPatterns("/health")
+                .excludePathPatterns("/swagger-ui/**")
+                .excludePathPatterns("/v1/auth/**");
+    }
+}
+```
+
+```java
+@UtilityClass
+public class HttpUrlConstant {
+
+    public static final Map<HttpMethod, List<String>> NO_AUTH_SESSION_HTTP_URL = new EnumMap<>(HttpMethod.class);
+
+    static {
+        String[] getExcludeUrl = {
+                "/v1/get/exclude/url"
+        };
+
+        String[] postExcludeUrl = {
+                "/v1/post/exclude/url"
+        };
+
+        String[] putExcludeUrl = {
+                "/v1/put/exclude/url"
+        };
+
+        String[] patchExcludeUrl = {
+                "/v1/patch/exclude/url"
+        };
+
+        String[] deleteExcludeUrl = {
+                "/v1/delete/exclude/url"
+        };
+
+        NO_AUTH_SESSION_HTTP_URL.put(HttpMethod.GET, new ArrayList<>());
+        NO_AUTH_SESSION_HTTP_URL.put(HttpMethod.POST, new ArrayList<>());
+        NO_AUTH_SESSION_HTTP_URL.put(HttpMethod.PUT, new ArrayList<>());
+        NO_AUTH_SESSION_HTTP_URL.put(HttpMethod.PATCH, new ArrayList<>());
+        NO_AUTH_SESSION_HTTP_URL.put(HttpMethod.DELETE, new ArrayList<>());
+
+        addExcludeHttpPathUrl(HttpMethod.GET, getExcludeUrl);
+        addExcludeHttpPathUrl(HttpMethod.POST, postExcludeUrl);
+        addExcludeHttpPathUrl(HttpMethod.PUT, putExcludeUrl);
+        addExcludeHttpPathUrl(HttpMethod.PATCH, patchExcludeUrl);
+        addExcludeHttpPathUrl(HttpMethod.DELETE, deleteExcludeUrl);
+    }
+
+    private static void addExcludeHttpPathUrl(HttpMethod httpMethod, String[] patternList) {
+        List<String> urlList = NO_AUTH_SESSION_HTTP_URL.get(httpMethod);
+        Collections.addAll(urlList, patternList);
+    }
+}
+```
+
+```java
+@Component
+@RequiredArgsConstructor
+public class AuthenticationInterceptor implements HandlerInterceptor {
+
+    private final AntPathMatcher antPathMatcher = new AntPathMatcher();
+
+    @Value("${token.connect.timeout}")
+    private int TOKEN_CONNECT_TIMEOUT;
+
+    @Value("${token.read.timeout}")
+    private int TOKEN_READ_TIMEOUT;
+
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        String sessionId = request.getHeader(HttpHeaderConstants.SESSION_ID);
+
+        if (HttpMethod.OPTIONS.name().equals(request.getMethod())) {
+            return true;
+        } else if (isExcludePattern(HttpMethod.valueOf(request.getMethod()), request.getRequestURI())) {
+            // 비인증 API 이지만 session에 사용자가 있을 경우엔 갱신해줘야함.
+            return true;
+        } else if (!ObjectUtils.isEmpty(sessionId)) {
+            String authorization = request.getHeader(HttpHeaderConstants.AUTHORIZATION);
 
             if (ObjectUtils.isEmpty(authorization)) {
-                throw new CustomException("Authorization is required");
+                throw new BusinessException("Authorization is required.");
             }
 
             if (Pattern.matches("^Bearer .*", authorization)) {
@@ -3119,21 +3170,23 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             }
 
             if (!verifyToken(authorization)) {
-                throw new CustomException("Unauthorized");
+                throw new BusinessException("Session is unauthorized.");
             }
 
-            SessionVO sessionUser = sessionService.getSession(sessionId);
+            SessionVO sessionUser = SessionUtility.getSessionVO(sessionId);
             if (sessionUser == null) {
-                throw new CustomException("Session is expired");
+                throw new BusinessException("Session is expired.");
             } else {
-                //                SessionScopeUtil.setContextSession(sessionUser);
                 return true;
             }
-        } else if (isExcludePattern(HttpMethod.valueOf(request.getMethod()), request.getRequestURI())) {
-            return true;
         } else {
-            throw new CustomException("session_id is required");
+            throw new BusinessException("Session is required.");
         }
+    }
+
+    private boolean isExcludePattern(HttpMethod httpMethod, String requestUri) {
+        List<String> uriList = HttpUrlConstant.NO_AUTH_SESSION_HTTP_URL.get(httpMethod);
+        return uriList.stream().anyMatch(uri -> antPathMatcher.match(uri, requestUri));
     }
 
     private boolean verifyToken(String token) {
@@ -3165,91 +3218,12 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         configurableJWTProcessor.setJWSKeySelector(jwsKeySelector);
         return configurableJWTProcessor;
     }
-
-    private boolean isExcludePattern(HttpMethod httpMethod, String requestUri) {
-        List<String> uriList = HttpUrlConstant.NO_AUTH_SESSION_HTTP_URI.get(httpMethod);
-        for (String uri : uriList) {
-            if (antPathMatcher.match(uri, requestUri)) return true;
-        }
-        return false;
-    }
 }
 ```
 
-```java
-package prj.yong.modern.constants;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import org.springframework.http.HttpMethod;
+- Interceptor vs Filter
 
-public class HttpUrlConstant {
-
-    public static final Map<HttpMethod, List<String>> NO_AUTH_SESSION_HTTP_URI = new EnumMap<>(HttpMethod.class);
-
-    static {
-        String[] getExcludeUrl = {};
-
-        String[] postExcludeUrl = {};
-
-        String[] putExcludeUrl = {};
-
-        String[] deleteExcludeUrl = {};
-
-        NO_AUTH_SESSION_HTTP_URI.put(HttpMethod.GET, new ArrayList<>());
-        NO_AUTH_SESSION_HTTP_URI.put(HttpMethod.POST, new ArrayList<>());
-        NO_AUTH_SESSION_HTTP_URI.put(HttpMethod.PUT, new ArrayList<>());
-        NO_AUTH_SESSION_HTTP_URI.put(HttpMethod.DELETE, new ArrayList<>());
-        NO_AUTH_SESSION_HTTP_URI.put(HttpMethod.PATCH, new ArrayList<>());
-
-        addExcludeHttpPathUrl(HttpMethod.GET, getExcludeUrl);
-        addExcludeHttpPathUrl(HttpMethod.POST, postExcludeUrl);
-        addExcludeHttpPathUrl(HttpMethod.PUT, putExcludeUrl);
-        addExcludeHttpPathUrl(HttpMethod.DELETE, deleteExcludeUrl);
-    }
-
-    private static void addExcludeHttpPathUrl(HttpMethod httpMethod, String[] patternList) {
-        List<String> urlList = NO_AUTH_SESSION_HTTP_URI.get(httpMethod);
-        Collections.addAll(urlList, patternList);
-    }
-}
-```
-
-```java
-package prj.yong.modern.config;
-
-import java.util.Arrays;
-import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.format.FormatterRegistry;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import prj.yong.modern.config.converter.SpringConverter;
-import prj.yong.modern.interceptor.AuthenticationInterceptor;
-
-@Configuration
-@EnableWebMvc
-public class InterceptorConfig implements WebMvcConfigurer {
-@Autowired
-private AuthenticationInterceptor authenticationInterceptor;
-
-    @Override
-    public void addInterceptors(InterceptorRegistry interceptorRegistry) {
-        List<String> urlPatterns = Arrays.asList("/**");
-        interceptorRegistry
-                .addInterceptor(authenticationInterceptor)
-                .addPathPatterns("/**")
-                .excludePathPatterns("/heath")
-                .excludePathPatterns("/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs")
-                // TODO : 필요시 추가적으로 제외하고 싶은 경로가 있으면 추가할 수 있다.
-                ;
-    }
-}
 ```
 
 ---
