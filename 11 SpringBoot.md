@@ -3144,24 +3144,45 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     @Value("${token.connect.timeout}")
-    private int TOKEN_CONNECT_TIMEOUT;
+    private final int TOKEN_CONNECT_TIMEOUT;
 
     @Value("${token.read.timeout}")
-    private int TOKEN_READ_TIMEOUT;
+    private final int TOKEN_READ_TIMEOUT;
+
+    @Value("${cloud.aws.cognito.client-id}")
+    private final String CLIENT_ID;
+
+    @Value("${cloud.aws.cognito.region}")
+    private final String REGION;
+
+    @Value("${cloud.aws.cognito.user-pool-id}")
+    private final String USER_POOL_ID;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String sessionId = request.getHeader(HttpHeaderConstants.SESSION_ID);
+        String authorization = request.getHeader(HttpHeaderConstants.AUTHORIZATION);
 
         if (HttpMethod.OPTIONS.name().equals(request.getMethod())) {
             return true;
         } else if (isExcludePattern(HttpMethod.valueOf(request.getMethod()), request.getRequestURI())) {
-            // 비인증 API 이지만 session에 사용자가 있을 경우엔 갱신해줘야함.
-            return true;
-        } else if (!ObjectUtils.isEmpty(sessionId)) {
-            String authorization = request.getHeader(HttpHeaderConstants.AUTHORIZATION);
+            if (!ObjectUtils.isEmpty(sessionId)) {
+                if (ObjectUtils.isEmpty(authorization)) {
+                    return true;
+                }
 
-            if (ObjectUtils.isEmpty(authorization)) {
+                if (Pattern.matches("^Bearer .*", authorization)) {
+                    authorization = authorization.replaceAll("^Bearer( )*", "");
+                }
+
+                SessionVO sessionUser = SessionUtility.getSessionVO(sessionId);
+                if (sessionUser != null && this.verifyToken(authorization)) {
+                    SessionUtility.setContextSession(sessionUser);
+                }
+            }
+            return true;
+        } else {
+            if (ObjectUtils.isEmpty(sessionId) || ObjectUtils.isEmpty(authorization)) {
                 throw new BusinessException("Authorization is required.");
             }
 
@@ -3169,18 +3190,17 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
                 authorization = authorization.replaceAll("^Bearer( )*", "");
             }
 
-            if (!verifyToken(authorization)) {
+            if (!this.verifyToken(authorization)) {
                 throw new BusinessException("Session is unauthorized.");
             }
 
             SessionVO sessionUser = SessionUtility.getSessionVO(sessionId);
             if (sessionUser == null) {
                 throw new BusinessException("Session is expired.");
-            } else {
-                return true;
             }
-        } else {
-            throw new BusinessException("Session is required.");
+
+            SessionUtility.setContextSession(sessionUser);
+            return true;
         }
     }
 
@@ -3192,9 +3212,9 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     private boolean verifyToken(String token) {
         try {
             JWTClaimsSet jwtClaimsSet = configurableJWTProcessor().process(token, null);
-            String cognitoPoolUrl = String.format("cognito url", "region", "userPoolId");
+            String cognitoPoolUrl = String.format("https://cognito-idp.%s.amazonaws.com/%s", REGION, USER_POOL_ID);
             if (!jwtClaimsSet.getIssuer().equals(cognitoPoolUrl)
-                    || !jwtClaimsSet.getAudience().get(0).equals("clientId")
+                    || !jwtClaimsSet.getAudience().get(0).equals(CLIENT_ID)
                     || !jwtClaimsSet.getClaim("token_use").equals("id")) {
                 return false;
             }
@@ -3211,10 +3231,14 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 
     private ConfigurableJWTProcessor configurableJWTProcessor() throws MalformedURLException {
         ResourceRetriever resourceRetriever = new DefaultResourceRetriever(TOKEN_CONNECT_TIMEOUT, TOKEN_READ_TIMEOUT);
-        URL url = new URL(String.format("cognito url", "region", "userPoolId"));
+
+        URL url = new URL(String.format("https://cognito-idp.%s.amazonaws.com/%s", REGION, USER_POOL_ID));
+
         JWKSource jwkSource = new RemoteJWKSet(url, resourceRetriever);
+
         ConfigurableJWTProcessor configurableJWTProcessor = new DefaultJWTProcessor();
         JWSKeySelector jwsKeySelector = new JWSVerificationKeySelector(JWSAlgorithm.RS256, jwkSource);
+
         configurableJWTProcessor.setJWSKeySelector(jwsKeySelector);
         return configurableJWTProcessor;
     }
